@@ -10,7 +10,7 @@ class HelloWorld:
     """ Sample request handler class. """
 
     def index(self):
-        return "Hello world! (dev test)"
+        return "Hello world!"
     index.exposed = True
 
 
