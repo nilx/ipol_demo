@@ -1,0 +1,9 @@
+# cherrypy configuration for a public production server
+[global]
+server.socket_host = "1.2.3.4" # your public IP address
+server.socket_port = 80        # default http port
+server.thread_pool = 10
+log.screen = False
+log.access_file = "/var/log/demo.access.log" # access log file
+log.error_file = "/var/log/demo.error.log"   # error log file
+engine.autoreload_on = False

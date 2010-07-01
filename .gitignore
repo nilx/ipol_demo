@@ -1,0 +1,2 @@
+# don't rewrite the deployed server.conf file
+server.conf
