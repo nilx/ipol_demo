@@ -60,8 +60,11 @@ if __name__ == '__main__':
     base_dir = os.path.dirname(os.path.abspath(__file__))
     is_a_demo = lambda s : (os.path.isdir(s) 
                             and s not in demo_blacklist) 
-    for demo_id in [demo_id for demo_id in os.listdir(base_dir)
-                    if is_a_demo(demo_id)]:
+    cherrypy.log("base_dir : %s" % base_dir,
+                 context='DEBUG', traceback=False)
+    cherrypy.log("listdir(base_dir) : %s" % str(os.listdir(base_dir)),
+                 context='DEBUG', traceback=False)
+    for demo_id in [d for d in os.listdir(base_dir) if is_a_demo(d)]:
         cherrypy.log("loading demo : %s" % demo_id, context='SETUP',
                      traceback=False)
         # function version of `from demo_id import app as demo.app`
