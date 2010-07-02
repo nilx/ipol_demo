@@ -61,19 +61,10 @@ if __name__ == '__main__':
     is_a_demo = lambda s : (os.path.isdir(os.path.join(base_dir,s)) 
                             and s not in demo_blacklist) 
     cherrypy.log("base_dir : %s" % base_dir,
-                 context='DEBUG', traceback=False)
-    cherrypy.log("listdir(base_dir) : %s" % str(os.listdir(base_dir)),
-                 context='DEBUG', traceback=False)
+                 context='SETUP', traceback=False)
     for demo_id in os.listdir(base_dir):
-        cherrypy.log("try %s" % demo_id,
-                 context='DEBUG', traceback=False)
         if not is_a_demo(demo_id):
-            cherrypy.log("%s is not a demo" % demo_id,
-                         context='DEBUG', traceback=False)
             continue
-        else:
-            cherrypy.log("%s is a demo" % demo_id,
-                         context='DEBUG', traceback=False)
         # function version of `from demo_id import app as demo.app`
         # TODO : simplify
         demo = __import__(demo_id, globals(), locals(), ['app'], -1)
@@ -85,12 +76,12 @@ if __name__ == '__main__':
         config = {'/input':
                       {'tools.staticdir.on' : True,
                        'tools.staticdir.dir' : \
-                           os.path.abspath(demo_id + '/data/input')
+                           os.path.join(base_dir, demo_id, 'data', 'input')
                        },
                   '/tmp':
                       {'tools.staticdir.on' : True,
                        'tools.staticdir.dir' : \
-                           os.path.abspath(demo_id + '/data/tmp')
+                           os.path.join(base_dir, demo_id, 'data', 'tmp')
                        },
                   }
         cherrypy.tree.mount(demo.app(), mount_point, config=config)
