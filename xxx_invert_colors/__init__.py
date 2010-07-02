@@ -3,7 +3,7 @@ simple test ipol demo web app
 """
 
 from base_demo import app as base_app
-from base_demo.lib import get_check_key, http_redirect_303
+from lib import get_check_key, http_redirect_303
 import os.path
 
 class app(base_app):
@@ -19,6 +19,7 @@ class app(base_app):
     input_ext = '.png' # input image expected extension (ie file format)
     output_ext = '.png' # output image extention (ie. file format)
     display_ext = '.gif' # displayed image extention (ie. file format)
+    is_test = True;
 
     def __init__(self):
         """
@@ -30,16 +31,18 @@ class app(base_app):
 
         # select the base_app steps to expose
         # TODO : simplify
+        # index() and input_xxx() are generic
         base_app.index.im_func.exposed = True
         base_app.input_select.im_func.exposed = True
         base_app.input_upload.im_func.exposed = True
+        # params() is modified from the template
         base_app.params.im_func.exposed = True
-        base_app.run.im_func.exposed = True
+        # result() is modified from the template
         base_app.result.im_func.exposed = True
 
-    # params() and results() are customized by their template
 
-    # run() is defined here
+    # run() is defined here,
+    # because the parameters validation depends on the algorithm
     @get_check_key
     def run(self):
         """
@@ -53,7 +56,10 @@ class app(base_app):
         return self.tmpl_out("run.html", urld=urld)
     run.exposed = True
 
-    # run_algo() is defined here
+    # run_algo() is defined here,
+    # because it is the actual algorithm execution, hence specific
+    # run_algo() is called from result(),
+    # with the parameters validated in run()
     def run_algo(self, params):
         """
         the core algo runner

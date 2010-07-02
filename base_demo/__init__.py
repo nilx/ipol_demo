@@ -3,15 +3,14 @@ generic ipol demo web app
 """
 # TODO : add steps (cf amazon cart)
 
-import cherrypy
 import os, shutil
-
-from mako.lookup import TemplateLookup
-
-from base_demo.empty_app import empty_app
-#TODO : move lib up
-from base_demo.lib import index_dict, tn_image, image, prod, \
+from lib import index_dict, tn_image, image, prod, \
     get_check_key, http_redirect_303
+
+import cherrypy
+from mako.lookup import TemplateLookup
+from base_demo.empty_app import empty_app
+
 
 class app(empty_app):
     """ base demo app class with a typical flow """
@@ -30,6 +29,7 @@ class app(empty_app):
     input_ext = '.tiff' # input image expected extention (ie. file format)
     output_ext = '.tiff' # output image extention (ie. file format)
     display_ext = '.jpeg' # html embedded displayed image extention
+    is_test = False;
 
     def __init__(self, base_dir):
         """

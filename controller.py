@@ -52,22 +52,27 @@ if __name__ == '__main__':
 
     demo_dict = {}
 
+    demo_blacklist = ['.git', 'base_demo']
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    cherrypy.log("app base_dir : %s" % base_dir,
+                 context='SETUP', traceback=False)
+    cherrypy.config.update(os.path.join(os.path.dirname(__file__),
+                                        'controller.conf'))
+
     # load the demo collection
     # from now, the demo id is the demo module name, which happens to
     # also be the folder name
-    # TODO : filter test demos
-    demo_blacklist = ['.git', 'base_demo']
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    is_a_demo = lambda s : (os.path.isdir(os.path.join(base_dir, s)) 
-                            and s not in demo_blacklist) 
-    cherrypy.log("app base_dir : %s" % base_dir,
-                 context='SETUP', traceback=False)
     for demo_id in os.listdir(base_dir):
-        if not is_a_demo(demo_id):
+        if not os.path.isdir(os.path.join(base_dir, demo_id)):
+            continue
+        if demo_id in demo_blacklist:
             continue
         # function version of `from demo_id import app as demo.app`
-        # TODO : simplify
         demo = __import__(demo_id, globals(), locals(), ['app'], -1)
+        # filter test demos
+        if (cherrypy.config['server.environment'] == 'production'
+            and demo.app.is_test):
+            continue
         cherrypy.log("loading demo : %s" % demo_id, context='SETUP',
                      traceback=False)
         demo_dict[demo_id] = demo.app
