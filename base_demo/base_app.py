@@ -8,8 +8,9 @@ import os, shutil
 
 from mako.lookup import TemplateLookup
 
-from empty_app import empty_app, get_check_key
-from lib import index_dict, tn_image, image, prod
+from base_demo.empty_app import empty_app, get_check_key
+#TODO : move lib up
+from base_demo.lib import index_dict, tn_image, image, prod
 
 class base_app(empty_app):
     """ base demo app class with a typical flow """
@@ -77,19 +78,19 @@ class base_app(empty_app):
         """
         # read the input index as a dict
         inputd = index_dict(self.path('input'))
-        for id in inputd.keys():
+        for key in inputd.keys():
             # convert the files to a list of file names
             # by splitting at blank characters
-            inputd[id]['files'] = inputd[id]['files'].split()
+            inputd[key]['files'] = inputd[key]['files'].split()
             # generate thumbnails and thumbnail urls
             tn_fname = [tn_image(self.path('input', fname)).fname
-                        for fname in inputd[id]['files']]
-            inputd[id]['tn_url'] = [self.url('input', fname)
-                                    for fname in tn_fname]
+                        for fname in inputd[key]['files']]
+            inputd[key]['tn_url'] = [self.url('input', fname)
+                                     for fname in tn_fname]
 
         # urls dict
-        urld={'select_form' : self.url('input_select'),
-              'upload_form' : self.url('input_upload')}
+        urld = {'select_form' : self.url('input_select'),
+                'upload_form' : self.url('input_upload')}
         return self.tmpl_out("index.html", urld=urld,
                               inputd=inputd)
 
@@ -125,7 +126,6 @@ class base_app(empty_app):
         clone the input for a re-run of the algo
         """
         # get a new key
-        oldkey = self.key
         oldpath = self.path('tmp')
         self.new_key()
         # copy the input files
@@ -147,6 +147,7 @@ class base_app(empty_app):
         use the selected available input images
         """
         # kwargs is for input_id.x and input_id.y, unused
+        del kwargs
         self.new_key()
         input_dict = index_dict(self.path('input'))
         fnames = input_dict[input_id]['files'].split()
@@ -208,6 +209,7 @@ class base_app(empty_app):
         """
         # TODO : filter-out kwargs from a class attr ans store in file
         # redirect to the result page
+        del kwargs
         cherrypy.response.status = "303 See Other"
         cherrypy.response.headers['Refresh'] = \
             "0; %s" % self.url('result', {'key':self.key})
@@ -217,12 +219,12 @@ class base_app(empty_app):
         return self.tmpl_out("run.html", urld=urld)
 
     def run_algo(self, params):
-         """
-         the core algo runner
-         * could also be called by a batch processor
-         * MUST be defined by the derived classes
-         """
-         pass
+        """
+        the core algo runner
+        * could also be called by a batch processor
+        * MUST be defined by the derived classes
+        """
+        pass
 
     @get_check_key
     def result(self):

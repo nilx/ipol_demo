@@ -9,6 +9,21 @@ import os.path
 
 import cherrypy
 
+def get_check_key(func):
+    """
+    decorator to read the key,
+    save it as a class attribute,
+    and check the key validity
+    """
+    def checked_func(self, *args, **kwargs):
+        """
+        original function with a preliminary key check
+        """
+        self.key = kwargs.pop('key')
+        self.check_key()
+        return func(self, *args, **kwargs)
+    return checked_func
+
 class empty_app(object):
     """
     This app only contains configuration and tools, no actions.
@@ -120,14 +135,3 @@ class empty_app(object):
             raise cherrypy.HTTPError(400, # Bad Request
                                      "The key is invalid")
 
-def get_check_key(func):
-    """
-    decorator to read the key,
-    save it as a class attribute,
-    and check the key validity
-    """
-    def newfunc(self, *args, **kwargs):
-        self.key = kwargs.pop('key')
-        self.check_key()
-        return func(self, *args, **kwargs)
-    return newfunc

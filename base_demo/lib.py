@@ -3,7 +3,8 @@ helper tools
 """
 
 prod = lambda l : reduce(lambda a, b : a * b, l, 1)
-sum = lambda l : reduce(lambda a, b : a + b, l, 0)
+# sum() is already defined
+#sum = lambda l : reduce(lambda a, b : a + b, l, 0)
 
 import os.path
 import ConfigParser
@@ -19,8 +20,8 @@ class index_dict(dict):
         location = os.path.normpath(os.path.abspath(location))
         index = ConfigParser.RawConfigParser()
         index.read(os.path.join(location, 'index.cfg'))
-        for id in index.sections():
-            self[id] = dict(index.items(id))
+        for section in index.sections():
+            self[section] = dict(index.items(section))
 
 
 from PIL import Image
@@ -99,7 +100,7 @@ class image(object):
             newsize = (self.im.size[0] * size / prod(self.im.size),
                        self.im.size[1] * size / prod(self.im.size))
 
-        self.im = self.im.resize(size, resample=True)
+        self.im = self.im.resize(newsize, resample=True)
         return self
 
     def convert(self, mode):

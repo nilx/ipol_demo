@@ -11,6 +11,7 @@ def err():
     import cgitb, sys
     tb = cgitb.html(sys.exc_info())
     def set_tb():
+        """ set the traceback output """
         cherrypy.response.body = tb
         cherrypy.response.headers['Content-Length'] = None
     cherrypy.request.hooks.attach('after_error_response', set_tb)
@@ -21,12 +22,16 @@ class demo_index:
     simplistic demo index used as the root app
     """
 
-    def __init__(self, demo_dict={}):
+    def __init__(self, indexd=None):
         """
         initialize with demo_dict for indexing
         """
-        self.demo_dict = demo_dict
+        if indexd == None:
+            self.indexd = {}
+        else:
+            self.indexd = indexd
 
+    @cherrypy.expose
     def index(self):
         """
         simple demo index page
@@ -34,13 +39,12 @@ class demo_index:
 
         page = "<html><head><title>IPOL : Demonstrations</title></head>"
         page += "<body><h1>IPOL : Demonstrations</h1><ul>"
-        for id in demo_dict:
+        for key in self.indexd.keys():
             page += "<li><a href='./%(id)s/'>%(title)s</a></li>" \
-                % {'id' : id, 'title' : demo_dict[id].title}
+                % {'id' : key, 'title' : self.indexd[key].title}
         page += "</ul></body></html>"
 
         return page
-    index.exposed = True
 
 if __name__ == '__main__':
 
@@ -51,11 +55,12 @@ if __name__ == '__main__':
     # load the demo collection
     # from now, the demo id is the demo module name, which happens to
     # also be the folder name
+    # TODO : filter test demos
     demo_blacklist = ['.git', 'base_demo']
     is_a_demo = lambda s : (os.path.isdir(s) 
                             and s not in demo_blacklist) 
-    for demo_id in filter(is_a_demo, os.listdir('./')):
-        print "loading : " + demo_id
+    for demo_id in [demo_id for demo_id in os.listdir('./')
+                    if is_a_demo(demo_id)]:
         # function version of `from demo_id import app as demo.app`
         # TODO : simplify
         demo = __import__(demo_id, globals(), locals(), ['app'], -1)
@@ -76,8 +81,9 @@ if __name__ == '__main__':
         cherrypy.tree.mount(demo.app(), mount_point, config=config)
 
     # use cgitb error handling
+    # TODO : only for development
     cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err)
     
-    cherrypy.quickstart(demo_index(), 
+    cherrypy.quickstart(demo_index(demo_dict), 
                         config=os.path.join(os.path.dirname(__file__),
                                             'controller.conf'))
