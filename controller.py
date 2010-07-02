@@ -64,12 +64,14 @@ if __name__ == '__main__':
                  context='DEBUG', traceback=False)
     cherrypy.log("listdir(base_dir) : %s" % str(os.listdir(base_dir)),
                  context='DEBUG', traceback=False)
-    for demo_id in [d for d in os.listdir(base_dir) if is_a_demo(d)]:
-        cherrypy.log("loading demo : %s" % demo_id, context='SETUP',
-                     traceback=False)
+    for demo_id in os.listdir(base_dir):
+        if not is_a_demo(demo_id):
+            break
         # function version of `from demo_id import app as demo.app`
         # TODO : simplify
         demo = __import__(demo_id, globals(), locals(), ['app'], -1)
+        cherrypy.log("loading demo : %s" % demo_id, context='SETUP',
+                     traceback=False)
         demo_dict[demo_id] = demo.app
         mount_point = '/' + demo_id
         # static subfolders config
