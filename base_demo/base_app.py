@@ -113,6 +113,7 @@ class base_app(empty_app):
             if prod(im.size) > (self.input_max_pixels
                                 * self.input_max_pixels_tolerance):
                 im.resize(self.input_max_pixels, mode="pixels")
+                self.log("input resized")
             # save a working copy
             im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
             # save a web viewable copy
@@ -126,6 +127,7 @@ class base_app(empty_app):
         clone the input for a re-run of the algo
         """
         # get a new key
+        oldkey = self.key
         oldpath = self.path('tmp')
         self.new_key()
         # copy the input files
@@ -136,6 +138,7 @@ class base_app(empty_app):
         for fname in fnames:
             shutil.copy(os.path.join(oldpath, fname),
                         os.path.join(self.path('tmp'), fname))
+        self.log("input cloned from %s" % oldkey)
         return
 
     #
@@ -157,6 +160,7 @@ class base_app(empty_app):
         input_url = self.process_input()
         urld = {'next_step' : self.url('params'),
                 'input' : input_url}
+        self.log("input selected : %s" % input_id)
         return self.tmpl_out("input.html", urld=urld)
 
     def input_upload(self, **kwargs):
@@ -182,6 +186,7 @@ class base_app(empty_app):
         input_url = self.process_input()
         urld = {'next_step' : self.url('params'),
                 'input' : input_url}
+        self.log("input uploaded")
         return self.tmpl_out("input.html", urld=urld)
 
     #
@@ -239,6 +244,7 @@ class base_app(empty_app):
         # TODO : read the kwargs from a file, and pass to run_algo
         # TODO : pass these parameters to the template
         self.run_algo({})
+        self.log("input processed")
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)

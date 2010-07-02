@@ -137,3 +137,15 @@ class empty_app(object):
             raise cherrypy.HTTPError(400, # Bad Request
                                      "The key is invalid")
 
+    #
+    # LOGS
+    #
+
+    def log(self, msg):
+        """
+        simplified log handler
+        """
+        cherrypy.log(msg, context="DEMO/%s/%s" % (self.id, self.key),
+                     traceback=False)
+        return
+

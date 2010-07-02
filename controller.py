@@ -62,6 +62,8 @@ if __name__ == '__main__':
                             and s not in demo_blacklist) 
     for demo_id in [demo_id for demo_id in os.listdir(base_dir)
                     if is_a_demo(demo_id)]:
+        cherrypy.log("loading demo : %s" % demo_id, context='SETUP',
+                     traceback=False)
         # function version of `from demo_id import app as demo.app`
         # TODO : simplify
         demo = __import__(demo_id, globals(), locals(), ['app'], -1)
