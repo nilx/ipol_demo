@@ -9,4 +9,5 @@ lint.flag
 
 # ignore the temporary data files and thumbnails (locally generated)
 */data/tmp/*
+!*/data/tmp/.placeholder
 */data/input/*.__*__.png

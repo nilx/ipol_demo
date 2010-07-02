@@ -99,6 +99,8 @@ class empty_app(object):
         """
         url scheme wrapper
         """
+        # TODO: include a configurable url base
+        #       taken from the config file 
         if arg1 in ['demo', 'algo', 'archive', 'forum']:
             return self._url_link(link=arg1)
         elif arg1 in ['tmp', 'input']:
