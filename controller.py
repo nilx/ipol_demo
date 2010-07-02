@@ -65,8 +65,15 @@ if __name__ == '__main__':
     cherrypy.log("listdir(base_dir) : %s" % str(os.listdir(base_dir)),
                  context='DEBUG', traceback=False)
     for demo_id in os.listdir(base_dir):
+        cherrypy.log("try %s" % demo_id,
+                 context='DEBUG', traceback=False)
         if not is_a_demo(demo_id):
-            break
+            cherrypy.log("%s is not a demo" % demo_id,
+                         context='DEBUG', traceback=False)
+            continue
+        else:
+            cherrypy.log("%s is a demo" % demo_id,
+                         context='DEBUG', traceback=False)
         # function version of `from demo_id import app as demo.app`
         # TODO : simplify
         demo = __import__(demo_id, globals(), locals(), ['app'], -1)
