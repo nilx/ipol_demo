@@ -58,7 +58,7 @@ if __name__ == '__main__':
     # TODO : filter test demos
     demo_blacklist = ['.git', 'base_demo']
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    is_a_demo = lambda s : (os.path.isdir(s) 
+    is_a_demo = lambda s : (os.path.isdir(os.path.join(base_dir,s)) 
                             and s not in demo_blacklist) 
     cherrypy.log("base_dir : %s" % base_dir,
                  context='DEBUG', traceback=False)
