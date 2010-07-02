@@ -2,7 +2,7 @@
 simple test ipol demo web app
 """
 
-from base_demo import base_app
+from base_demo import app as base_app
 from base_demo.lib import get_check_key, http_redirect_303
 import os.path
 

@@ -13,7 +13,7 @@ from base_demo.empty_app import empty_app
 from base_demo.lib import index_dict, tn_image, image, prod, \
     get_check_key, http_redirect_303
 
-class base_app(empty_app):
+class app(empty_app):
     """ base demo app class with a typical flow """
 
     # default class attributes
