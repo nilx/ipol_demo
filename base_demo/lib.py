@@ -2,9 +2,17 @@
 helper tools
 """
 
+#
+# TINY STUFF
+#
+
 prod = lambda l : reduce(lambda a, b : a * b, l, 1)
 # sum() is already defined
 #sum = lambda l : reduce(lambda a, b : a + b, l, 0)
+
+#
+# INDEX DICTIONARY
+#
 
 import os.path
 import ConfigParser
@@ -22,6 +30,9 @@ class index_dict(dict):
         for section in index.sections():
             self[section] = dict(index.items(section))
 
+#
+# THUMBNAIL IMAGE CLASS
+#
 
 from PIL import Image
 class tn_image(object):
@@ -50,6 +61,10 @@ class tn_image(object):
                             im.size[1] + offset[1])
             tn.paste(im, box)
             tn.save(os.path.join(folder, self.fname))
+
+#
+# IMAGE CLASS
+#
 
 class image(object):
     """
@@ -126,3 +141,34 @@ class image(object):
         """
         # TODO : handle external TIFF compression
         self.im.save(fname, **kwargs)
+
+#
+# ACTION DECORATOR TO HANDLE DEMO KEY
+#
+
+def get_check_key(func):
+    """
+    decorator to read the key,
+    save it as a class attribute,
+    and check the key validity
+    """
+    def checked_func(self, *args, **kwargs):
+        """
+        original function with a preliminary key check
+        """
+        self.key = kwargs.pop('key')
+        self.check_key()
+        return func(self, *args, **kwargs)
+    return checked_func
+
+#
+# CHERRYPY REDIRECTION
+#
+
+import cherrypy
+def http_redirect_303(url):
+    """
+    HTTP "303 See Other" redirection
+    """
+    cherrypy.response.status = "303 See Other"
+    cherrypy.response.headers['Refresh'] = "0; %s" % url

@@ -8,9 +8,10 @@ import os, shutil
 
 from mako.lookup import TemplateLookup
 
-from base_demo.empty_app import empty_app, get_check_key
+from base_demo.empty_app import empty_app
 #TODO : move lib up
-from base_demo.lib import index_dict, tn_image, image, prod
+from base_demo.lib import index_dict, tn_image, image, prod, \
+    get_check_key, http_redirect_303
 
 class base_app(empty_app):
     """ base demo app class with a typical flow """
@@ -37,6 +38,8 @@ class base_app(empty_app):
         """
         # setup the parent class
         empty_app.__init__(self, base_dir)
+        cherrypy.log("demo base_dir : %s" % self.base_dir,
+                     context='SETUP', traceback=False)
         # local base_app templates folder
         tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 'tmpl')
@@ -210,14 +213,13 @@ class base_app(empty_app):
     @get_check_key
     def run(self, **kwargs):
         """
-        run redirection
+        params handling and run redirection
+        SHOULD be defined in the derived classes, to check the parameters
         """
-        # TODO : filter-out kwargs from a class attr ans store in file
         # redirect to the result page
+        # TODO: check_params as another function
         del kwargs
-        cherrypy.response.status = "303 See Other"
-        cherrypy.response.headers['Refresh'] = \
-            "0; %s" % self.url('result', {'key':self.key})
+        http_redirect_303(self.url('result', {'key':self.key}))
         urld = {'next_step' : self.url('result'),
                 'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
                            for i in range(self.input_nb)]}

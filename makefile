@@ -5,8 +5,9 @@ default	:
 
 lint	: lint.flag
 lint.flag	: $(SRC)
-	pylint -e $^
+	pylint -e $?
 	touch $@
+# fore more details, use --disable-msg C0103,W0511
 
 .PHONY	: test
 test	:

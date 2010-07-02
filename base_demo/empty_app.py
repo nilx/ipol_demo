@@ -9,21 +9,6 @@ import os.path
 
 import cherrypy
 
-def get_check_key(func):
-    """
-    decorator to read the key,
-    save it as a class attribute,
-    and check the key validity
-    """
-    def checked_func(self, *args, **kwargs):
-        """
-        original function with a preliminary key check
-        """
-        self.key = kwargs.pop('key')
-        self.check_key()
-        return func(self, *args, **kwargs)
-    return checked_func
-
 class empty_app(object):
     """
     This app only contains configuration and tools, no actions.
@@ -64,13 +49,17 @@ class empty_app(object):
         url scheme for links
         """
         if link == 'demo':
-            return "/pub/demo/%s/" % self.id
+            return cherrypy.url(path="/pub/demo/%s/" % self.id,
+                                script_name='')
         elif link == 'algo':
-            return "/pub/algo/%s/" % self.id
+            return cherrypy.url(path="/pub/algo/%s/" % self.id,
+                                script_name='')
         elif link == 'archive':
-            return "/pub/archive/%s/" % self.id
+            return cherrypy.url(path="/pub/archive/%s/" % self.id,
+                                script_name='')
         elif link == 'forum':
-            return "/pub/forum/%s/" % self.id
+            return cherrypy.url(path="/pub/forum/%s/" % self.id,
+                                script_name='')
 
     def _url_file(self, folder, fname=None):
         """
@@ -81,9 +70,9 @@ class empty_app(object):
         if fname == None:
             fname = ''
         if folder == 'tmp':
-            return cherrypy.url("/tmp/%s/" % self.key + fname)
+            return cherrypy.url(path="tmp/%s/" % self.key + fname)
         elif folder == 'input':
-            return cherrypy.url('/input/' + fname)
+            return cherrypy.url(path='input/' + fname)
 
     def _url_action(self, action, params=None):
         """
@@ -93,7 +82,7 @@ class empty_app(object):
         if params:
             query_string = '&'.join(["%s=%s" % (key, value)
                                      for (key, value) in params.items()])
-        return cherrypy.url("/%s" % action, query_string)
+        return cherrypy.url(path="%s" % action, qs=query_string)
 
     def url(self, arg1, arg2=None):
         """

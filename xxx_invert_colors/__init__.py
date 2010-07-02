@@ -3,6 +3,7 @@ simple test ipol demo web app
 """
 
 from base_demo import base_app
+from base_demo.lib import get_check_key, http_redirect_303
 import os.path
 
 class app(base_app):
@@ -37,6 +38,21 @@ class app(base_app):
         base_app.result.im_func.exposed = True
 
     # params() and results() are customized by their template
+
+    # run() is defined here
+    @get_check_key
+    def run(self):
+        """
+        params handling and run redirection
+        as a special case, we have no parameter to check and pass
+        """
+        http_redirect_303(self.url('result', {'key':self.key}))
+        urld = {'next_step' : self.url('result'),
+                'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+                           for i in range(self.input_nb)]}
+        return self.tmpl_out("run.html", urld=urld)
+    run.exposed = True
+
     # run_algo() is defined here
     def run_algo(self, params):
         """
