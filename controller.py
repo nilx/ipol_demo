@@ -57,9 +57,10 @@ if __name__ == '__main__':
     # also be the folder name
     # TODO : filter test demos
     demo_blacklist = ['.git', 'base_demo']
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     is_a_demo = lambda s : (os.path.isdir(s) 
                             and s not in demo_blacklist) 
-    for demo_id in [demo_id for demo_id in os.listdir('./')
+    for demo_id in [demo_id for demo_id in os.listdir(base_dir)
                     if is_a_demo(demo_id)]:
         # function version of `from demo_id import app as demo.app`
         # TODO : simplify
