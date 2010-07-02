@@ -1,0 +1,22 @@
+<%include file="header.html" />
+
+<h2>run</h2>
+
+MAGIC GIF ANIMATION....
+
+<form action="${urld['next_step']}" method="get">
+<input type="hidden" name="key" value="${key}">
+The algorithm is running. Wait for max 30s, your browser should
+display the result. If stuck, try to manually get the result (beware
+surcharge machine)!
+<input type="submit" value="next step : results" />
+</form>
+
+<ul>
+% for url in urld['input']:
+<li> <img src="${url}" alt="" /> </li>
+% endfor
+</ul>
+
+<%include file="footer.html" />
+

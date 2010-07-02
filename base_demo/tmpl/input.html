@@ -1,0 +1,19 @@
+<%include file="header.html" />
+
+<h2>input</h2>
+
+<form action="${urld['next_step']}" method="get">
+<input type="hidden" name="key" value="${key}">
+The input is received.
+Select the parameters.
+<input type="submit" value="next step : params" />
+</form>
+
+<ul>
+% for url in urld['input']:
+<li> <img src="${url}" alt="" /> </li>
+% endfor
+</ul>
+
+<%include file="footer.html" />
+

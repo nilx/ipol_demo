@@ -1,0 +1,9 @@
+label {
+    cursor: pointer; }
+
+input[type="file"] {
+    display: inline;
+    width: 100%; }
+
+.crosslinks li {
+    display: inline; }
