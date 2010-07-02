@@ -17,7 +17,6 @@ class index_dict(dict):
 
         dict.__init__(self)
         
-        location = os.path.normpath(os.path.abspath(location))
         index = ConfigParser.RawConfigParser()
         index.read(os.path.join(location, 'index.cfg'))
         for section in index.sections():

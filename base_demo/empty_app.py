@@ -34,7 +34,7 @@ class empty_app(object):
         app setup
         """
         # the demo ID is the folder name
-        self.base_dir = os.path.basename(base_dir)
+        self.base_dir = os.path.abspath(base_dir)
         self.id = os.path.basename(base_dir)
         self.key = None
 
