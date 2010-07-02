@@ -1,5 +1,8 @@
 SRC	:= controller.py $(wildcard */*.py)
 
+default	:
+	@cat README.txt
+
 lint	: lint.flag
 lint.flag	: $(SRC)
 	pylint -e $^
