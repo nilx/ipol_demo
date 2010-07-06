@@ -8,4 +8,10 @@ Here you select funky parameters, then run the algorithm.
 <input type="submit" value="next step : run" />
 </form>
 
+<ul>
+% for url in urld['input']:
+<li> <img src="${url}" alt="" /> </li>
+% endfor
+</ul>
+
 <%include file="footer.html" />

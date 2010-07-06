@@ -96,7 +96,7 @@ class app(empty_app):
         # urls dict
         urld = {'select_form' : self.url('input_select'),
                 'upload_form' : self.url('input_upload')}
-        return self.tmpl_out("index.html", urld=urld,
+        return self.tmpl_out("input.html", urld=urld,
                               inputd=inputd)
 
     #
@@ -107,8 +107,6 @@ class app(empty_app):
         """
         pre-process the input data
         """
-        input_url = []
-        # TODO : check the data type
         for i in range(self.input_nb):
             # open the file as an image
             try:
@@ -127,9 +125,7 @@ class app(empty_app):
             im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
             # save a web viewable copy
             im.save(self.path('tmp', 'input_%i' % i + self.display_ext))
-            # store the viewable url
-            input_url += [self.url('tmp', 'input_%i' % i + self.display_ext)]
-        return input_url
+        return
 
     def clone_input(self):
         """
@@ -166,11 +162,10 @@ class app(empty_app):
         for i in range(len(fnames)):
             shutil.copy(self.path('input', fnames[i]),
                         self.path('tmp', 'input_%i' % i))
-        input_url = self.process_input()
-        urld = {'next_step' : self.url('params'),
-                'input' : input_url}
+        self.process_input()
         self.log("input selected : %s" % input_id)
-        return self.tmpl_out("input.html", urld=urld)
+        # jump to the params page
+        return self.params(key=self.key)
 
     def input_upload(self, **kwargs):
         """
@@ -198,11 +193,10 @@ class app(empty_app):
                                              "resize or use better compression")
                 file_save.write(data)
             file_save.close()
-        input_url = self.process_input()
-        urld = {'next_step' : self.url('params'),
-                'input' : input_url}
+        self.process_input()
         self.log("input uploaded")
-        return self.tmpl_out("input.html", urld=urld)
+        # jump to the params page
+        return self.params(key=self.key)
 
     #
     # PARAMETER HANDLING
@@ -215,7 +209,9 @@ class app(empty_app):
         """
         if newrun:
             self.clone_input()
-        urld = {'next_step' : self.url('run')}
+        urld = {'next_step' : self.url('run'),
+                'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+                           for i in range(self.input_nb)]}
         return self.tmpl_out("params.html", urld=urld)
 
     #
