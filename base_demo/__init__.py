@@ -109,7 +109,11 @@ class app(empty_app):
         # TODO : check the data type
         for i in range(self.input_nb):
             # open the file as an image
-            im = image(self.path('tmp', 'input_%i' % i))
+            try:
+                im = image(self.path('tmp', 'input_%i' % i))
+            except IOError:
+                raise cherrypy.HTTPError(400, # Bad Request
+                                         "Bad input file")
             # convert to the expected input format
             im.convert(self.input_dtype)
             # check max size
@@ -174,6 +178,10 @@ class app(empty_app):
         for i in range(self.input_nb):
             file_up = kwargs['file_%i' % i]
             file_save = file(self.path('tmp', 'input_%i' % i), 'wb')
+            if '' == file_up.filename:
+                # missing file
+                raise cherrypy.HTTPError(400, # Bad Request
+                                         "Missing input file")
             size = 0
             while True:
                 # TODO : larger data size
@@ -182,8 +190,10 @@ class app(empty_app):
                     break
                 size += len(data)
                 if size > self.input_max_weight:
-                    # TODO : handle error
-                    pass
+                    # file too heavy
+                    raise cherrypy.HTTPError(400, # Bad Request
+                                             "File too large, " +
+                                             "resize or use better compression")
                 file_save.write(data)
             file_save.close()
         input_url = self.process_input()

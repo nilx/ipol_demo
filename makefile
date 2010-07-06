@@ -1,4 +1,4 @@
-SRC	:= controller.py $(wildcard */*.py)
+SRC	:= demo.py $(wildcard */*.py)
 
 default	:
 	@cat README.txt
