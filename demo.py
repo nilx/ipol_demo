@@ -3,7 +3,7 @@
 
 import cherrypy
 
-def err():
+def err_tb():
     """
     replace the default error response
     with an cgitb HTML traceback
@@ -92,7 +92,9 @@ if __name__ == '__main__':
         cherrypy.tree.mount(demo.app(), mount_point, config=config)
 
     # use cgitb error handling
-    # TODO : only for development
-    cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err)
+    # enable via config
+    # [/]
+    # tools.cgitb.on = True
+    cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err_tb)
     
     cherrypy.quickstart(demo_index(demo_dict), config=conf_file)
