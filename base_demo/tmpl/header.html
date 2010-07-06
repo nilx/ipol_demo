@@ -1,12 +1,31 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>${title} demo</title>
-<style type="text/css">
-<!--
-<%include file="style.css" />
--->
-</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>IPOL Demo: ${title}</title>
+<meta name="language" content="english" />
+<meta name="description" content="${description}" />
+<!-- TODO: author -->
+<meta name="author" content="" />
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" href="http://www.ipol.im/style.css" type="text/css" />
+<link rel="stylesheet" href="http://www.ipol.im/local.css" type="text/css" />
 </head>
 <body>
-
+<div class="pageheader">
+<div class="header">
+<div class="parentlinks">
+<a href="http://www.ipol.im/">ipol.im</a>
+»
+<a href="http://www.ipol.im/pub/">pub</a>
+»
+</div> <!-- .parentlinks -->
+<div class="title">
+<a href="/">IPOL</a>&nbsp;: ${title}
+</div> <!-- .title -->
+</div> <!-- .header -->
+</div> <!-- .pageheader -->
+<div id="main">
 <%include file="crosslinks.html" />
+<div id="content">

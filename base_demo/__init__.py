@@ -45,7 +45,9 @@ class app(empty_app):
                                 'tmpl')
         # first search in the subclass tmpl dir
         self.tmpl_lookup = TemplateLookup( \
-            directories=[os.path.join(self.base_dir,'tmpl'), tmpl_dir])
+            directories=[os.path.join(self.base_dir,'tmpl'), tmpl_dir],
+            input_encoding='utf-8',
+            output_encoding='utf-8', encoding_errors='replace')
         # TODO : early attributes validation
 
     #
