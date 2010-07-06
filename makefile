@@ -11,7 +11,7 @@ lint.flag	: $(SRC)
 
 .PHONY	: test
 test	:
-	./controller.py
+	./demo.py
 
 .PHONY	: clean
 clean	:

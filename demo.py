@@ -50,14 +50,14 @@ if __name__ == '__main__':
 
     import os
 
-    demo_dict = {}
+    conf_file = os.path.join(os.path.dirname(__file__), 'demo.conf')
 
+    demo_dict = {}
     demo_blacklist = ['.git', 'base_demo']
     base_dir = os.path.dirname(os.path.abspath(__file__))
     cherrypy.log("app base_dir : %s" % base_dir,
                  context='SETUP', traceback=False)
-    cherrypy.config.update(os.path.join(os.path.dirname(__file__),
-                                        'controller.conf'))
+    cherrypy.config.update(conf_file)
 
     # load the demo collection
     # from now, the demo id is the demo module name, which happens to
@@ -95,6 +95,4 @@ if __name__ == '__main__':
     # TODO : only for development
     cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err)
     
-    cherrypy.quickstart(demo_index(demo_dict), 
-                        config=os.path.join(os.path.dirname(__file__),
-                                            'controller.conf'))
+    cherrypy.quickstart(demo_index(demo_dict), config=conf_file)

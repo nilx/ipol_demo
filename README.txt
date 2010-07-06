@@ -8,8 +8,8 @@ Debian/Ubuntu packages: python, python-cherrypy3, python-mako, python-imaging.
 # Usage
 
 To test this service locally,
-* copy `controller.conf.example` to `controller.conf`
-* run the `controller.py` script (must be executable)
+* copy `demo.conf.example` to `demo.conf`
+* run the `demo.py` script (must be executable)
 * visit http://127.0.0.1:8080 with a graphical web browser
 
 # Shortcuts
