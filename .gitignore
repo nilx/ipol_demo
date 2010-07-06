@@ -1,5 +1,5 @@
 # don't rewrite the deployed conf file
-controller.conf
+demo.conf
 
 # ignore compiled Python code
 *.pyc
