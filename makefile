@@ -17,8 +17,12 @@ lint.flag	: $(SRC)
 	touch $@
 # fore more details, use --disable-msg C0103,W0511
 
+.PHONY	: update
+update	:
+	for D in $(DEMO); do $(MAKE) -C $$D/ CC="ccache cc"; done
+
 .PHONY	: test
-test	:
+test	: update
 	./demo.py
 
 .PHONY	: clean
