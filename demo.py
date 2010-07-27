@@ -59,12 +59,12 @@ class demo_index:
 <a href="http://www.ipol.im/pub/">pub</a>
 »
 </div> <!-- .parentlinks -->
-<div class="title">
-<a href="/">IPOL</a>&nbsp;: Demonstrations
-</div> <!-- .title -->
 </div> <!-- .header -->
 </div> <!-- .pageheader -->
 <div id="main">
+<div id="pagetitle">
+Demonstrations
+</div> <!-- #pagetitle -->
 <div id="content">
 """
         for key in self.indexd.keys():
