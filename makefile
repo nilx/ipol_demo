@@ -19,7 +19,7 @@ lint.flag	: $(SRC)
 
 .PHONY	: update
 update	:
-	for D in $(DEMO); do $(MAKE) -C $$D/ CC="ccache cc"; done
+	for D in $(DEMO); do $(MAKE) -C $$D/; done
 
 .PHONY	: test
 test	: update
