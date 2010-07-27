@@ -4,34 +4,51 @@
 
 % if inputd:
 
-<h2>select input</h2>
-
 <form action="${urld['select_form']}" method="post">
+<fieldset> 
+<legend>Input Selection</legend> 
+<p>
+Click on an image to use it as the algorithm input.
+</p>
 % for id in inputd.keys():
-    <div>
+<div class="select_input">
 % for url in inputd[id]['tn_url']:
-      <input name="input_id" value="${id | h}" id="&{id | h}"
-	     type="image" src="${url}"
-	     alt="${inputd[id]['title'] | h}"/>
+  <input name="input_id" value="${id | h}" id="&{id | h}"
+         type="image" src="${url}"
+         alt="${inputd[id]['title'] | h}"/>
 % endfor
-      <span class="label">${inputd[id]['title'] | h}</span>
-    </div>
+  <span class="label">${inputd[id]['title'] | h}</span>
+</div>
 % endfor
+</fieldset>
 </form>
 
 % endif
 
-<h2>upload input</h2>
-
 <form action="${urld['upload_form']}" method="post"
       enctype="multipart/form-data">
-<ul>
+<fieldset> 
+<legend>Input Upload</legend> 
+<p>
+Upload your own images to use them as the algorithm input.
+</p>
 % for i in range(input_nb):
-<li><label for="file_${i}">input image</label>
-<input type="file" name="file_${i}" id="file_${i}" size="40" /></li>
+<div class="upload_input">
+  <label for="file_${i}">input image</label>
+  <input type="file" name="file_${i}" id="file_${i}" size="40" />
+</div>
 % endfor
-</ul>
 <input type="submit" value="upload" />
+<p class="note">
+Only upload suitable images.
+See <a href="http://www.ipol.im/meta/demo_input/">the copyright
+and other conditions</a> for details.
+TIFF, JPEG, PNG, GIF, PNM
+(and <a href="http://www.ipol.im/meta/demo_input/">other standard formats</a>)
+are supported.
+The uploaded files may be re-used for further analysis.
+</p>
+</fieldset>
 </form>
 
 <!--

@@ -1,17 +1,27 @@
 <%include file="header.html" />
 
-<h2>params</h2>
+<p>
+You can choose 2 parameters for this algorithm: <i>a</i>
+and <i>b</i>.<br />
+The image will be transformed by the function <i>f(x) = ax + b</i>,
+and the result will be rounded, and bounded to <i>[0..255]</i>.
+</p>
 
 <form action="${urld['next_step']}" method="get">
 <input type="hidden" name="key" value="${key}">
-Here you select funky parameters, then run the algorithm.
+<label for="a">value for <i>a</i>: </label>
+<input type="text" name="a" value="1." /><br />
+<label for="b">value for <i>b</i>: </label>
+<input type="text" name="b" value="0." /><br />
 <input type="submit" value="next step : run" />
 </form>
 
-<ul>
+<div>
+<center>
 % for url in urld['input']:
-<li> <img src="${url}" alt="" /> </li>
+<img src="${url}" alt="" /> <br/>
 % endfor
-</ul>
+</center>
+</div>
 
 <%include file="footer.html" />

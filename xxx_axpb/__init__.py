@@ -43,10 +43,9 @@ class app(base_app):
     # run() is defined here,
     # because the parameters validation depends on the algorithm
     @get_check_key
-    def run(self):
+    def run(self, a=1., b=0):
         """
         params handling and run redirection
-        as a special case, we have no parameter to check and pass
         """
         http_redirect_303(self.url('result', {'key':self.key}))
         urld = {'next_step' : self.url('result'),
