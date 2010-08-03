@@ -1,9 +1,9 @@
-SRC	:= demo.py $(wildcard */*.py)
+SRC	:= $(wildcard *.py) $(wildcard */*.py)
 
 default	:
 	@cat README.txt
 
-DEMO := $(filter-out ./.git ./base_demo ./template_demo, \
+DEMO := $(filter-out ./.git ./base_tmpl ./template_demo, \
 		$(shell find ./ -maxdepth 1 -mindepth 1 -type d))
 bin	:
 	for DEMO in $(DEMO); do \

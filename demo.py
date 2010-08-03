@@ -2,7 +2,7 @@
 """ base cherrypy launcher for the IPOL demo app """
 
 import cherrypy
-from mako.template import Template
+from mako.lookup import TemplateLookup
 
 def err_tb():
     """
@@ -38,11 +38,16 @@ class demo_index:
         simple demo index page
         """
 
-        tmpl = os.path.join(os.path.dirname(__file__), 'index.html')
-        return Template(filename=tmpl,
-                        input_encoding='utf-8',
-                        output_encoding='utf-8',
-                        encoding_errors='replace').render(indexd=self.indexd)
+        tmpl_dir = os.path.join(os.path.dirname(__file__),
+                                'base_tmpl')
+        tmpl_lookup = TemplateLookup(directories=[tmpl_dir],
+                                     input_encoding='utf-8',
+                                     output_encoding='utf-8',
+                                     encoding_errors='replace')
+        return tmpl_lookup.get_template('index.html')\
+            .render(indexd=self.indexd,
+                    title="Demonstrations",
+                    description="foo")
 
 if __name__ == '__main__':
 
@@ -51,7 +56,7 @@ if __name__ == '__main__':
     conf_file = os.path.join(os.path.dirname(__file__), 'demo.conf')
 
     demo_dict = {}
-    demo_blacklist = ['.git', 'base_demo', 'template_demo']
+    demo_blacklist = ['.git', 'base_tmpl', 'template_demo']
     base_dir = os.path.dirname(os.path.abspath(__file__))
     cherrypy.log("app base_dir : %s" % base_dir,
                  context='SETUP', traceback=False)
