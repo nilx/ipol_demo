@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>IPOL: Demonstrations</title>
+<meta name="language" content="english" />
+<link rel="icon" href="http://www.ipol.im/favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" href="http://www.ipol.im/style.css" type="text/css" />
+<link rel="stylesheet" href="http://www.ipol.im/local.css" type="text/css" />
+</head>
+<body>
+<div class="pageheader">
+<div class="header">
+<div class="parentlinks">
+<a href="http://www.ipol.im/">ipol.im</a>
+»
+<a href="http://www.ipol.im/pub/">pub</a>
+»
+</div> <!-- .parentlinks -->
+</div> <!-- .header -->
+</div> <!-- .pageheader -->
+<div id="main">
+<div id="pagetitle">
+Demonstrations
+</div> <!-- #pagetitle -->
+<div id="content">
+<ul>
+% for key in indexd.keys():
+<li><a href='./${key}/'>${indexd[key].title}</a></li>
+% endfor
+</ul>
+</div> <!-- #content -->
+</div> <!-- #main -->
+<div id="footer" class="pagefooter">
+<ul>
+<!--
+<li class="pagedate">
+  last modified <span class="date"></span>
+</li>
+-->
+<li class="feeds">
+  <a href="/feed/">feeds</a>
+</li>
+<li class="sitemap">
+  <a href="/meta/sitemap/" rel="sitemap">sitemap</a>
+</li>
+<li class="contact">
+  <a href="/meta/contact/">contact</a>
+</li>
+<li class="privacy">
+  <a href="/meta/privacy/">privacy policy</a>
+</li>
+</ul>
+<ul>
+<li class="hostinfo">
+  hosting provided by
+  <a href="http://www.cmla.ens-cachan.fr/">CMLA</a>,
+  <a href="http://www.ens-cachan.fr/">ENS Cachan</a>
+</li>
+<li class="refs">
+  <a href="http://www.issn.org/">ISSN:2105-1232</a>
+  <!-- link http://www.worldcat.org/issn/2105-1232 empty -->
+  <a href="http://www.crossref.org/">DOI:pending</a>
+</li>
+<li class="pagecopyright">
+  <a name="pagecopyright"></a>
+  <a href="/meta/copyright/" rel="copyright">copyright ©&nbsp;2009-2010,
+  IPOL Image Processing On Line</a>
+</li>
+</ul>
+<!-- from IPOL -->
+</div><!-- .pagefooter #footer -->
+</body>
+</html>
