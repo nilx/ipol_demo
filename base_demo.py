@@ -10,7 +10,11 @@ generic ipol demo web app
 import hashlib
 from datetime import datetime
 from random import random
-import os.path
+
+import os
+from signal import alarm, signal, SIGALRM, SIGKILL
+from subprocess import PIPE, Popen
+
 import cherrypy
 
 class empty_app(object):
@@ -26,6 +30,7 @@ class empty_app(object):
         self.base_dir = os.path.abspath(base_dir)
         self.id = os.path.basename(base_dir)
         self.key = None
+        self.run_environ = {}
 
     #
     # FILE PATH MODEL 
@@ -40,6 +45,8 @@ class empty_app(object):
         if folder == 'tmp':
             # TODO : check key != None
             path = os.path.join(self.base_dir, 'data', 'tmp', self.key, fname)
+        elif folder == 'bin':
+            path = os.path.join(self.base_dir, 'bin', fname)
         elif folder == 'input':
             path = os.path.join(self.base_dir, 'data', 'input', fname)
         return os.path.abspath(path)
@@ -142,6 +149,52 @@ class empty_app(object):
                      traceback=False)
         return
 
+    #
+    # SUBPROCESS
+    #
+
+    def run_proc(self, args):
+        """
+        execute a sub-process from the 'tmp' folder
+        """
+        # update the environment
+        newenv = os.environ.copy()
+        newenv.update(self.run_environ)
+        # TODO : clear the PATH, hard-rewrite the exec arg0
+        newenv.update({'PATH' : self.path('bin')})                
+        # run
+        return Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE,
+                     env=newenv, cwd=self.path('tmp'))
+
+    def wait_proc(self, process):
+        """
+        wait for the end of a process execution
+        return: returncode, stdout, stderr
+        """
+        stdout, stderr = process.communicate()
+        return process.returncode, stdout, stderr
+
+    def wait_proc_timeout(self, process, timeout):
+        """
+        wait for the end of a process execution with a timeout
+        return: returncode (-1 if timeout), stdout, stderr
+        """
+        class Alarm(Exception):
+            pass
+        def alarm_handler(signum, frame):
+            raise Alarm
+
+        signal(SIGALRM, alarm_handler)
+        alarm(timeout)
+
+        try:
+            stdout, stderr = self.wait_proc(process)
+            alarm(0)
+        except Alarm:
+            os.kill(process.pid, SIGKILL)
+            return -1, '', ''
+        return process.returncode, stdout, stderr
+
 #
 # BASE APP
 #
@@ -189,6 +242,10 @@ class app(empty_app):
             directories=[os.path.join(self.base_dir,'tmpl'), tmpl_dir],
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
+        # [TEST] flag
+        if self.is_test:
+            self.title = '[TEST] ' + self.title
+
         # TODO : early attributes validation
 
     #
@@ -207,10 +264,15 @@ class app(empty_app):
                                    'title',
                                    'description']])
         kwargs.update(attrd)
-        # crosslink urls
-        kwargs['crosslink'] = dict([(link, self.url(link))
-                                     for link in ['demo', 'algo',
-                                                  'archive', 'forum']])
+
+        # create urld if it doesn't exist
+        kwargs.setdefault('urld', {})
+        # add urld items
+        kwargs['urld'].update({'start' : self.url('index'),
+                               'xlink_algo' : self.url('algo'),
+                               'xlink_demo' : self.url('demo'),
+                               'xlink_archive' : self.url('archive'),
+                               'xlink_forum' : self.url('forum')})
         tmpl = self.tmpl_lookup.get_template(tmpl_fname)
         return tmpl.render(**kwargs)
 
@@ -265,7 +327,8 @@ class app(empty_app):
             # save a working copy
             im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
             # save a web viewable copy
-            im.save(self.path('tmp', 'input_%i' % i + self.display_ext))
+            if (self.display_ext != self.input_ext):
+                im.save(self.path('tmp', 'input_%i' % i + self.display_ext))
         return
 
     def clone_input(self):
@@ -296,7 +359,7 @@ class app(empty_app):
         use the selected available input images
         """
         # kwargs is for input_id.x and input_id.y, unused
-        del kwargs
+#        del kwargs
         self.new_key()
         input_dict = index_dict(self.path('input'))
         fnames = input_dict[input_id]['files'].split()
@@ -340,6 +403,16 @@ class app(empty_app):
         return self.params(key=self.key)
 
     #
+    # ERROR HANDLING
+    #
+
+    def error(self, error=''):
+        """
+        signal an error
+        """
+        return self.tmpl_out("error.html", error=error)
+
+    #
     # PARAMETER HANDLING
     #
 
@@ -367,10 +440,8 @@ class app(empty_app):
         """
         # redirect to the result page
         # TODO: check_params as another function
-        del kwargs
         http_redirect_303(self.url('result', {'key':self.key}))
-        urld = {'next_step' : self.url('result'),
-                'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+        urld = {'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
                            for i in range(self.input_nb)]}
         return self.tmpl_out("run.html", urld=urld)
 
@@ -386,6 +457,7 @@ class app(empty_app):
     def result(self):
         """
         display the algo results
+        SHOULD be defined in the derived classes, to check the parameters
         """
         # TODO : ensure only running once
         # TODO : save each result in a new archive
@@ -400,6 +472,5 @@ class app(empty_app):
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
                            for i in range(self.input_nb)],
-                'output' : [(self.url('tmp', 'output' + self.display_ext),
-                             self.url('tmp', 'output' + self.output_ext))]}
+                'output' : [self.url('tmp', 'output' + self.display_ext)]}
         return self.tmpl_out("result.html", urld=urld)

@@ -8,20 +8,23 @@ and the result will be rounded, and bounded to <i>[0..255]</i>.
 </p>
 
 <form action="${urld['next_step']}" method="get">
+<fieldset> 
+<legend>Algorithm Parameters</legend> 
 <input type="hidden" name="key" value="${key}">
-<label for="a">value for <i>a</i>: </label>
-<input type="text" name="a" value="1." /><br />
-<label for="b">value for <i>b</i>: </label>
-<input type="text" name="b" value="0." /><br />
+<label for="a">value for <i>a</i>:</label>
+<input type="text" name="a" value="1." size="5" /><br />
+<label for="b">value for <i>b</i>:</label>
+<input type="text" name="b" value="0." size="5" /><br />
 <input type="submit" value="next step : run" />
+</fieldset> 
 </form>
 
+<hr />
+
 <div>
-<center>
 % for url in urld['input']:
 <img src="${url}" alt="" /> <br/>
 % endfor
-</center>
 </div>
 
 <%include file="footer.html" />

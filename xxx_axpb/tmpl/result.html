@@ -1,34 +1,33 @@
 <%include file="header.html" />
 
-<h2>result</h2>
-
-Great, isn't it?
+<p>
+The algorithm result is displayed  hereafter.<br />
+You can run again this algorithm, with new data or other parameters
+</p>
 
 <form action="${urld['new_input']}" method="get">
-You can restart with new data
+new input data:
 <input type="submit" value="back to : input" />
 </form>
 
 <form action="${urld['new_run']}" method="get">
 <input type="hidden" name="key" value="${key}">
 <input type="hidden" name="newrun" value="1">
-You can restart with other params
-<input type="submit" value="back to : params" />
+new parameters:
+<input type="submit" value="back to : parameters" />
 </form>
 
+<hr />
+
 <div>
-input:
-<center>
+<h2>input</h2>
 % for url in urld['input']:
 <img src="${url}" alt="" /> <br/>
 % endfor
-</center>
-output:
-<center>
+<h2>output</h2>
 % for url in urld['output']:
-<img src="${url}[0]" alt="" /> <br/>
+<img src="${url}" alt="" /> <br/>
 % endfor
-</center>
 </div>
 
 <%include file="footer.html" />

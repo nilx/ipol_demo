@@ -1,22 +1,21 @@
 <%include file="header.html" />
 
-<h2>run</h2>
+<center>
+<img src="http://www.ipol.im/static/demo/running.gif" alt"running..." />
+</center>
 
-MAGIC GIF ANIMATION....
+<p>
+The algorithm is running. After 30s or less, your browser should
+refresh this page and display the result.
+</p>
 
-<form action="${urld['next_step']}" method="get">
-<input type="hidden" name="key" value="${key}">
-The algorithm is running. Wait for max 30s, your browser should
-display the result. If stuck, try to manually get the result (beware
-surcharge machine)!
-<input type="submit" value="next step : results" />
-</form>
+<br />
 
-<ul>
+<div>
 % for url in urld['input']:
-<li> <img src="${url}" alt="" /> </li>
+<img src="${url}" alt="" />
 % endfor
-</ul>
+</div>
 
 <%include file="footer.html" />
 

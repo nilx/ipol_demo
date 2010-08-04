@@ -9,7 +9,7 @@ import os.path
 class app(base_app):
     """ simple demo app """
 
-    title = "[TEST] color inversion"
+    title = "color inversion"
     description = "This test demo inverts the colors of an image."
 
     input_nb = 1

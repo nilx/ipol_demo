@@ -20,15 +20,31 @@ class index_dict(dict):
     """
     folder index as a dictionnary, read from an index.cfg file
     """
-    def __init__(self, location):
+    def __init__(self, location, fname='index.cfg'):
         """ populate the dict from the index metadata file """
+
+        dict.__init__(self)
+        self.fname = os.path.join(location, fname)
+
+        index = ConfigParser.RawConfigParser()
+        index.read(self.fname)
+        for section in index.sections():
+            self[section] = dict(index.items(section))
+
+    def save(self):
+        """ save the (updated) dict to the index metadata file """
 
         dict.__init__(self)
         
         index = ConfigParser.RawConfigParser()
-        index.read(os.path.join(location, 'index.cfg'))
-        for section in index.sections():
-            self[section] = dict(index.items(section))
+        for section in self.keys():
+            index.add_section(section)
+            for option in self[section].keys():
+                index.set(section, option,
+                          self[section][option])
+        index_file = open(self.fname, 'w')
+        index.write(index_file)
+        index_file.close()
 
 #
 # THUMBNAIL IMAGE CLASS
@@ -173,3 +189,13 @@ def http_redirect_303(url):
     """
     cherrypy.response.status = "303 See Other"
     cherrypy.response.headers['Refresh'] = "0; %s" % url
+
+#
+# BASE_APP REUSE
+#
+
+def app_expose(function):
+    """
+    shortcut to expose app actions from the base class
+    """
+    function.im_func.exposed = True
