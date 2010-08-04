@@ -97,7 +97,10 @@ class app(base_app):
                 'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')],
                 'output' : [self.url('tmp', 'outputH.png'),
-                            self.url('tmp', 'outputV.png')]}
+                            self.url('tmp', 'outputV.png')],
+                'match' : self.url('tmp', 'match.txt'),
+                'keys_0' : self.url('tmp', 'keys_0.txt'),
+                'keys_1' : self.url('tmp', 'keys_1.txt')}
         stdout_file = open(self.path('tmp', 'stdout.txt'), 'r')
         stderr_file = open(self.path('tmp', 'stderr.txt'), 'r')
         return self.tmpl_out("result.html", urld=urld,

@@ -21,6 +21,12 @@ new input data:
 % for url in urld['output']:
 <img src="${url}" alt="" /> <br/>
 % endfor
+<ul>
+<li><a href="${urld['match']}">coordinates of match points</a></li>
+<li>ASIFT keypoints in
+    the <a href="${urld['keys_0']}">first</a>
+    and <a href="${urld['keys_1']}">second</a> image</li>
+</ul>
 <h2>stdout</h2>
 <pre class="stdio">
 ${stdout}
