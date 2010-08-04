@@ -1,0 +1,20 @@
+<%include file="header.html" />
+
+<p>
+You can now run the ASIFT algorithm on these 2 images.
+</p>
+
+<form action="${urld['next_step']}" method="get">
+<input type="hidden" name="key" value="${key}">
+<input type="submit" value="next step : run" />
+</form>
+
+<hr />
+
+<div>
+% for url in urld['input']:
+<img src="${url}" alt="" /> <br/>
+% endfor
+</div>
+
+<%include file="footer.html" />
