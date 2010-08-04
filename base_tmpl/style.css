@@ -4,6 +4,11 @@
 .note {
     font-size: 80%; }
 
+.warning {
+    background: none;
+    border: none;
+    color: #990000; }
+
 /***** forms ****/
 
 form div.select_input {

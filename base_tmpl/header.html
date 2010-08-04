@@ -31,8 +31,21 @@
 </div> <!-- .header -->
 </div> <!-- .pageheader -->
 <div id="main">
+% if not prod:
+<pre class="warning">
+,----------------------------------------------------------------------.
+| HERE BE DRAGONS!!                                                    |
+|                                                                      |
+|            this is not a production server                           |
+|            functions and data may vanish at any time                 |  
+|            things can be incomplete, unusable, broken or absurd      |
+|                                                                      |
+`======================================================================'
+</pre>
+% endif
 <div id="pagetitle">
 <a href="${urld['start']}">${title}</a>
 </div> <!-- #pagetitle -->
 <%include file="crosslinks.html" />
 <div id="content">
+

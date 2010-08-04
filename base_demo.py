@@ -273,6 +273,10 @@ class app(empty_app):
                                'xlink_demo' : self.url('demo'),
                                'xlink_archive' : self.url('archive'),
                                'xlink_forum' : self.url('forum')})
+        # production flag
+        kwargs['prod'] = (cherrypy.config['server.environment']
+                          == 'production')
+
         tmpl = self.tmpl_lookup.get_template(tmpl_fname)
         return tmpl.render(**kwargs)
 
