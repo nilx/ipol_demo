@@ -9,9 +9,9 @@ import os.path
 class app(base_app):
     """ template demo app """
     
-    title = "example : ax + b"
+    title = "f(x)=ax+b"
     description = """This example demo interface performs the simple
-    <i>f(x) = ax + b</i> transform on an image."""
+    <i>f(x)=ax+b</i> transform on an image."""
 
     input_nb = 1 # number of input images
     input_max_pixels = 500000 # max size (in pixels) of an input image
