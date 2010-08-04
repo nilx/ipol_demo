@@ -5,30 +5,32 @@
 # the copyright notice and this notice are preserved.  This file is
 # offered as-is, without any warranty.
 
-default : update
+default : bin
 
 TARBALL	= axpb.tar.gz
 TARBALL_URL	= http://www.ipol.im/meta/dev/$(TARBALL)
 BIN	= bin/axpb
 
-.PHONY	: update getsrc bin distclean
+CCACHE  = $(shell which ccache)
+CC	= $(CCACHE) cc
+CXX	= $(CCACHE) c++
 
-# check the source, update the binary if needed
-update	: getsrc bin
+.PHONY	: bin distclean
 
-# get and expand the source code
-getsrc	:
+# get the source code
+$(TARBALL)	:
 	wget -N $(TARBALL_URL)
 
 # compile the binaries from the ./src folder into the ./bin folder
 bin	: $(BIN)
-$(BIN)	: $(TARBALL)
-	rm -rf tmp; mkdir tmp       # make an empty tmp dir
-	tar xvzf axpb.tar.gz -C tmp # extract the source in the tmp dir
-	make -C tmp/axpb/           # build the binary
-	rm -rf bin; mkdir bin       # make an empty bin dir
-	mv tmp/axpb/axpb $@         # save the binary
-	rm -rf tmp                  # cleanup 
+$(BIN)	: $(TARBALL) makefile
+	rm -rf tmp; mkdir tmp
+	tar xvzf axpb.tar.gz -C tmp
+	$(MAKE) -C tmp/axpb/ \
+		CC="$(CC)" CXX="$(CXX)" -j4
+	rm -rf bin; mkdir bin
+	mv tmp/axpb/axpb $@
+	rm -rf tmp
 
 # delete the compilation by-products from the ./src folder
 distclean	:

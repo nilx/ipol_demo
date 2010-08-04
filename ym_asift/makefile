@@ -5,30 +5,32 @@
 # the copyright notice and this notice are preserved.  This file is
 # offered as-is, without any warranty.
 
-default : update
+default : bin
 
 TARBALL	= ASIFT_png.tar.gz
 TARBALL_URL	= http://www.ipol.im/pub/algo/my_affine_sift/$(TARBALL)
 BIN	= bin/asift
 
-.PHONY	: update getsrc bin distclean
+CCACHE  = $(shell which ccache)
+CC	= $(CCACHE) cc
+CXX	= $(CCACHE) c++
 
-# check the source, update the binary if needed
-update	: getsrc bin
+.PHONY	: bin distclean
 
-# get and expand the source code
-getsrc	:
+# get the source code
+$(TARBALL)	:
 	wget -N $(TARBALL_URL)
 
 # compile the binaries from the ./src folder into the ./bin folder
 bin	: $(BIN)
-$(BIN)	: $(TARBALL)
-	rm -rf tmp; mkdir tmp          # make an empty tmp dir
-	tar xvzf $< -C tmp             # extract the source in the tmp dir
-	make -C tmp/ASIFT_png/ OMP=1   # build the binary
-	rm -rf bin; mkdir bin          # make an empty bin dir
-	mv tmp/ASIFT_png/demo_ASIFT $@ # save the binary
-	rm -rf tmp                     # cleanup 
+$(BIN)	: $(TARBALL) makefile
+	rm -rf tmp; mkdir tmp
+	tar xvzf $< -C tmp
+	$(MAKE) -C tmp/ASIFT_png/ OMP=1 \
+		CC="$(CC)" CXX="$(CXX)" -j4
+	rm -rf bin; mkdir bin
+	mv tmp/ASIFT_png/demo_ASIFT $@
+	rm -rf tmp
 
 # delete the compilation by-products from the ./src folder
 distclean	:
