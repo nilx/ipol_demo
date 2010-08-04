@@ -8,7 +8,7 @@
 default : update
 
 TARBALL	= axpb.tar.gz
-TARBALL_URL	= http://www.ipol.im/meta/dev/axpb.tar.gz
+TARBALL_URL	= http://www.ipol.im/meta/dev/$(TARBALL)
 BIN	= bin/axpb
 
 .PHONY	: update getsrc bin distclean
