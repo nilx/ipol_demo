@@ -23,7 +23,7 @@ class app(base_app):
     input_ext = '.png'   # input image expected extension (ie file format)
     output_ext = '.png'  # output image extention (ie. file format)
     display_ext = '.png' # displayed image extention (ie. file format)
-    is_test = True;      # switch to False for deployment
+    is_test = False;     # switch to False for deployment
 
     def __init__(self):
         """
