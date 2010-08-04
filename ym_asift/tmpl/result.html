@@ -2,19 +2,12 @@
 
 <p>
 The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
-You can run again this algorithm, with new data or other parameters.
+You can run again this algorithm with new data.
 </p>
 
 <form action="${urld['new_input']}" method="get">
 new input data:
 <input type="submit" value="back to : input" />
-</form>
-
-<form action="${urld['new_run']}" method="get">
-<input type="hidden" name="key" value="${key}">
-<input type="hidden" name="newrun" value="1">
-new parameters:
-<input type="submit" value="back to : parameters" />
 </form>
 
 <hr />
@@ -28,6 +21,10 @@ new parameters:
 % for url in urld['output']:
 <img src="${url}" alt="" /> <br/>
 % endfor
+<h2>stdout</h2>
+<pre class="stdio">
+${stdout}
+</pre>
 </div>
 
 <%include file="footer.html" />

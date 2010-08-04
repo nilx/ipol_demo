@@ -71,13 +71,13 @@ class app(base_app):
                            'outputV.png', 'outputH.png',
                            'match.txt', 'keys_0.txt', 'keys_1.txt'])
         returncode, stdout, stderr = self.wait_proc(p)
+        stdout_file = open(self.path('tmp', 'stdout.txt'), 'w')
+        stdout_file.write(stdout)
+        stderr_file = open(self.path('tmp', 'stderr.txt'), 'w')
+        stderr_file.write(stderr)
         run_time = time.time() - run_time
 
         if (0 != returncode):
-            stdout_dump = open(self.path('tmp', 'stdout.txt'), 'w')
-            stdout_dump.write(stdout)
-            stderr_dump = open(self.path('tmp', 'stderr.txt'), 'w')
-            stderr_dump.write(stderr)
             return -1
         return run_time
 
@@ -98,6 +98,10 @@ class app(base_app):
                            self.url('tmp', 'input_1.png')],
                 'output' : [self.url('tmp', 'outputH.png'),
                             self.url('tmp', 'outputV.png')]}
+        stdout_file = open(self.path('tmp', 'stdout.txt'), 'r')
+        stderr_file = open(self.path('tmp', 'stderr.txt'), 'r')
         return self.tmpl_out("result.html", urld=urld,
-                             run_time="%0.2f" % run_time)
+                             run_time="%0.2f" % run_time,
+                             stdout=stdout_file.read(),
+                             stderr=stderr_file.read())
     result.exposed = True
