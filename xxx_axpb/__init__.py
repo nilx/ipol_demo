@@ -53,7 +53,8 @@ class app(base_app):
                                      'b' : float(b)}
             params_file.save()
         except:
-            return self.error(error='invalid parameters')
+            return self.error(errcode='badparams',
+                              errmsg="The parameters must be numeric.")
 
         http_redirect_303(self.url('result', {'key':self.key}))
         urld = {'input' : [self.url('tmp', 'input_0.png')]}

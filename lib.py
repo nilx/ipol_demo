@@ -114,23 +114,37 @@ class image(object):
         self.im = self.im.crop(box)
         return self
 
-    def resize(self, size, mode='xy'):
+    def resize(self, size, mode='xy', method='zoom'):
         """
         resize the image, in-place
+        modes:
+        * 'xy': size is the target size
+        * 'scale': size is the scaling factor
+        * 'pixels': size is the target number of pixels
+        methods:
+        * 'zoom' bicubic zoom
+        * 'zoom_2' bicubic zoom out by 2^n factor
         """
 
-        if mode == 'xy':
-            # size must be a tuple (nx, ny)
-            newsize = size
-        elif mode == 'scale':
-            # size must be an int/float scale ratio
-            newsize = (self.im.size[0] * size, self.im.size[1] * size)
-        elif mode == 'pixels':
-            # size is a number of pixels
-            newsize = (self.im.size[0] * size / prod(self.im.size),
-                       self.im.size[1] * size / prod(self.im.size))
+        if mode == 'pixels':
+            # size is a number of pixels -> convert to scale mode
+            size = (float(size) / (self.im.size[0] * self.im.size[1])) ** .5
+            mode = 'scale'
 
-        self.im = self.im.resize(newsize, resample=True)
+        if mode == 'scale':
+            # size must be an int/float scale ratio
+            size = (int(self.im.size[0] * size),
+                    int(self.im.size[1] * size))
+        
+        if method == 'zoom_2':
+            # only use 2^x zoom factors
+            _size = self.im.size
+            while _size[0] > size[0] or _size[1] > size[1]:
+                _size[0] /= 2
+                _size[1] /= 2
+            size = _size
+
+        self.im = self.im.resize(size, Image.BICUBIC)
         return self
 
     def convert(self, mode):
@@ -199,3 +213,10 @@ def app_expose(function):
     shortcut to expose app actions from the base class
     """
     function.im_func.exposed = True
+
+#
+# EXCEPTIONS
+#
+
+class TimeoutError(Exception):
+    pass

@@ -2,7 +2,7 @@
 
 <p>${description}</p>
 
-% if inputd:
+%if inputd:
 
 <form action="${urld['select_form']}" method="post">
 <fieldset> 
@@ -10,20 +10,20 @@
 <p>
 Click on an image to use it as the algorithm input.
 </p>
-% for id in inputd.keys():
+%for id in inputd.keys():
 <div class="select_input">
-% for url in inputd[id]['tn_url']:
+%for url in inputd[id]['tn_url']:
   <input name="input_id" value="${id | h}" id="&{id | h}"
          type="image" src="${url}"
          alt="${inputd[id]['title'] | h}"/>
-% endfor
+%endfor
   <span class="label">${inputd[id]['title'] | h}</span>
 </div>
-% endfor
+%endfor
 </fieldset>
 </form>
 
-% endif
+%endif
 
 <form action="${urld['upload_form']}" method="post"
       enctype="multipart/form-data">
@@ -32,12 +32,12 @@ Click on an image to use it as the algorithm input.
 <p>
 Upload your own images to use them as the algorithm input.
 </p>
-% for i in range(input_nb):
+%for i in range(input_nb):
 <div class="upload_input">
   <label for="file_${i}">input image</label>
   <input type="file" name="file_${i}" id="file_${i}" size="40" />
 </div>
-% endfor
+%endfor
 <input type="submit" value="upload" />
 <p class="note">
 Only upload suitable images.

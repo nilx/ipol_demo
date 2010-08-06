@@ -1,6 +1,8 @@
 <%include file="header.html" />
-
 <p>
+%if msg:
+${msg | h}<br/>
+%endif
 You can now run the ASIFT algorithm on these 2 images.
 </p>
 
@@ -12,9 +14,9 @@ You can now run the ASIFT algorithm on these 2 images.
 <hr />
 
 <div>
-% for url in urld['input']:
+%for url in urld['input']:
 <img src="${url}" alt="" /> <br/>
-% endfor
+%endfor
 </div>
 
 <%include file="footer.html" />

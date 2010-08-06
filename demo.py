@@ -52,7 +52,7 @@ class demo_index:
 if __name__ == '__main__':
 
     import os
-
+    # config file and location settings
     conf_file = os.path.join(os.path.dirname(__file__), 'demo.conf')
 
     demo_dict = {}

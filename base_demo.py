@@ -12,8 +12,10 @@ from datetime import datetime
 from random import random
 
 import os
-from signal import alarm, signal, SIGALRM, SIGKILL
+import time
 from subprocess import PIPE, Popen
+
+from lib import TimeoutError
 
 import cherrypy
 
@@ -153,7 +155,7 @@ class empty_app(object):
     # SUBPROCESS
     #
 
-    def run_proc(self, args):
+    def run_proc(self, args, stdin=None, stdout=None, stderr=None):
         """
         execute a sub-process from the 'tmp' folder
         """
@@ -163,37 +165,38 @@ class empty_app(object):
         # TODO : clear the PATH, hard-rewrite the exec arg0
         newenv.update({'PATH' : self.path('bin')})                
         # run
-        return Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE,
+        return Popen(args, stdin=stdin, stdout=stdout, stderr=stderr,
                      env=newenv, cwd=self.path('tmp'))
 
-    def wait_proc(self, process):
+    def wait_proc(self, process, timeout=False):
         """
-        wait for the end of a process execution
-        return: returncode, stdout, stderr
+        wait for the end of a process execution with an optional timeout
+        timeout:
+        * False : no timeout
+        * numeric : custom timeout
+        return: returncode
         """
-        stdout, stderr = process.communicate()
-        return process.returncode, stdout, stderr
 
-    def wait_proc_timeout(self, process, timeout):
-        """
-        wait for the end of a process execution with a timeout
-        return: returncode (-1 if timeout), stdout, stderr
-        """
-        class Alarm(Exception):
-            pass
-        def alarm_handler(signum, frame):
-            raise Alarm
-
-        signal(SIGALRM, alarm_handler)
-        alarm(timeout)
-
-        try:
-            stdout, stderr = self.wait_proc(process)
-            alarm(0)
-        except Alarm:
-            os.kill(process.pid, SIGKILL)
-            return -1, '', ''
-        return process.returncode, stdout, stderr
+        if not timeout:
+            # timeout is False, None or 0
+            stdout, stderr = process.communicate()
+            return process.returncode
+        else:
+            print "XXXXX TIMEOUT", timeout
+            # http://stackoverflow.com/questions/1191374/subprocess-with-timeout
+            # wainting for better : http://bugs.python.org/issue5673
+            start_time = time.time()
+            run_time = 0
+            while True:
+                if process.poll() is not None:
+                    # process has terminated
+                    break
+                run_time = time.time() - start_time
+                if run_time > timeout:
+                    process.terminate()
+                    raise TimeoutError
+                time.sleep(0.1)
+        return process.returncode
 
 #
 # BASE APP
@@ -216,13 +219,14 @@ class app(empty_app):
         + "none of which should be exposed."
 
     input_nb = 1 # number of input files
-    input_max_pixels = 480000 # max size (in pixels) of an input image
-    input_max_pixels_tolerance = 1.1 # tolerance rate (reduce aliasing)
+    input_max_pixels = 1024 * 1024 # max size of an input image
+    input_max_method = 'zoom'
     input_max_weight = 5 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.tiff' # input image expected extention (ie. file format)
     output_ext = '.tiff' # output image extention (ie. file format)
     display_ext = '.jpeg' # html embedded displayed image extention
+    timeout = 60 # subprocess execution timeout
     is_test = False;
 
     def __init__(self, base_dir):
@@ -314,6 +318,7 @@ class app(empty_app):
         """
         pre-process the input data
         """
+        msg = None;
         for i in range(self.input_nb):
             # open the file as an image
             try:
@@ -324,16 +329,18 @@ class app(empty_app):
             # convert to the expected input format
             im.convert(self.input_dtype)
             # check max size
-            if prod(im.size) > (self.input_max_pixels
-                                * self.input_max_pixels_tolerance):
-                im.resize(self.input_max_pixels, mode="pixels")
+            if prod(im.size) > (self.input_max_pixels):
+                im.resize(self.input_max_pixels, mode='pixels',
+                          method=self.input_max_method)
                 self.log("input resized")
+                msg = """The image has been resized
+                      for a reduced computation time."""
             # save a working copy
             im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
             # save a web viewable copy
             if (self.display_ext != self.input_ext):
                 im.save(self.path('tmp', 'input_%i' % i + self.display_ext))
-        return
+        return msg
 
     def clone_input(self):
         """
@@ -370,10 +377,10 @@ class app(empty_app):
         for i in range(len(fnames)):
             shutil.copy(self.path('input', fnames[i]),
                         self.path('tmp', 'input_%i' % i))
-        self.process_input()
+        msg = self.process_input()
         self.log("input selected : %s" % input_id)
         # jump to the params page
-        return self.params(key=self.key)
+        return self.params(key=self.key, msg=msg)
 
     def input_upload(self, **kwargs):
         """
@@ -401,27 +408,27 @@ class app(empty_app):
                                              "resize or use better compression")
                 file_save.write(data)
             file_save.close()
-        self.process_input()
+        msg = self.process_input()
         self.log("input uploaded")
         # jump to the params page
-        return self.params(key=self.key)
+        return self.params(key=self.key, msg=msg)
 
     #
     # ERROR HANDLING
     #
 
-    def error(self, error=''):
+    def error(self, errcode=None, errmsg=''):
         """
         signal an error
         """
-        return self.tmpl_out("error.html", error=error)
+        return self.tmpl_out("error.html", errcode=errcode, errmsg=errmsg)
 
     #
     # PARAMETER HANDLING
     #
 
     @get_check_key
-    def params(self, newrun=False):
+    def params(self, newrun=False, msg=None):
         """
         configure the algo execution
         """
@@ -430,7 +437,7 @@ class app(empty_app):
         urld = {'next_step' : self.url('run'),
                 'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
                            for i in range(self.input_nb)]}
-        return self.tmpl_out("params.html", urld=urld)
+        return self.tmpl_out("params.html", urld=urld, msg=msg)
 
     #
     # EXECUTION AND RESULTS

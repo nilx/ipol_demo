@@ -4,6 +4,7 @@ demo example for the X->aX+b transform
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303, app_expose, index_dict
+from lib import TimeoutError
 import os.path
 import time
 
@@ -16,14 +17,15 @@ class app(base_app):
     Please select two images; color images will be converted into gray
     level."""
 
-    input_nb = 2 # number of input images
-    #input_max_pixels = # max size (in pixels) of an input image
-    #input_max_weight = # max size (in bytes) of an input file
-    input_dtype = '1x8i' # input image expected data type
-    input_ext = '.png'   # input image expected extension (ie file format)
-    output_ext = '.png'  # output image extention (ie. file format)
-    display_ext = '.png' # displayed image extention (ie. file format)
-    is_test = False;     # switch to False for deployment
+    input_nb = 2
+    input_max_pixels = 640 * 480
+    input_max_method = 'zoom'
+    input_dtype = '1x8i'
+    input_ext = '.png'
+    output_ext = '.png'
+    display_ext = '.png'
+    timeout = 60
+    is_test = False
 
     def __init__(self):
         """
@@ -60,26 +62,17 @@ class app(base_app):
     # because it is the actual algorithm execution, hence specific
     # run_algo() is called from result(),
     # with the parameters validated in run()
-    def run_algo(self):
+    def run_algo(self, stdin=None, stdout=None, stderr=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
-        run_time = time.time()
         p = self.run_proc(['asift', 'input_0.png', 'input_1.png', 
                            'outputV.png', 'outputH.png',
-                           'match.txt', 'keys_0.txt', 'keys_1.txt'])
-        returncode, stdout, stderr = self.wait_proc(p)
-        stdout_file = open(self.path('tmp', 'stdout.txt'), 'w')
-        stdout_file.write(stdout)
-        stderr_file = open(self.path('tmp', 'stderr.txt'), 'w')
-        stderr_file.write(stderr)
-        run_time = time.time() - run_time
-
-        if (0 != returncode):
-            return -1
-        return run_time
+                           'match.txt', 'keys_0.txt', 'keys_1.txt'],
+                          stdin=stdin, stdout=stdout, stderr=stderr)
+        return self.wait_proc(p, timeout)
 
     @get_check_key
     def result(self):
@@ -88,9 +81,23 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # no parameters
-        run_time = self.run_algo()
-#        if (0 > run_time):
-#            return self.error(error='run-time error')
+        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
+        stderr = open(self.path('tmp', 'stderr.txt'), 'w')
+        try:
+            run_time = time.time()
+            returncode = self.run_algo(timeout=self.timeout)
+            run_time = time.time() - run_time
+        except TimeoutError:
+            return self.error(errcode='timeout',
+                              errmsg="""
+The algorithm took more than %i seconds and had to be interrupted.
+Try again with simpler images.""" % self.timeout)
+
+        if (0 != returncode):
+            return self.error(errcode='returncode',
+                              errmsg="""
+The program ended with a failure return code,
+something must have gone wrong""")
         self.log("input processed")
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
