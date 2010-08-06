@@ -19,7 +19,7 @@ CXX	= $(CCACHE) c++
 
 # get the source code
 $(TARBALL)	:
-	wget -N $(TARBALL_URL)
+	wget -N $(TARBALL_URL) -O $@
 
 # compile the binaries from the ./src folder into the ./bin folder
 bin	: $(BIN)
