@@ -4,6 +4,7 @@ demo example for the X->aX+b transform
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303, app_expose, index_dict
+from lib import TimeoutError, RuntimeError
 import os.path
 
 class app(base_app):
@@ -61,6 +62,7 @@ class app(base_app):
         return self.tmpl_out("run.html", urld=urld)
     run.exposed = True
 
+
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
     # run_algo() is called from result(),
@@ -73,8 +75,8 @@ class app(base_app):
         """
         p = self.run_proc(['axpb', str(a), 'input_0.png', str(b), 
                            'output.png'])
-        returncode, stdin, stdout = self.wait_proc(p)
-        assert(0 == returncode)
+        self.wait_proc(p)
+        return
 
     @get_check_key
     def result(self):
@@ -87,7 +89,12 @@ class app(base_app):
         a = params_file['params']['a']
         b = params_file['params']['b']
         # run the algorithm
-        self.run_algo(a, b)
+        try:
+            self.run_algo(a, b)
+        except TimeoutError:
+            return self.error(errcode='timeout') 
+        except RuntimeError:
+            return self.error(errcode='runtime')
         self.log("input processed")
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),

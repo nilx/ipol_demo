@@ -220,3 +220,5 @@ def app_expose(function):
 
 class TimeoutError(Exception):
     pass
+class RuntimeError(Exception):
+    pass

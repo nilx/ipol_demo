@@ -15,7 +15,7 @@ import os
 import time
 from subprocess import PIPE, Popen
 
-from lib import TimeoutError
+from lib import TimeoutError, RuntimeError
 
 import cherrypy
 
@@ -174,15 +174,12 @@ class empty_app(object):
         timeout:
         * False : no timeout
         * numeric : custom timeout
-        return: returncode
         """
 
         if not timeout:
             # timeout is False, None or 0
-            stdout, stderr = process.communicate()
-            return process.returncode
+            process.wait()
         else:
-            print "XXXXX TIMEOUT", timeout
             # http://stackoverflow.com/questions/1191374/subprocess-with-timeout
             # wainting for better : http://bugs.python.org/issue5673
             start_time = time.time()
@@ -196,7 +193,9 @@ class empty_app(object):
                     process.terminate()
                     raise TimeoutError
                 time.sleep(0.1)
-        return process.returncode
+        if 0 != process.returncode:
+            raise RuntimeError
+        return
 
 #
 # BASE APP

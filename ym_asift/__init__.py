@@ -4,7 +4,7 @@ demo example for the X->aX+b transform
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303, app_expose, index_dict
-from lib import TimeoutError
+from lib import TimeoutError, RuntimeError
 import os.path
 import time
 
@@ -62,7 +62,7 @@ class app(base_app):
     # because it is the actual algorithm execution, hence specific
     # run_algo() is called from result(),
     # with the parameters validated in run()
-    def run_algo(self, stdin=None, stdout=None, stderr=None, timeout=False):
+    def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
@@ -71,8 +71,9 @@ class app(base_app):
         p = self.run_proc(['asift', 'input_0.png', 'input_1.png', 
                            'outputV.png', 'outputH.png',
                            'match.txt', 'keys_0.txt', 'keys_1.txt'],
-                          stdin=stdin, stdout=stdout, stderr=stderr)
-        return self.wait_proc(p, timeout)
+                          stdout=stdout, stderr=stdout)
+        self.wait_proc(p, timeout)
+        return
 
     @get_check_key
     def result(self):
@@ -82,19 +83,17 @@ class app(base_app):
         """
         # no parameters
         stdout = open(self.path('tmp', 'stdout.txt'), 'w')
-        stderr = open(self.path('tmp', 'stderr.txt'), 'w')
         try:
             run_time = time.time()
-            returncode = self.run_algo(timeout=self.timeout)
+            self.run_algo(timeout=self.timeout, stdout=stdout)
             run_time = time.time() - run_time
         except TimeoutError:
             return self.error(errcode='timeout',
                               errmsg="""
 The algorithm took more than %i seconds and had to be interrupted.
 Try again with simpler images.""" % self.timeout)
-
-        if (0 != returncode):
-            return self.error(errcode='returncode',
+        except RuntimeError:
+            return self.error(errcode='retime',
                               errmsg="""
 The program ended with a failure return code,
 something must have gone wrong""")
@@ -108,10 +107,8 @@ something must have gone wrong""")
                 'match' : self.url('tmp', 'match.txt'),
                 'keys_0' : self.url('tmp', 'keys_0.txt'),
                 'keys_1' : self.url('tmp', 'keys_1.txt')}
-        stdout_file = open(self.path('tmp', 'stdout.txt'), 'r')
-        stderr_file = open(self.path('tmp', 'stderr.txt'), 'r')
+        stdout = open(self.path('tmp', 'stdout.txt'), 'r')
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
-                             stdout=stdout_file.read(),
-                             stderr=stderr_file.read())
+                             stdout=stdout.read())
     result.exposed = True
