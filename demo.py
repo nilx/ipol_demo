@@ -56,7 +56,7 @@ if __name__ == '__main__':
     conf_file = os.path.join(os.path.dirname(__file__), 'demo.conf')
 
     demo_dict = {}
-    demo_blacklist = ['.git', 'base_tmpl', 'template_demo']
+    demo_blacklist = ['.git', 'base_tmpl']
     base_dir = os.path.dirname(os.path.abspath(__file__))
     cherrypy.log("app base_dir : %s" % base_dir,
                  context='SETUP', traceback=False)

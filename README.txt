@@ -27,7 +27,7 @@ A makefile provides a few convenient shortcuts:
 
 To create a new demo,
 
-1. copy the `template_demo` folder to a new folder name; this folder
+1. copy an example demo ('xxx_something') to a new folder name; this folder
    name will ne the demo id
 2. in this new folder, customize the class attributes and functions in
    `__init__.py`

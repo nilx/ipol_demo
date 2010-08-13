@@ -3,7 +3,7 @@ SRC	:= $(wildcard *.py) $(wildcard */*.py)
 default	:
 	@cat README.txt
 
-DEMO := $(filter-out ./.git ./base_tmpl ./template_demo, \
+DEMO := $(filter-out ./.git ./base_tmpl, \
 		$(shell find ./ -maxdepth 1 -mindepth 1 -type d))
 
 lint	: lint.flag
