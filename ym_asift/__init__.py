@@ -18,7 +18,7 @@ class app(base_app):
     level."""
 
     input_nb = 2
-    input_max_pixels = 640 * 480
+    input_max_pixels = None
     input_max_method = 'zoom'
     input_dtype = '1x8i'
     input_ext = '.png'

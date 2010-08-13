@@ -328,7 +328,8 @@ class app(empty_app):
             # convert to the expected input format
             im.convert(self.input_dtype)
             # check max size
-            if prod(im.size) > (self.input_max_pixels):
+            if self.input_max_pixels \
+                    and prod(im.size) > (self.input_max_pixels):
                 im.resize(self.input_max_pixels, mode='pixels',
                           method=self.input_max_method)
                 self.log("input resized")
