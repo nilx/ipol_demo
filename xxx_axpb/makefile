@@ -5,7 +5,7 @@
 # the copyright notice and this notice are preserved.  This file is
 # offered as-is, without any warranty.
 
-default : bin
+default : update
 
 TARBALL	= axpb.tar.gz
 TARBALL_URL	= http://www.ipol.im/meta/dev/$(TARBALL)
@@ -15,14 +15,13 @@ CCACHE  = $(shell which ccache)
 CC	= $(CCACHE) cc
 CXX	= $(CCACHE) c++
 
-.PHONY	: bin distclean
+.PHONY	: update distclean
 
-# get the source code
-$(TARBALL)	:
-	wget -N $(TARBALL_URL) -O $@
+update	:
+	wget -N $(TARBALL_URL)
+	$(MAKE) $(BIN)
 
 # compile the binaries from the ./src folder into the ./bin folder
-bin	: $(BIN)
 $(BIN)	: $(TARBALL) makefile
 	rm -rf tmp; mkdir tmp
 	tar xvzf axpb.tar.gz -C tmp
