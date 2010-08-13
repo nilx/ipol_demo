@@ -26,7 +26,6 @@ $(BIN)	: $(TARBALL) makefile
 	rm -rf tmp; mkdir tmp
 	tar xzf $< -C tmp
 	$(MAKE) -C tmp/ASIFT_png/ OMP=1 \
-		COPT="-O3 -ftree-vectorize" \
 		CC="$(CC)" CXX="$(CXX)" -j4
 	rm -rf bin; mkdir bin
 	mv tmp/ASIFT_png/demo_ASIFT $@
