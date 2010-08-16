@@ -1,5 +1,5 @@
 """
-demo example for the X->aX+b transform
+ASIFT demo interaction script
 """
 
 from base_demo import app as base_app
