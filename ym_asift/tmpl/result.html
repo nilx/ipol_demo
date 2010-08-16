@@ -13,24 +13,24 @@ new input data:
 <hr />
 
 <div>
-<h2>input</h2>
-% for url in urld['input']:
-<img src="${url}" alt="" /> <br/>
-% endfor
+<h2>stdout</h2>
+<pre class="stdio">
+${stdout}
+</pre>
 <h2>output</h2>
-% for url in urld['output']:
-<img src="${url}" alt="" /> <br/>
-% endfor
+<img src="${urld['output_v']}" alt="" /> <br/>
 <ul>
+<li><a href="${urld['output_h']}" alt="" />
+  output image (horizontal layout)</li>
 <li><a href="${urld['match']}">coordinates of match points</a></li>
 <li>ASIFT keypoints in
     the <a href="${urld['keys_0']}">first</a>
     and <a href="${urld['keys_1']}">second</a> image</li>
 </ul>
-<h2>stdout</h2>
-<pre class="stdio">
-${stdout}
-</pre>
+<h2>input</h2>
+% for url in urld['input']:
+<img src="${url}" alt="" /> <br/>
+% endfor
 </div>
 
 <%include file="footer.html" />

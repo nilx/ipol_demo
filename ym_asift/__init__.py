@@ -102,8 +102,8 @@ something must have gone wrong""")
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')],
-                'output' : [self.url('tmp', 'outputH.png'),
-                            self.url('tmp', 'outputV.png')],
+                'output_h' : self.url('tmp', 'outputH.png'),
+                'output_v' : self.url('tmp', 'outputV.png'),
                 'match' : self.url('tmp', 'match.txt'),
                 'keys_0' : self.url('tmp', 'keys_0.txt'),
                 'keys_1' : self.url('tmp', 'keys_1.txt')}
