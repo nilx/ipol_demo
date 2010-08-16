@@ -12,6 +12,10 @@
 <style TYPE="text/css">
 <!--
 <%include file="style.css" />
+
+%if not prod:
+<%include file="style_dev.css" />
+%endif
 -->
 </style>
 </head>
