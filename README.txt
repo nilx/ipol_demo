@@ -28,13 +28,13 @@ A makefile provides a few convenient shortcuts:
 To create a new demo,
 
 1. copy an example demo ('xxx_something') to a new folder name; this folder
-   name will ne the demo id
+   name will be the demo id
 2. in this new folder, customize the class attributes and functions in
-   `__init__.py`
+   `app.py`
 3. in this new folder, customize the default input files in
-   `data/input`, and update the description of these files in
-   `data/input/index.cfg`
+   `input`, and update the description of these files in
+   `input/index.cfg`
 4. in this new folder, customize the `params.html` and `result.html`
-   templates in the `tmpl` folder
-5. in this new folder, customize the `makefile` and `src` folder
+   templates in the `template` folder
+5. in this new folder, customize the `makefile`
 6. debug, test, debug, release
