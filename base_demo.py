@@ -176,6 +176,9 @@ class empty_app(object):
         * numeric : custom timeout
         """
 
+        if not (cherrypy.config['server.environment'] == 'production'):
+            # no timeout if just testing
+            timeout = False;
         if not timeout:
             # timeout is False, None or 0
             process.wait()
