@@ -3,7 +3,7 @@ SRC	:= $(wildcard *.py) $(wildcard */*.py)
 default	:
 	@cat README.txt
 
-DEMO := $(filter-out ./.git ./base_tmpl, \
+DEMO := $(filter-out ./.git ./base_template, \
 		$(shell find ./ -maxdepth 1 -mindepth 1 -type d))
 
 lint	: lint.flag
@@ -22,6 +22,6 @@ test	: clean update
 
 .PHONY	: clean
 clean	:
-	$(RM) -r */data/tmp/*
-	$(RM) */data/input/*.*x*.png
+	$(RM) -r */tmp/*
+	$(RM) */input/*.*x*.png
 	$(RM) lint.flag

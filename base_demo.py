@@ -242,10 +242,10 @@ class app(empty_app):
                      context='SETUP', traceback=False)
         # local base_app templates folder
         tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                'base_tmpl')
-        # first search in the subclass tmpl dir
+                                'base_template')
+        # first search in the subclass template dir
         self.tmpl_lookup = TemplateLookup( \
-            directories=[os.path.join(self.base_dir,'tmpl'), tmpl_dir],
+            directories=[os.path.join(self.base_dir,'template'), tmpl_dir],
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
         # [TEST] flag
