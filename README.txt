@@ -2,8 +2,11 @@
 
 # Requirements
 
-This code requires python plus some modules, included in the following
-Debian/Ubuntu packages: python, python-cherrypy3, python-mako, python-imaging.
+This code requires
+* python plus some modules, included in the following Debian/Ubuntu
+  packages: python python-cherrypy3 python-mako python-imaging. 
+* compilation tools and libraries, , included in the following
+  Debian/Ubuntu packages: wget gcc g++, make libtiff-dev libpng-dev
 
 # Usage
 
