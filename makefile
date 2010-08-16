@@ -16,6 +16,11 @@ lint.flag	: $(SRC)
 update	:
 	for D in $(DEMO); do $(MAKE) -C $$D/ update; done
 
+.PHONY	: init
+init	: $(addsuffix /tmp, $(DEMO))
+%/tmp	:
+	mkdir $@
+
 .PHONY	: test
 test	: clean update
 	./demo.py
