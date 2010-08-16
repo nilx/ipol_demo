@@ -4,14 +4,16 @@ demo.conf
 # ignore compiled Python code
 *.pyc
 
-# ignore the linting flag
-lint.flag
+# ignore the development flags
+*.flag
 
 # ignore source and binary files
 */*.tgz
 */*.tar.gz
 */bin
 
-# ignore the temporary data files and thumbnails (locally generated)
-*/data/tmp/*
+# ignore the thumbnails
 */data/input/*.__*__.png
+
+# ignore the temporary files content
+*/data/tmp/*/*
