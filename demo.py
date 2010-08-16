@@ -84,12 +84,12 @@ if __name__ == '__main__':
         config = {'/input':
                       {'tools.staticdir.on' : True,
                        'tools.staticdir.dir' : \
-                           os.path.join(base_dir, demo_id, 'data', 'input')
+                           os.path.join(base_dir, demo_id, 'input')
                        },
                   '/tmp':
                       {'tools.staticdir.on' : True,
                        'tools.staticdir.dir' : \
-                           os.path.join(base_dir, demo_id, 'data', 'tmp')
+                           os.path.join(base_dir, demo_id, 'tmp')
                        },
                   }
         cherrypy.tree.mount(demo.app(), mount_point, config=config)

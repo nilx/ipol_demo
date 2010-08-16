@@ -46,11 +46,11 @@ class empty_app(object):
         """
         if folder == 'tmp':
             # TODO : check key != None
-            path = os.path.join(self.base_dir, 'data', 'tmp', self.key, fname)
+            path = os.path.join(self.base_dir, 'tmp', self.key, fname)
         elif folder == 'bin':
             path = os.path.join(self.base_dir, 'bin', fname)
         elif folder == 'input':
-            path = os.path.join(self.base_dir, 'data', 'input', fname)
+            path = os.path.join(self.base_dir, 'input', fname)
         return os.path.abspath(path)
 
     #

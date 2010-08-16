@@ -13,7 +13,7 @@ demo.conf
 */bin
 
 # ignore the thumbnails
-*/data/input/*.__*__.png
+*/input/*.__*__.png
 
-# ignore the temporary files content
-*/data/tmp/*/*
+# ignore the temporary folder
+*/tmp

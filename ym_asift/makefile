@@ -23,13 +23,13 @@ update	:
 
 # compile the binaries from the ./src folder into the ./bin folder
 $(BIN)	: $(TARBALL) makefile
-	rm -rf tmp; mkdir tmp
-	tar xzf $< -C tmp
-	$(MAKE) -C tmp/ASIFT_png/ OMP=1 \
+	rm -rf src; mkdir src
+	tar xzf $< -C src
+	$(MAKE) -C src/ASIFT_png/ OMP=1 \
 		CC="$(CC)" CXX="$(CXX)" -j4
 	rm -rf bin; mkdir bin
-	mv tmp/ASIFT_png/demo_ASIFT $@
-	rm -rf tmp
+	mv src/ASIFT_png/demo_ASIFT $@
+	rm -rf src
 
 # delete the compilation by-products from the ./src folder
 distclean	:

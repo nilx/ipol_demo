@@ -23,13 +23,13 @@ update	:
 
 # compile the binaries from the ./src folder into the ./bin folder
 $(BIN)	: $(TARBALL) makefile
-	rm -rf tmp; mkdir tmp
-	tar xvzf axpb.tar.gz -C tmp
-	$(MAKE) -C tmp/axpb/ \
+	rm -rf src; mkdir src
+	tar xvzf axpb.tar.gz -C src
+	$(MAKE) -C src/axpb/ \
 		CC="$(CC)" CXX="$(CXX)" -j4
 	rm -rf bin; mkdir bin
-	mv tmp/axpb/axpb $@
-	rm -rf tmp
+	mv src/axpb/axpb $@
+	rm -rf src
 
 # delete the compilation by-products from the ./src folder
 distclean	:
