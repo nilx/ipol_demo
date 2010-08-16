@@ -5,8 +5,8 @@
     font-size: 80%; }
 
 .warning {
+    border: #990000 1px solid;
     background: none;
-    border: none;
     color: #990000; }
 
 /***** forms ****/
@@ -16,59 +16,16 @@ form div.select_input {
 
 form div.select_input,
 form div.upload_input {
-    margin: .5em;
-    padding: .5em;
+    margin: .2em;
+    padding: .2em;
     border: #ccccff 1px dotted; }
 
-form div.select_input .label {
-    display: block; }
+form .select_input .label {
+    display: block;
+    text-align: center; }
 
 form fieldset {
     border: #ccccff 1px solid; }
 
 form label {
     cursor: pointer; }
-
-
-
-/*
-input[type="file"] {
-    display: inline;
-    width: 100%; }
-*/
-
-
-/*
-form#submission p {
-    margin: 0; }
-
-form#submission input[type="text"],
-form#submission textarea {
-    font-size: 100%;
-    width: 75%; }
-
-form#submission label.label,
-form#submission span.label {
-    display: block;
-    float: left;
-    width: 20%;
-    text-align: right;
-    margin-right: .5em;}
-
-form#submission div.scroll {
-    height: 8em;
-    overflow: auto;
-    width: 77.5%;
-    margin: .2em 0; }
-
-form#submission div.scroll input[type="text"] {
-    width: 50%; }
-
-form#submission div.multicolumn {
-    float: left;
-    margin-right: .5em; }
-
-form#submission div.multicolumn label {
-    cursor: pointer; }
-
-*/
