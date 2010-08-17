@@ -5,8 +5,8 @@
 This code requires
 * python plus some modules, included in the following Debian/Ubuntu
   packages: python python-cherrypy3 python-mako python-imaging. 
-* compilation tools and libraries, , included in the following
-  Debian/Ubuntu packages: wget gcc g++, make libtiff-dev libpng-dev
+* compilation tools and libraries, included in the following
+  Debian/Ubuntu packages: wget gcc g++ make libtiff-dev libpng-dev
 
 # Usage
 
@@ -41,3 +41,4 @@ To create a new demo,
    templates in the `template` folder
 5. in this new folder, customize the `makefile`
 6. debug, test, debug, release
+ 
