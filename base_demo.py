@@ -226,7 +226,6 @@ class app(empty_app):
     input_max_weight = 5 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.tiff' # input image expected extention (ie. file format)
-    output_ext = '.tiff' # output image extention (ie. file format)
     display_ext = '.jpeg' # html embedded displayed image extention
     timeout = 60 # subprocess execution timeout
     is_test = False;
