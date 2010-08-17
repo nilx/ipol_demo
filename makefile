@@ -17,7 +17,7 @@ update	:
 	for D in $(DEMO); do $(MAKE) -C $$D/ update; done
 
 .PHONY	: test
-test	: clean update
+test	: update
 	./demo.py
 
 .PHONY	: clean
