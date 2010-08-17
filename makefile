@@ -22,6 +22,6 @@ test	: update
 
 .PHONY	: clean
 clean	:
-	$(RM) -r */tmp/*
-	$(RM) */input/*.*x*.png
-	$(RM) lint.flag
+	$(RM) -r */tmp
+	$(RM) */input/*.__*x*__.png
+	$(RM) *.flag
