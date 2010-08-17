@@ -52,15 +52,25 @@ class demo_index:
 if __name__ == '__main__':
 
     import os
+    import shutil
+
     # config file and location settings
-    conf_file = os.path.join(os.path.dirname(__file__), 'demo.conf')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    conf_file = os.path.join(base_dir, 'demo.conf')
+    conf_file_example = os.path.join(base_dir, 'demo.conf.example')
 
     demo_dict = {}
     demo_blacklist = ['.git', 'base_template']
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    cherrypy.log("app base_dir : %s" % base_dir,
+    cherrypy.log("app base_dir: %s" % base_dir,
                  context='SETUP', traceback=False)
-    cherrypy.config.update(conf_file)
+    try:
+        cherrypy.config.update(conf_file)
+    except IOError:
+        cherrypy.log("warning: the conf file is missing, copying the example conf",
+                     context='SETUP', traceback=False)
+        shutil.copy(conf_file_example, conf_file)
+        cherrypy.config.update(conf_file)
 
     # load the demo collection
     # from now, the demo id is the demo module name, which happens to
@@ -76,22 +86,32 @@ if __name__ == '__main__':
         if (cherrypy.config['server.environment'] == 'production'
             and demo.app.is_test):
             continue
-        cherrypy.log("loading demo : %s" % demo_id, context='SETUP',
+        cherrypy.log("loading demo: %s" % demo_id, context='SETUP',
                      traceback=False)
         demo_dict[demo_id] = demo.app
         mount_point = '/' + demo_id
         # static subfolders config
+        input_dir = os.path.join(base_dir, demo_id, 'input')
+        tmp_dir = os.path.join(base_dir, demo_id, 'tmp')
         config = {'/input':
                       {'tools.staticdir.on' : True,
-                       'tools.staticdir.dir' : \
-                           os.path.join(base_dir, demo_id, 'input')
+                       'tools.staticdir.dir' : input_dir
                        },
                   '/tmp':
                       {'tools.staticdir.on' : True,
-                       'tools.staticdir.dir' : \
-                           os.path.join(base_dir, demo_id, 'tmp')
+                       'tools.staticdir.dir' : tmp_dir
                        },
                   }
+        # create missing static subfolders
+        if not os.path.isdir(input_dir):
+            cherrypy.log("warning: missing input folder, creating it",
+                         context='SETUP', traceback=False)
+            os.mkdir(input_dir)
+        if not os.path.isdir(tmp_dir):
+            cherrypy.log("warning: missing tmp folder, creating it",
+                         context='SETUP', traceback=False)
+            os.mkdir(tmp_dir)
+        # mount static subfolders
         cherrypy.tree.mount(demo.app(), mount_point, config=config)
 
     # use cgitb error handling
