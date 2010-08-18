@@ -171,32 +171,45 @@ class empty_app(object):
     def wait_proc(self, process, timeout=False):
         """
         wait for the end of a process execution with an optional timeout
-        timeout:
-        * False : no timeout
-        * numeric : custom timeout
+        timeout: False (no timeout) or a numeric value (seconds)
+        process: a process or a process list, tuple, ...
         """
 
         if not (cherrypy.config['server.environment'] == 'production'):
             # no timeout if just testing
             timeout = False;
+        if isinstance(process, Popen):
+            # require a list
+            process_list = [process]
+        else:
+            # duck typing, suppose we have an iterable
+            process_list = process
         if not timeout:
             # timeout is False, None or 0
-            process.wait()
+            # wait until everything is finished
+            for p in process_list:
+                p.wait()
         else:
-            # http://stackoverflow.com/questions/1191374/subprocess-with-timeout
+            # http://stackoverflow.com/questions/1191374/
             # wainting for better : http://bugs.python.org/issue5673
             start_time = time.time()
             run_time = 0
             while True:
-                if process.poll() is not None:
-                    # process has terminated
+                if all([p.poll() is not None for p in process_list]):
+                    # all processes have terminated
                     break
                 run_time = time.time() - start_time
                 if run_time > timeout:
-                    process.terminate()
+                    for p in process_list:
+                        try:
+                            p.terminate()
+                        except OSError:
+                            # could not stop the process
+                            # probably self-terminated
+                            pass
                     raise TimeoutError
                 time.sleep(0.1)
-        if 0 != process.returncode:
+        if any([0 != p.returncode for p in process_list]):
             raise RuntimeError
         return
 
