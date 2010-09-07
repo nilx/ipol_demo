@@ -89,14 +89,17 @@ class image(object):
     nothing is written until explicitly asked
     """
 
-    def __init__(self, location):
+    def __init__(self, src=None):
         """
         open the image
+        src not specified : empty image
+        src is a string : read the file
+        src is a PIL Image : use it
         """
-        location = os.path.abspath(location)
-        (self.folder, self.fname) = os.path.split(location)
-
-        self.im = Image.open(location)
+        if isinstance(src, Image.Image):
+            self.im = src
+        if isinstance(src, str):
+            self.im = Image.open(src)
 
     def __getattr__(self, attr):
         """ 
