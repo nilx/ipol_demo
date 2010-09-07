@@ -85,8 +85,8 @@ class app(base_app):
         """
         # read the parameters
         params_file = index_dict(self.path('tmp'))
-        a = params_file['params']['a']
-        b = params_file['params']['b']
+        a = float(params_file['params']['a'])
+        b = float(params_file['params']['b'])
         # run the algorithm
         try:
             self.run_algo(a, b)
