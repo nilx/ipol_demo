@@ -125,35 +125,19 @@ class image(object):
         self.im = self.im.crop(box)
         return self
 
-    def resize(self, size, mode='xy', method='zoom'):
+    def resize(self, size):
         """
         resize the image, in-place
-        modes:
-        * 'xy': size is the target size
-        * 'scale': size is the scaling factor
-        * 'pixels': size is the target number of pixels
-        methods:
-        * 'zoom' bicubic zoom
-        * 'zoom_2' bicubic zoom out by 2^n factor
         """
 
-        if mode == 'pixels':
-            # size is a number of pixels -> convert to scale mode
+        if isinstance(size, int):
+            # size is a number of pixels -> convert to a float scale
             size = (float(size) / (self.im.size[0] * self.im.size[1])) ** .5
-            mode = 'scale'
 
-        if mode == 'scale':
-            # size must be an int/float scale ratio
+        if isinstance(size, float):
+            # size is a scale -> convert to (x, y)
             size = (int(self.im.size[0] * size),
                     int(self.im.size[1] * size))
-        
-        if method == 'zoom_2':
-            # only use 2^x zoom factors
-            _size = self.im.size
-            while _size[0] > size[0] or _size[1] > size[1]:
-                _size[0] /= 2
-                _size[1] /= 2
-            size = _size
 
         self.im = self.im.resize(size, Image.BICUBIC)
         return self

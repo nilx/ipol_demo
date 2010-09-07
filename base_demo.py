@@ -235,7 +235,6 @@ class app(empty_app):
 
     input_nb = 1 # number of input files
     input_max_pixels = 1024 * 1024 # max size of an input image
-    input_max_method = 'zoom'
     input_max_weight = 5 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.tiff' # input image expected extention (ie. file format)
@@ -345,8 +344,7 @@ class app(empty_app):
             # check max size
             if self.input_max_pixels \
                     and prod(im.size) > (self.input_max_pixels):
-                im.resize(self.input_max_pixels, mode='pixels',
-                          method=self.input_max_method)
+                im.resize(self.input_max_pixels)
                 self.log("input resized")
                 msg = """The image has been resized
                       for a reduced computation time."""
