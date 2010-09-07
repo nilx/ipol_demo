@@ -252,7 +252,6 @@ def get_check_key(func):
         """
         original function with a preliminary key check
         """
-#        if self.key == None:
         self.key = kwargs.pop('key', '')
         self.check_key()
         return func(self, *args, **kwargs)
