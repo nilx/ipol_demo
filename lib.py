@@ -110,6 +110,14 @@ class image(object):
         else:
             return object.__getattribute__(self, attr)
 
+    def save(self, fname, **kwargs):
+        """
+        save the image file
+        """
+        # TODO : handle external TIFF compression
+        self.im.save(fname, **kwargs)
+        return fname
+
     def crop(self, box):
         """
         crop the image, in-place
@@ -168,12 +176,67 @@ class image(object):
         self.im = self.im.convert(mode_kw[mode])
         return self
 
-    def save(self, fname, **kwargs):
+    def split(self, nb, margin=0, fname=None):
         """
-        save the image file
+        split an image vertically into nb tiles,
+        with an optional margin
+        returns a list of images if fname is not specified,
+        or a list of filenames where these images are saved
         """
-        # TODO : handle external TIFF compression
-        self.im.save(fname, **kwargs)
+        
+        assert (nb >= 2)
+        xmax, ymax = self.im.size
+        dy = float(ymax) / nb
+        
+        # list of the crop boxes
+        boxes = [(0, 0, xmax, int(dy) + margin)]
+        boxes += [(0, int(n * dy) - margin, xmax, int((n + 1) * dy) + margin)
+                 for n in range(1, nb - 1)]
+        boxes += [(0, int((nb - 1) * dy) - margin, xmax, ymax)]
+        
+        # cut the image
+        tiles = [image(self.im.crop(box)) for box in boxes]
+
+        if not fname:
+            return tiles
+        else:
+            basename, ext = os.path.splitext(fname)
+            return [tiles[i].save(basename + ".__%0.2i__" % i + ext)
+                    for i in range(len(tiles))]
+
+    def join(self, tiles, margin=0):
+        """
+        read tiles and join them vertically
+        """
+        
+        # compute the full image size
+        xmax = tiles[0].im.size[0]
+        ymax = 0
+        for tile in tiles:
+            assert (tile.im.size[0] == xmax)
+            ymax += tile.im.size[1] - 2 * margin
+        ymax += 2 * margin
+
+        self.im = Image.new(tiles[0].im.mode, (xmax, ymax))
+
+        # join the images
+        ystart = 0
+        tile = tiles[0].im
+        dy = tile.size[1] - margin
+        self.im.paste(tile.crop((0, 0, xmax, dy)), (0, ystart))
+        ystart += dy
+        for tile in tiles[1:-1]:
+            tile = tile.im
+            dy = tile.size[1] - 2 * margin
+            self.im.paste(tile.crop((0, margin, xmax, dy + margin)),
+                          (0, ystart))
+            ystart += dy
+        tile = tiles[-1].im
+        dy = tile.size[1] - margin
+        self.im.paste(tile.crop((0, margin, xmax, dy + margin)),
+                      (0, ystart))
+
+        return self
 
 #
 # ACTION DECORATOR TO HANDLE DEMO KEY
