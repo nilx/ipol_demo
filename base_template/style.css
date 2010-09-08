@@ -33,62 +33,38 @@ form label {
 /* from Stu Nichol's CSSplay */
 /* see http://www.cssplay.co.uk/menu/photo_simple */
 
-#content .holder {
+#content .gallery {
     position: relative;
-    background: transparent 110px 0 no-repeat;
-    margin-top: 10px;
-    margin-bottom: 25px;
-    width: 100%;
+    width: auto;
     height: 400px; }
-#content .scrollbox {
+
+#content .gallery .index {
     padding: 0;
     margin: 0;
-    width: 110px;
-    list-style: none;
-    float: left; }
-#content .scrollbox li {
-    float: left;
+    width: 11em;
+    list-style: none; }
+#content .gallery .index li {
+    margin: 0;
     padding: 0; }
-#content .scrollbox a {
+#content .gallery .index a { /* gallery item title */
     display: block;
-    background-color: #eee;
+    background-color: #EEEEEE;
+    border: 1px solid #FFFFFF;
     text-decoration: none;
-    border: 1px solid #fff;
-    width: 90px;
-    float: left;
-    padding: 5px;
-    font-weight: bold; }
-#content .scrollbox a span {
+    width: 9em;
+    padding: 5px; }
+#content .gallery .index a span { /* gallery item content */
     display: block;
     position: absolute;
-    left: -9999px;
+    left: -9999px; /* hidden */
     top: 0; }
-#content .scrollbox a span img {
-    border: 0; }
 
-#content .scrollbox a:hover {
-    border: 1px solid #888; }
-#content .scrollbox a:hover span {
-    left: 110px;
-    z-index: 100;
-    color: gray; }
+#content .gallery .index li:first-child a span {
+    left: 11em;
+    z-index: 99; }
 
-#content .scrollbox a:active {
-    border: 1px solid black; }
-#content .scrollbox a:focus {
-    border: 1px solid black;
-    outline: 0;}
-
-#content .scrollbox a:active span {
-    top: 0;
-    left: 110px;
-    color: black;
-    z-index: -1; }
-#content .scrollbox a:focus span {
-    top:0;
-    left:110px;
-    color:black;
-    z-index:10;
-    outline:0; }
-#content .holder img.fig {
-    width: 600px; }
+#content .gallery .index a:hover {
+    border: 1px solid #888888; }
+#content .gallery .index a:hover span {
+    left: 11em;
+    z-index: 100; }

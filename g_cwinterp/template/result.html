@@ -12,13 +12,15 @@ new input data:
 
 <hr />
 
-<div class="holder" style="background-image: url(${urld['input'][0]})"> 
-<ul class="scrollbox"> 
-<li><a href="#nogo">Original<span><img src=${urld['input'][0]} alt="" /><br />Original</span></a></li> 
-<li><a href="#nogo">Coarsened<span><img src=${urld['output'][0]} alt="" /><br />Coarsened</span></a></li> 
-<li><a href="#nogo">Interpolated<span><img src=${urld['output'][1]} alt="" /><br />Interpolated</span></a></li> 
-</ul> 
-</div> 
-
+<div class="gallery">
+<ul class="index">
+<li><a href="#">Original
+    <span><img src="${urld['input'][0]}" /></span></a></li>
+<li><a href="#">Coarsened
+    <span><img src="${urld['output'][0]}" /></span></a></li>
+<li><a href="#">Interpolated
+    <span><img src="${urld['output'][1]}" /></span></a></li>
+</ul>
+</div>
 
 <%include file="footer.html" />

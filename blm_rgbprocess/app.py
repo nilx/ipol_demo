@@ -117,6 +117,6 @@ class app(base_app):
                 'outputViews' : [self.url('tmp', 'outview123.png'), self.url('tmp', 'dstview123.png')]
 		}
         #return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time)
-        return self.tmpl_out("result3.html", urld=urld, run_time="%0.2f" % run_time)
+        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time)
     result.exposed = True
 
