@@ -1,0 +1,15 @@
+<%include file="header.html" />
+
+
+<form action="${urld['next_step']}" method="get">
+<input type="hidden" name="key" value="${key}">
+<input type="submit" value="run algorithm" />
+</form>
+
+<ul>
+% for url in urld['input']:
+<img src="${url}" alt="" />
+% endfor
+</ul>
+
+<%include file="footer.html" />
