@@ -17,3 +17,7 @@ demo.conf
 
 # ignore the temporary folder
 */tmp
+
+#ignore backup files
+*~
+
