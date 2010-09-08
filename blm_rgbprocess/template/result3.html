@@ -1,0 +1,31 @@
+<%include file="header.html" />
+
+<p>
+The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+You can run again this algorithm with new data.
+</p>
+
+<form action="${urld['new_input']}" method="get">
+new input data:
+<input type="submit" value="back to : input" />
+</form>
+
+<hr />
+
+<div class="holder" style="background-image: url(${urld['input'][0]})"> 
+<ul class="scrollbox"> 
+<li><a href="#nogo">Original<span><img src=${urld['input'][0]} alt="" /><br />Original</span></a></li> 
+<li><a href="#nogo">Filtered<span><img src=${urld['output'][0]} alt="" /><br />Filtered</span></a></li> 
+</ul> 
+</div> 
+
+<div class="holder" style="background-image: url(${urld['inputViews'][0]})"> 
+<ul class="scrollbox"> 
+<li><a href="#nogo">Original Views<span><img src=${urld['inputViews'][0]} alt="" /><br />Original</span></a></li> 
+<li><a href="#nogo">Filtered Views<span><img src=${urld['outputViews'][0]} alt="" /><br />Filtered</span></a></li> 
+<li><a href="#nogo">Density<span><img src=${urld['outputViews'][1]} alt="" /><br />Density</span></a></li> 
+</ul> 
+</div> 
+
+
+<%include file="footer.html" />
