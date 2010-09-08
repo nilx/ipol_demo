@@ -35,7 +35,7 @@ form label {
 
 #content .holder {
     position: relative;
-    background: #FAFAFA 110px 0 no-repeat;
+    background: transparent 110px 0 no-repeat;
     margin-top: 10px;
     margin-bottom: 25px;
     width: 100%;
@@ -62,10 +62,7 @@ form label {
     display: block;
     position: absolute;
     left: -9999px;
-    top: 0;
-    font-size: 24px;
-    text-align: center;
-    font-weight: normal; }
+    top: 0; }
 #content .scrollbox a span img {
     border: 0; }
 
@@ -73,7 +70,6 @@ form label {
     border: 1px solid #888; }
 #content .scrollbox a:hover span {
     left: 110px;
-    background: #FAFAFA;
     z-index: 100;
     color: gray; }
 
@@ -83,17 +79,15 @@ form label {
     border: 1px solid black;
     outline: 0;}
 
-* html #content .scrollbox a:active span {
+#content .scrollbox a:active span {
     top: 0;
     left: 110px;
     color: black;
-    background: #FAFAFA;
     z-index: -1; }
 #content .scrollbox a:focus span {
     top:0;
     left:110px;
     color:black;
-    background:#FAFAFA;
     z-index:10;
     outline:0; }
 #content .holder img.fig {
