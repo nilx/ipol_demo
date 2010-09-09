@@ -4,6 +4,7 @@ ASIFT demo interaction script
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303, app_expose, index_dict
+from lib import image
 from lib import TimeoutError, RuntimeError
 import os.path
 import time
@@ -102,6 +103,7 @@ Try again with simpler images.""" % self.timeout)
 The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
+
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_0.png'),
@@ -113,7 +115,9 @@ something must have gone wrong""")
                 'keys_0' : self.url('tmp', 'keys_0.txt'),
                 'keys_1' : self.url('tmp', 'keys_1.txt')}
         stdout = open(self.path('tmp', 'stdout.txt'), 'r')
+        img_out = image(self.path('tmp', 'outputV.png'))
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
+                             height=str(img_out.size[1]+10),
                              stdout=stdout.read())
     result.exposed = True
