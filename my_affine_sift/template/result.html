@@ -14,15 +14,25 @@ new input data:
 
 <div>
 <h2>stdout</h2>
+
 <pre class="stdio">
 ${stdout}
 </pre>
+
 <h2>output</h2>
-<img src="${urld['output_v']}" alt="" /> <br/>
+
+<div class="gallery">
+<ul class="index">
+<li><a href="#">ASIFT
+    <span><img src="${urld['output_v']}" /></span></a></li>
+<li><a href="#">SIFT
+    <span><img src="${urld['output_v_sift']}" /></span></a></li>
+</ul>
+</div>
 <ul>
-<li><a href="${urld['output_h']}" alt="" />
-  output image (horizontal layout)</li>
-<li><a href="${urld['match']}">coordinates of match points</a></li>
+<li><a href="${urld['output_h']}"/>
+    ASIFT output image (horizontal layout)</li>
+<li><a href="${urld['match']}">coordinates of ASIFT match points</a></li>
 <li>ASIFT keypoints in
     the <a href="${urld['keys_0']}">first</a>
     and <a href="${urld['keys_1']}">second</a> image</li>

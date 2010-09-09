@@ -67,11 +67,16 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-        p = self.run_proc(['asift', 'input_0.png', 'input_1.png', 
-                           'outputV.png', 'outputH.png',
-                           'match.txt', 'keys_0.txt', 'keys_1.txt'],
-                          stdout=stdout, stderr=stdout)
-        self.wait_proc(p, timeout)
+        asift = self.run_proc(['asift', 'input_0.png', 'input_1.png', 
+                               'outputV.png', 'outputH.png',
+                               'match.txt', 'keys_0.txt', 'keys_1.txt'],
+                              stdout=stdout, stderr=stdout)
+        sift = self.run_proc(['sift', 'input_0.png', 'input_1.png', 
+                              'outputV_SIFT.png', 'outputH_SIFT.png',
+                              'match_SIFT.txt',
+                              'keys_0_SIFT.txt', 'keys_1_SIFT.txt'],
+                             stdout=None, stderr=None)
+        self.wait_proc([asift, sift], timeout)
         return
 
     @get_check_key
@@ -103,6 +108,7 @@ something must have gone wrong""")
                            self.url('tmp', 'input_1.png')],
                 'output_h' : self.url('tmp', 'outputH.png'),
                 'output_v' : self.url('tmp', 'outputV.png'),
+                'output_v_sift' : self.url('tmp', 'outputV_SIFT.png'),
                 'match' : self.url('tmp', 'match.txt'),
                 'keys_0' : self.url('tmp', 'keys_0.txt'),
                 'keys_1' : self.url('tmp', 'keys_1.txt')}
