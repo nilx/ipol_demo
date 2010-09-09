@@ -62,7 +62,7 @@ class app(base_app):
     # because it is the actual algorithm execution, hence specific
     # run_algo() is called from result(),
     # with the parameters validated in run()
-    def run_algo(self):
+    def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
@@ -73,28 +73,34 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
+
+	#check image dimensions (must be divisible by 4)
+	img0 = image(self.path('tmp', 'input_0.png'))
+	sizeX=img0.size[0]
+	sizeY=img0.size[1]
+	sizeXX=(sizeX/4)*4
+	sizeYY=(sizeY/4)*4
+	img0.crop((0, 0, sizeXX, sizeYY))	
+	img0.save(self.path('tmp', 'input_1.png'))
+
 
 	a=4
 	b=0.35
-	p=self.run_proc(['imcoarsen', str(a), str(b), 'input_0.png', 'coarsened0.png'])
+	p=self.run_proc(['imcoarsen', str(a), str(b), 'input_1.png', 'coarsened.png'],
+                          stdout=stdout, stderr=stdout)
 	self.wait_proc(p)
-	#resize coarsened image for display
-	img0 = image(self.path('tmp', 'input_0.png'))
-	img1 = image(self.path('tmp', 'coarsened0.png'))
-	img1.resize(img0.size)
-	img1.save(self.path('tmp', 'coarsened1.png'))
 
-        p2 = self.run_proc(['cwinterp', 'coarsened0.png', 'interpolated1.png'])
+        p2 = self.run_proc(['cwinterp', 'coarsened.png', 'interpolated.png'],
+                          stdout=stdout, stderr=stdout)
+
+        p4 = self.run_proc(['cwinterp', '-s', 'coarsened.png', 'contourori.png'],
+                          stdout=stdout, stderr=stdout)
 	self.wait_proc(p2)
 
-	#crop output image before computing differences
-	img3 = image(self.path('tmp', 'interpolated1.png'))
-	img3.crop((0, 0, img0.size[0], img0.size[1]))
-	img3.save(self.path('tmp', 'interpolated2.png'))
+        p3 = self.run_proc(['imdiff', 'input_1.png', 'interpolated.png'],
+                          stdout=stdout, stderr=stdout)
+	self.wait_proc([p3, p4])
 
-        p3 = self.run_proc(['imdiff', 'input_0.png', 'interpolated2.png'])
-
-	self.wait_proc(p3)
         return
 
     @get_check_key
@@ -104,9 +110,10 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # run the algorithm
+        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
         try:
             run_time = time.time()
-            self.run_algo()
+            self.run_algo(stdout=stdout)
             run_time = time.time() - run_time
         except TimeoutError:
             return self.error(errcode='timeout') 
@@ -115,9 +122,14 @@ class app(base_app):
         self.log("input processed")
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png')],
-                'output' : [self.url('tmp', 'coarsened1.png'), self.url('tmp', 'interpolated1.png')],
+                'input' : [self.url('tmp', 'input_1.png')],
+                'output' : [self.url('tmp', 'coarsened.png'), self.url('tmp', 'interpolated.png'), self.url('tmp', 'contourori.png')],
 		}
-        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time)
+	img0 = image(self.path('tmp', 'input_1.png'))
+	sizeX=img0.size[0]
+	sizeY=img0.size[1]
+        stdout = open(self.path('tmp', 'stdout.txt'), 'r')
+        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time, sizeX="%i" % sizeX, sizeY="%i" % sizeY,
+                             stdout=stdout.read())
     result.exposed = True
 

@@ -4,6 +4,9 @@
 The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
 You can run again this algorithm with new data.
 </p>
+<p>
+Notice that if the input image dimensions are not divisible by 4, then the image has been cropped.
+</p>
 
 <form action="${urld['new_input']}" method="get">
 new input data:
@@ -15,12 +18,24 @@ new input data:
 <div class="gallery">
 <ul class="index">
 <li><a href="#">Original
-    <span><img src="${urld['input'][0]}" /></span></a></li>
+    <span><img src="${urld['input'][0]}"  /></span></a></li>
 <li><a href="#">Coarsened
-    <span><img src="${urld['output'][0]}" /></span></a></li>
+    <span><img src="${urld['output'][0]}" width="${sizeX}px" height="${sizeY}px"/></span></a></li>
 <li><a href="#">Interpolated
     <span><img src="${urld['output'][1]}" /></span></a></li>
+<li><a href="#">Estimated Contour Orientations
+    <span><img src="${urld['output'][2]}" /></span></a></li>
 </ul>
+</div>
+
+<hr />
+
+<div>
+<h2>stdout</h2>
+<pre class="stdio">
+${stdout}
+</pre>
+
 </div>
 
 <%include file="footer.html" />
