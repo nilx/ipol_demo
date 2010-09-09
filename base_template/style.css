@@ -57,14 +57,15 @@ form label {
     display: block;
     position: absolute;
     left: -9999px; /* hidden */
-    top: 0; }
+    top: 0;
+    padding-left: 2em; }
 
 #content .gallery .index li:first-child a span {
-    left: 11em;
+    left: 9em;
     z-index: 99; }
 
 #content .gallery .index a:hover {
     border: 1px solid #888888; }
 #content .gallery .index a:hover span {
-    left: 11em;
+    left: 9em;
     z-index: 100; }
