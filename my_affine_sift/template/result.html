@@ -21,14 +21,21 @@ ${stdout}
 
 <h2>output</h2>
 
-<div class="gallery" style="height:${height}px">
-<ul class="index">
-<li><a href="#">ASIFT
-    <span><img src="${urld['output_v']}" /></span></a></li>
-<li><a href="#">SIFT
-    <span><img src="${urld['output_v_sift']}" /></span></a></li>
-</ul>
-</div>
+<table>
+  <tr>
+    <th>ASIFT</th>
+    <th>SIFT</th>
+  </tr>
+  <tr>
+    <td>
+      <img src="${urld['output_v']}" />
+    </td>
+    <td>
+      <img src="${urld['output_v_sift']}" />
+    </td>
+  </tr>
+</table>
+
 <ul>
 <li><a href="${urld['output_h']}"/>
     ASIFT output image (horizontal layout)</li>
