@@ -1,0 +1,9 @@
+/*
+ * overloading the CSS for development enviironments
+ */
+
+.pageheader {
+    background: #900; }
+
+.pageheader .header {
+    background: none; }

@@ -1,0 +1,32 @@
+<%include file="header.html" />
+
+<h2>result</h2>
+
+Great, isn't it?
+
+<form action="${urld['new_input']}" method="get">
+You can restart with new data
+<input type="submit" value="back to : input" />
+</form>
+
+<form action="${urld['new_run']}" method="get">
+<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="newrun" value="1">
+You can restart with other params
+<input type="submit" value="back to : params" />
+</form>
+
+<ul>
+% for url in urld['input']:
+<li><img src="${url}" alt="" /></li>
+% endfor
+</ul>
+
+<ul>
+% for url in urld['output']:
+<li><img src="${url[0]}" alt="" /><br />
+<a href="${url[1]}">uncompressed PNG version</a></li>
+% endfor
+</ul>
+
+<%include file="footer.html" />
