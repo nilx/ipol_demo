@@ -1,7 +1,8 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+The algorithm result is displayed hereafter.
+It ran in ${run_time}s.<br />
 You can run again this algorithm with new data.
 </p>
 
@@ -22,9 +23,9 @@ ${stdout}
 <h2>output</h2>
 
 <table>
-  <tr>
-    <th>ASIFT</th>
-    <th>SIFT</th>
+  <tr style="font-size:120%; font-weight:bold; text-align: center;">
+    <td>ASIFT: ${nbmatch} matches</td>
+    <td>SIFT: ${nbmatch_SIFT} matches</td>
   </tr>
   <tr>
     <td>

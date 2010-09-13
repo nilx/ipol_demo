@@ -10,7 +10,7 @@ import os.path
 import time
 
 class app(base_app):
-    """ template demo app """
+    """ demo app """
     
     title = "ASIFT: A New Framework for Fully Affine Invariant Comparison"
     description = """This program performs the affine scale-invariant
@@ -104,6 +104,11 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
 
+        match = open(self.path('tmp', 'match.txt'))
+        nbmatch = int(match.readline().split()[0])
+        match_SIFT = open(self.path('tmp', 'match_SIFT.txt'))
+        nbmatch_SIFT = int(match_SIFT.readline().split()[0])
+
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_0.png'),
@@ -118,6 +123,8 @@ something must have gone wrong""")
         img_out = image(self.path('tmp', 'outputV.png'))
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
+                             nbmatch=nbmatch,
+                             nbmatch_SIFT=nbmatch_SIFT,
                              height=str(img_out.size[1]+10),
                              stdout=stdout.read())
     result.exposed = True
