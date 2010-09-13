@@ -64,13 +64,14 @@ if __name__ == '__main__':
     base_dir = os.path.dirname(os.path.abspath(__file__))
     cherrypy.log("app base_dir: %s" % base_dir,
                  context='SETUP', traceback=False)
-    try:
-        cherrypy.config.update(conf_file)
-    except IOError:
-        cherrypy.log("warning: the conf file is missing, copying the example conf",
+
+    if not os.path.isfile(conf_file):
+        cherrypy.log("warning: the conf file is missing, " \
+                         "copying the example conf",
                      context='SETUP', traceback=False)
         shutil.copy(conf_file_example, conf_file)
-        cherrypy.config.update(conf_file)
+
+    cherrypy.config.update(conf_file)
 
     # load the demo collection
     # from now, the demo id is the demo module name, which happens to
