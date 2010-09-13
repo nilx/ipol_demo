@@ -9,7 +9,7 @@
 <p>
 Click on an image to use it as the algorithm input.
 </p>
-%for id in inputd.keys():
+%for id in sorted(inputd.keys()):
 <div class="select_input">
 %for url in inputd[id]['tn_url']:
   <input name="input_id" value="${id | h}" id="&{id | h}"

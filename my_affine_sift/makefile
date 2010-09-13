@@ -7,9 +7,10 @@
 
 default : update
 
-TARBALL	= ASIFT_png.tar.gz
-TARBALL_URL	= http://www.ipol.im/pub/algo/my_affine_sift/$(TARBALL)
-BIN	= bin/asift
+ASIFT_TGZ	= ASIFT_png.tar.gz
+ASIFT_TGZ_URL	= http://www.ipol.im/pub/algo/my_affine_sift/$(ASIFT_TGZ)
+SIFT_TGZ	= SIFT_png.tar.gz
+SIFT_TGZ_URL	= http://www.ipol.im/pub/algo/my_affine_sift/$(SIFT_TGZ)
 
 CCACHE  = $(shell which ccache)
 CC	= $(CCACHE) cc
@@ -18,20 +19,28 @@ CXX	= $(CCACHE) c++
 .PHONY	: update distclean
 
 update	:
-	wget -N $(TARBALL_URL)
-	$(MAKE) $(BIN)
+	wget -N $(ASIFT_TGZ_URL)
+	wget -N $(SIFT_TGZ_URL)
+	rm -rf bin; mkdir bin
+	$(MAKE) bin/asift bin/sift
 
 # compile the binaries from the ./src folder into the ./bin folder
-$(BIN)	: $(TARBALL) makefile
+bin/asift	: $(ASIFT_TGZ)
 	rm -rf src; mkdir src
 	tar xzf $< -C src
 	$(MAKE) -C src/ASIFT_png/ OMP=1 \
 		CC="$(CC)" CXX="$(CXX)" -j4
-	rm -rf bin; mkdir bin
 	mv src/ASIFT_png/demo_ASIFT $@
+	rm -rf src
+bin/sift	: $(SIFT_TGZ)
+	rm -rf src; mkdir src
+	tar xzf $< -C src
+	$(MAKE) -C src/SIFT_png/ OMP=1 \
+		CC="$(CC)" CXX="$(CXX)" -j4
+	mv src/SIFT_png/demo_SIFT $@
 	rm -rf src
 
 # delete the compilation by-products from the ./src folder
 distclean	:
 	rm -rf bin
-	rm -f $(TARBALL)
+	rm -f $(ASIFT_TGZ) $(SIFT_TGZ)

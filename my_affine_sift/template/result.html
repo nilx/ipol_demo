@@ -1,7 +1,8 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+The algorithm result is displayed hereafter.
+It ran in ${run_time}s.<br />
 You can run again this algorithm with new data.
 </p>
 
@@ -14,15 +15,32 @@ new input data:
 
 <div>
 <h2>stdout</h2>
+
 <pre class="stdio">
 ${stdout}
 </pre>
+
 <h2>output</h2>
-<img src="${urld['output_v']}" alt="" /> <br/>
+
+<table>
+  <tr style="font-size:120%; font-weight:bold; text-align: center;">
+    <td>ASIFT: ${nbmatch} matches</td>
+    <td>SIFT: ${nbmatch_SIFT} matches</td>
+  </tr>
+  <tr>
+    <td>
+      <img src="${urld['output_v']}" />
+    </td>
+    <td>
+      <img src="${urld['output_v_sift']}" />
+    </td>
+  </tr>
+</table>
+
 <ul>
-<li><a href="${urld['output_h']}" alt="" />
-  output image (horizontal layout)</li>
-<li><a href="${urld['match']}">coordinates of match points</a></li>
+<li><a href="${urld['output_h']}"/>
+    ASIFT output image (horizontal layout)</li>
+<li><a href="${urld['match']}">coordinates of ASIFT match points</a></li>
 <li>ASIFT keypoints in
     the <a href="${urld['keys_0']}">first</a>
     and <a href="${urld['keys_1']}">second</a> image</li>
