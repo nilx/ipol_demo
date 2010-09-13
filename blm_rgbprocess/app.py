@@ -61,7 +61,7 @@ class app(base_app):
     # because it is the actual algorithm execution, hence specific
     # run_algo() is called from result(),
     # with the parameters validated in run()
-    def run_algo(self):
+    def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
@@ -72,6 +72,10 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
+
+	"""
+	Version 1
+
         p = self.run_proc(['rgbprocess', 'filter', 'input_0.png', 'output.png'])
 	p2 = self.run_proc(['rgbprocess', 'rmisolated', 'input_0.png', 'output_0.png'])
 	self.wait_proc(p2)
@@ -89,6 +93,24 @@ class app(base_app):
 	self.wait_proc(p5)
 	self.wait_proc(p6)
         return
+	"""
+
+	"""
+	Version 2
+	"""
+	p = self.run_proc(['rgbprocess', 'rmisolated', 'input_0.png', 'input_1.png'], stdout=stdout, stderr=stdout)
+	self.wait_proc(p)
+	wOut=256
+	hOut=256
+	p2 = self.run_proc(['rgbprocess', 'pcaviewsB', 'input_1.png', 'input_1.png', 'view123.png', str(wOut), str(hOut)], stdout=stdout, stderr=stdout)
+        p3 = self.run_proc(['rgbprocess', 'filter', 'input_1.png', 'output_1.png'], stdout=stdout, stderr=stdout)
+	self.wait_proc(p3)
+	p4 = self.run_proc(['rgbprocess', 'pcaviewsB', 'output_1.png', 'input_1.png', 'outview123.png', str(wOut), str(hOut)], stdout=stdout, stderr=stdout)
+	p5 = self.run_proc(['rgbprocess', 'density', 'output_1.png', 'input_1.png', 'dstview123.png', str(wOut), str(hOut)], stdout=stdout, stderr=stdout)
+	p6 = self.run_proc(['rgbprocess', 'combineimages', 'output_1.png', 'input_0.png', 'output_2.png'], stdout=stdout, stderr=stdout)
+	self.wait_proc([p2, p4, p5, p6])
+
+
 
     @get_check_key
     def result(self):
@@ -97,15 +119,20 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # run the algorithm
+        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
         try:
             run_time = time.time()
-            self.run_algo()
+            self.run_algo(stdout=stdout)
             run_time = time.time() - run_time
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
             return self.error(errcode='runtime')
         self.log("input processed")
+
+	"""
+	Version 1
+
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_0.png')],
@@ -116,7 +143,21 @@ class app(base_app):
                 #'outputViews' : [self.url('tmp', 'outview123.png')]
                 'outputViews' : [self.url('tmp', 'outview123.png'), self.url('tmp', 'dstview123.png')]
 		}
+	"""
+
+	"""
+	Version 2
+	"""
+        urld = {'new_run' : self.url('params'),
+                'new_input' : self.url('index'),
+                'input' : [self.url('tmp', 'input_0.png'), self.url('tmp', 'input_1.png')],
+                'inputViews' : [self.url('tmp', 'view123.png')],
+                'output' : [self.url('tmp', 'output_2.png')],
+                'outputViews' : [self.url('tmp', 'outview123.png'), self.url('tmp', 'dstview123.png')]
+		}
+
+
         #return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time)
-        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time)
+        return self.tmpl_out("result2.html", urld=urld, run_time="%0.2f" % run_time)
     result.exposed = True
 

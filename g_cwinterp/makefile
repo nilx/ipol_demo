@@ -27,7 +27,7 @@ update	:
 $(BIN)	: $(TARBALL) makefile
 	rm -rf src; mkdir src
 	tar xvzf $(TARBALL) -C src
-	$(MAKE) -C src/$(BINNAME)/ \
+	$(MAKE) -C src/$(BINNAME)/ --makefile=makefile.gcc \
 		CC="$(CC)" CXX="$(CXX)" -j4
 	rm -rf bin; mkdir bin
 	mv src/$(BINNAME)/$(BINNAME) $@
