@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     # use cgitb error handling
     # enable via config
-    # [/]
+    # [global]
     # tools.cgitb.on = True
     cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err_tb)
     
