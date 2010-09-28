@@ -312,9 +312,10 @@ class app(empty_app):
             # by splitting at blank characters
             inputd[key]['files'] = inputd[key]['files'].split()
             # generate thumbnails and thumbnail urls
-            tn_fname = [tn_image(self.path('input', fname)).fname
+            tn_fname = [tn_image(self.path('input', fname))
                         for fname in inputd[key]['files']]
-            inputd[key]['tn_url'] = [self.url('input', fname)
+            inputd[key]['tn_url'] = [self.url('input',
+                                              os.path.basename(fname))
                                      for fname in tn_fname]
 
         # urls dict

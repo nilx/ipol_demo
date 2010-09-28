@@ -51,33 +51,39 @@ class index_dict(dict):
 #
 
 from PIL import Image
-class tn_image(object):
+
+def tn_image(location, size=(128, 128), ext=".png"):
     """
-    thumbnail image
+    image thumbnailing function
+
+    @param location full-size file name
+    @param size thumbnail size, default 128x128
+    @param ext thumbnail file extension (and format), default ".png"
+
+    @return thumbnail file name
     """
 
-    def __init__(self, location, size=(128, 128), ext=".png"):
-        """
-        read the image
-        and automatically generate a thumbnail if needed
-        """
+    # parse the file name
+    location = os.path.abspath(location)
+    (folder, fname) = os.path.split(location)
+    (basename, extension) = os.path.splitext(fname)
 
-        location = os.path.abspath(location)
-        (folder, fname) = os.path.split(location)
-        (basename, ext) = os.path.splitext(fname)
+    tn_location = os.path.join(folder,
+                               basename + ".__%ix%i__" % size + ext)
+    if not os.path.isfile(tn_location):
+        # no thumbnail, create it
+        im = Image.open(location)
+        tn = Image.new('RGBA', size, (0, 0, 0, 0))
+        im.thumbnail(size, resample=True)
+        offset = ((size[0] - im.size[0]) / 2,
+                  (size[1] - im.size[1]) / 2)
+        box = offset + (im.size[0] + offset[0],
+                        im.size[1] + offset[1])
+        tn.paste(im, box)
+        tn.save(tn_location)
 
-        self.fname = basename + ".__%ix%i__" % size + ext
-        if not os.path.isfile(os.path.join(folder, self.fname)):
-            im = Image.open(location)
-            tn = Image.new('RGBA', size, (0, 0, 0, 0))
-            im.thumbnail(size, resample=True)
-            offset = ((size[0] - im.size[0]) / 2,
-                      (size[1] - im.size[1]) / 2)
-            box = offset + (im.size[0] + offset[0],
-                            im.size[1] + offset[1])
-            tn.paste(im, box)
-            tn.save(os.path.join(folder, self.fname))
-
+    return tn_location
+    
 #
 # IMAGE CLASS
 #
