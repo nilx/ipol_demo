@@ -4,7 +4,7 @@ rgbprocess ipol demo web app
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303
-from lib import TimeoutError, RuntimeError
+from lib import TimeoutError
 import os.path
 import time
 

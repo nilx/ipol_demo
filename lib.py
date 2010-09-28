@@ -3,6 +3,7 @@
 
 various help tools for the IPOL demo environment
 """
+# pylint: disable-msg=C0103
 
 #
 # TINY STUFF
@@ -82,7 +83,7 @@ def tn_image(location, size=(128, 128), ext=".png"):
     # parse the file name
     location = os.path.abspath(location)
     (folder, fname) = os.path.split(location)
-    (basename, extension) = os.path.splitext(fname)
+    basename = os.path.splitext(fname)[0]
 
     tn_location = os.path.join(folder,
                                basename + ".__%ix%i__" % size + ext)
@@ -103,6 +104,8 @@ def tn_image(location, size=(128, 128), ext=".png"):
 #
 # IMAGE CLASS
 #
+
+from PIL import ImageDraw
 
 class image(object):
     """
@@ -141,7 +144,7 @@ class image(object):
         else:
             return object.__getattribute__(self, attr)
 
-    def save(self, fname, **kwargs):
+    def save(self, fname):
         """
         save the image file
 
@@ -162,13 +165,13 @@ class image(object):
         self.im = self.im.crop(box)
         return self
 
-    def resize(self, size, filter="bicubic"):
+    def resize(self, size, method="bicubic"):
         """
         resize the image, in-place
 
         @param size target size, given as an integer number of pixels,
         a float scale ratio, or a pair (width, height)
-        @param filter interpolation method, can be "nearest" or "bicubic"
+        @param method interpolation method, can be "nearest" or "bicubic"
         """
 
         if isinstance(size, int):
@@ -181,12 +184,12 @@ class image(object):
                     int(self.im.size[1] * size))
 
         try:
-            filter_kw = {"nearest" : Image.NEAREST,
-                         "bicubic" : Image.BICUBIC}[filter]
+            method_kw = {"nearest" : Image.NEAREST,
+                         "bicubic" : Image.BICUBIC}[method]
         except KeyError:
-            raise KeyError('filter must be "nearest" or "bicubic"')
+            raise KeyError('method must be "nearest" or "bicubic"')
 
-        self.im = self.im.resize(size, filter_kw)
+        self.im = self.im.resize(size, method_kw)
         return self
 
     def convert(self, mode):
@@ -293,7 +296,7 @@ class image(object):
 
         [1]http://www.pythonware.com/library/pil/handbook/imagedraw.htm
         """
-        draw = ImageDraw.Draw(self)
+        draw = ImageDraw.Draw(self.im)
         draw.line(coords, fill=color)
         del draw
         return self
@@ -344,6 +347,7 @@ def app_expose(function):
 #
 
 class TimeoutError(Exception):
-    pass
-class RuntimeError(Exception):
+    """
+    exception raised when a subprocess doesn't end before a given delay
+    """
     pass
