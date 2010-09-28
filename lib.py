@@ -1,6 +1,4 @@
 """
-@package lib
-
 various help tools for the IPOL demo environment
 """
 # pylint: disable-msg=C0103
@@ -20,24 +18,18 @@ import ConfigParser
 class index_dict(dict):
     """
     handle a config file as a dictionary
-
-    @attrib fname backend file name
-
-    @todo rename to file_dict or config_dict
     """
-
+    # TODO rename to file_dict or config_dict
     fname = None
 
     def __init__(self, location, fname='index.cfg'):
         """
         initalize a dictionary from a config file
 
-        @param location folder containing this config file
-        @param fname name of the config file
-
-        @todo drop fname parameter
+        @param location: folder containing this config file
+        @param fname: name of the config file
         """
-
+        # TODO drop fname parameter
         dict.__init__(self)
         self.fname = os.path.join(location, fname)
 
@@ -50,7 +42,6 @@ class index_dict(dict):
         """
         save the (updated) dictionary to the config file
         """
-
         dict.__init__(self)
         
         index = ConfigParser.RawConfigParser()
@@ -73,13 +64,12 @@ def tn_image(location, size=(128, 128), ext=".png"):
     """
     image thumbnailing function
 
-    @param location full-size file name
-    @param size thumbnail size, default 128x128
-    @param ext thumbnail file extension (and format), default ".png"
+    @param location: full-size file name
+    @param size: thumbnail size, default 128x128
+    @param ext: thumbnail file extension (and format), default ".png"
 
-    @return thumbnail file name
+    @return: thumbnail file name
     """
-
     # parse the file name
     location = os.path.abspath(location)
     (folder, fname) = os.path.split(location)
@@ -114,9 +104,6 @@ class image(object):
     This class is basically a PIL abstraction, with a different
     method model: each method is an action modifying the object.
     Nothing is written to a file until explicitly asked.
-
-    Class attributes:
-    * size : image size
     """
 
     im = None
@@ -125,10 +112,10 @@ class image(object):
         """
         initialize an image from a file
 
-        @param src origin image
-        * string : it is read as an image file name
-        * PIL image object : it is used as the internal image structure
-        * not given : the image is initialy empty
+        @param src: origin image, can be
+          - a string : it is read as an image file name
+          - a  PIL image object : it is used as the internal image structure
+          - omitted : the image is initialy empty
         """
         if isinstance(src, Image.Image):
             self.im = src
@@ -148,11 +135,10 @@ class image(object):
         """
         save the image file
 
-        @param fname file name
-
-        @todo handle optional arguments
-        @todo handle external TIFF compression
+        @param fname: file name
         """
+        # TODO handle optional arguments
+        # TODO handle external TIFF compression
         self.im.save(fname)
         return fname
 
@@ -160,7 +146,7 @@ class image(object):
         """
         crop the image, in-place
 
-        @param box crop coordinates (x0, y0, x1, x1)
+        @param box: crop coordinates (x0, y0, x1, x1)
         """
         self.im = self.im.crop(box)
         return self
@@ -169,11 +155,10 @@ class image(object):
         """
         resize the image, in-place
 
-        @param size target size, given as an integer number of pixels,
+        @param size: target size, given as an integer number of pixels,
         a float scale ratio, or a pair (width, height)
-        @param method interpolation method, can be "nearest" or "bicubic"
+        @param method: interpolation method, can be "nearest" or "bicubic"
         """
-
         if isinstance(size, int):
             # size is a number of pixels -> convert to a float scale
             size = (float(size) / (self.im.size[0] * self.im.size[1])) ** .5
@@ -196,12 +181,11 @@ class image(object):
         """
         convert the image pixel array to another numeric type
 
-        @param mode the data type, can be '1x8i' (8bit gray) or '3x8i'
+        @param mode: the data type, can be '1x8i' (8bit gray) or '3x8i'
         (RGB)
-
-        @todo handle other modes (binary, 16bits, 32bits int/float)
-        @todo rename param to dtype
         """
+        # TODO handle other modes (binary, 16bits, 32bits int/float)
+        # TODO rename param to dtype
         try:
             mode_kw = {'1x8i' : 'L',
                        '3x8i' : 'RGB'}[mode]
@@ -215,14 +199,13 @@ class image(object):
         split an image vertically into tiles tiles,
         with an optional margin
 
-        @param nb number of strips
-        @param margin overlapping margin, default 0
+        @param nb: number of strips
+        @param margin: overlapping margin, default 0
 
-        @return list of images if fname is not specified,
+        @return: list of images if fname is not specified,
         or a list of filenames where these images are saved
-
-        @todo refactor, don't automatically save
         """
+        # TODO refactor, don't automatically save
         
         try:
             assert (nb >= 2)
@@ -252,10 +235,9 @@ class image(object):
         """
         read some tiles and join them vertically
 
-        @param tiles a list of images
-        @param margin overlapping margin, default 0
+        @param tiles: a list of images
+        @param margin: overlapping margin, default 0
         """
-        
         # compute the full image size
         xmax = tiles[0].im.size[0]
         ymax = 0
@@ -289,10 +271,10 @@ class image(object):
         """
         draw a line in an image
 
-        @param coords a list of coordinates [(x1,y1), (x2,y2), ...]
-        @param color an optional color code, following PIL syntax[1],
+        @param coords: a list of coordinates [(x1,y1), (x2,y2), ...]
+        @param color: an optional color code, following PIL syntax[1],
         default white
-        @return the image object
+        @return: the image object
 
         [1]http://www.pythonware.com/library/pil/handbook/imagedraw.htm
         """
