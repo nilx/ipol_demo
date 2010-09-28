@@ -28,6 +28,9 @@ class empty_app(object):
     def __init__(self, base_dir):
         """
         app setup
+
+        @param base_dir: the base directory for this demo, used to
+        look for spcial subfolders (input, template, ...)
         """
         # the demo ID is the folder name
         self.base_dir = os.path.abspath(base_dir)
@@ -41,10 +44,15 @@ class empty_app(object):
 
     def path(self, folder, fname=''):
         """
-        path scheme:
-        * tmp   -> ./data/tmp/<key>/<file_name>
-        * input -> ./data/input/<file_name>
+        file path scheme
+
+        @param folder: the path folder category:
+          - tmp : the unique temporary folder (using the key)
+          - bin : the binary folder
+          - input : the input folder
+        @return: the local file path
         """
+        # TODO use key instead of tmp
         if folder == 'tmp':
             # TODO check key != None
             path = os.path.join(self.base_dir, 'tmp', self.key, fname)
@@ -58,9 +66,9 @@ class empty_app(object):
     # URL MODEL 
     #
 
-    def _url_link(self, link):
+    def _url_xlink(self, link):
         """
-        url scheme for links
+        link url scheme
         """
         if link == 'demo':
             return cherrypy.url(path="/pub/demo/%s/" % self.id,
@@ -81,6 +89,7 @@ class empty_app(object):
         * tmp   -> ./tmp/<key>/<file_name>
         * input -> ./input/<file_name>
         """
+        # TODO use key instead of tmp
         if fname == None:
             fname = ''
         if folder == 'tmp':
@@ -100,12 +109,12 @@ class empty_app(object):
 
     def url(self, arg1, arg2=None):
         """
-        url scheme wrapper
+        url scheme
         """
         # TODO include a configurable url base
         #       taken from the config file 
         if arg1 in ['demo', 'algo', 'archive', 'forum']:
-            return self._url_link(link=arg1)
+            return self._url_xlink(link=arg1)
         elif arg1 in ['tmp', 'input']:
             return self._url_file(folder=arg1, fname=arg2)
         else:
@@ -147,6 +156,8 @@ class empty_app(object):
     def log(self, msg):
         """
         simplified log handler
+
+        @param msg: the log message string
         """
         cherrypy.log(msg, context="DEMO/%s/%s" % (self.id, self.key),
                      traceback=False)
