@@ -1,0 +1,39 @@
+<%include file="header.html" />
+
+<p>
+The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+You can run again this algorithm with new data.
+</p>
+
+<form action="${urld['new_input']}" method="get">
+new input data:
+<input type="submit" value="back to : input" />
+</form>
+
+<hr />
+
+<div>
+
+<h2>input (Left and right image)</h2>
+% for url in urld['input']:
+<img src="${url}" alt="" />
+% endfor
+
+
+<h2>output (Disparity map X and Y, respectively)</h2>
+% for url in urld['output']:
+<img src="${url}" alt="" />
+% endfor
+
+
+<h2>stdout</h2>
+<pre class="stdio">
+${stdout}
+</pre>
+
+
+</div>
+
+<%include file="footer.html" />
+
+

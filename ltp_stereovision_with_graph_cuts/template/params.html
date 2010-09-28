@@ -1,0 +1,106 @@
+<%include file="header.html" />
+
+<p>
+%if msg:
+${msg | h}<br/>
+%endif
+You can now run the 'Computing Visual Correspondence with Occlusions using Graph Cuts' algorithm on these 2 images.
+You can choose the parameters for this algorithm:
+</p>
+
+
+<form action="${urld['next_step']}" method="get">
+
+<fieldset> 
+<legend>Algorithm Parameters</legend> 
+<input type="hidden" name="key" value="${key}">
+
+<%doc> <hr /> ------------------------------------------- </%doc>
+
+<label for="method">  Method: </label>
+<select name="method" id="select2" size="1">
+   <option value="KZ1">  KZ1
+   <option value="KZ2">  KZ2
+   <option value="BVZ">  BVZ
+</select>
+
+<br />
+
+<%doc> <hr /> ------------------------------------------- </%doc>
+
+<label for="disp_range"> Disparity range:   </label>
+
+<label for="x_min">  X min = </label>
+<input type="text" name="x_min" value="-15." size="3" />
+
+<label for="y_min">, Y min = </label>
+<input type="text" name="y_min" value="0." size="3" />
+
+<label for="x_max">,  X max = </label>
+<input type="text" name="x_max" value="0." size="3" />
+
+<label for="y_max">, Y max = </label>
+<input type="text" name="y_max" value="0." size="3" /><br />
+
+<%doc> <hr /> ------------------------------------------- </%doc>
+
+
+<label for="iter_max">  Number of iterations: </label>
+<input type="text" name="iter_max" value="30" size="3" />
+<br />
+
+<%doc> <hr /> ------------------------------------------- </%doc>
+
+
+<label for="K"> K = </label>
+<input type="text" name="K" value="12.5" size="5" />
+<br />
+
+<label for="lambd"> Lambda = </label>
+<input type="text" name="lambd" value="2.5" size="5" />
+<br />
+
+<%doc> <hr /> ------------------------------------------- </%doc>
+
+
+<label for="every_iter">  Behaviour each iteration: </label>
+<select name="randomize_every_iteration" id="select1" size="1">
+   <option value="randomize_every_iteration"> SET Randomize every iteration
+   <option value=""> UNSET Randomize every iteration
+</select>
+
+<br />
+
+
+<%doc> <hr /> ------------------------------------------- </%doc>
+<hr />
+
+<label for="output_images"> Output images:   </label> 
+<br />
+
+<label for="x_dispmap">  Disparity map X: </label>
+<input type="text" name="x_dispmap" value="x_disp_output.ppm" size="20" />
+<br />
+
+<label for="y_dispmap"> Disparity map Y: </label>
+<input type="text" name="y_dispmap" value="y_disp_output.ppm" size="20" />
+<br />
+
+<%doc> <hr /> ------------------------------------------- </%doc>
+<hr />
+
+
+<input type="submit" value="next step : run" />
+</fieldset> 
+</form>
+
+<hr />
+
+<div>
+%for url in urld['input']:
+<img src="${url}" alt="" /> 
+%endfor
+</div>
+
+<%include file="footer.html" />
+
