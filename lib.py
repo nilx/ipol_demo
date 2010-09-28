@@ -1,5 +1,7 @@
 """
-helper tools
+@package lib
+
+various help tools for the IPOL demo environment
 """
 
 #
@@ -7,8 +9,6 @@ helper tools
 #
 
 prod = lambda l : reduce(lambda a, b : a * b, l, 1)
-# sum() is already defined
-#sum = lambda l : reduce(lambda a, b : a + b, l, 0)
 
 #
 # INDEX DICTIONARY
@@ -18,10 +18,24 @@ import os.path
 import ConfigParser
 class index_dict(dict):
     """
-    folder index as a dictionnary, read from an index.cfg file
+    handle a config file as a dictionary
+
+    @attrib fname backend file name
+
+    @todo rename to file_dict or config_dict
     """
+
+    fname = None
+
     def __init__(self, location, fname='index.cfg'):
-        """ populate the dict from the index metadata file """
+        """
+        initalize a dictionary from a config file
+
+        @param location folder containing this config file
+        @param fname name of the config file
+
+        @todo drop fname parameter
+        """
 
         dict.__init__(self)
         self.fname = os.path.join(location, fname)
@@ -32,7 +46,9 @@ class index_dict(dict):
             self[section] = dict(index.items(section))
 
     def save(self):
-        """ save the (updated) dict to the index metadata file """
+        """
+        save the (updated) dictionary to the config file
+        """
 
         dict.__init__(self)
         
@@ -90,17 +106,26 @@ def tn_image(location, size=(128, 128), ext=".png"):
 
 class image(object):
     """
-    manipulable image
-    this class is basically a PIL abstraction
-    nothing is written until explicitly asked
+    manipulable image object
+
+    This class is basically a PIL abstraction, with a different
+    method model: each method is an action modifying the object.
+    Nothing is written to a file until explicitly asked.
+
+    Class attributes:
+    * size : image size
     """
+
+    im = None
 
     def __init__(self, src=None):
         """
-        open the image
-        src not specified : empty image
-        src is a string : read the file
-        src is a PIL Image : use it
+        initialize an image from a file
+
+        @param src origin image
+        * string : it is read as an image file name
+        * PIL image object : it is used as the internal image structure
+        * not given : the image is initialy empty
         """
         if isinstance(src, Image.Image):
             self.im = src
@@ -108,8 +133,8 @@ class image(object):
             self.im = Image.open(src)
 
     def __getattr__(self, attr):
-        """ 
-        direct access to some image attributes 
+        """
+        direct access to some image attributes
         """
         if attr == 'size':
             return self.im.size
@@ -119,21 +144,31 @@ class image(object):
     def save(self, fname, **kwargs):
         """
         save the image file
+
+        @param fname file name
+
+        @todo handle optional arguments
+        @todo handle external TIFF compression
         """
-        # TODO : handle external TIFF compression
-        self.im.save(fname, **kwargs)
+        self.im.save(fname)
         return fname
 
     def crop(self, box):
         """
         crop the image, in-place
+
+        @param box crop coordinates (x0, y0, x1, x1)
         """
         self.im = self.im.crop(box)
         return self
 
-    def resize(self, size):
+    def resize(self, size, filter="bicubic"):
         """
         resize the image, in-place
+
+        @param size target size, given as an integer number of pixels,
+        a float scale ratio, or a pair (width, height)
+        @param filter interpolation method, can be "nearest" or "bicubic"
         """
 
         if isinstance(size, int):
@@ -145,36 +180,52 @@ class image(object):
             size = (int(self.im.size[0] * size),
                     int(self.im.size[1] * size))
 
-        self.im = self.im.resize(size, Image.BICUBIC)
+        try:
+            filter_kw = {"nearest" : Image.NEAREST,
+                         "bicubic" : Image.BICUBIC}[filter]
+        except KeyError:
+            raise KeyError('filter must be "nearest" or "bicubic"')
+
+        self.im = self.im.resize(size, filter_kw)
         return self
 
     def convert(self, mode):
         """
-        convert the pixel format :
-        * 1x1i : 1bit binary monochrome
-        * 1x8i : 8bit gray
-        * 3x8i : 8bit RGB
-        * 1x32i : 32bit gray
-        * 1x32f : 32bit float
+        convert the image pixel array to another numeric type
+
+        @param mode the data type, can be '1x8i' (8bit gray) or '3x8i'
+        (RGB)
+
+        @todo handle other modes (binary, 16bits, 32bits int/float)
+        @todo rename param to dtype
         """
-        # PIL mode keywords
-        mode_kw = {'1x1i' : '1',
-                   '1x8i' : 'L',
-                   '3x8i' : 'RGB',
-                   '1x32i' : 'I',
-                   '1x32f' : 'F'}
-        self.im = self.im.convert(mode_kw[mode])
+        try:
+            mode_kw = {'1x8i' : 'L',
+                       '3x8i' : 'RGB'}[mode]
+        except KeyError:
+            raise KeyError('mode must be "1x8i" or "3x8i"')
+        self.im = self.im.convert(mode_kw)
         return self
 
     def split(self, nb, margin=0, fname=None):
         """
-        split an image vertically into nb tiles,
+        split an image vertically into tiles tiles,
         with an optional margin
-        returns a list of images if fname is not specified,
+
+        @param nb number of strips
+        @param margin overlapping margin, default 0
+
+        @return list of images if fname is not specified,
         or a list of filenames where these images are saved
+
+        @todo refactor, don't automatically save
         """
         
-        assert (nb >= 2)
+        try:
+            assert (nb >= 2)
+        except AssertionError:
+            raise ValueError('nb must be >= 2')
+
         xmax, ymax = self.im.size
         dy = float(ymax) / nb
         
@@ -196,7 +247,10 @@ class image(object):
 
     def join(self, tiles, margin=0):
         """
-        read tiles and join them vertically
+        read some tiles and join them vertically
+
+        @param tiles a list of images
+        @param margin overlapping margin, default 0
         """
         
         # compute the full image size
@@ -226,6 +280,22 @@ class image(object):
         self.im.paste(tile.crop((0, margin, xmax, dy + margin)),
                       (0, ystart))
 
+        return self
+
+    def draw_line(self, coords, color="white"):
+        """
+        draw a line in an image
+
+        @param coords a list of coordinates [(x1,y1), (x2,y2), ...]
+        @param color an optional color code, following PIL syntax[1],
+        default white
+        @return the image object
+
+        [1]http://www.pythonware.com/library/pil/handbook/imagedraw.htm
+        """
+        draw = ImageDraw.Draw(self)
+        draw.line(coords, fill=color)
+        del draw
         return self
 
 #
