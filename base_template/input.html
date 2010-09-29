@@ -23,6 +23,7 @@ Click on an image to use it as the algorithm input.
 </form>
 %endif
 
+%if allow_upload:
 <form action="${urld['upload_form']}" method="post"
       enctype="multipart/form-data">
 <fieldset> 
@@ -49,6 +50,7 @@ The uploaded files may be re-used for further analysis.
 </p>
 </fieldset>
 </form>
+%endif
 
 <!--
 TODO: external input; search and select from Flickr, Google images,

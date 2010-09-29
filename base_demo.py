@@ -249,9 +249,9 @@ class app(empty_app):
     input_max_weight = 5 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.tiff' # input image expected extention (ie. file format)
-    display_ext = '.jpeg' # html embedded displayed image extention
     timeout = 60 # subprocess execution timeout
-    is_test = False
+    is_test = True
+    allow_upload = True
 
     def __init__(self, base_dir):
         """
@@ -288,7 +288,6 @@ class app(empty_app):
         attrd = dict([(attr, getattr(self, attr, ''))
                       for attr in ['id',
                                    'key',
-                                   'input_nb',
                                    'title',
                                    'description']])
         kwargs.update(attrd)
@@ -333,7 +332,9 @@ class app(empty_app):
         urld = {'select_form' : self.url('input_select'),
                 'upload_form' : self.url('input_upload')}
         return self.tmpl_out("input.html", urld=urld,
-                              inputd=inputd)
+                             inputd=inputd,
+                             input_nb=self.input_nb,
+                             allow_upload=self.allow_upload)
 
     #
     # INPUT HANDLING TOOLS
@@ -363,8 +364,7 @@ class app(empty_app):
             # save a working copy
             im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
             # save a web viewable copy
-            if (self.display_ext != self.input_ext):
-                im.save(self.path('tmp', 'input_%i' % i + self.display_ext))
+            im.save(self.path('tmp', 'input_%i.png' % i))
         return msg
 
     def clone_input(self):
@@ -378,7 +378,7 @@ class app(empty_app):
         # copy the input files
         fnames = ['input_%i' % i + self.input_ext
                   for i in range(self.input_nb)]
-        fnames += ['input_%i' % i + self.display_ext
+        fnames += ['input_%i.png' % i
                    for i in range(self.input_nb)]
         for fname in fnames:
             shutil.copy(os.path.join(oldpath, fname),
@@ -459,7 +459,7 @@ class app(empty_app):
         if newrun:
             self.clone_input()
         urld = {'next_step' : self.url('run'),
-                'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+                'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}
         return self.tmpl_out("params.html", urld=urld, msg=msg)
 
@@ -476,7 +476,7 @@ class app(empty_app):
         # redirect to the result page
         # TODO check_params as another function
         http_redirect_303(self.url('result', {'key':self.key}))
-        urld = {'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+        urld = {'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}
         return self.tmpl_out("run.html", urld=urld)
 
@@ -505,7 +505,7 @@ class app(empty_app):
         self.log("input processed")
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+                'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)],
-                'output' : [self.url('tmp', 'output' + self.display_ext)]}
+                'output' : [self.url('tmp', 'output.png')]}
         return self.tmpl_out("result.html", urld=urld)
