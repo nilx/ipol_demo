@@ -5,7 +5,7 @@ Computing Visual Correspondence with Occlusions using Graph Cuts demo interactio
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303, app_expose, index_dict, image
-from lib import TimeoutError, RuntimeError
+from lib import TimeoutError
 import os.path
 import time
 
@@ -21,12 +21,10 @@ class app(base_app):
     input_nb = 2 # number of input images
     input_max_pixels = None # max size (in pixels) of an input image
     input_max_method = 'zoom'
-    #input_dtype = '1x8i' # input image expected data type        
     input_dtype = '3x8i' # input image expected data type    
     input_ext = '.ppm'   # input image expected extension (ie file format)    
-    display_ext = '.png' # displayed image extention (ie. file format)
-    is_test = True;      # switch to False for deployment
-
+    is_test = True       # switch to False for deployment
+    allow_upload = False
 
     def __init__(self):
         """
@@ -75,8 +73,8 @@ class app(base_app):
 
         # no parameters
         http_redirect_303(self.url('result', {'key':self.key}))
-        urld = {'input' : [self.url('tmp', 'input_0.ppm'),
-                           self.url('tmp', 'input_1.ppm')]}
+        urld = {'input' : [self.url('tmp', 'input_0.png'),
+                           self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld)
     run.exposed = True
 
