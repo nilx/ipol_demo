@@ -20,7 +20,6 @@ class app(base_app):
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
-    display_ext = '.png' # displayed image extention (ie. file format)
     is_test = True;
 
     def __init__(self):
@@ -53,7 +52,7 @@ class app(base_app):
         """
         http_redirect_303(self.url('result', {'key':self.key}))
         urld = {'next_step' : self.url('result'),
-                'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+                'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}
         return self.tmpl_out("run.html", urld=urld)
     run.exposed = True

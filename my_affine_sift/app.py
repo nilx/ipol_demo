@@ -23,7 +23,6 @@ class app(base_app):
     input_max_method = 'zoom'
     input_dtype = '1x8i'
     input_ext = '.png'
-    display_ext = '.png'
     timeout = 60
     is_test = False
 
