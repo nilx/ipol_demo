@@ -55,17 +55,8 @@ class app(base_app):
         try:
             params_file = index_dict(self.path('tmp'))
             
-            params_file['params'] = {'method' : str(kwargs['method']),  
-                                     'x_min' : float(kwargs['x_min']),
-                                     'y_min' : float(kwargs['y_min']),
-                                     'x_max' : float(kwargs['x_max']),
-                                     'y_max' : float(kwargs['y_max']),
-                                     'iter_max' : int(kwargs['iter_max']),
-                                     'K' : float(kwargs['K']),
-                                     'lambda' : float(kwargs['lambd']),
-                                     'randomize_every_iteration' : str(kwargs['randomize_every_iteration']),
-                                     'x_dispmap' : kwargs['x_dispmap'],
-                                     'y_dispmap' : kwargs['y_dispmap']}
+            params_file['params'] = {'K' : float(kwargs['K']),
+                                     'lambda' : float(kwargs['lambda']) }
             params_file.save()
         except:
             return self.error(errcode='badparams',
@@ -96,10 +87,7 @@ class app(base_app):
         kfile = open(self.path('tmp', 'autoKconf'),'w')
         kfile.write("LOAD_COLOR " + self.path('tmp', 'input_0.ppm') + " " 
                                   + self.path('tmp', 'input_1.ppm') + "\n")
-        kfile.write("SET disp_range " + str(params_file['params']['x_min']) + " " 
-                                      + str(params_file['params']['y_min']) + " " 
-                                      + str(params_file['params']['x_max']) + " " 
-                                      + str(params_file['params']['y_max']) + " \n")
+        kfile.write("SET disp_range -15 0 0 0\n")
         kfile.close()
 
         
@@ -151,21 +139,15 @@ class app(base_app):
               conf_file = open(self.path('tmp', 'settings' + str(n) ),'w')
               conf_file.write("LOAD_COLOR " + self.path('tmp', input0_fnames[n]) + " " 
                                       + self.path('tmp', input1_fnames[n]) + "\n")
-              conf_file.write("SET disp_range " + str(params_file['params']['x_min']) + " " 
-                                          + str(params_file['params']['y_min']) + " " 
-                                          + str(params_file['params']['x_max']) + " " 
-                                          + str(params_file['params']['y_max']) + " \n")                                      
-              conf_file.write("SET iter_max " + str(params_file['params']['iter_max']) + " \n")
+              conf_file.write("SET disp_range -15 0 0 0\n")
+              conf_file.write("SET iter_max 30\n")
 
 
-              if (params_file['params']['randomize_every_iteration'] == ""):
-                     conf_file.write("UNSET randomize_every_iteration\n")
-              else:
-                     conf_file.write("SET randomize_every_iteration\n")
+              conf_file.write("SET randomize_every_iteration\n")
 
               conf_file.write("SET K " + str(params_file['params']['K']) ) # + " \n")
               conf_file.write("SET lambda " + str(params_file['params']['lambda']) + " \n")
-              conf_file.write( params_file['params']['method'] + "\n")
+              conf_file.write("KZ1\n")
 
               conf_file.write("SAVE_X_SCALED " +  outputX_fnames[n] + " \n")
               conf_file.write("SAVE_Y_SCALED " +  outputY_fnames[n] + " \n")        
@@ -191,13 +173,12 @@ class app(base_app):
         outputX_img_list = [image(outputX_fnames[n]) for n in range(nproc)]
         outputX_img = image()
         outputX_img.join(outputX_img_list, margin=m)
-        outputX_img.save(self.path('tmp', fname=params_file['params']['x_dispmap']))
+        outputX_img.save(self.path('tmp', fname='x_disp_output.ppm'))
 
         outputY_img_list = [image(outputY_fnames[n]) for n in range(nproc)]
         outputY_img = image()
         outputY_img.join(outputY_img_list, margin=m)
-        outputY_img.save(self.path('tmp', fname=params_file['params']['y_dispmap']))
-
+        outputY_img.save(self.path('tmp', fname='y_disp_output.ppm'))
 
 
         #outputX_img_list = [image(input0_fnames[n]) for n in range(nproc)]
@@ -242,10 +223,10 @@ something must have gone wrong""")
         
         params_file = index_dict(self.path('tmp'))
 
-        im = image(self.path('tmp', params_file['params']['x_dispmap']))
+        im = image(self.path('tmp', 'x_disp_output.ppm'))
         im.save(self.path('tmp', 'x_dispmap.png'))
         
-        im = image(self.path('tmp', params_file['params']['y_dispmap']))
+        im = image(self.path('tmp', 'y_disp_output.ppm'))
         im.save(self.path('tmp', 'y_dispmap.png'))        
         
         urld = {#'new_run' : self.url('params'),
