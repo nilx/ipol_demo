@@ -365,6 +365,8 @@ class app(empty_app):
             im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
             # save a web viewable copy
             im.save(self.path('tmp', 'input_%i.png' % i))
+            # delete the original
+            os.unlink(self.path('tmp', 'input_%i' % i))
         return msg
 
     def clone_input(self):
