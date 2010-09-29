@@ -23,9 +23,9 @@ AUTOK_URL	= https://edit.ipol.im/edit/algo/ltp_stereovision_with_graph_cuts/$(AU
 .PHONY	: update distclean
 
 update	:
-	-wget -N $(MATCH_URL)
+	-wget --no-check-certificate -N $(MATCH_URL)
 	$(MAKE) bin/$(MATCH)
-	-wget -N $(AUTOK_URL)
+	-wget --no-check-certificate -N $(AUTOK_URL)
 	$(MAKE) bin/$(AUTOK)
 
 bin	:
