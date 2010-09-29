@@ -43,36 +43,29 @@ class app(base_app):
         app_expose(base_app.params)
         # run() and result() must be defined here
 
-    # run() is defined here,
-    # because the parameters validation depends on the algorithm
     @get_check_key
     def run(self, **kwargs):
         """
         params handling and run redirection
         """
-        
         # save and validate the parameters
         try:
             params_file = index_dict(self.path('tmp'))
-            
-            params_file['params'] = {'K' : float(kwargs['K']),
-                                     'lambda' : float(kwargs['lambda']) }
+            params_file['params'] = {}
+#            params_file['params'] = {'_K' : float(kwargs['K']),
+#                                     '_lambda' : float(kwargs['lambda']) }
             params_file.save()
         except:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
-        # no parameters
+        # redirect to the result page
         http_redirect_303(self.url('result', {'key':self.key}))
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld)
     run.exposed = True
 
-    # run_algo() is defined here,
-    # because it is the actual algorithm execution, hence specific
-    # run_algo() is called from result(),
-    # with the parameters validated in run()
     def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
@@ -81,116 +74,82 @@ class app(base_app):
         """
 
         params_file = index_dict(self.path('tmp'))
-            
+        if 'K_auto' not in params_file['params']:
+            # create autoK.conf file
+            kfile = open(self.path('tmp', 'autoK.conf'),'w')
+            kfile.write("LOAD_COLOR input_0.ppm input_1.ppm\n")
+            kfile.write("SET disp_range -15 0 0 0\n")
+            kfile.close()
 
-        # Create autoKconf file automaticaly
-        kfile = open(self.path('tmp', 'autoKconf'),'w')
-        kfile.write("LOAD_COLOR " + self.path('tmp', 'input_0.ppm') + " " 
-                                  + self.path('tmp', 'input_1.ppm') + "\n")
-        kfile.write("SET disp_range -15 0 0 0\n")
-        kfile.close()
-
+            # run autoK
+            stdout = open(self.path('tmp', 'stdout.txt'), 'w')
+            p = self.run_proc(['autoK', 'autoK.conf'],
+                              stdout=stdout, stderr=stdout)
+            self.wait_proc(p, timeout)
+            stdout.close()
         
-        p = self.run_proc(['autoK', 'autoKconf'],
-                          stdout=stdout, stderr=stdout)
-                         
-        self.wait_proc(p, timeout)
+            # get K from stdout
+            stdout = open(self.path('tmp', 'stdout.txt'), 'r')
+            K_auto = float(stdout.readline()) 
+            stdout.close()
+            params_file = index_dict(self.path('tmp'))
+            params_file['params']['K_auto'] = K_auto
+            params_file.save()
 
+        # split the input images
+        nproc = 6   # number of slices
+        margin = 6  # overlap margin 
 
-##        print "\n\n*********************************\n\n"
-        
-        istream = open(self.path('tmp', 'stdout.txt'), 'r')
-        params_file['params']['K'] = istream.read()
-        params_file.save()
-##        print params_file['params']['K']
-
-##        print "\n\n*********************************\n\n"
-
-# split the input images
-        nproc = 6   # Number of splitted images
-        m = 6       # Overlap  
-
-# ............ Then we split the input.png image into 'nproc' parts input_split.__00__.png, input_split.__01__.png, ...
-                                      
-        input0_img = image( self.path('tmp', 'input_0.ppm') )
-        input0_fnames = input0_img.split(nproc, margin=m,
-                                       fname=self.path('tmp', 'input0_split.ppm'))
-
+        input0_img = image(self.path('tmp', 'input_0.ppm') )
+        input0_fnames = input0_img.split(nproc, margin=margin,
+                                         fname=self.path('tmp', 
+                                                         'input0_split.ppm'))
         input1_img = image( self.path('tmp', 'input_1.ppm') )
-        input1_fnames = input1_img.split(nproc, margin=m,
-                                       fname=self.path('tmp', 'input1_split.ppm'))                                       
-
-# ............ input_fnames is the list of the input file names. Let's also create output_fnames, the list of the output file names.
-
-        outputX_fnames = [self.path('tmp', fname='outputX_split.__%0.2i.png' % n)
+        input1_fnames = input1_img.split(nproc, margin=margin,
+                                         fname=self.path('tmp', 
+                                                         'input1_split.ppm'))
+        output_fnames = ['output_split.__%0.2i__.png' % n
                          for n in range(nproc)]
-
-        outputY_fnames = [self.path('tmp', fname='outputY_split.__%0.2i.png' % n)
-                         for n in range(nproc)]
-
-# ............ Now we can run the 'nproc' processes in parallel, using once again a list construct.
-
-
-## # Creating the  settings FILE (one per process)
-
+        plist = []
         for n in range(nproc):
-              print n
-              
-              conf_file = open(self.path('tmp', 'settings' + str(n) ),'w')
-              conf_file.write("LOAD_COLOR " + self.path('tmp', input0_fnames[n]) + " " 
-                                      + self.path('tmp', input1_fnames[n]) + "\n")
-              conf_file.write("SET disp_range -15 0 0 0\n")
-              conf_file.write("SET iter_max 30\n")
-
-
-              conf_file.write("SET randomize_every_iteration\n")
-
-              conf_file.write("SET K " + str(params_file['params']['K']) ) # + " \n")
-              conf_file.write("SET lambda " + str(params_file['params']['lambda']) + " \n")
-              conf_file.write("KZ1\n")
-
-              conf_file.write("SAVE_X_SCALED " +  outputX_fnames[n] + " \n")
-              conf_file.write("SAVE_Y_SCALED " +  outputY_fnames[n] + " \n")        
-              #conf_file.write("SET lambda       AUTO")
-              conf_file.close()              
-              
-        else:
-	      print 'The for loop is over'
-
-
-
-        plist = [self.run_proc(['match', 'settings' + str(n)], stdout=stdout, stderr=stdout) 
-                 for n in range(nproc)]
-
-
-# ............ Then we need to wait until all of these processes have finished. We use the wait_proc() flexibility explained in the previous chapter.
-
+            # creating the conf files (one per process)
+            conf_file = open(self.path('tmp', 'match_%i.conf' % n),'w')
+            conf_file.write("LOAD_COLOR %s %s\n"
+                            % (input0_fnames[n], input1_fnames[n]))
+            conf_file.write("SET disp_range -15 0 0 0\n")
+            conf_file.write("SET iter_max 30\n")
+            conf_file.write("SET randomize_every_iteration\n")
+            if 'K' in params_file['params']:
+                conf_file.write("SET K %f\n"
+                                % float(params_file['params']['K']))
+            else:
+                conf_file.write("SET K %f\n"
+                                % float(params_file['params']['K_auto']))
+            if 'lambda' in params_file['params']:
+                conf_file.write("SET lambda %f\n"
+                                % float(params_file['params']['lambda']))
+            else:
+                conf_file.write("SET lambda %f\n" 
+                                % float(params_file['params']['K_auto'] / 5))
+            conf_file.write("KZ2\n")
+            conf_file.write("SAVE_X_SCALED %s\n" % output_fnames[n])
+            conf_file.close()
+            # run each process
+            plist.append(self.run_proc(['match', 'match_%i.conf' %n]))
         self.wait_proc(plist, timeout)
 
+        # join all the partial results into a global one
+        output_img_list = [image(self.path('tmp', output_fnames[n]))
+                           for n in range(nproc)]
+        output_img = image()
+        output_img.join(output_img_list, margin=margin)
+        output_img.save(self.path('tmp', fname='disp_output.ppm'))
 
-#All the processes are over, we can now join all the partial results into a global one
-
-        outputX_img_list = [image(outputX_fnames[n]) for n in range(nproc)]
-        outputX_img = image()
-        outputX_img.join(outputX_img_list, margin=m)
-        outputX_img.save(self.path('tmp', fname='x_disp_output.ppm'))
-
-        outputY_img_list = [image(outputY_fnames[n]) for n in range(nproc)]
-        outputY_img = image()
-        outputY_img.join(outputY_img_list, margin=m)
-        outputY_img.save(self.path('tmp', fname='y_disp_output.ppm'))
-
-
-        #outputX_img_list = [image(input0_fnames[n]) for n in range(nproc)]
-        #outputX_img = image()
-        #outputX_img.join(outputX_img_list, margin=m)
-        #outputX_img.save(self.path('tmp', fname='imagen0joined.ppm'))
-
-        #outputY_img_list = [image(input1_fnames[n]) for n in range(nproc)]
-        #outputY_img = image()
-        #outputY_img.join(outputY_img_list, margin=m)
-        #outputY_img.save(self.path('tmp', fname='imagen1joined.ppm'))
-
+        # delete the strips
+        for fname in input0_fnames + input1_fnames:
+            os.unlink(fname)
+        for fname in output_fnames:
+            os.unlink(self.path('tmp', fname))
         return
 
     @get_check_key
@@ -200,10 +159,9 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # no parameters
-        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
         try:
             run_time = time.time()
-            self.run_algo(timeout=self.timeout, stdout=stdout)
+            self.run_algo(timeout=self.timeout)
             run_time = time.time() - run_time
         except TimeoutError:
             return self.error(errcode='timeout',
@@ -217,31 +175,17 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
         
-        
-        #im = image(self.path('tmp', 'dispmap.ppm'))
-        #im.save(self.path('tmp', 'dispmap.png'))        
-        
         params_file = index_dict(self.path('tmp'))
 
-        im = image(self.path('tmp', 'x_disp_output.ppm'))
-        im.save(self.path('tmp', 'x_dispmap.png'))
+        im = image(self.path('tmp', 'disp_output.ppm'))
+        im.save(self.path('tmp', 'dispmap.png'))
         
-        im = image(self.path('tmp', 'y_disp_output.ppm'))
-        im.save(self.path('tmp', 'y_dispmap.png'))        
-        
-        urld = {#'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
+        urld = {'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')],
-                'output' : [self.url('tmp', 'x_dispmap.png'),
-                           self.url('tmp', 'y_dispmap.png')]}
-                           
-                #'output' : self.url('tmp', 'dispmap.png')}
+                'output' : [self.url('tmp', 'dispmap.png')]}
                 
-                
-        stdout = open(self.path('tmp', 'stdout.txt'), 'r')
         return self.tmpl_out("result.html", urld=urld,
-                             run_time="%0.2f" % run_time,
-                             stdout=stdout.read())
+                             run_time="%0.2f" % run_time)
     result.exposed = True
 

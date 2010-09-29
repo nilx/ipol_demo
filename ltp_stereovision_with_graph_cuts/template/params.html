@@ -6,22 +6,30 @@ ${msg | h}<br/>
 %endif
 You can now run the 'Computing Visual Correspondence with Occlusions
 using Graph Cuts' algorithm on these 2 images.
+<!--
 You can choose the parameters for this algorithm:
+-->
 </p>
 
 
 <form action="${urld['next_step']}" method="get">
 
+<!--
 <fieldset> 
 <legend>Algorithm Parameters</legend> 
+-->
 <input type="hidden" name="key" value="${key}">
+<!--
 <label for="K"> K = </label>
 <input type="text" name="K" value="12.5" size="5" />
 <label for="lambda"> lambda = </label>
 <input type="text" name="lambda" value="2.5" size="5" />
 <br />
+-->
 <input type="submit" value="next step : run" />
+<!--
 </fieldset> 
+-->
 </form>
 
 <hr />
