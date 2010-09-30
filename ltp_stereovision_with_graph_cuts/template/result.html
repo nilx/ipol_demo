@@ -2,12 +2,44 @@
 
 <p>
 The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
-You can run again this algorithm with new data.
+You can run again this algorithm with new data, or other parameter values.
 </p>
 
 <form action="${urld['new_input']}" method="get">
-new input data:
+<fieldset>
+<legend>restart with new input</legend> 
 <input type="submit" value="back to : input" />
+</fieldset> 
+</form>
+
+<form action="${urld['run']}" method="get">
+<fieldset>
+<legend>use other parameters</legend> 
+<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="new_run" value="1">
+<label for="K"> K = </label>
+<select name="K">
+%for k in k_proposed:
+  <option value="${k}"
+%if k == k_used:
+	  selected="selected"
+%endif
+	  >${k}</option>
+%endfor
+</select>
+<label for="lambda"> lambda = </label>
+<select name="lambda">
+%for l in l_proposed:
+  <option value="${l}"
+%if l == lambda_used:
+	  selected="selected"
+%endif
+	  >${l}</option>
+%endfor
+</select>
+<br />
+<input type="submit" value="next step : run" />
+</fieldset> 
 </form>
 
 <hr />
@@ -15,15 +47,15 @@ new input data:
 <div>
 
 <h2>input (left and right image)</h2>
-% for url in urld['input']:
+%for url in urld['input']:
 <img src="${url}" alt="" />
-% endfor
+%endfor
 
 
-<h2>disparity map</h2>
-% for url in urld['output']:
+<h2>disparity map, K=${k_used}, lambda=${lambda_used}</h2>
+%for url in urld['output']:
 <img src="${url}" alt="" />
-% endfor
+%endfor
 
 
 </div>
