@@ -8,14 +8,25 @@ You can run again this algorithm with new data, or other parameter values.
 </p>
 
 <h2>input images</h2>
-%for url in urld['input']:
-<img src="${url}" alt="" />
-%endfor
+<div class="gallery" style="height: ${height}px;">
+<ul class="index">
+<li><a href="#">first image
+    <span><img src="${urld['input'][0]}" /></span></a></li>
+<li><a href="#">second image
+    <span><img src="${urld['input'][1]}" /></span></a></li>
+</ul>
+</div>
 
 <h2>output rectified images</h2>
-%for url in urld['output']:
-<img src="${url}" alt="" />
-%endfor
+<div class="gallery" style="height: ${height}px;">
+<ul class="index">
+<li><a href="#">first image
+    <span><img src="${urld['output'][0]}" /></span></a></li>
+<li><a href="#">second image
+    <span><img src="${urld['output'][1]}" /></span></a></li>
+</ul>
+</div>
+
 <ul>
   <li><a href="${urld['orsa']}">correspondences</a></li>
   <li>homography

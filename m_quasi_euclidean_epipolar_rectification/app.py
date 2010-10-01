@@ -5,7 +5,7 @@ Quasi-Euclidean Epipolar Rectification
 """
 
 from base_demo import app as base_app
-from lib import get_check_key, http_redirect_303, app_expose
+from lib import get_check_key, http_redirect_303, app_expose, image
 from lib import TimeoutError
 import os.path
 import time
@@ -26,7 +26,7 @@ class app(base_app):
     """
 
     input_nb = 2 # number of input images
-    input_max_pixels = 1600 * 1200 # max size (in pixels) of an input image
+    input_max_pixels = 1024 * 1024 # max size (in pixels) of an input image
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'  # input image expected extension (ie file format)    
     is_test = True       # switch to False for deployment
@@ -122,5 +122,7 @@ something must have gone wrong""")
                 
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
+                             height=image(self.path('tmp', 
+                                                    'input_0.png')).size[1],
                              stdout=open(self.path('tmp', 
                                                    'stdout.txt'), 'r').read())
