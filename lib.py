@@ -311,7 +311,9 @@ def http_redirect_303(url):
     """
     HTTP "303 See Other" redirection
     """
-    cherrypy.response.status = "303 See Other"
+    # TODO drop 303 code, rename this function
+#    cherrypy.response.status = "303 See Other"
+#    cherrypy.response.headers['Location'] = "%s" % url
     cherrypy.response.headers['Refresh'] = "0; %s" % url
 
 #
