@@ -1,0 +1,27 @@
+<%include file="header.html" />
+
+<p>
+The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+<!--
+You can run again this algorithm with new data, or other parameter values.
+-->
+</p>
+
+<h2>input images</h2>
+%for url in urld['input']:
+<img src="${url}" alt="" />
+%endfor
+
+<h2>output rectified images</h2>
+%for url in urld['output']:
+<img src="${url}" alt="" />
+%endfor
+
+<h2>stdout</h2>
+<pre>
+${stdout}
+</pre>
+
+</div>
+
+<%include file="footer.html" />

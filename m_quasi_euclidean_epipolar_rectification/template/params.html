@@ -1,0 +1,25 @@
+<%include file="header.html" />
+
+<p>
+%if msg:
+${msg | h}<br/>
+%endif
+You can now run the rectification process.
+</p>
+
+
+<form action="${urld['next_step']}" method="get">
+<input type="hidden" name="key" value="${key}">
+<input type="submit" value="next step : run" />
+</form>
+
+<hr />
+
+<div>
+%for url in urld['input']:
+<img src="${url}" alt="" /> 
+%endfor
+</div>
+
+<%include file="footer.html" />
+
