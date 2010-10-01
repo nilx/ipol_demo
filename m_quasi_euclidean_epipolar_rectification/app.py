@@ -10,6 +10,7 @@ from lib import TimeoutError
 import os.path
 import time
 import cherrypy
+import shutil
 
 #
 # INTERACTION
@@ -102,12 +103,22 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
         
+        shutil.move(self.path('tmp', 'input_0.png_input_1.png_pairs_orsa.txt'),
+                    self.path('tmp', 'orsa.txt'))
+        shutil.move(self.path('tmp', 'input_0.png_h.txt'),
+                    self.path('tmp', 'H_input_0.txt'))
+        shutil.move(self.path('tmp', 'input_1.png_h.txt'),
+                    self.path('tmp', 'H_input_1.txt'))
+
         urld = {'new_input' : self.url('index'),
                 'run' : self.url('run'),
                 'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')],
                 'output' : [self.url('tmp', 'H_input_0.png'),
-                           self.url('tmp', 'H_input_1.png')]}
+                           self.url('tmp', 'H_input_1.png')],
+                'orsa' : self.url('tmp', 'orsa.txt'),
+                'homo_0' : self.url('tmp', 'H_input_0.txt'),
+                'homo_1' : self.url('tmp', 'H_input_1.txt')}
                 
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,

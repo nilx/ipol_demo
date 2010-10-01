@@ -16,6 +16,13 @@ You can run again this algorithm with new data, or other parameter values.
 %for url in urld['output']:
 <img src="${url}" alt="" />
 %endfor
+<ul>
+  <li><a href="${urld['orsa']}">correspondences</a></li>
+  <li>homography
+    <a href="${urld['homo_0']}">first image</a>,
+    <a href="${urld['homo_1']}">second image</a>
+  </li>
+</ul>
 
 <h2>stdout</h2>
 <pre>
