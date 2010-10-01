@@ -392,12 +392,15 @@ class app(empty_app):
     # INPUT STEP
     #
 
-    def input_select(self, input_id, **kwargs):
+    def input_select(self, **kwargs):
         """
         use the selected available input images
         """
-        # kwargs is for input_id.x and input_id.y, unused
         self.new_key()
+        # kwargs contains input_id.x and input_id.y
+        input_id = kwargs.keys()[0].split('.')[0]
+        assert input_id == kwargs.keys()[1].split('.')[0]
+        # get the images
         input_dict = index_dict(self.path('input'))
         fnames = input_dict[input_id]['files'].split()
         for i in range(len(fnames)):

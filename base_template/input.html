@@ -12,7 +12,7 @@ Click on an image to use it as the algorithm input.
 %for id in sorted(inputd.keys()):
 <div class="select_input">
 %for url in inputd[id]['tn_url']:
-  <input type="image" name="input_id" value="${id | h}"
+  <input type="image" name="${id | h}"
          src="${url}" alt="${inputd[id]['title'] | h}"/>
 %endfor
   <span class="label">${inputd[id]['title'] | h}</span>
