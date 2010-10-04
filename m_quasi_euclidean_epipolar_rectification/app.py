@@ -23,6 +23,7 @@ class app(base_app):
     description = """V. Kolmogorov and R. Zabih's method tries to minimize an 
     energy defined on all possible configurations.<br />
     Please select or upload the image pair to rectify.
+    Both images must have the same size.
     """
 
     input_nb = 2 # number of input images
@@ -42,11 +43,27 @@ class app(base_app):
         # select the base_app steps to expose
         # index() is generic
         app_expose(base_app.index)
-        #app_expose(base_app.input_select)
-        #app_expose(base_app.input_upload)
-        # params() is modified from the template
-        #app_expose(base_app.params)
-        # run() and result() must be defined here
+
+    #
+    # PARAMETER HANDLING
+    #
+
+    @cherrypy.expose
+    @get_check_key
+    def params(self, newrun=False, msg=None):
+        """
+        configure the algo execution
+        """
+        if newrun:
+            self.clone_input()
+        if (image(self.path('tmp', 'input_0.png')).size
+            != image(self.path('tmp', 'input_1.png')).size):
+            return self.error('badparams',
+                              "The images must have the same size")
+        urld = {'next_step' : self.url('run'),
+                'input' : [self.url('tmp', 'input_%i.png' % i)
+                           for i in range(self.input_nb)]}
+        return self.tmpl_out("params.html", urld=urld, msg=msg)
 
     @cherrypy.expose
     @get_check_key
