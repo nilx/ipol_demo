@@ -117,7 +117,9 @@ class app(base_app):
         http_redirect_303(self.url('result', {'key':self.key}))
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
-        return self.tmpl_out("run.html", urld=urld)
+        return self.tmpl_out("run.html", urld=urld,
+                             height=image(self.path('tmp', 
+                                                    'input_0.png')).size[1])
 
     def compute_k_auto(self):
         """
@@ -268,6 +270,8 @@ something must have gone wrong""")
 
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
+                             height=image(self.path('tmp', 
+                                                    'input_0.png')).size[1],
                              k_used=k_used,
                              lambda_used=lambda_used,
                              k_proposed=k_proposed,

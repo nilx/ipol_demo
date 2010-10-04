@@ -14,13 +14,13 @@ using Graph Cuts' algorithm on these 2 images.
 <input type="submit" value="next step : run" />
 </form>
 
-<hr />
-
-<div>
-%for url in urld['input']:
-<img src="${url}" alt="" /> 
-%endfor
-</div>
+<h2>input</h2>
+<div class="gallery" style="height: 1024px;">
+<ul class="index">
+<li><a href="#">first input image
+    <span><img src="${urld['input'][0]}" /></span></a></li>
+<li><a href="#">second input image
+    <span><img src="${urld['input'][1]}" /></span></a></li>
+</ul>
 
 <%include file="footer.html" />
-

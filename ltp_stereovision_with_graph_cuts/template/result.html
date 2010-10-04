@@ -42,23 +42,16 @@ You can run again this algorithm with new data, or other parameter values.
 </fieldset> 
 </form>
 
-<hr />
-
-<div>
-
-<h2>input (left and right image)</h2>
-%for url in urld['input']:
-<img src="${url}" alt="" />
-%endfor
-
-
-<h2>disparity map, K=${k_used}, lambda=${lambda_used}</h2>
-%for url in urld['output']:
-<img src="${url}" alt="" />
-%endfor
-
-
-</div>
+<h2>result</h2>
+<div class="gallery" style="height: ${height}px;">
+<ul class="index">
+<li><a href="#">disparity map, K=${k_used}, lambda=${lambda_used}
+    <span><img src="${urld['output'][0]}" /></span></a></li>
+<li><a href="#">first input image
+    <span><img src="${urld['input'][0]}" /></span></a></li>
+<li><a href="#">second input image
+    <span><img src="${urld['input'][1]}" /></span></a></li>
+</ul>
 
 <%include file="footer.html" />
 
