@@ -20,9 +20,7 @@ class app(base_app):
     """ template demo app """
     
     title = "Quasi-Euclidean Epipolar Rectification"
-    description = """V. Kolmogorov and R. Zabih's method tries to minimize an 
-    energy defined on all possible configurations.<br />
-    Please select or upload the image pair to rectify.
+    description = """Please select or upload the image pair to rectify.
     Both images must have the same size.
     """
 
