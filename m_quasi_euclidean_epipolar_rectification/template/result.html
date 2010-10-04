@@ -2,10 +2,14 @@
 
 <p>
 The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
-<!--
-You can run again this algorithm with new data, or other parameter values.
--->
 </p>
+
+<form action="${urld['new_input']}" method="get">
+<fieldset>
+<legend>restart with new input</legend> 
+<input type="submit" value="back to : input" />
+</fieldset> 
+</form>
 
 <h2>input images</h2>
 <div class="gallery" style="height: ${height}px;">
