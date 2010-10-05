@@ -16,7 +16,7 @@ import os
 import time
 from subprocess import Popen
 
-from lib import TimeoutError
+from cherrypy import TimeoutError
 
 import cherrypy
 

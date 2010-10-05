@@ -6,7 +6,7 @@ Quasi-Euclidean Epipolar Rectification
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303, app_expose, image
-from lib import TimeoutError
+from cherrypy import TimeoutError
 import os.path
 import time
 import cherrypy

@@ -325,13 +325,3 @@ def app_expose(function):
     shortcut to expose app actions from the base class
     """
     function.im_func.exposed = True
-
-#
-# EXCEPTIONS
-#
-
-class TimeoutError(Exception):
-    """
-    exception raised when a subprocess doesn't end before a given delay
-    """
-    pass
