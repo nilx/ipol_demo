@@ -131,6 +131,8 @@ something must have gone wrong""")
                 'run' : self.url('run'),
                 'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')],
+                'show' : [self.url('tmp', 'show_H_input_0.png'),
+                           self.url('tmp', 'show_H_input_1.png')],
                 'output' : [self.url('tmp', 'H_input_0.png'),
                            self.url('tmp', 'H_input_1.png')],
                 'orsa' : self.url('tmp', 'orsa.txt'),

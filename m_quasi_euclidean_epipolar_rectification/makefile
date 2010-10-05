@@ -16,7 +16,7 @@ SRC	= MissStereo
 SRC_TGZ	= $(SRC).tar.gz
 SRC_URL	= https://edit.ipol.im/edit/algo/m_quasi_euclidean_epipolar_rectification/$(SRC_TGZ)
 SCRIPT	= Rectify.sh
-BIN	= homography orsa rectify sift size
+BIN	= homography orsa rectify sift size showRect
 
 .PHONY	: update distclean bin
 
