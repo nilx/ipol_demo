@@ -2,7 +2,11 @@
     display: inline; }
 
 .note {
-    font-size: 80%; }
+    font-size: 70%; }
+
+.note,
+.note a {
+    color: #595959; }
 
 .warning {
     border: #990000 1px solid;
