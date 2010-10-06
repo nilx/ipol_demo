@@ -148,9 +148,9 @@ something must have gone wrong""")
                 'orsa' : self.url('tmp', 'orsa.txt'),
                 'homo' : [self.url('tmp', 'H_input_0.txt'),
                           self.url('tmp', 'H_input_1.txt')],
-                'exact' : [self.url('tmp', 'disp1_H_input_0.tiff'),
-                           self.url('tmp', 'disp2_H_input_0.tiff'),
-                           self.url('tmp', 'disp3_H_input_0.tiff')]}
+                'exact' : [self.url('tmp', 'disp1_H_input_0.tif'),
+                           self.url('tmp', 'disp2_H_input_0.tif'),
+                           self.url('tmp', 'disp3_H_input_0.tif')]}
 
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
