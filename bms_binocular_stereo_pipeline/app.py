@@ -21,7 +21,9 @@ class app(base_app):
     
     title = "Binocular Stereo Pipeline"
     description = """Please select or upload a stereo image pair.
-    Both images must have the same size.
+    Both images must have the same size.<br />
+    This algorithm  is designed for low baseline simultaneous or
+    almost simultaneous stereo pairs.
     """
 
     input_nb = 2 # number of input images
