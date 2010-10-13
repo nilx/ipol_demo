@@ -1,14 +1,13 @@
 """
-helper tools
+various help tools for the IPOL demo environment
 """
+# pylint: disable-msg=C0103
 
 #
 # TINY STUFF
 #
 
 prod = lambda l : reduce(lambda a, b : a * b, l, 1)
-# sum() is already defined
-#sum = lambda l : reduce(lambda a, b : a + b, l, 0)
 
 #
 # INDEX DICTIONARY
@@ -18,11 +17,19 @@ import os.path
 import ConfigParser
 class index_dict(dict):
     """
-    folder index as a dictionnary, read from an index.cfg file
+    handle a config file as a dictionary
     """
-    def __init__(self, location, fname='index.cfg'):
-        """ populate the dict from the index metadata file """
+    # TODO rename to file_dict or config_dict
+    fname = None
 
+    def __init__(self, location, fname='index.cfg'):
+        """
+        initalize a dictionary from a config file
+
+        @param location: folder containing this config file
+        @param fname: name of the config file
+        """
+        # TODO drop fname parameter
         dict.__init__(self)
         self.fname = os.path.join(location, fname)
 
@@ -32,8 +39,9 @@ class index_dict(dict):
             self[section] = dict(index.items(section))
 
     def save(self):
-        """ save the (updated) dict to the index metadata file """
-
+        """
+        save the (updated) dictionary to the config file
+        """
         dict.__init__(self)
         
         index = ConfigParser.RawConfigParser()
@@ -51,50 +59,63 @@ class index_dict(dict):
 #
 
 from PIL import Image
-class tn_image(object):
+
+def tn_image(location, size=(128, 128), ext=".png"):
     """
-    thumbnail image
+    image thumbnailing function
+
+    @param location: full-size file name
+    @param size: thumbnail size, default 128x128
+    @param ext: thumbnail file extension (and format), default ".png"
+
+    @return: thumbnail file name
     """
+    # parse the file name
+    location = os.path.abspath(location)
+    (folder, fname) = os.path.split(location)
+    basename = os.path.splitext(fname)[0]
 
-    def __init__(self, location, size=(128, 128), ext=".png"):
-        """
-        read the image
-        and automatically generate a thumbnail if needed
-        """
+    tn_location = os.path.join(folder,
+                               basename + ".__%ix%i__" % size + ext)
+    if not os.path.isfile(tn_location):
+        # no thumbnail, create it
+        im = Image.open(location)
+        tn = Image.new('RGBA', size, (0, 0, 0, 0))
+        im.thumbnail(size, resample=True)
+        offset = ((size[0] - im.size[0]) / 2,
+                  (size[1] - im.size[1]) / 2)
+        box = offset + (im.size[0] + offset[0],
+                        im.size[1] + offset[1])
+        tn.paste(im, box)
+        tn.save(tn_location)
 
-        location = os.path.abspath(location)
-        (folder, fname) = os.path.split(location)
-        (basename, ext) = os.path.splitext(fname)
-
-        self.fname = basename + ".__%ix%i__" % size + ext
-        if not os.path.isfile(os.path.join(folder, self.fname)):
-            im = Image.open(location)
-            tn = Image.new('RGBA', size, (0, 0, 0, 0))
-            im.thumbnail(size, resample=True)
-            offset = ((size[0] - im.size[0]) / 2,
-                      (size[1] - im.size[1]) / 2)
-            box = offset + (im.size[0] + offset[0],
-                            im.size[1] + offset[1])
-            tn.paste(im, box)
-            tn.save(os.path.join(folder, self.fname))
-
+    return tn_location
+    
 #
 # IMAGE CLASS
 #
 
+from PIL import ImageDraw
+
 class image(object):
     """
-    manipulable image
-    this class is basically a PIL abstraction
-    nothing is written until explicitly asked
+    manipulable image object
+
+    This class is basically a PIL abstraction, with a different
+    method model: each method is an action modifying the object.
+    Nothing is written to a file until explicitly asked.
     """
+
+    im = None
 
     def __init__(self, src=None):
         """
-        open the image
-        src not specified : empty image
-        src is a string : read the file
-        src is a PIL Image : use it
+        initialize an image from a file
+
+        @param src: origin image, can be
+          - a string : it is read as an image file name
+          - a  PIL image object : it is used as the internal image structure
+          - omitted : the image is initialy empty
         """
         if isinstance(src, Image.Image):
             self.im = src
@@ -102,34 +123,42 @@ class image(object):
             self.im = Image.open(src)
 
     def __getattr__(self, attr):
-        """ 
-        direct access to some image attributes 
+        """
+        direct access to some image attributes
         """
         if attr == 'size':
             return self.im.size
         else:
             return object.__getattribute__(self, attr)
 
-    def save(self, fname, **kwargs):
+    def save(self, fname):
         """
         save the image file
+
+        @param fname: file name
         """
-        # TODO : handle external TIFF compression
-        self.im.save(fname, **kwargs)
+        # TODO handle optional arguments
+        # TODO handle external TIFF compression
+        self.im.save(fname)
         return fname
 
     def crop(self, box):
         """
         crop the image, in-place
+
+        @param box: crop coordinates (x0, y0, x1, x1)
         """
         self.im = self.im.crop(box)
         return self
 
-    def resize(self, size):
+    def resize(self, size, method="bicubic"):
         """
         resize the image, in-place
-        """
 
+        @param size: target size, given as an integer number of pixels,
+        a float scale ratio, or a pair (width, height)
+        @param method: interpolation method, can be "nearest" or "bicubic"
+        """
         if isinstance(size, int):
             # size is a number of pixels -> convert to a float scale
             size = (float(size) / (self.im.size[0] * self.im.size[1])) ** .5
@@ -139,36 +168,50 @@ class image(object):
             size = (int(self.im.size[0] * size),
                     int(self.im.size[1] * size))
 
-        self.im = self.im.resize(size, Image.BICUBIC)
+        try:
+            method_kw = {"nearest" : Image.NEAREST,
+                         "bicubic" : Image.BICUBIC}[method]
+        except KeyError:
+            raise KeyError('method must be "nearest" or "bicubic"')
+
+        self.im = self.im.resize(size, method_kw)
         return self
 
     def convert(self, mode):
         """
-        convert the pixel format :
-        * 1x1i : 1bit binary monochrome
-        * 1x8i : 8bit gray
-        * 3x8i : 8bit RGB
-        * 1x32i : 32bit gray
-        * 1x32f : 32bit float
+        convert the image pixel array to another numeric type
+
+        @param mode: the data type, can be '1x8i' (8bit gray) or '3x8i'
+        (RGB)
         """
-        # PIL mode keywords
-        mode_kw = {'1x1i' : '1',
-                   '1x8i' : 'L',
-                   '3x8i' : 'RGB',
-                   '1x32i' : 'I',
-                   '1x32f' : 'F'}
-        self.im = self.im.convert(mode_kw[mode])
+        # TODO handle other modes (binary, 16bits, 32bits int/float)
+        # TODO rename param to dtype
+        try:
+            mode_kw = {'1x8i' : 'L',
+                       '3x8i' : 'RGB'}[mode]
+        except KeyError:
+            raise KeyError('mode must be "1x8i" or "3x8i"')
+        self.im = self.im.convert(mode_kw)
         return self
 
     def split(self, nb, margin=0, fname=None):
         """
-        split an image vertically into nb tiles,
+        split an image vertically into tiles tiles,
         with an optional margin
-        returns a list of images if fname is not specified,
+
+        @param nb: number of strips
+        @param margin: overlapping margin, default 0
+
+        @return: list of images if fname is not specified,
         or a list of filenames where these images are saved
         """
+        # TODO refactor, don't automatically save
         
-        assert (nb >= 2)
+        try:
+            assert (nb >= 2)
+        except AssertionError:
+            raise ValueError('nb must be >= 2')
+
         xmax, ymax = self.im.size
         dy = float(ymax) / nb
         
@@ -190,9 +233,11 @@ class image(object):
 
     def join(self, tiles, margin=0):
         """
-        read tiles and join them vertically
+        read some tiles and join them vertically
+
+        @param tiles: a list of images
+        @param margin: overlapping margin, default 0
         """
-        
         # compute the full image size
         xmax = tiles[0].im.size[0]
         ymax = 0
@@ -220,6 +265,22 @@ class image(object):
         self.im.paste(tile.crop((0, margin, xmax, dy + margin)),
                       (0, ystart))
 
+        return self
+
+    def draw_line(self, coords, color="white"):
+        """
+        draw a line in an image
+
+        @param coords: a list of coordinates [(x1,y1), (x2,y2), ...]
+        @param color: an optional color code, following PIL syntax[1],
+        default white
+        @return: the image object
+
+        [1]http://www.pythonware.com/library/pil/handbook/imagedraw.htm
+        """
+        draw = ImageDraw.Draw(self.im)
+        draw.line(coords, fill=color)
+        del draw
         return self
 
 #
@@ -250,7 +311,9 @@ def http_redirect_303(url):
     """
     HTTP "303 See Other" redirection
     """
-    cherrypy.response.status = "303 See Other"
+    # TODO drop 303 code, rename this function
+#    cherrypy.response.status = "303 See Other"
+#    cherrypy.response.headers['Location'] = "%s" % url
     cherrypy.response.headers['Refresh'] = "0; %s" % url
 
 #
@@ -262,12 +325,3 @@ def app_expose(function):
     shortcut to expose app actions from the base class
     """
     function.im_func.exposed = True
-
-#
-# EXCEPTIONS
-#
-
-class TimeoutError(Exception):
-    pass
-class RuntimeError(Exception):
-    pass

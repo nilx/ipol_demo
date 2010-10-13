@@ -1,7 +1,8 @@
 """
 generic ipol demo web app
 """
-# TODO : add steps (cf amazon cart)
+# pylint: disable-msg=C0103
+# TODO add steps (cf amazon cart)
 
 #
 # EMPTY APP
@@ -13,9 +14,9 @@ from random import random
 
 import os
 import time
-from subprocess import PIPE, Popen
+from subprocess import Popen
 
-from lib import TimeoutError, RuntimeError
+from cherrypy import TimeoutError
 
 import cherrypy
 
@@ -27,6 +28,9 @@ class empty_app(object):
     def __init__(self, base_dir):
         """
         app setup
+
+        @param base_dir: the base directory for this demo, used to
+        look for spcial subfolders (input, template, ...)
         """
         # the demo ID is the folder name
         self.base_dir = os.path.abspath(base_dir)
@@ -40,12 +44,17 @@ class empty_app(object):
 
     def path(self, folder, fname=''):
         """
-        path scheme:
-        * tmp   -> ./data/tmp/<key>/<file_name>
-        * input -> ./data/input/<file_name>
+        file path scheme
+
+        @param folder: the path folder category:
+          - tmp : the unique temporary folder (using the key)
+          - bin : the binary folder
+          - input : the input folder
+        @return: the local file path
         """
+        # TODO use key instead of tmp
         if folder == 'tmp':
-            # TODO : check key != None
+            # TODO check key != None
             path = os.path.join(self.base_dir, 'tmp', self.key, fname)
         elif folder == 'bin':
             path = os.path.join(self.base_dir, 'bin', fname)
@@ -57,9 +66,9 @@ class empty_app(object):
     # URL MODEL 
     #
 
-    def _url_link(self, link):
+    def _url_xlink(self, link):
         """
-        url scheme for links
+        link url scheme
         """
         if link == 'demo':
             return cherrypy.url(path="/pub/demo/%s/" % self.id,
@@ -80,6 +89,7 @@ class empty_app(object):
         * tmp   -> ./tmp/<key>/<file_name>
         * input -> ./input/<file_name>
         """
+        # TODO use key instead of tmp
         if fname == None:
             fname = ''
         if folder == 'tmp':
@@ -99,12 +109,12 @@ class empty_app(object):
 
     def url(self, arg1, arg2=None):
         """
-        url scheme wrapper
+        url scheme
         """
-        # TODO: include a configurable url base
+        # TODO include a configurable url base
         #       taken from the config file 
         if arg1 in ['demo', 'algo', 'archive', 'forum']:
-            return self._url_link(link=arg1)
+            return self._url_xlink(link=arg1)
         elif arg1 in ['tmp', 'input']:
             return self._url_file(folder=arg1, fname=arg2)
         else:
@@ -146,6 +156,8 @@ class empty_app(object):
     def log(self, msg):
         """
         simplified log handler
+
+        @param msg: the log message string
         """
         cherrypy.log(msg, context="DEMO/%s/%s" % (self.id, self.key),
                      traceback=False)
@@ -162,7 +174,7 @@ class empty_app(object):
         # update the environment
         newenv = os.environ.copy()
         newenv.update(self.run_environ)
-        # TODO : clear the PATH, hard-rewrite the exec arg0
+        # TODO clear the PATH, hard-rewrite the exec arg0
         newenv.update({'PATH' : self.path('bin')})                
         # run
         return Popen(args, stdin=stdin, stdout=stdout, stderr=stderr,
@@ -177,7 +189,7 @@ class empty_app(object):
 
         if not (cherrypy.config['server.environment'] == 'production'):
             # no timeout if just testing
-            timeout = False;
+            timeout = False
         if isinstance(process, Popen):
             # require a list
             process_list = [process]
@@ -217,11 +229,10 @@ class empty_app(object):
 # BASE APP
 #
 
-import os, shutil
+import shutil
 from lib import index_dict, tn_image, image, prod, \
     get_check_key, http_redirect_303
 
-import cherrypy
 from mako.lookup import TemplateLookup
 
 class app(empty_app):
@@ -238,9 +249,9 @@ class app(empty_app):
     input_max_weight = 5 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.tiff' # input image expected extention (ie. file format)
-    display_ext = '.jpeg' # html embedded displayed image extention
     timeout = 60 # subprocess execution timeout
-    is_test = False;
+    is_test = True
+    allow_upload = True
 
     def __init__(self, base_dir):
         """
@@ -263,7 +274,7 @@ class app(empty_app):
         if self.is_test:
             self.title = '[TEST] ' + self.title
 
-        # TODO : early attributes validation
+        # TODO early attributes validation
 
     #
     # TEMPLATES HANDLER
@@ -277,7 +288,6 @@ class app(empty_app):
         attrd = dict([(attr, getattr(self, attr, ''))
                       for attr in ['id',
                                    'key',
-                                   'input_nb',
                                    'title',
                                    'description']])
         kwargs.update(attrd)
@@ -312,16 +322,19 @@ class app(empty_app):
             # by splitting at blank characters
             inputd[key]['files'] = inputd[key]['files'].split()
             # generate thumbnails and thumbnail urls
-            tn_fname = [tn_image(self.path('input', fname)).fname
+            tn_fname = [tn_image(self.path('input', fname))
                         for fname in inputd[key]['files']]
-            inputd[key]['tn_url'] = [self.url('input', fname)
+            inputd[key]['tn_url'] = [self.url('input',
+                                              os.path.basename(fname))
                                      for fname in tn_fname]
 
         # urls dict
         urld = {'select_form' : self.url('input_select'),
                 'upload_form' : self.url('input_upload')}
         return self.tmpl_out("input.html", urld=urld,
-                              inputd=inputd)
+                             inputd=inputd,
+                             input_nb=self.input_nb,
+                             allow_upload=self.allow_upload)
 
     #
     # INPUT HANDLING TOOLS
@@ -331,7 +344,7 @@ class app(empty_app):
         """
         pre-process the input data
         """
-        msg = None;
+        msg = None
         for i in range(self.input_nb):
             # open the file as an image
             try:
@@ -351,8 +364,9 @@ class app(empty_app):
             # save a working copy
             im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
             # save a web viewable copy
-            if (self.display_ext != self.input_ext):
-                im.save(self.path('tmp', 'input_%i' % i + self.display_ext))
+            im.save(self.path('tmp', 'input_%i.png' % i))
+            # delete the original
+            os.unlink(self.path('tmp', 'input_%i' % i))
         return msg
 
     def clone_input(self):
@@ -366,7 +380,7 @@ class app(empty_app):
         # copy the input files
         fnames = ['input_%i' % i + self.input_ext
                   for i in range(self.input_nb)]
-        fnames += ['input_%i' % i + self.display_ext
+        fnames += ['input_%i.png' % i
                    for i in range(self.input_nb)]
         for fname in fnames:
             shutil.copy(os.path.join(oldpath, fname),
@@ -378,13 +392,15 @@ class app(empty_app):
     # INPUT STEP
     #
 
-    def input_select(self, input_id, **kwargs):
+    def input_select(self, **kwargs):
         """
         use the selected available input images
         """
-        # kwargs is for input_id.x and input_id.y, unused
-#        del kwargs
         self.new_key()
+        # kwargs contains input_id.x and input_id.y
+        input_id = kwargs.keys()[0].split('.')[0]
+        assert input_id == kwargs.keys()[1].split('.')[0]
+        # get the images
         input_dict = index_dict(self.path('input'))
         fnames = input_dict[input_id]['files'].split()
         for i in range(len(fnames)):
@@ -409,7 +425,7 @@ class app(empty_app):
                                          "Missing input file")
             size = 0
             while True:
-                # TODO : larger data size
+                # TODO larger data size
                 data = file_up.file.read(128)
                 if not data:
                     break
@@ -448,7 +464,7 @@ class app(empty_app):
         if newrun:
             self.clone_input()
         urld = {'next_step' : self.url('run'),
-                'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+                'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}
         return self.tmpl_out("params.html", urld=urld, msg=msg)
 
@@ -463,9 +479,9 @@ class app(empty_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # redirect to the result page
-        # TODO: check_params as another function
+        # TODO check_params as another function
         http_redirect_303(self.url('result', {'key':self.key}))
-        urld = {'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+        urld = {'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}
         return self.tmpl_out("run.html", urld=urld)
 
@@ -483,18 +499,18 @@ class app(empty_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # TODO : ensure only running once
-        # TODO : save each result in a new archive
-        # TODO : give the archive link
-        # TODO : give the option to not be public
+        # TODO ensure only running once
+        # TODO save each result in a new archive
+        # TODO give the archive link
+        # TODO give the option to not be public
         #        (and remember it from a cookie)
-        # TODO : read the kwargs from a file, and pass to run_algo
-        # TODO : pass these parameters to the template
+        # TODO read the kwargs from a file, and pass to run_algo
+        # TODO pass these parameters to the template
         self.run_algo({})
         self.log("input processed")
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_%i' % i + self.display_ext)
+                'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)],
-                'output' : [self.url('tmp', 'output' + self.display_ext)]}
+                'output' : [self.url('tmp', 'output.png')]}
         return self.tmpl_out("result.html", urld=urld)

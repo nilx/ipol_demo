@@ -3,7 +3,7 @@
 <p>${description}</p>
 
 %if inputd:
-<form action="${urld['select_form']}" method="post">
+<form action="${urld['select_form']}" method="get">
 <fieldset> 
 <legend>Select Data</legend> 
 <p>
@@ -12,9 +12,8 @@ Click on an image to use it as the algorithm input.
 %for id in sorted(inputd.keys()):
 <div class="select_input">
 %for url in inputd[id]['tn_url']:
-  <input name="input_id" value="${id | h}" id="&{id | h}"
-         type="image" src="${url}"
-         alt="${inputd[id]['title'] | h}"/>
+  <input type="image" name="${id | h}"
+         src="${url}" alt="${inputd[id]['title'] | h}"/>
 %endfor
   <span class="label">${inputd[id]['title'] | h}</span>
 </div>
@@ -23,6 +22,7 @@ Click on an image to use it as the algorithm input.
 </form>
 %endif
 
+%if allow_upload:
 <form action="${urld['upload_form']}" method="post"
       enctype="multipart/form-data">
 <fieldset> 
@@ -39,16 +39,18 @@ Upload your own images to use as the algorithm input.
 <input type="submit" value="upload" />
 <p class="note">
 Total upload size is limited to 10M.
-Only upload <a href="http://www.ipol.im/meta/demo_input/">suitable images</a>.
-See <a href="http://www.ipol.im/meta/demo_input/">the copyright
-and legal conditions</a> for details.<br />
 TIFF, JPEG, PNG, GIF, PNM
 (and <a href="http://www.ipol.im/meta/demo_input/">other standard formats</a>)
-are supported.<br />
+are supported.
 The uploaded files may be re-used for further analysis.
+<br />
+Only upload <a href="http://www.ipol.im/meta/demo_input/">suitable images</a>.
+See <a href="http://www.ipol.im/meta/demo_input/">the copyright
+and legal conditions</a> for details.
 </p>
 </fieldset>
 </form>
+%endif
 
 <!--
 TODO: external input; search and select from Flickr, Google images,
