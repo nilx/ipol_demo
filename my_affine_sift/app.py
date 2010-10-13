@@ -5,7 +5,7 @@ ASIFT demo interaction script
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303, app_expose, index_dict
 from lib import image
-from lib import TimeoutError, RuntimeError
+from cherrypy import TimeoutError
 import os.path
 import time
 
@@ -23,7 +23,6 @@ class app(base_app):
     input_max_method = 'zoom'
     input_dtype = '1x8i'
     input_ext = '.png'
-    display_ext = '.png'
     timeout = 60
     is_test = False
 

@@ -4,7 +4,7 @@ demo example for the X->aX+b transform
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303, app_expose, index_dict
-from lib import TimeoutError, RuntimeError
+from cherrypy import TimeoutError
 import os.path
 
 class app(base_app):
@@ -19,7 +19,6 @@ class app(base_app):
     input_max_weight = 1 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'   # input image expected extension (ie file format)
-    display_ext = '.png' # displayed image extention (ie. file format)
     is_test = True;      # switch to False for deployment
 
     def __init__(self):
