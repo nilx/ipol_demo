@@ -1,0 +1,58 @@
+<%include file="header.html" />
+
+<p>
+The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+You can run again this algorithm with new data, or other parameter values.
+</p>
+
+<form action="${urld['new_input']}" method="get">
+<fieldset>
+<legend>restart with new input</legend> 
+<input type="submit" value="back to : input" />
+</fieldset> 
+</form>
+
+<form action="${urld['run']}" method="get">
+<fieldset>
+<legend>use other parameters</legend> 
+<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="new_run" value="1">
+<label for="K"> K = </label>
+<select name="K">
+%for k in k_proposed:
+  <option value="${k}"
+%if k == k_used:
+	  selected="selected"
+%endif
+	  >${k}</option>
+%endfor
+</select>
+<label for="lambda"> lambda = </label>
+<select name="lambda">
+%for l in l_proposed:
+  <option value="${l}"
+%if l == lambda_used:
+	  selected="selected"
+%endif
+	  >${l}</option>
+%endfor
+</select>
+<br />
+<input type="submit" value="next step : run" />
+</fieldset> 
+</form>
+
+<h2>result</h2>
+<div class="gallery" style="height: ${height}px;">
+<ul class="index">
+<li><a href="#">disparity map, K=${k_used}, lambda=${lambda_used}
+    <span><img src="${urld['output'][0]}" /></span></a></li>
+<li><a href="#">first input image
+    <span><img src="${urld['input'][0]}" /></span></a></li>
+<li><a href="#">second input image
+    <span><img src="${urld['input'][1]}" /></span></a></li>
+</ul>
+
+<%include file="footer.html" />
+
+
