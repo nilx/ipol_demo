@@ -65,10 +65,10 @@ class app(base_app):
     description = """V. Kolmogorov and R. Zabih's method tries to minimize an 
     energy defined on all possible configurations.<br />
     Please select two images; color images will be converted into gray
-    level."""
+    level; images larger than 1M pixels will be resized."""
 
     input_nb = 2 # number of input images
-    input_max_pixels = None # max size (in pixels) of an input image
+    input_max_pixels = 1024*1024 # max size (in pixels) of an input image
     input_max_method = 'zoom'
     input_dtype = '3x8i' # input image expected data type    
     input_ext = '.ppm'   # input image expected extension (ie file format)    
@@ -200,8 +200,9 @@ class app(base_app):
             conf_file.write("SAVE_X_SCALED %s\n" % output_fnames[n])
             conf_file.close()
             # run each process
-            plist.append(self.run_proc(['match', 'match_%i.conf' %n]))
-        self.wait_proc(plist)
+            plist.append(self.run_proc(['match', 'match_%i.conf' %n],
+                                       ))
+        self.wait_proc(plist, timeout=120)
 
         # join all the partial results into a global one
         output_img = image().join([image(self.path('tmp', output_fnames[n]))
