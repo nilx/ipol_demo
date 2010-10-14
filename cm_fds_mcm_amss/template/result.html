@@ -1,0 +1,28 @@
+<%include file="header.html" />
+
+<p>
+The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+You can run again this algorithm with new data.
+</p>
+
+<form action="${urld['new_input']}" method="get">
+new input data:
+<input type="submit" value="back to : input" />
+</form>
+
+<hr />
+
+<div class="gallery">
+<ul class="index">
+<li><a href="#">Original
+    <span><img src=${urld['input'][0]} /></span></a></li>
+<li><a href="#">Filtered MCM
+    <span><img src=${urld['output'][0]} /></span></a></li>
+<li><a href="#">Filtered AMSS
+    <span><img src=${urld['output'][1]} /></span></a></li>
+</ul>
+</div>
+
+
+
+<%include file="footer.html" />
