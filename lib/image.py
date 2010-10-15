@@ -1,63 +1,13 @@
 """
-various help tools for the IPOL demo environment
+image tools
 """
 # pylint: disable-msg=C0103
-
-#
-# TINY STUFF
-#
-
-prod = lambda l : reduce(lambda a, b : a * b, l, 1)
-
-#
-# INDEX DICTIONARY
-#
-
-import os.path
-import ConfigParser
-class index_dict(dict):
-    """
-    handle a config file as a dictionary
-    """
-    # TODO rename to file_dict or config_dict
-    fname = None
-
-    def __init__(self, location, fname='index.cfg'):
-        """
-        initalize a dictionary from a config file
-
-        @param location: folder containing this config file
-        @param fname: name of the config file
-        """
-        # TODO drop fname parameter
-        dict.__init__(self)
-        self.fname = os.path.join(location, fname)
-
-        index = ConfigParser.RawConfigParser()
-        index.read(self.fname)
-        for section in index.sections():
-            self[section] = dict(index.items(section))
-
-    def save(self):
-        """
-        save the (updated) dictionary to the config file
-        """
-        dict.__init__(self)
-        
-        index = ConfigParser.RawConfigParser()
-        for section in self.keys():
-            index.add_section(section)
-            for option in self[section].keys():
-                index.set(section, option,
-                          self[section][option])
-        index_file = open(self.fname, 'w')
-        index.write(index_file)
-        index_file.close()
 
 #
 # IMAGE THUMBNAILER
 #
 
+import os.path
 from PIL import Image
 
 def tn_image(location, size=(128, 128), ext=".png"):
@@ -125,7 +75,7 @@ class image(object):
             # temporary workaround, fixed in PIL 1.7 
             if self.im.format == 'PNG':
                 try:
-                    self.im.getpixel((0,0))
+                    self.im.getpixel((0, 0))
                 except IOError:
                     # check the file exists
                     assert os.path.isfile(src)
@@ -136,7 +86,7 @@ class image(object):
                     del self.im
                     self.im = Image.open(src)
                     # try once again, in case there is another problem
-                    self.im.getpixel((0,0))
+                    self.im.getpixel((0, 0))
 
     def __getattr__(self, attr):
         """
@@ -298,109 +248,3 @@ class image(object):
         draw.line(coords, fill=color)
         del draw
         return self
-
-#
-# ACTION DECORATOR TO HANDLE DEMO KEY
-#
-
-def get_check_key(func):
-    """
-    decorator to read the key,
-    save it as a class attribute,
-    and check the key validity
-    """
-    def checked_func(self, *args, **kwargs):
-        """
-        original function with a preliminary key check
-        """
-        self.key = kwargs.pop('key', '')
-        self.check_key()
-        return func(self, *args, **kwargs)
-    return checked_func
-
-#
-# CHERRYPY REDIRECTION
-#
-
-import cherrypy
-def http_redirect_303(url):
-    """
-    HTTP "303 See Other" redirection
-    """
-    # TODO drop 303 code, rename this function
-#    cherrypy.response.status = "303 See Other"
-#    cherrypy.response.headers['Location'] = "%s" % url
-    cherrypy.response.headers['Refresh'] = "0; %s" % url
-
-#
-# BASE_APP REUSE
-#
-
-def app_expose(function):
-    """
-    shortcut to expose app actions from the base class
-    """
-    function.im_func.exposed = True
-
-#
-# BUILD
-#
-
-import urllib, time
-
-def download(url, fname):
-    """
-    download a file from the network if it is newer than the local
-    file
-    
-    @param url: source url
-    @param fname: destination file name
-
-    @return: the file name
-    """
-    # TODO restrict the allowed servers
-    # TODO handle username/password
-    if not os.path.isfile(fname):
-        # no local copy : retrieve
-        urllib.urlretrieve(url, fname)
-    else:
-        # only retrieve if a newer version is available
-        urlfile = urllib.urlopen(url)
-        urlfile_ctime = time.strptime(urlfile.info()['last-modified'],
-                                      "%a, %d %b %Y %H:%M:%S %Z")
-        urlfile_size = urlfile.info()['content-length']
-        localfile_ctime = time.gmtime(os.path.getmtime(fname))
-        localfile_size = os.path.getsize(fname)
-        del urlfile
-        if (urlfile_ctime > localfile_ctime
-            or urlfile_size != localfile_size):
-            urllib.urlretrieve(url, fname)
-    return fname
-
-import tarfile, zipfile
-
-def extract_archive(fname, target):
-    """
-    extract tar, tgz, tbz and zip archives
-
-    @param fname: archive file name
-    @param target: target extraction directory
-
-    @return: the archive content
-    """
-    try:
-        # start with tar
-        ar = tarfile.open(fname)
-        content = ar.getnames()
-    except tarfile.ReadError:
-        # retry with zip
-        ar = zipfile.ZipFile(fname)
-        content = ar.namelist()
-
-    # no absolute file name
-    assert not any([os.path.isabs(fname) for fname in content])
-    # no .. in file name
-    assert not any([(".." in fname) for fname in content])
-    ar.extractall(target)
-    
-    return content
