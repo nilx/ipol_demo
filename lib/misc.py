@@ -69,6 +69,7 @@ def get_check_key(func):
         """
         original function with a preliminary key check
         """
+        # TODO: only read if not defined (will solve pylint errors)
         self.key = kwargs.pop('key', '')
         self.check_key()
         return func(self, *args, **kwargs)

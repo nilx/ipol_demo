@@ -5,7 +5,7 @@ Computing Visual Correspondence with Occlusions using Graph Cuts demo
 interaction script
 """
 
-from base_demo import app as base_app
+from lib import base_app
 import cherrypy
 from lib import get_check_key, http_redirect_303, app_expose, index_dict, image
 from cherrypy import TimeoutError

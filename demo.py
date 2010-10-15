@@ -39,7 +39,7 @@ class demo_index:
         """
 
         tmpl_dir = os.path.join(os.path.dirname(__file__),
-                                'base_template')
+                                'lib', 'template')
         tmpl_lookup = TemplateLookup(directories=[tmpl_dir],
                                      input_encoding='utf-8',
                                      output_encoding='utf-8',
@@ -60,7 +60,8 @@ if __name__ == '__main__':
     conf_file_example = os.path.join(base_dir, 'demo.conf.example')
 
     demo_dict = {}
-    demo_blacklist = ['.git', 'base_template', 'lib']
+    # TODO: blacklist and whitelist text files
+    demo_blacklist = ['.git', 'lib']
     base_dir = os.path.dirname(os.path.abspath(__file__))
     cherrypy.log("app base_dir: %s" % base_dir,
                  context='SETUP', traceback=False)

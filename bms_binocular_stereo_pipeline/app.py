@@ -4,7 +4,7 @@
 Binocular Stereo Pipeline
 """
 
-from base_demo import app as base_app
+from lib import base_app
 from lib import get_check_key, http_redirect_303, app_expose, image
 from cherrypy import TimeoutError
 import os.path
