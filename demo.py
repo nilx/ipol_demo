@@ -62,7 +62,6 @@ if __name__ == '__main__':
     demo_dict = {}
     # TODO: blacklist and whitelist text files
     demo_blacklist = ['.git', 'lib']
-    base_dir = os.path.dirname(os.path.abspath(__file__))
     cherrypy.log("app base_dir: %s" % base_dir,
                  context='SETUP', traceback=False)
 
@@ -77,6 +76,8 @@ if __name__ == '__main__':
     # load the demo collection
     # from now, the demo id is the demo module name, which happens to
     # also be the folder name
+    # TODO: mode the demos to a subfolder (solve the lib import issue)
+    # TODO: first make a (demo_id:demo_app) dict, then use it
     for demo_id in os.listdir(base_dir):
         if not os.path.isdir(os.path.join(base_dir, demo_id)):
             continue
@@ -85,6 +86,7 @@ if __name__ == '__main__':
         # function version of `from demo_id import app as demo.app`
         demo = __import__(demo_id, globals(), locals(), ['app'], -1)
         # filter test demos
+        # TODO: use real filter
         if (cherrypy.config['server.environment'] == 'production'
             and demo.app.is_test):
             continue
