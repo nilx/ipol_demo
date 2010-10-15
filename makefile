@@ -3,8 +3,12 @@ SRC	:= $(wildcard *.py) $(wildcard */*.py)
 default	:
 	@cat README.txt
 
+<<<<<<< HEAD
 DEMO := $(filter-out ./.git ./lib, \
 		$(shell find ./ -maxdepth 1 -mindepth 1 -type d))
+=======
+DEMO := $(shell find ./app/ -maxdepth 1 -mindepth 1 -type d)
+>>>>>>> moved all the demos in a subfolder
 
 .PHONY	: checklint srcdoc update test clean
 check	: $(SRC)

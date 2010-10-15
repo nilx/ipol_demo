@@ -30,8 +30,8 @@ A makefile provides a few convenient shortcuts:
 
 To create a new demo,
 
-1. copy an example demo ('xxx_something') to a new folder name; this folder
-   name will be the demo id
+1. in the app folder, copy an example demo ('xxx_something') to a new
+   folder name; this folder name will be the demo id
 2. in this new folder, customize the class attributes and functions in
    `app.py`
 3. in this new folder, customize the default input files in
@@ -41,4 +41,3 @@ To create a new demo,
    templates in the `template` folder
 5. in this new folder, customize the `makefile`
 6. debug, test, debug, release
- 

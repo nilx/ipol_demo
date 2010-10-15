@@ -29,13 +29,31 @@ class empty_app(object):
         app setup
 
         @param base_dir: the base directory for this demo, used to
-        look for spcial subfolders (input, template, ...)
+        look for special subfolders (input, tmp, ...)
         """
         # the demo ID is the folder name
         self.base_dir = os.path.abspath(base_dir)
         self.id = os.path.basename(base_dir)
         self.key = None
         self.run_environ = {}
+
+        # create missing static subfolders
+        self.input_dir = os.path.join(self.base_dir, 'input')
+        if not os.path.isdir(self.input_dir):
+            cherrypy.log("warning: missing input folder, creating it",
+                         context='SETUP', traceback=False)
+            os.mkdir(self.input_dir)
+        self.tmp_dir = os.path.join(self.base_dir, 'tmp')
+        if not os.path.isdir(self.tmp_dir):
+            cherrypy.log("warning: missing tmp folder, creating it",
+                         context='SETUP', traceback=False)
+            os.mkdir(self.tmp_dir)
+        self.bin_dir = os.path.join(self.base_dir, 'bin')
+        if not os.path.isdir(self.bin_dir):
+            cherrypy.log("warning: missing bin folder, creating it",
+                         context='SETUP', traceback=False)
+            os.mkdir(self.bin_dir)
+        # TODO : mount static folders from here
 
     #
     # FILE PATH MODEL 
@@ -54,11 +72,11 @@ class empty_app(object):
         # TODO use key instead of tmp
         if folder == 'tmp':
             # TODO check key != None
-            path = os.path.join(self.base_dir, 'tmp', self.key, fname)
+            path = os.path.join(self.tmp_dir, self.key, fname)
         elif folder == 'bin':
-            path = os.path.join(self.base_dir, 'bin', fname)
+            path = os.path.join(self.bin_dir, fname)
         elif folder == 'input':
-            path = os.path.join(self.base_dir, 'input', fname)
+            path = os.path.join(self.input_dir, fname)
         return os.path.abspath(path)
 
     #

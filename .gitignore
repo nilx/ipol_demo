@@ -8,15 +8,16 @@ demo.conf
 *.flag
 
 # ignore source and binary files
-*/*.tgz
-*/*.tar.gz
-*/bin
+demo/*/*.tgz
+demo/*/*.tar.gz
+demo/*/*.zip
+demo/*/bin
 
 # ignore the thumbnails
-*/input/*.__*__.png
+demo/*/input/*.__*__.png
 
 # ignore the temporary folder
-*/tmp
+demo/*/tmp
 
 #ignore backup files
 *~
