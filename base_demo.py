@@ -230,7 +230,7 @@ class empty_app(object):
 #
 
 import shutil
-from lib import index_dict, tn_image, image, prod, \
+from lib import index_dict, thumbnail, image, prod, \
     get_check_key, http_redirect_303
 
 from mako.lookup import TemplateLookup
@@ -322,7 +322,7 @@ class app(empty_app):
             # by splitting at blank characters
             inputd[key]['files'] = inputd[key]['files'].split()
             # generate thumbnails and thumbnail urls
-            tn_fname = [tn_image(self.path('input', fname))
+            tn_fname = [thumbnail(self.path('input', fname))
                         for fname in inputd[key]['files']]
             inputd[key]['tn_url'] = [self.url('input',
                                               os.path.basename(fname))

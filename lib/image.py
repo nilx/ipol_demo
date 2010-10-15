@@ -8,9 +8,10 @@ image tools
 #
 
 import os.path
-from PIL import Image
+import PIL.Image
+import PIL.ImageDraw
 
-def tn_image(location, size=(128, 128), ext=".png"):
+def thumbnail(location, size=(128, 128), ext=".png"):
     """
     image thumbnailing function
 
@@ -29,8 +30,8 @@ def tn_image(location, size=(128, 128), ext=".png"):
                                basename + ".__%ix%i__" % size + ext)
     if not os.path.isfile(tn_location):
         # no thumbnail, create it
-        im = Image.open(location)
-        tn = Image.new('RGBA', size, (0, 0, 0, 0))
+        im = PIL.Image.open(location)
+        tn = PIL.Image.new('RGBA', size, (0, 0, 0, 0))
         im.thumbnail(size, resample=True)
         offset = ((size[0] - im.size[0]) / 2,
                   (size[1] - im.size[1]) / 2)
@@ -44,8 +45,6 @@ def tn_image(location, size=(128, 128), ext=".png"):
 #
 # IMAGE CLASS
 #
-
-from PIL import ImageDraw
 
 class image(object):
     """
@@ -67,10 +66,10 @@ class image(object):
           - a  PIL image object : it is used as the internal image structure
           - omitted : the image is initialy empty
         """
-        if isinstance(src, Image.Image):
+        if isinstance(src, PIL.Image.Image):
             self.im = src
         if isinstance(src, str):
-            self.im = Image.open(src)
+            self.im = PIL.Image.open(src)
             # PIL 1.6 can't handle interlaced PNG
             # temporary workaround, fixed in PIL 1.7 
             if self.im.format == 'PNG':
@@ -84,7 +83,7 @@ class image(object):
                     os.system("/bin/mv %s.tmp %s" % (src, src))
                     # reload
                     del self.im
-                    self.im = Image.open(src)
+                    self.im = PIL.Image.open(src)
                     # try once again, in case there is another problem
                     self.im.getpixel((0, 0))
 
@@ -135,8 +134,8 @@ class image(object):
                     int(self.im.size[1] * size))
 
         try:
-            method_kw = {"nearest" : Image.NEAREST,
-                         "bicubic" : Image.BICUBIC}[method]
+            method_kw = {"nearest" : PIL.Image.NEAREST,
+                         "bicubic" : PIL.Image.BICUBIC}[method]
         except KeyError:
             raise KeyError('method must be "nearest" or "bicubic"')
 
@@ -212,7 +211,7 @@ class image(object):
             ymax += tile.im.size[1] - 2 * margin
         ymax += 2 * margin
 
-        self.im = Image.new(tiles[0].im.mode, (xmax, ymax))
+        self.im = PIL.Image.new(tiles[0].im.mode, (xmax, ymax))
 
         # join the images
         ystart = 0
@@ -244,7 +243,7 @@ class image(object):
 
         [1]http://www.pythonware.com/library/pil/handbook/imagedraw.htm
         """
-        draw = ImageDraw.Draw(self.im)
+        draw = PIL.ImageDraw.Draw(self.im)
         draw.line(coords, fill=color)
         del draw
         return self
