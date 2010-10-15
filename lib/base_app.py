@@ -188,7 +188,7 @@ class base_app(empty_app):
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
         # jump to the params page
-        return self.params(key=self.key, msg=msg)
+        return self.params(msg=msg)
 
     def input_upload(self, **kwargs):
         """
@@ -219,7 +219,7 @@ class base_app(empty_app):
         msg = self.process_input()
         self.log("input uploaded")
         # jump to the params page
-        return self.params(key=self.key, msg=msg)
+        return self.params(msg=msg)
 
     #
     # ERROR HANDLING
@@ -257,6 +257,9 @@ class base_app(empty_app):
         params handling and run redirection
         SHOULD be defined in the derived classes, to check the parameters
         """
+        # simply avoid pylint warnmings
+        # kwargs *is* used in derived classes
+        kwargs = kwargs
         # redirect to the result page
         # TODO check_params as another function
         http_redirect_303(self.url('result', {'key':self.key}))
