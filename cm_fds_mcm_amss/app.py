@@ -10,6 +10,7 @@ import os.path
 import time
 import shutil
 import cherrypy
+from cherrypy import TimeoutError
 
 
 class app(base_app):
