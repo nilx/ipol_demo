@@ -55,7 +55,7 @@ class index_dict(dict):
         index_file.close()
 
 #
-# THUMBNAIL IMAGE CLASS
+# IMAGE THUMBNAILER
 #
 
 from PIL import Image
@@ -121,6 +121,22 @@ class image(object):
             self.im = src
         if isinstance(src, str):
             self.im = Image.open(src)
+            # PIL 1.6 can't handle interlaced PNG
+            # temporary workaround, fixed in PIL 1.7 
+            if self.im.format == 'PNG':
+                try:
+                    self.im.getpixel((0,0))
+                except IOError:
+                    # check the file exists
+                    assert os.path.isfile(src)
+                    # convert it to non-interlaced
+                    os.system("/usr/bin/pngcp %f %f.tmp" % (src, src))
+                    os.system("/bin/mv %f.tmp %f" % (src, src))
+                    # reload
+                    del self.im
+                    self.im = Image.open(src)
+                    # try once again, in case there is another problem
+                    self.im.getpixel((0,0))
 
     def __getattr__(self, attr):
         """
