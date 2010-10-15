@@ -130,8 +130,8 @@ class image(object):
                     # check the file exists
                     assert os.path.isfile(src)
                     # convert it to non-interlaced
-                    os.system("/usr/bin/pngcp %f %f.tmp" % (src, src))
-                    os.system("/bin/mv %f.tmp %f" % (src, src))
+                    os.system("/usr/bin/pngcp %s %s.tmp" % (src, src))
+                    os.system("/bin/mv %s.tmp %s" % (src, src))
                     # reload
                     del self.im
                     self.im = Image.open(src)
