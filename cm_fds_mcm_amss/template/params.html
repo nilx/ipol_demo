@@ -9,9 +9,11 @@ MCM and AMSS algorithms demo
 
 <div id="content">
 
-<p>Select normalized scale (at normalized scale R a disk of radius R disappears):
-<form action="" method="get">
-step 
+
+<form action="${urld['run']}" method="get">
+<input type="hidden" name="key" value="${key}">
+<p>
+Select normalized scale (at normalized scale R a disk of radius R disappears):
 <select name="scaleR">
   <option value="0.2">0.2</option>
   <option value="0.4">0.4</option>
@@ -23,30 +25,21 @@ step
   <option value="1.75">1.75</option>
   <option value="2.0">2.0</option>
 </select>
-</form></p>
-
-<form action="${urld['run']}" method="get">
-<input type="hidden" name="key" value="${key}">
-<input type="hidden" name="scaleR" value="1." />
-<input type="hidden" name="grid_step" value="150" />
-<input type="submit" value="Run algorithms on the whole image" />
-</form>
-OR (preferable)
-<p>Select a subpart of the image on the following grid.
-<form action="${urld['run']}" method="get">
-<input type="hidden" name="key" value="${key}">
-<input type="hidden" name="scaleR" value="1." />
-<input type="hidden" name="grid_step" value="150" />
+</p>
+<p>Click on the image to run algorithms or select a subimage from a grid.<br/>
+(Selected subimages will be rescaled to 600x600 pixels for processing)</p>
 <input type="image" name="" src="${urld['input'][0]}" /> 
-</form></p>
+</form>
+
 <p>Redraw the grid with a different step size.
 <form action="${urld['params_grid']}" method="get">
 step 
 <select name="grid_step">
+  <option value="No grid" selected>0</option>
   <option value="75">75</option>
   <option value="100">100</option>
   <option value="120">120</option>
-  <option value="150" selected>150</option>
+  <option value="150">150</option>
   <option value="200">200</option>
 </select>
 <input type="hidden" name="key" value="${key}">

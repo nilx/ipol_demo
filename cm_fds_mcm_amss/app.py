@@ -67,7 +67,7 @@ class app(base_app):
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
         # jump to the params page
-        return self.params_grid(key=self.key, grid_step="150", msg=msg)
+        return self.params_grid(key=self.key, grid_step="0", msg=msg)
     input_select.exposed = True
 
     # input_upload() is defined here,
@@ -101,7 +101,7 @@ class app(base_app):
         msg = self.process_input()
         self.log("input uploaded")
         # jump to the params page
-        return self.params_grid(key=self.key, grid_step="150", msg=msg)
+        return self.params_grid(key=self.key, grid_step="0", msg=msg)
     input_upload.exposed = True
 
     #
@@ -121,30 +121,43 @@ class app(base_app):
             raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
 
-	#vertical lines
-	y1=0
-	y2=im.size[1]
-	for x1 in range(0, im.size[0], grid_step):
-	  im.draw_line((x1, y1, x1, y2))
+	if grid_step != 0 :
+	  #vertical lines
+	  y1=0
+	  y2=im.size[1]
+	  for x1 in range(0, im.size[0], grid_step):
+	    im.draw_line((x1, y1, x1, y2))
 
-	#horizontal lines
-	x1=0
-	x2=im.size[0]
-	for y1 in range(0, im.size[1], grid_step):
-	  im.draw_line((x1, y1, x2, y1))
+	  #horizontal lines
+	  x1=0
+	  x2=im.size[0]
+	  for y1 in range(0, im.size[1], grid_step):
+	    im.draw_line((x1, y1, x2, y1))
+
 
         im.save(self.path('tmp', 'input_1' + self.input_ext))
         im.save(self.path('tmp', 'input_1' + self.display_ext))
 
 
 
+
+
     @get_check_key
-    def params_grid(self, newrun=False, grid_step="150", msg=None):
+    def params_grid(self, newrun=False, grid_step="0", msg=None):
         """
         configure the algo execution
         """
         if newrun:
             self.clone_input()
+
+        try:
+            params_file = index_dict(self.path('tmp'))
+            params_file['paramsGrid'] = {'grid_step' : int(grid_step)}
+            params_file.save()
+        except:
+            return self.error(errcode='badparamsGrid',
+                              errmsg="Wrong grid parameters")
+
 
 	self.draw_grid(int(grid_step))
 
@@ -161,26 +174,29 @@ class app(base_app):
     # run() is defined here,
     # because the parameters validation depends on the algorithm
     @get_check_key
-    def run(self, scaleR="1.0", grid_step="150", x=None, y=None):
+    def run(self, scaleR="1.0", x=None, y=None):
         """
         params handling and run redirection
         """
-        # save and validate the parameters
+
+        # read grid parameters
+        params_file = index_dict(self.path('tmp'))
+        gridStep = int(params_file['paramsGrid']['grid_step'])
+ 
+
+       # save and validate the parameters
 	if (x == None) or (y == None) :
 	  x=0
 	  y=0
 
 	print "x=", x
 	print "y=", y
-	print "grid_step=", int(grid_step)
+	print "grid_step=", gridStep
 	print "scaleR=", float(scaleR)
 
         try:
             params_file = index_dict(self.path('tmp'))
-            params_file['params'] = {'scaler' : float(scaleR),
-                                     'grid_step' : int(grid_step),
-				     'gridx' : int(x),
-				     'gridy' : int(y)}
+            params_file['params'] = {'scaler' : float(scaleR)}
             params_file.save()
         except:
             return self.error(errcode='badparams',
@@ -189,8 +205,7 @@ class app(base_app):
 	#Select image to process
 	gridX=int(x)
 	gridY=int(y)
-	gridStep=int(grid_step)
-	if (gridX == 0) and (gridY == 0) :
+	if (gridStep == 0) :
 	  #process whole image 
 	  #save input image as input_2
           im = image(self.path('tmp', 'input_0' + self.input_ext))
@@ -250,11 +265,17 @@ class app(base_app):
         """
         # read the parameters
         params_file = index_dict(self.path('tmp'))
-        scaleR = float(params_file['params']['scaler'])
-        grid_step = int(params_file['params']['grid_step'])
-        gridX = int(params_file['params']['gridx'])
-        gridY = int(params_file['params']['gridy'])
- 
+	# normalized scale
+        scaleRnorm = float(params_file['params']['scaler'])
+        # read grid parameters
+        gridStep = int(params_file['paramsGrid']['grid_step'])
+
+	#de-normalize scale
+	zoomfactor=1.0
+	if gridStep != 0 :
+	  zoomfactor=600.0/gridStep
+	scaleR=scaleRnorm*zoomfactor
+
        # run the algorithm
         stdout = open(self.path('tmp', 'stdout.txt'), 'w')
         try:
@@ -267,13 +288,13 @@ class app(base_app):
             return self.error(errcode='runtime')
         self.log("input processed")
 
-        urld = {'new_run' : self.url('params'),
+        urld = {'new_run' : self.url('params_grid'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_2' + self.display_ext)],
                 'output' : [self.url('tmp', 'output_MCM' + self.display_ext), self.url('tmp', 'output_AMSS' + self.display_ext)]
 		}
 
 
-        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time)
+        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time, scaleRnorm="%2.2f" % scaleRnorm, zoomfactor="%2.2f" % zoomfactor)
     result.exposed = True
 
