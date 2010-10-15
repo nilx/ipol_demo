@@ -4,7 +4,6 @@ mcm_amss ipol demo web app
 
 from base_demo import app as base_app
 from lib import get_check_key, http_redirect_303
-from lib import TimeoutError, index_dict
 from lib import index_dict
 from lib import image
 import os.path
@@ -49,62 +48,6 @@ class app(base_app):
 
 
     #
-    # INPUT STEP
-    #
-
-    # input_select() is defined here,
-    # because it calls to a non-standard params function (params_grid())
-    def input_select(self, input_id, **kwargs):
-        """
-        use the selected available input images
-        """
-        self.new_key()
-        input_dict = index_dict(self.path('input'))
-        fnames = input_dict[input_id]['files'].split()
-        for i in range(len(fnames)):
-            shutil.copy(self.path('input', fnames[i]),
-                        self.path('tmp', 'input_%i' % i))
-        msg = self.process_input()
-        self.log("input selected : %s" % input_id)
-        # jump to the params page
-        return self.params_grid(key=self.key, grid_step="0", msg=msg)
-    input_select.exposed = True
-
-    # input_upload() is defined here,
-    # because it calls to a non-standard params function (params_grid())
-    def input_upload(self, **kwargs):
-        """
-        use the uploaded input images
-        """
-        self.new_key()
-        for i in range(self.input_nb):
-            file_up = kwargs['file_%i' % i]
-            file_save = file(self.path('tmp', 'input_%i' % i), 'wb')
-            if '' == file_up.filename:
-                # missing file
-                raise cherrypy.HTTPError(400, # Bad Request
-                                         "Missing input file")
-            size = 0
-            while True:
-                # TODO : larger data size
-                data = file_up.file.read(128)
-                if not data:
-                    break
-                size += len(data)
-                if size > self.input_max_weight:
-                    # file too heavy
-                    raise cherrypy.HTTPError(400, # Bad Request
-                                             "File too large, " +
-                                             "resize or use better compression")
-                file_save.write(data)
-            file_save.close()
-        msg = self.process_input()
-        self.log("input uploaded")
-        # jump to the params page
-        return self.params_grid(key=self.key, grid_step="0", msg=msg)
-    input_upload.exposed = True
-
-    #
     # PARAMETER HANDLING
     #
 
@@ -138,12 +81,9 @@ class app(base_app):
         im.save(self.path('tmp', 'input_1' + self.input_ext))
         im.save(self.path('tmp', 'input_1' + self.display_ext))
 
-
-
-
-
+    @cherrypy.expose
     @get_check_key
-    def params_grid(self, newrun=False, grid_step="0", msg=None):
+    def params(self, newrun=False, grid_step="0", msg=None):
         """
         configure the algo execution
         """
@@ -162,10 +102,9 @@ class app(base_app):
 	self.draw_grid(int(grid_step))
 
         urld = {'run' : self.url('run'),
-		'params_grid' : self.url('params_grid'),
+		'params' : self.url('params'),
                 'input' : [self.url('tmp', 'input_1' + self.display_ext)]}
         return self.tmpl_out("params.html", urld=urld, msg=msg)
-    params_grid.exposed = True
 
     #
     # EXECUTION AND RESULTS
@@ -173,6 +112,7 @@ class app(base_app):
 
     # run() is defined here,
     # because the parameters validation depends on the algorithm
+    @cherrypy.expose
     @get_check_key
     def run(self, scaleR="1.0", x=None, y=None):
         """
@@ -234,7 +174,6 @@ class app(base_app):
         urld = {'next_step' : self.url('result'),
                 'input' : [self.url('tmp', 'input_2' + self.display_ext)]}
         return self.tmpl_out("run.html", urld=urld)
-    run.exposed = True
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
@@ -256,7 +195,7 @@ class app(base_app):
         im = image(self.path('tmp', 'output_AMSS' + self.input_ext))
         im.save(self.path('tmp', 'output_AMSS' + self.display_ext))
 
-
+    @cherrypy.expose
     @get_check_key
     def result(self):
         """
@@ -296,5 +235,4 @@ class app(base_app):
 
 
         return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time, scaleRnorm="%2.2f" % scaleRnorm, zoomfactor="%2.2f" % zoomfactor)
-    result.exposed = True
 
