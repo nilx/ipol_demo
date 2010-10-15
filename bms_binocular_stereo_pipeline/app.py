@@ -138,6 +138,8 @@ something must have gone wrong""")
                     self.path('tmp', 'disp2_H_input_0.tif'))
         shutil.move(self.path('tmp', 'disp3_H_input_0.png_float.tif'),
                     self.path('tmp', 'disp3_H_input_0.tif'))
+        shutil.move(self.path('tmp', 'disp3_H_input_0.png.ply'),
+                    self.path('tmp', 'disp3_H_input_0.ply'))
 
         urld = {'new_input' : self.url('index'),
                 'run' : self.url('run'),
@@ -152,7 +154,8 @@ something must have gone wrong""")
                           self.url('tmp', 'H_input_1.txt')],
                 'exact' : [self.url('tmp', 'disp1_H_input_0.tif'),
                            self.url('tmp', 'disp2_H_input_0.tif'),
-                           self.url('tmp', 'disp3_H_input_0.tif')]}
+                           self.url('tmp', 'disp3_H_input_0.tif')],
+                'ply': self.url('tmp', 'disp3_H_input_0.ply')}
 
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
