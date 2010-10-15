@@ -21,13 +21,14 @@ class app(base_app):
     
     title = "Binocular Stereo Pipeline"
     description = """Please select or upload a stereo image pair.
-    Both images must have the same size.<br />
+    Both images must have the same size, and should be less than
+    640x480 pixels.<br />
     This algorithm  is designed for low baseline simultaneous or
     almost simultaneous stereo pairs.
     """
 
     input_nb = 2 # number of input images
-    input_max_pixels = 512 * 512 # max size (in pixels) of an input image
+    input_max_pixels = 640 * 480 # max size (in pixels) of an input image
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'  # input image expected extension (ie file format)    
     is_test = True       # switch to False for deployment
