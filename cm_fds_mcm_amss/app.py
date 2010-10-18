@@ -166,7 +166,7 @@ class app(base_app):
 	  im.crop((x1, y1, x2, y2))
 	  #print "crop:", x1, y1, x2, y2
 	  #set default image size
-	  im.resize((600, 600), method="nearest")
+	  im.resize((400, 400), method="nearest")
           im.save(self.path('tmp', 'input_2' + self.input_ext))
           im.save(self.path('tmp', 'input_2' + self.display_ext))
 
@@ -213,7 +213,7 @@ class app(base_app):
 	#de-normalize scale
 	zoomfactor=1.0
 	if gridStep != 0 :
-	  zoomfactor=600.0/gridStep
+	  zoomfactor=400.0/gridStep
 	scaleR=scaleRnorm*zoomfactor
 
        # run the algorithm

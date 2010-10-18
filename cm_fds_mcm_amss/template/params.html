@@ -27,7 +27,7 @@ Select normalized scale (at normalized scale R a disk of radius R disappears):
 </select>
 </p>
 <p>Click on the image to run algorithms or select a portion of it 
-using a grid (such a portion will be rescaled to 600x600 pixels before processing).<br/>
+using a grid (such a portion will be rescaled to 400x400 pixels before processing).<br/>
 <input type="image" name="" src="${urld['input'][0]}" /> 
 </form>
 
@@ -36,11 +36,10 @@ using a grid (such a portion will be rescaled to 600x600 pixels before processin
 step 
 <select name="grid_step">
   <option value="0" selected>No grid (zoom 1x)</option>
-  <option value="75">75 (zoom 8x)</option>
-  <option value="100">100 (zoom 6x)</option>
-  <option value="120">120 (zoom 5x)</option>
-  <option value="150">150 (zoom 4x)</option>
-  <option value="200">200 (zoom 3x)</option>
+  <option value="50">50 (zoom 8x)</option>
+  <option value="80">80 (zoom 5x)</option>
+  <option value="100">100 (zoom 4x)</option>
+  <option value="200">200 (zoom 2x)</option>
 </select>
 <input type="hidden" name="key" value="${key}">
 <input type="submit" value="Redraw" />
