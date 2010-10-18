@@ -16,7 +16,7 @@ from cherrypy import TimeoutError
 class app(base_app):
     """ mcm_amss app """
 
-    title = "MCM-AMSS"
+    title = "Finite Difference Schemes for MCM and AMSS"
     description = "Image filtering techniques based on FDSs for the MCM and the AMSS"
 
     input_nb = 1
