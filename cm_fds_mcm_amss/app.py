@@ -228,7 +228,7 @@ class app(base_app):
             return self.error(errcode='runtime')
         self.log("input processed")
 
-        urld = {'new_run' : self.url('params_grid'),
+        urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_2' + self.display_ext)],
                 'output' : [self.url('tmp', 'output_MCM' + self.display_ext), self.url('tmp', 'output_AMSS' + self.display_ext)]
