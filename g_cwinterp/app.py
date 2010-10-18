@@ -100,6 +100,13 @@ class app(base_app):
                           stdout=stdout, stderr=stdout)
 	self.wait_proc([p3, p4])
 
+	img0 = image(self.path('tmp', 'input_1.png'))
+	sizeX=img0.size[0]
+	sizeY=img0.size[1]
+	img1 = image(self.path('tmp', 'coarsened.png'))
+	img1.resize((sizeX, sizeY), method="nearest")
+	img1.save(self.path('tmp', 'coarsenedZ.png'))
+
         return
 
     @get_check_key
@@ -122,13 +129,9 @@ class app(base_app):
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_1.png')],
-                'output' : [self.url('tmp', 'coarsened.png'), self.url('tmp', 'interpolated.png'), self.url('tmp', 'contourori.png')],
+                'output' : [self.url('tmp', 'coarsenedZ.png'), self.url('tmp', 'interpolated.png'), self.url('tmp', 'contourori.png')],
 		}
-	img0 = image(self.path('tmp', 'input_1.png'))
-	sizeX=img0.size[0]
-	sizeY=img0.size[1]
         stdout = open(self.path('tmp', 'stdout.txt'), 'r')
-        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time, sizeX="%i" % sizeX, sizeY="%i" % sizeY,
-                             stdout=stdout.read())
+        return self.tmpl_out("result.html", urld=urld, stdout=stdout.read())
     result.exposed = True
 
