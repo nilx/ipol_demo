@@ -27,12 +27,12 @@ update	:
 $(BIN)	: $(TARBALL) makefile
 	rm -rf src; mkdir src
 	tar xvzf $(TARBALL) -C src
-	$(MAKE) -C src/$(BINNAME)/ --makefile=makefile.gcc \
+	$(MAKE) -C src/ --makefile=makefile.gcc \
 		CC="$(CC)" CXX="$(CXX)" -j4
 	rm -rf bin; mkdir bin
-	mv src/$(BINNAME)/$(BINNAME) $@
-	mv src/$(BINNAME)/imcoarsen bin/imcoarsen
-	mv src/$(BINNAME)/imdiff bin/imdiff
+	mv src/$(BINNAME) $@
+	mv src/imcoarsen bin/imcoarsen
+	mv src/imdiff bin/imdiff
 	rm -rf src
 
 # delete the compilation by-products from the ./src folder
