@@ -3,7 +3,7 @@ SRC	:= $(wildcard *.py) $(wildcard */*.py)
 default	:
 	@cat README.txt
 
-DEMO := $(filter-out ./.git ./base_template, \
+DEMO := $(filter-out ./.git ./lib, \
 		$(shell find ./ -maxdepth 1 -mindepth 1 -type d))
 
 .PHONY	: checklint srcdoc update test clean
