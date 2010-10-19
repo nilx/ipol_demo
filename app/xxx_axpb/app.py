@@ -1,9 +1,11 @@
 """
 demo example for the X->aX+b transform
 """
+# pylint: disable-msg=C0103
 
 from lib import base_app
 from lib import get_check_key, http_redirect_303, app_expose, index_dict
+import cherrypy
 from cherrypy import TimeoutError
 import os.path
 
@@ -19,7 +21,7 @@ class app(base_app):
     input_max_weight = 1 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'   # input image expected extension (ie file format)
-    is_test = True;      # switch to False for deployment
+    is_test = True       # switch to False for deployment
 
     def __init__(self):
         """
@@ -40,6 +42,7 @@ class app(base_app):
 
     # run() is defined here,
     # because the parameters validation depends on the algorithm
+    @cherrypy.expose
     @get_check_key
     def run(self, a="1.", b="0"):
         """
@@ -51,14 +54,13 @@ class app(base_app):
             params_file['params'] = {'a' : float(a),
                                      'b' : float(b)}
             params_file.save()
-        except:
+        except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
         http_redirect_303(self.url('result', {'key':self.key}))
         urld = {'input' : [self.url('tmp', 'input_0.png')]}
         return self.tmpl_out("run.html", urld=urld)
-    run.exposed = True
 
 
     # run_algo() is defined here,
@@ -76,6 +78,7 @@ class app(base_app):
         self.wait_proc(p)
         return
 
+    @cherrypy.expose
     @get_check_key
     def result(self):
         """
@@ -99,4 +102,3 @@ class app(base_app):
                 'input' : [self.url('tmp', 'input_0.png')],
                 'output' : [self.url('tmp', 'output.png')]}
         return self.tmpl_out("result.html", urld=urld)
-    result.exposed = True
