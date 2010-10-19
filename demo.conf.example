@@ -6,4 +6,5 @@ server.socket_port = 8080
 server.thread_pool = 3
 log.screen = True
 engine.autoreload_on = True
+checker.check_skipped_app_config = False
 tools.cgitb.on = True

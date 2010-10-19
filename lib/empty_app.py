@@ -16,7 +16,6 @@ import time
 from subprocess import Popen
 
 from cherrypy import TimeoutError
-
 import cherrypy
 
 class empty_app(object):
@@ -37,23 +36,26 @@ class empty_app(object):
         self.key = None
         self.run_environ = {}
 
-        # create missing static subfolders
+        # static subfolders
         self.input_dir = os.path.join(self.base_dir, 'input')
-        if not os.path.isdir(self.input_dir):
-            cherrypy.log("warning: missing input folder, creating it",
-                         context='SETUP', traceback=False)
-            os.mkdir(self.input_dir)
         self.tmp_dir = os.path.join(self.base_dir, 'tmp')
-        if not os.path.isdir(self.tmp_dir):
-            cherrypy.log("warning: missing tmp folder, creating it",
-                         context='SETUP', traceback=False)
-            os.mkdir(self.tmp_dir)
         self.bin_dir = os.path.join(self.base_dir, 'bin')
-        if not os.path.isdir(self.bin_dir):
-            cherrypy.log("warning: missing bin folder, creating it",
-                         context='SETUP', traceback=False)
-            os.mkdir(self.bin_dir)
-        # TODO : mount static folders from here
+
+        # create the missing subfolders
+        for static_dir in [self.input_dir, self.tmp_dir, self.bin_dir]:
+            if not os.path.isdir(static_dir):
+                cherrypy.log("warning: missing static folder, "
+                             "creating it : %s" % static_dir,
+                             context='SETUP', traceback=False)
+                os.mkdir(static_dir)
+                
+        # static folders
+        # cherrypy.tools.staticdir is a decorator,
+        # ie a function modifier
+        self.input = cherrypy.tools.staticdir(dir=self.input_dir)\
+            (lambda x : None)
+        self.tmp = cherrypy.tools.staticdir(dir=self.tmp_dir)\
+            (lambda x : None)
 
     #
     # FILE PATH MODEL 

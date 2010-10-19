@@ -84,18 +84,8 @@ if __name__ == '__main__':
         cherrypy.log("loading demo: %s" % demo_id, context='SETUP',
                      traceback=False)
         mount_point = '/' + demo_id
-        # static subfolders config
-        config = {'/input':
-                      {'tools.staticdir.on' : True,
-                       'tools.staticdir.dir' : demo_app().input_dir
-                       },
-                  '/tmp':
-                      {'tools.staticdir.on' : True,
-                       'tools.staticdir.dir' : demo_app().tmp_dir
-                       },
-                  }
-        # mount app and static subfolders
-        cherrypy.tree.mount(demo_app(), mount_point, config=config)
+        # mount app
+        cherrypy.tree.mount(demo_app(), mount_point, config=None)
 
 
 
