@@ -17,7 +17,7 @@ srcdoc	: $(SRC)
 	epydoc -o srcdoc $^
 
 update	:
-	for D in $(DEMO); do $(MAKE) -C $$D/ update; done
+	-for D in $(DEMO); do $(MAKE) -C $$D/ update; done
 
 test	: update
 	./demo.py

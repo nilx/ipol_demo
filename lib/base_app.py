@@ -39,8 +39,10 @@ class base_app(empty_app):
         """
         # setup the parent class
         empty_app.__init__(self, base_dir)
-        cherrypy.log("demo base_dir: %s" % self.base_dir,
-                     context='SETUP', traceback=False)
+        cherrypy.log("new demo",
+                     context='SETUP/%s' % self.id, traceback=False)
+        cherrypy.log("base_dir: %s" % self.base_dir,
+                     context='SETUP/%s' % self.id, traceback=False)
         # local base_app templates folder
         tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 'template')

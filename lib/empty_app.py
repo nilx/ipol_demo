@@ -22,6 +22,7 @@ class empty_app(object):
     """
     This app only contains configuration and tools, no actions.
     """
+    # TODO : rewrite the path/url functions
 
     def __init__(self, base_dir):
         """
@@ -34,15 +35,16 @@ class empty_app(object):
         self.base_dir = os.path.abspath(base_dir)
         self.id = os.path.basename(base_dir)
         self.key = None
-        self.run_environ = {}
 
-        # static subfolders
+        # data subfolders
         self.input_dir = os.path.join(self.base_dir, 'input')
         self.tmp_dir = os.path.join(self.base_dir, 'tmp')
+        self.dl_dir = os.path.join(self.base_dir, 'dl')
+        self.src_dir = os.path.join(self.base_dir, 'src')
         self.bin_dir = os.path.join(self.base_dir, 'bin')
 
         # create the missing subfolders
-        for static_dir in [self.input_dir, self.tmp_dir, self.bin_dir]:
+        for static_dir in [self.input_dir, self.tmp_dir]:
             if not os.path.isdir(static_dir):
                 cherrypy.log("warning: missing static folder, "
                              "creating it : %s" % static_dir,
@@ -140,6 +142,18 @@ class empty_app(object):
             return self._url_action(action=arg1, params=arg2)
 
     #
+    # UPDATE
+    #
+
+    def build(self):
+        """
+        virtual function, to be overriden by subclasses
+        """
+        cherrypy.log("warning: no build method",
+                     context='SETUP/%s' % self.id, traceback=False)
+        pass
+
+    #
     # KEY MANAGEMENT
     #
 
@@ -194,9 +208,9 @@ class empty_app(object):
         """
         # update the environment
         newenv = os.environ.copy()
-        newenv.update(self.run_environ)
         # TODO clear the PATH, hard-rewrite the exec arg0
-        newenv.update({'PATH' : self.path('bin')})                
+        # TODO use shell-string execution
+        newenv.update({'PATH' : self.path('bin')})
         # run
         return Popen(args, stdin=stdin, stdout=stdout, stderr=stderr,
                      env=newenv, cwd=self.path('tmp'))

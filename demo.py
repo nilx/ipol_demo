@@ -53,6 +53,9 @@ if __name__ == '__main__':
     import os
     import shutil
 
+    # cgitb error handling config
+    cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err_tb)
+    
     # config file and location settings
     base_dir = os.path.dirname(os.path.abspath(__file__))
     conf_file = os.path.join(base_dir, 'demo.conf')
@@ -77,17 +80,16 @@ if __name__ == '__main__':
         for (demo_id, demo_app) in demo_dict.items():
             if demo_app.is_test:
                 demo_dict.pop(demo_id)
-    # mount the demo apps
     for (demo_id, demo_app) in demo_dict.items():
-        cherrypy.log("loading demo: %s" % demo_id, context='SETUP',
+        demo = demo_app()
+        # update the demo apps programs
+        cherrypy.log("building", context='SETUP/%s' % demo_id,
                      traceback=False)
-        cherrypy.tree.mount(demo_app(), script_name='/%s' % demo_id)
+        demo.build()
+        # mount the demo apps
+        cherrypy.log("loading", context='SETUP/%s' % demo_id,
+                     traceback=False)
+        cherrypy.tree.mount(demo, script_name='/%s' % demo_id)
 
-    # use cgitb error handling
-    # enable via config
-    # [global]
-    # tools.cgitb.on = True
-    cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err_tb)
-    
     # start the server
     cherrypy.quickstart(demo_index(demo_dict), config=conf_file)

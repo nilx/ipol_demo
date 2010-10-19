@@ -7,17 +7,23 @@ demo.conf
 # ignore the development flags
 *.flag
 
-# ignore source and binary files
-app/*/*.tgz
-app/*/*.tar.gz
-app/*/*.zip
+# download, source and binary files
+app/*/dl
+app/*/src
 app/*/bin
+# build log
+app/*/*.log
+
+# archives
+app/*/*.gz
+app/*/*.tgz
+app/*/*.zip
+
+# temporary folder
+app/*/tmp
 
 # ignore the thumbnails
 app/*/input/*.__*__.png
-
-# ignore the temporary folder
-app/*/tmp
 
 #ignore backup files
 *~

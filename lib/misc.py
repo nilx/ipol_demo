@@ -4,6 +4,11 @@ various help tools for the IPOL demo environment
 # pylint: disable=C0103
 
 
+import os.path
+import ConfigParser
+import time
+import cherrypy
+
 #
 # TINY STUFF
 #
@@ -14,8 +19,6 @@ prod = lambda l : reduce(lambda a, b : a * b, l, 1)
 # INDEX DICTIONARY
 #
 
-import os.path
-import ConfigParser
 class index_dict(dict):
     """
     handle a config file as a dictionary
@@ -79,7 +82,6 @@ def get_check_key(func):
 # CHERRYPY REDIRECTION
 #
 
-import cherrypy
 def http_redirect_303(url):
     """
     HTTP "303 See Other" redirection
@@ -98,3 +100,13 @@ def app_expose(function):
     shortcut to expose app actions from the base class
     """
     function.im_func.exposed = True
+
+#
+# TIME
+#
+
+def ctime(fname):
+    """
+    get the (unix) change time of a file
+    """
+    return time.gmtime(os.path.getmtime(fname))
