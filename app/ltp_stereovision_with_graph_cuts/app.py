@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-# pylint: disable-msg=C0103
 """
 Computing Visual Correspondence with Occlusions using Graph Cuts demo
 interaction script
 """
+# pylint: disable-msg=C0103
 
 from lib import base_app
 import cherrypy
@@ -202,7 +201,7 @@ class app(base_app):
             # run each process
             plist.append(self.run_proc(['match', 'match_%i.conf' %n],
                                        ))
-        self.wait_proc(plist, timeout=120)
+        self.wait_proc(plist, timeout)
 
         # join all the partial results into a global one
         output_img = image().join([image(self.path('tmp', output_fnames[n]))
