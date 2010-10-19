@@ -1,11 +1,13 @@
 """
 ASIFT demo interaction script
 """
+# pylint: disable-msg=C0103
 
 from lib import base_app
-from lib import get_check_key, http_redirect_303, app_expose, index_dict
+from lib import get_check_key, http_redirect_303, app_expose
 from lib import image
 from cherrypy import TimeoutError
+import cherrypy
 import os.path
 import time
 
@@ -45,6 +47,7 @@ class app(base_app):
 
     # run() is defined here,
     # because the parameters validation depends on the algorithm
+    @cherrypy.expose
     @get_check_key
     def run(self):
         """
@@ -55,7 +58,6 @@ class app(base_app):
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld)
-    run.exposed = True
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
@@ -79,6 +81,7 @@ class app(base_app):
         self.wait_proc([asift, sift], timeout)
         return
 
+    @cherrypy.expose
     @get_check_key
     def result(self):
         """
@@ -126,4 +129,4 @@ something must have gone wrong""")
                              nbmatch_SIFT=nbmatch_SIFT,
                              height=str(img_out.size[1]+10),
                              stdout=stdout.read())
-    result.exposed = True
+
