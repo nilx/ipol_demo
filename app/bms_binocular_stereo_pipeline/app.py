@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-# pylint: disable-msg=C0103
 """
 Binocular Stereo Pipeline
 """
+# pylint: disable-msg=C0103
 
 from lib import base_app
 from lib import get_check_key, http_redirect_303, app_expose, image

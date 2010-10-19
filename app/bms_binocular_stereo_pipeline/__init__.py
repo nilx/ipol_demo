@@ -1,1 +1,5 @@
-from app import app
+"""
+Binocular Stereo Pipeline
+"""
+
+from .app import app
