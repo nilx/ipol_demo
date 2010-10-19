@@ -1,5 +1,8 @@
 #! /usr/bin/python
-""" base cherrypy launcher for the IPOL demo app """
+"""
+base cherrypy launcher for the IPOL demo app
+"""
+# pylint: disable=C0103
 
 import cherrypy
 from mako.lookup import TemplateLookup
@@ -18,26 +21,22 @@ def err_tb():
     cherrypy.request.hooks.attach('after_error_response', set_tb)
 
 
-class demo_index:
+class demo_index(object):
     """
     simplistic demo index used as the root app
     """
 
-    def __init__(self, indexd=None):
+    def __init__(self, indexd):
         """
         initialize with demo_dict for indexing
         """
-        if indexd == None:
-            self.indexd = {}
-        else:
-            self.indexd = indexd
+        self.indexd = indexd
 
     @cherrypy.expose
     def index(self):
         """
         simple demo index page
         """
-
         tmpl_dir = os.path.join(os.path.dirname(__file__),
                                 'lib', 'template')
         tmpl_lookup = TemplateLookup(directories=[tmpl_dir],
@@ -47,7 +46,7 @@ class demo_index:
         return tmpl_lookup.get_template('index.html')\
             .render(indexd=self.indexd,
                     title="Demonstrations",
-                    description="foo")
+                    description="")
 
 if __name__ == '__main__':
 
@@ -78,15 +77,11 @@ if __name__ == '__main__':
         for (demo_id, demo_app) in demo_dict.items():
             if demo_app.is_test:
                 demo_dict.pop(demo_id)
-    # load the demo apps
+    # mount the demo apps
     for (demo_id, demo_app) in demo_dict.items():
         cherrypy.log("loading demo: %s" % demo_id, context='SETUP',
                      traceback=False)
-        mount_point = '/' + demo_id
-        # mount app
-        cherrypy.tree.mount(demo_app(), mount_point, config=None)
-
-
+        cherrypy.tree.mount(demo_app(), script_name='/%s' % demo_id)
 
     # use cgitb error handling
     # enable via config
@@ -94,4 +89,5 @@ if __name__ == '__main__':
     # tools.cgitb.on = True
     cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err_tb)
     
+    # start the server
     cherrypy.quickstart(demo_index(demo_dict), config=conf_file)

@@ -1,7 +1,7 @@
 """
 image tools
 """
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 
 #
 # IMAGE THUMBNAILER

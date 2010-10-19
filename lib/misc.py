@@ -1,7 +1,7 @@
 """
 various help tools for the IPOL demo environment
 """
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 
 
 #

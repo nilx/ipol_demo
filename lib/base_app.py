@@ -1,7 +1,7 @@
 """
 base IPOL demo web app
 """
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 
 # TODO add steps (cf amazon cart)
 
@@ -10,9 +10,9 @@ from mako.lookup import TemplateLookup
 import cherrypy
 import os.path
 
-from empty_app import empty_app
-from misc import index_dict, prod, get_check_key, http_redirect_303
-from image import thumbnail, image
+from .empty_app import empty_app
+from .misc import index_dict, prod, get_check_key, http_redirect_303
+from .image import thumbnail, image
 
 class base_app(empty_app):
     """ base demo app class with a typical flow """

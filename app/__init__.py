@@ -1,6 +1,7 @@
 """
 IPOL demo app collection
 """
+# pylint: disable=C0103
 
 import os
 

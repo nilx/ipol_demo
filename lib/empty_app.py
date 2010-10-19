@@ -1,7 +1,7 @@
 """
 empty IPOL demo web app
 """
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 
 #
 # EMPTY APP
