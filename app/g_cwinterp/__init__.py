@@ -1,1 +1,5 @@
-from app import app
+"""
+cwinterp ipol demo web app
+"""
+
+from .app import app
