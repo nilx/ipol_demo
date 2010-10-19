@@ -72,8 +72,7 @@ if __name__ == '__main__':
     # load the demo collection
     # from now, the demo id is the demo module name, which happens to
     # also be the folder name
-    from app import get_demo_dict
-    demo_dict = get_demo_dict()
+    from app import demo_dict
     # filter out test demos
     if cherrypy.config['server.environment'] == 'production':
         for (demo_id, demo_app) in demo_dict.items():
