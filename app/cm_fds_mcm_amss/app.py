@@ -1,6 +1,7 @@
 """
 mcm_amss ipol demo web app
 """
+# pylint: disable=C0103
 
 from lib import base_app
 from lib import get_check_key, http_redirect_303
@@ -17,7 +18,8 @@ class app(base_app):
     """ mcm_amss app """
 
     title = "Finite Difference Schemes for MCM and AMSS"
-    description = "Image filtering techniques based on FDSs for the MCM and the AMSS"
+    description = "Image filtering techniques based on FDSs" \
+        + " for the MCM and the AMSS"
 
     input_nb = 1
     input_max_pixels = 480000 # max size (in pixels) of an input image
@@ -25,7 +27,7 @@ class app(base_app):
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.tiff' # input image expected extension (ie file format)
     display_ext = '.png' # displayed image extention (ie. file format)
-    is_test = True;
+    is_test = True
 
     def __init__(self):
         """
@@ -36,7 +38,6 @@ class app(base_app):
         base_app.__init__(self, base_dir)
 
         # select the base_app steps to expose
-        # TODO : simplify
         # index() is generic
         base_app.index.im_func.exposed = True
         # input_xxx() are modified from the template
@@ -58,25 +59,25 @@ class app(base_app):
         draw a grid on the input image
         """
 
-	print "input image path:", self.path('tmp', 'input_0' + self.input_ext)
+        print "input image path:", self.path('tmp', 'input_0' + self.input_ext)
         try:
             im = image(self.path('tmp', 'input_0' + self.input_ext))
         except IOError:
             raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
 
-	if grid_step != 0 :
-	  #vertical lines
-	  y1=0
-	  y2=im.size[1]
-	  for x1 in range(0, im.size[0], grid_step):
-	    im.draw_line((x1, y1, x1, y2))
+        if grid_step != 0 :
+            #vertical lines
+            y1 = 0
+            y2 = im.size[1]
+            for x1 in range(0, im.size[0], grid_step):
+                im.draw_line((x1, y1, x1, y2))
 
-	  #horizontal lines
-	  x1=0
-	  x2=im.size[0]
-	  for y1 in range(0, im.size[1], grid_step):
-	    im.draw_line((x1, y1, x2, y1))
+            #horizontal lines
+            x1 = 0
+            x2 = im.size[0]
+            for y1 in range(0, im.size[1], grid_step):
+                im.draw_line((x1, y1, x2, y1))
 
 
         im.save(self.path('tmp', 'input_1' + self.input_ext))
@@ -100,10 +101,10 @@ class app(base_app):
                               errmsg="Wrong grid parameters")
 
 
-	self.draw_grid(int(grid_step))
+        self.draw_grid(int(grid_step))
 
         urld = {'run' : self.url('run'),
-		'params' : self.url('params'),
+                'params' : self.url('params'),
                 'input' : [self.url('tmp', 'input_1' + self.display_ext)]}
         return self.tmpl_out("params.html", urld=urld, msg=msg)
 
@@ -125,15 +126,15 @@ class app(base_app):
         gridStep = int(params_file['paramsGrid']['grid_step'])
  
 
-       # save and validate the parameters
-	if (x == None) or (y == None) :
-	  x=0
-	  y=0
+        # save and validate the parameters
+        if (x == None) or (y == None) :
+            x = 0
+            y = 0
 
-	print "x=", x
-	print "y=", y
-	print "grid_step=", gridStep
-	print "scaleR=", float(scaleR)
+        print "x=", x
+        print "y=", y
+        print "grid_step=", gridStep
+        print "scaleR=", float(scaleR)
 
         try:
             params_file = index_dict(self.path('tmp'))
@@ -143,33 +144,32 @@ class app(base_app):
             return self.error(errcode='badparams',
                               errmsg="Wrong input parameters")
 
-	#Select image to process
-	gridX=int(x)
-	gridY=int(y)
-	if (gridStep == 0) :
-	  #process whole image 
-	  #save input image as input_2
-          im = image(self.path('tmp', 'input_0' + self.input_ext))
-          im.save(self.path('tmp', 'input_2' + self.input_ext))
-          im.save(self.path('tmp', 'input_2' + self.display_ext))
-	else :
-	  #select subimage 
-          im = image(self.path('tmp', 'input_0' + self.input_ext))
-	  x1=(gridX/gridStep)*gridStep
-	  y1=(gridY/gridStep)*gridStep
-	  x2=x1+gridStep
-	  if x2 > im.size[0] :
-	    x2=im.size[0]
-	  y2=y1+gridStep
-	  if y2 > im.size[1] :
-	    y2=im.size[1]
-	  im.crop((x1, y1, x2, y2))
-	  #print "crop:", x1, y1, x2, y2
-	  #set default image size
-	  im.resize((400, 400), method="nearest")
-          im.save(self.path('tmp', 'input_2' + self.input_ext))
-          im.save(self.path('tmp', 'input_2' + self.display_ext))
-
+        #Select image to process
+        gridX = int(x)
+        gridY = int(y)
+        if (gridStep == 0) :
+            #process whole image 
+            #save input image as input_2
+            im = image(self.path('tmp', 'input_0' + self.input_ext))
+            im.save(self.path('tmp', 'input_2' + self.input_ext))
+            im.save(self.path('tmp', 'input_2' + self.display_ext))
+        else :
+            #select subimage 
+            im = image(self.path('tmp', 'input_0' + self.input_ext))
+            x1 = (gridX / gridStep) * gridStep
+            y1 = (gridY / gridStep) * gridStep
+            x2 = x1 + gridStep
+            if x2 > im.size[0] :
+                x2 = im.size[0]
+            y2 = y1+gridStep
+            if y2 > im.size[1] :
+                y2 = im.size[1]
+            im.crop((x1, y1, x2, y2))
+            #print "crop:", x1, y1, x2, y2
+            #set default image size
+            im.resize((400, 400), method="nearest")
+            im.save(self.path('tmp', 'input_2' + self.input_ext))
+            im.save(self.path('tmp', 'input_2' + self.display_ext))
 
         http_redirect_303(self.url('result', {'key':self.key}))
         urld = {'next_step' : self.url('result'),
@@ -185,12 +185,16 @@ class app(base_app):
         the core algo runner
         could also be called by a batch processor
         this one needs no parameter
-        """		
+        """             
 
-	#Process image
-	p1=self.run_proc(['mcm', str(scaleR), self.path('tmp', 'input_2' + self.input_ext), self.path('tmp', 'output_MCM' + self.input_ext)])
-	p2=self.run_proc(['amss', str(scaleR), self.path('tmp', 'input_2' + self.input_ext), self.path('tmp', 'output_AMSS' + self.input_ext)])
-	self.wait_proc([p1, p2])
+        #Process image
+        p1 = self.run_proc(['mcm', str(scaleR), 
+                            self.path('tmp', 'input_2' + self.input_ext),
+                            self.path('tmp', 'output_MCM' + self.input_ext)])
+        p2 = self.run_proc(['amss', str(scaleR),
+                            self.path('tmp', 'input_2' + self.input_ext),
+                            self.path('tmp', 'output_AMSS' + self.input_ext)])
+        self.wait_proc([p1, p2], timeout)
         im = image(self.path('tmp', 'output_MCM' + self.input_ext))
         im.save(self.path('tmp', 'output_MCM' + self.display_ext))
         im = image(self.path('tmp', 'output_AMSS' + self.input_ext))
@@ -205,16 +209,16 @@ class app(base_app):
         """
         # read the parameters
         params_file = index_dict(self.path('tmp'))
-	# normalized scale
+        # normalized scale
         scaleRnorm = float(params_file['params']['scaler'])
         # read grid parameters
         gridStep = int(params_file['paramsGrid']['grid_step'])
 
-	#de-normalize scale
-	zoomfactor=1.0
-	if gridStep != 0 :
-	  zoomfactor=400.0/gridStep
-	scaleR=scaleRnorm*zoomfactor
+        #de-normalize scale
+        zoomfactor = 1.0
+        if gridStep != 0 :
+            zoomfactor = 400.0 / gridStep
+        scaleR = scaleRnorm*zoomfactor
 
        # run the algorithm
         stdout = open(self.path('tmp', 'stdout.txt'), 'w')
@@ -231,9 +235,13 @@ class app(base_app):
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_2' + self.display_ext)],
-                'output' : [self.url('tmp', 'output_MCM' + self.display_ext), self.url('tmp', 'output_AMSS' + self.display_ext)]
-		}
+                'output' : [self.url('tmp', 'output_MCM' + self.display_ext),
+                            self.url('tmp', 'output_AMSS' + self.display_ext)]
+                }
 
 
-        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time, scaleRnorm="%2.2f" % scaleRnorm, zoomfactor="%2.2f" % zoomfactor)
+        return self.tmpl_out("result.html",
+                             urld=urld, run_time="%0.2f" % run_time,
+                             scaleRnorm="%2.2f" % scaleRnorm,
+                             zoomfactor="%2.2f" % zoomfactor)
 
