@@ -5,11 +5,15 @@ interaction script
 # pylint: disable-msg=C0103
 
 from lib import base_app
+from lib import build
+from lib import image
+from lib.misc import get_check_key, http_redirect_303, app_expose
+from lib.misc import index_dict, ctime
 import cherrypy
-from lib import get_check_key, http_redirect_303, app_expose, index_dict, image
 from cherrypy import TimeoutError
 import os.path
 import time
+import shutil
 
 #
 # FRACTION UTILITY FUNCTIONS
@@ -89,6 +93,65 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
+
+    def build(self):
+        """
+        program build/update
+        """
+        if not os.path.isdir(self.bin_dir):
+            os.mkdir(self.bin_dir)
+        # store common file path in variables
+        match_tgz_file = os.path.join(self.dl_dir, "match.tar.gz")
+        match_tgz_url = "https://edit.ipol.im/edit/algo/" \
+            + "ltp_stereovision_with_graph_cuts/match.tar.gz"
+        match_prog_file = os.path.join(self.bin_dir, "match")
+        match_log_file = os.path.join(self.base_dir, "build_match.log")
+        autok_tgz_file = os.path.join(self.dl_dir, "autoK.tar.gz")
+        autok_tgz_url = "https://edit.ipol.im/edit/algo/" \
+            + "ltp_stereovision_with_graph_cuts/autoK.tar.gz"
+        autok_prog_file = os.path.join(self.bin_dir, "autoK")
+        autok_log_file = os.path.join(self.base_dir, "build_autok.log")
+        # get the latest source archive
+        build.download(match_tgz_url, match_tgz_file)
+        build.download(autok_tgz_url, autok_tgz_file)
+        # MATCH
+        # test if the dest file is missing, or too old
+        if (os.path.isfile(match_prog_file)
+            and ctime(match_tgz_file) < ctime(match_prog_file)):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(match_tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s ../bin/match" %
+                      os.path.join(self.src_dir, "match-v3.3.src", "unix")
+                      + " CCOMP='ccache c++' -j4", stdout=match_log_file)
+            # save into bin dir
+            shutil.copy(os.path.join(self.src_dir,
+                                     "match-v3.3.src", "bin", "match"),
+                        match_prog_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        # AUTOK
+        # test if the dest file is missing, or too old
+        if (os.path.isfile(autok_prog_file)
+            and ctime(autok_tgz_file) < ctime(autok_prog_file)):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(autok_tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s ../bin/autoK" %
+                      os.path.join(self.src_dir, "autoK", "unix")
+                      + " CCOMP='ccache c++' -j4", stdout=autok_log_file)
+            # save into bin dir
+            shutil.copy(os.path.join(self.src_dir, "autoK", "bin", "autoK"),
+                        match_prog_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
 
     @cherrypy.expose
     @get_check_key

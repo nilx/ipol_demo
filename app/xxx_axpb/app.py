@@ -4,10 +4,14 @@ demo example for the X->aX+b transform
 # pylint: disable-msg=C0103
 
 from lib import base_app
-from lib import get_check_key, http_redirect_303, app_expose, index_dict
+from lib import build
+from lib.misc import get_check_key, http_redirect_303, app_expose
+from lib.misc import index_dict, ctime
+
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
+import shutil
 
 class app(base_app):
     """ template demo app """
@@ -39,6 +43,37 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
+
+    def build(self):
+        """
+        program build/update
+        """
+        # store common file path in variables
+        tgz_file = os.path.join(self.dl_dir, "axpb.tar.gz")
+        prog_file = os.path.join(self.bin_dir, "axpb")
+        log_file = os.path.join(self.base_dir, "build.log")
+        # get the latest source archive
+        build.download("https://edit.ipol.im/meta/dev/axpb.tar.gz", tgz_file)
+        # test if the dest file is missing, or too old
+        if (os.path.isfile(prog_file)
+            and ctime(tgz_file) < ctime(prog_file)):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s axpb"
+                      % os.path.join(self.src_dir, "axpb")
+                      + " CC='ccache cc' -j4", stdout=log_file)
+            # save into bin dir
+            if os.path.isdir(self.bin_dir):
+                shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
+            shutil.copy(os.path.join(self.src_dir, "axpb", "axpb"), prog_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
 
     # run() is defined here,
     # because the parameters validation depends on the algorithm
