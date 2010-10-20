@@ -1,9 +1,23 @@
 # cherrypy configuration for a local test server
 [global]
-server.environment = 'development' # use 'production' when deploying
+# use 'production' when deploying
+server.environment = 'development'
+# server listening IP
 server.socket_host = '127.0.0.1'
+# server listening port
 server.socket_port = 8080
+# number of threads (for the python code)
 server.thread_pool = 3
+# show logs in the console
 log.screen = True
+# autoreload on file update
 engine.autoreload_on = True
+# no warning for missing app config
+checker.check_skipped_app_config = False
+# rich debug messages
 tools.cgitb.on = True
+# auth tokens for downloads
+download.auth.urlbase = "https://edit.ipol.im/"
+download.auth.username = "<your user name>"
+download.auth.password = "<your password>"
+
