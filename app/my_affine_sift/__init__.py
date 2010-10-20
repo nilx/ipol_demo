@@ -1,1 +1,5 @@
-from app import app
+"""
+ASIFT demo interaction script
+"""
+
+from .app import app
