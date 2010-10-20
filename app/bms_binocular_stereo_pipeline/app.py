@@ -31,8 +31,8 @@ class app(base_app):
     input_nb = 2 # number of input images
     input_max_pixels = 640 * 480 # max size (in pixels) of an input image
     input_dtype = '3x8i' # input image expected data type
-    input_ext = '.png'  # input image expected extension (ie file format)    
-    is_test = True       # switch to False for deployment
+    input_ext = '.png'   # input image expected extension (ie file format)    
+    is_test = False      # switch to False for deployment
 
     def __init__(self):
         """
