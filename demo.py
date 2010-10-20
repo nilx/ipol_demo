@@ -1,5 +1,8 @@
 #! /usr/bin/python
-""" base cherrypy launcher for the IPOL demo app """
+"""
+base cherrypy launcher for the IPOL demo app
+"""
+# pylint: disable=C0103
 
 import cherrypy
 from mako.lookup import TemplateLookup
@@ -18,28 +21,24 @@ def err_tb():
     cherrypy.request.hooks.attach('after_error_response', set_tb)
 
 
-class demo_index:
+class demo_index(object):
     """
     simplistic demo index used as the root app
     """
 
-    def __init__(self, indexd=None):
+    def __init__(self, indexd):
         """
         initialize with demo_dict for indexing
         """
-        if indexd == None:
-            self.indexd = {}
-        else:
-            self.indexd = indexd
+        self.indexd = indexd
 
     @cherrypy.expose
     def index(self):
         """
         simple demo index page
         """
-
         tmpl_dir = os.path.join(os.path.dirname(__file__),
-                                'base_template')
+                                'lib', 'template')
         tmpl_lookup = TemplateLookup(directories=[tmpl_dir],
                                      input_encoding='utf-8',
                                      output_encoding='utf-8',
@@ -47,21 +46,20 @@ class demo_index:
         return tmpl_lookup.get_template('index.html')\
             .render(indexd=self.indexd,
                     title="Demonstrations",
-                    description="foo")
+                    description="")
 
 if __name__ == '__main__':
 
     import os
     import shutil
 
+    # cgitb error handling config
+    cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err_tb)
+    
     # config file and location settings
     base_dir = os.path.dirname(os.path.abspath(__file__))
     conf_file = os.path.join(base_dir, 'demo.conf')
     conf_file_example = os.path.join(base_dir, 'demo.conf.example')
-
-    demo_dict = {}
-    demo_blacklist = ['.git', 'base_template']
-    base_dir = os.path.dirname(os.path.abspath(__file__))
     cherrypy.log("app base_dir: %s" % base_dir,
                  context='SETUP', traceback=False)
 
@@ -76,49 +74,22 @@ if __name__ == '__main__':
     # load the demo collection
     # from now, the demo id is the demo module name, which happens to
     # also be the folder name
-    for demo_id in os.listdir(base_dir):
-        if not os.path.isdir(os.path.join(base_dir, demo_id)):
-            continue
-        if demo_id in demo_blacklist:
-            continue
-        # function version of `from demo_id import app as demo.app`
-        demo = __import__(demo_id, globals(), locals(), ['app'], -1)
-        # filter test demos
-        if (cherrypy.config['server.environment'] == 'production'
-            and demo.app.is_test):
-            continue
-        cherrypy.log("loading demo: %s" % demo_id, context='SETUP',
+    from app import demo_dict
+    # filter out test demos
+    if cherrypy.config['server.environment'] == 'production':
+        for (demo_id, demo_app) in demo_dict.items():
+            if demo_app.is_test:
+                demo_dict.pop(demo_id)
+    for (demo_id, demo_app) in demo_dict.items():
+        demo = demo_app()
+        # update the demo apps programs
+        cherrypy.log("building", context='SETUP/%s' % demo_id,
                      traceback=False)
-        demo_dict[demo_id] = demo.app
-        mount_point = '/' + demo_id
-        # static subfolders config
-        input_dir = os.path.join(base_dir, demo_id, 'input')
-        tmp_dir = os.path.join(base_dir, demo_id, 'tmp')
-        config = {'/input':
-                      {'tools.staticdir.on' : True,
-                       'tools.staticdir.dir' : input_dir
-                       },
-                  '/tmp':
-                      {'tools.staticdir.on' : True,
-                       'tools.staticdir.dir' : tmp_dir
-                       },
-                  }
-        # create missing static subfolders
-        if not os.path.isdir(input_dir):
-            cherrypy.log("warning: missing input folder, creating it",
-                         context='SETUP', traceback=False)
-            os.mkdir(input_dir)
-        if not os.path.isdir(tmp_dir):
-            cherrypy.log("warning: missing tmp folder, creating it",
-                         context='SETUP', traceback=False)
-            os.mkdir(tmp_dir)
-        # mount static subfolders
-        cherrypy.tree.mount(demo.app(), mount_point, config=config)
+        demo.build()
+        # mount the demo apps
+        cherrypy.log("loading", context='SETUP/%s' % demo_id,
+                     traceback=False)
+        cherrypy.tree.mount(demo, script_name='/%s' % demo_id)
 
-    # use cgitb error handling
-    # enable via config
-    # [global]
-    # tools.cgitb.on = True
-    cherrypy.tools.cgitb = cherrypy.Tool('before_error_response', err_tb)
-    
+    # start the server
     cherrypy.quickstart(demo_index(demo_dict), config=conf_file)
