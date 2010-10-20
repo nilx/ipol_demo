@@ -4,7 +4,9 @@ cwinterp ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app
-from lib import get_check_key, http_redirect_303
+from lib import build
+from lib.misc import get_check_key, http_redirect_303, ctime
+import shutil
 import cherrypy
 from cherrypy import TimeoutError
 from lib import image
@@ -43,6 +45,44 @@ class app(base_app):
         # result() is modified from the template
         base_app.result.im_func.exposed = True
 
+
+    def build(self):
+        """
+        program build/update
+        """
+        # store common file path in variables
+        tgz_url = "https://edit.ipol.im/pub/algo/" \
+            + "g_image_interpolation_with_contour_stencils/src.tar.gz"
+        tgz_file = os.path.join(self.dl_dir, "src.tar.gz")
+        progs = ["cwinterp", "imcoarsen", "imdiff"]
+        src_bin = dict([(os.path.join(self.src_dir, prog),
+                         os.path.join(self.bin_dir, prog))
+                        for prog in progs])
+        log_file = os.path.join(self.base_dir, "build.log")
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
+        # test if any dest file is missing, or too old
+        if all([(os.path.isfile(bin) and ctime(tgz_file) < ctime(bin))
+                for bin in src_bin.values()]):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
+            # build the programs
+            build.run("make -C %s %s"
+                      % (self.src_dir, " ".join(progs))
+                      + " --makefile=makefile.gcc"
+                      + " CXX='ccache c++' -j4", stdout=log_file)
+            # save into bin dir
+            if os.path.isdir(self.bin_dir):
+                shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
+            for (src, bin) in src_bin.items():
+                shutil.copy(src, bin)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
 
     # run() is defined here,
     # because the parameters validation depends on the algorithm
