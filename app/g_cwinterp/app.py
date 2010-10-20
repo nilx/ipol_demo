@@ -21,7 +21,7 @@ class app(base_app):
         + " based on total variation along curves. "
 
     input_nb = 1
-    input_max_pixels = 480000 # max size (in pixels) of an input image
+    input_max_pixels = 1048576 # max size (in pixels) of an input image
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
