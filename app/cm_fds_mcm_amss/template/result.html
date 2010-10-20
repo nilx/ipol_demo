@@ -1,0 +1,46 @@
+<%include file="header.html" />
+
+<p>
+The results of the algorithm are displayed hereafter.
+The CPU time required was ${run_time}s.<br />
+You can run again the numerical schemes with new data or new parameters.
+</p>
+
+
+<form action="${urld['new_input']}" method="get">
+new input data:
+<input type="submit" value="back to : input" />
+</form>
+
+<br>
+
+<form action="${urld['new_run']}" method="get">
+new parameters:
+<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="newrun" value=True>
+<input type="submit" value="back to : parameters selection" />
+</form>
+
+<br>
+
+<hr />
+
+
+<p>
+Results at normalized scale R=${scaleRnorm} (zooming factor=${zoomfactor})
+</p>
+
+<div class="gallery">
+<ul class="index">
+<li><a href="#">Original
+    <span><img src=${urld['input'][0]} /></span></a></li>
+<li><a href="#">MCM result
+    <span><img src=${urld['output'][0]} /></span></a></li>
+<li><a href="#">AMSS result
+    <span><img src=${urld['output'][1]} /></span></a></li>
+</ul>
+</div>
+
+
+
+<%include file="footer.html" />
