@@ -62,8 +62,8 @@ class app(base_app):
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
-        if all([(os.path.isfile(bin) and ctime(tgz_file) < ctime(bin))
-                for bin in src_bin.values()]):
+        if all([(os.path.isfile(bin_file) and ctime(tgz_file) < ctime(bin_file))
+                for bin_file in src_bin.values()]):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
@@ -78,8 +78,8 @@ class app(base_app):
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            for (src, bin) in src_bin.items():
-                shutil.copy(src, bin)
+            for (src, dst) in src_bin.items():
+                shutil.copy(src, dst)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return

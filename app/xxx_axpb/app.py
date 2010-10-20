@@ -1,7 +1,7 @@
 """
 demo example for the X->aX+b transform
 """
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 
 from lib import base_app
 from lib import build

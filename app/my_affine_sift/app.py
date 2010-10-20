@@ -1,7 +1,7 @@
 """
 ASIFT demo interaction script
 """
-# pylint: disable-msg=C0103
+# pylint: disable=C0103
 
 from lib import base_app
 from lib import image
