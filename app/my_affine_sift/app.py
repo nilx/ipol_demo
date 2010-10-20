@@ -184,11 +184,9 @@ something must have gone wrong""")
                 'keys_0' : self.url('tmp', 'keys_0.txt'),
                 'keys_1' : self.url('tmp', 'keys_1.txt')}
         stdout = open(self.path('tmp', 'stdout.txt'), 'r')
-        img_out = image(self.path('tmp', 'outputV.png'))
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
                              nbmatch=nbmatch,
                              nbmatch_SIFT=nbmatch_SIFT,
-                             height=str(img_out.size[1]+10),
                              stdout=stdout.read())
 
