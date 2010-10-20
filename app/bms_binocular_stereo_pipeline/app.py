@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
-# pylint: disable-msg=C0103
 """
 Binocular Stereo Pipeline
 """
+# pylint: disable=C0103
 
-from base_demo import app as base_app
-from lib import get_check_key, http_redirect_303, app_expose, image
+from lib import base_app
+from lib import image
+from lib import build
+from lib.misc import get_check_key, http_redirect_303, app_expose, ctime
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -21,13 +22,14 @@ class app(base_app):
     
     title = "Binocular Stereo Pipeline"
     description = """Please select or upload a stereo image pair.
-    Both images must have the same size.<br />
+    Both images must have the same size, and should be less than
+    640x480 pixels.<br />
     This algorithm  is designed for low baseline simultaneous or
     almost simultaneous stereo pairs.
     """
 
     input_nb = 2 # number of input images
-    input_max_pixels = 512 * 512 # max size (in pixels) of an input image
+    input_max_pixels = 640 * 480 # max size (in pixels) of an input image
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'  # input image expected extension (ie file format)    
     is_test = True       # switch to False for deployment
@@ -43,6 +45,51 @@ class app(base_app):
         # select the base_app steps to expose
         # index() is generic
         app_expose(base_app.index)
+
+    def build(self):
+        """
+        program build/update
+        """
+        # store common file path in variables
+        tgz_file = os.path.join(self.dl_dir, "MissStereo.tar.gz")
+        tgz_url = "https://edit.ipol.im/edit/algo/" + \
+            "m_quasi_euclidean_epipolar_rectification/MissStereo.tar.gz"
+        build_dir = os.path.join(self.src_dir, "MissStereo", "build")
+        src_bin = dict([(os.path.join(build_dir, "bin", prog),
+                         os.path.join(self.bin_dir, prog))
+                        for prog in ["homography", "orsa", "rectify",
+                                     "sift", "size", "stereo",
+                                     "convert", "mesh"]])
+        src_bin[os.path.join(self.src_dir, "MissStereo",
+                             "scripts", "MissStereo.sh")] \
+            = os.path.join(self.bin_dir, "MissStereo.sh")
+        log_file = os.path.join(self.base_dir, "build.log")
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
+        # test if any of the dest files is missing, or too old
+        if all([(os.path.isfile(bin_file) and ctime(tgz_file) < ctime(bin_file))
+                for bin_file in src_bin.values()]):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
+            # build the program
+            os.mkdir(build_dir)
+            build.run("cmake -D CMAKE_BUILD_TYPE:string=Release ../src",
+                      stdout=log_file, cwd=build_dir,
+                      env={'CC':'ccache cc', 'CXX':'ccache c++'})
+            build.run("make -C %s -j4" % build_dir,
+                      stdout=log_file)
+            # save into bin dir
+            if os.path.isdir(self.bin_dir):
+                shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
+            for (src, dst) in src_bin.items():
+                shutil.copy(src, dst)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
 
     #
     # PARAMETER HANDLING
@@ -138,6 +185,8 @@ something must have gone wrong""")
                     self.path('tmp', 'disp2_H_input_0.tif'))
         shutil.move(self.path('tmp', 'disp3_H_input_0.png_float.tif'),
                     self.path('tmp', 'disp3_H_input_0.tif'))
+        shutil.move(self.path('tmp', 'disp3_H_input_0.png.ply'),
+                    self.path('tmp', 'disp3_H_input_0.ply'))
 
         urld = {'new_input' : self.url('index'),
                 'run' : self.url('run'),
@@ -152,7 +201,8 @@ something must have gone wrong""")
                           self.url('tmp', 'H_input_1.txt')],
                 'exact' : [self.url('tmp', 'disp1_H_input_0.tif'),
                            self.url('tmp', 'disp2_H_input_0.tif'),
-                           self.url('tmp', 'disp3_H_input_0.tif')]}
+                           self.url('tmp', 'disp3_H_input_0.tif')],
+                'ply': self.url('tmp', 'disp3_H_input_0.ply')}
 
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
