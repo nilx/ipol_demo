@@ -4,7 +4,9 @@ rgbprocess ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app
-from lib import get_check_key, http_redirect_303
+from lib import build
+from lib.misc import get_check_key, http_redirect_303, ctime
+import shutil
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -41,6 +43,39 @@ class app(base_app):
         # result() is modified from the template
         base_app.result.im_func.exposed = True
 
+    def build(self):
+        """
+        program build/update
+        """
+        # store common file path in variables
+        tgz_url = "https://edit.ipol.im/edit/algo/" \
+            + "blm_color_dimensional_filtering/rgbprocess.tar.gz"
+        tgz_file = os.path.join(self.dl_dir, "rgbprocess.tar.gz")
+        prog_file = os.path.join(self.bin_dir, "rgbprocess")
+        log_file = os.path.join(self.base_dir, "build.log")
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
+        # test if the dest file is missing, or too old
+        if (os.path.isfile(prog_file)
+            and ctime(tgz_file) < ctime(prog_file)):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s rgbprocess"
+                      % os.path.join(self.src_dir, "rgbprocess")
+                      + " CXX='ccache c++' -j4", stdout=log_file)
+            # save into bin dir
+            if os.path.isdir(self.bin_dir):
+                shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
+            shutil.copy(os.path.join(self.src_dir, 
+                                     "rgbprocess", "rgbprocess"), prog_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
 
     # run() is defined here,
     # because the parameters validation depends on the algorithm
