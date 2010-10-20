@@ -1,16 +1,19 @@
-# -*- coding: utf-8 -*-
-# pylint: disable-msg=C0103
 """
 Computing Visual Correspondence with Occlusions using Graph Cuts demo
 interaction script
 """
+# pylint: disable=C0103
 
-from base_demo import app as base_app
+from lib import base_app
+from lib import build
+from lib import image
+from lib.misc import get_check_key, http_redirect_303, app_expose
+from lib.misc import index_dict, ctime
 import cherrypy
-from lib import get_check_key, http_redirect_303, app_expose, index_dict, image
 from cherrypy import TimeoutError
 import os.path
 import time
+import shutil
 
 #
 # FRACTION UTILITY FUNCTIONS
@@ -65,10 +68,14 @@ class app(base_app):
     description = """V. Kolmogorov and R. Zabih's method tries to minimize an 
     energy defined on all possible configurations.<br />
     Please select two images; color images will be converted into gray
-    level."""
+    level; images larger than 1M pixels will be resized.<br/>
+    Warning: this algorithm only works on orthorectified images. If
+    your pair is not orthorectified, use 
+    <a href='../../m_quasi_euclidean_epipolar_rectification/'>a
+    rectification step</a> first."""
 
     input_nb = 2 # number of input images
-    input_max_pixels = None # max size (in pixels) of an input image
+    input_max_pixels = 1024*1024 # max size (in pixels) of an input image
     input_max_method = 'zoom'
     input_dtype = '3x8i' # input image expected data type    
     input_ext = '.ppm'   # input image expected extension (ie file format)    
@@ -90,6 +97,65 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
+
+    def build(self):
+        """
+        program build/update
+        """
+        if not os.path.isdir(self.bin_dir):
+            os.mkdir(self.bin_dir)
+        # store common file path in variables
+        match_tgz_file = os.path.join(self.dl_dir, "match.tar.gz")
+        match_tgz_url = "https://edit.ipol.im/edit/algo/" \
+            + "ltp_stereovision_with_graph_cuts/match.tar.gz"
+        match_prog_file = os.path.join(self.bin_dir, "match")
+        match_log_file = os.path.join(self.base_dir, "build_match.log")
+        autok_tgz_file = os.path.join(self.dl_dir, "autoK.tar.gz")
+        autok_tgz_url = "https://edit.ipol.im/edit/algo/" \
+            + "ltp_stereovision_with_graph_cuts/autoK.tar.gz"
+        autok_prog_file = os.path.join(self.bin_dir, "autoK")
+        autok_log_file = os.path.join(self.base_dir, "build_autok.log")
+        # get the latest source archive
+        build.download(match_tgz_url, match_tgz_file)
+        build.download(autok_tgz_url, autok_tgz_file)
+        # MATCH
+        # test if the dest file is missing, or too old
+        if (os.path.isfile(match_prog_file)
+            and ctime(match_tgz_file) < ctime(match_prog_file)):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(match_tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s ../bin/match" %
+                      os.path.join(self.src_dir, "match-v3.3.src", "unix")
+                      + " CCOMP='ccache c++' -j4", stdout=match_log_file)
+            # save into bin dir
+            shutil.copy(os.path.join(self.src_dir,
+                                     "match-v3.3.src", "bin", "match"),
+                        match_prog_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        # AUTOK
+        # test if the dest file is missing, or too old
+        if (os.path.isfile(autok_prog_file)
+            and ctime(autok_tgz_file) < ctime(autok_prog_file)):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(autok_tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s ../bin/autoK" %
+                      os.path.join(self.src_dir, "autoK", "unix")
+                      + " CCOMP='ccache c++' -j4", stdout=autok_log_file)
+            # save into bin dir
+            shutil.copy(os.path.join(self.src_dir, "autoK", "bin", "autoK"),
+                        autok_prog_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
 
     @cherrypy.expose
     @get_check_key
@@ -200,8 +266,9 @@ class app(base_app):
             conf_file.write("SAVE_X_SCALED %s\n" % output_fnames[n])
             conf_file.close()
             # run each process
-            plist.append(self.run_proc(['match', 'match_%i.conf' %n]))
-        self.wait_proc(plist)
+            plist.append(self.run_proc(['match', 'match_%i.conf' %n],
+                                       ))
+        self.wait_proc(plist, timeout)
 
         # join all the partial results into a global one
         output_img = image().join([image(self.path('tmp', output_fnames[n]))
