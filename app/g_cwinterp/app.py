@@ -1,9 +1,13 @@
 """
 cwinterp ipol demo web app
 """
+# pylint: disable=C0103
 
-from base_demo import app as base_app
-from lib import get_check_key, http_redirect_303
+from lib import base_app
+from lib import build
+from lib.misc import get_check_key, http_redirect_303, ctime
+import shutil
+import cherrypy
 from cherrypy import TimeoutError
 from lib import image
 import os.path
@@ -13,14 +17,15 @@ class app(base_app):
     """ cwinterp app """
 
     title = "Contour Stencil Windowed Interpolation"
-    description = "Edge-directed image interpolation based on total variation along curves. "
+    description = "Edge-directed image interpolation" \
+        + " based on total variation along curves. "
 
     input_nb = 1
     input_max_pixels = 480000 # max size (in pixels) of an input image
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
-    is_test = True;
+    is_test = True
 
     def __init__(self):
         """
@@ -31,7 +36,6 @@ class app(base_app):
         base_app.__init__(self, base_dir)
 
         # select the base_app steps to expose
-        # TODO : simplify
         # index() and input_xxx() are generic
         base_app.index.im_func.exposed = True
         base_app.input_select.im_func.exposed = True
@@ -42,8 +46,47 @@ class app(base_app):
         base_app.result.im_func.exposed = True
 
 
+    def build(self):
+        """
+        program build/update
+        """
+        # store common file path in variables
+        tgz_url = "https://edit.ipol.im/pub/algo/" \
+            + "g_image_interpolation_with_contour_stencils/src.tar.gz"
+        tgz_file = os.path.join(self.dl_dir, "src.tar.gz")
+        progs = ["cwinterp", "imcoarsen", "imdiff"]
+        src_bin = dict([(os.path.join(self.src_dir, prog),
+                         os.path.join(self.bin_dir, prog))
+                        for prog in progs])
+        log_file = os.path.join(self.base_dir, "build.log")
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
+        # test if any dest file is missing, or too old
+        if all([(os.path.isfile(bin_file) and ctime(tgz_file) < ctime(bin_file))
+                for bin_file in src_bin.values()]):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
+            # build the programs
+            build.run("make -C %s %s"
+                      % (self.src_dir, " ".join(progs))
+                      + " --makefile=makefile.gcc"
+                      + " CXX='ccache c++' -j4", stdout=log_file)
+            # save into bin dir
+            if os.path.isdir(self.bin_dir):
+                shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
+            for (src, dst) in src_bin.items():
+                shutil.copy(src, dst)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
+
     # run() is defined here,
     # because the parameters validation depends on the algorithm
+    @cherrypy.expose
     @get_check_key
     def run(self):
         """
@@ -55,7 +98,6 @@ class app(base_app):
                 'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}
         return self.tmpl_out("run.html", urld=urld)
-    run.exposed = True
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
@@ -73,35 +115,44 @@ class app(base_app):
         this one needs no parameter
         """
 
-	#check image dimensions (must be divisible by 4)
-	img0 = image(self.path('tmp', 'input_0.png'))
-	sizeX=img0.size[0]
-	sizeY=img0.size[1]
-	sizeXX=(sizeX/4)*4
-	sizeYY=(sizeY/4)*4
-	img0.crop((0, 0, sizeXX, sizeYY))	
-	img0.save(self.path('tmp', 'input_1.png'))
+        #check image dimensions (must be divisible by 4)
+        img0 = image(self.path('tmp', 'input_0.png'))
+        sizeX = img0.size[0]
+        sizeY = img0.size[1]
+        sizeXX = (sizeX/4)*4
+        sizeYY = (sizeY/4)*4
+        img0.crop((0, 0, sizeXX, sizeYY))       
+        img0.save(self.path('tmp', 'input_1.png'))
 
 
-	a=4
-	b=0.35
-	p=self.run_proc(['imcoarsen', str(a), str(b), 'input_1.png', 'coarsened.png'],
+        a = 4
+        b = 0.35
+        p = self.run_proc(['imcoarsen', str(a), str(b),
+                           'input_1.png', 'coarsened.png'],
                           stdout=stdout, stderr=stdout)
-	self.wait_proc(p)
+        self.wait_proc(p, timeout)
 
         p2 = self.run_proc(['cwinterp', 'coarsened.png', 'interpolated.png'],
                           stdout=stdout, stderr=stdout)
-
-        p4 = self.run_proc(['cwinterp', '-s', 'coarsened.png', 'contourori.png'],
-                          stdout=stdout, stderr=stdout)
-	self.wait_proc(p2)
+        p4 = self.run_proc(['cwinterp', '-s', 'coarsened.png',
+                            'contourori.png'],
+                           stdout=stdout, stderr=stdout)
+        self.wait_proc(p2, timeout)
 
         p3 = self.run_proc(['imdiff', 'input_1.png', 'interpolated.png'],
                           stdout=stdout, stderr=stdout)
-	self.wait_proc([p3, p4])
+        self.wait_proc([p3, p4], timeout)
+
+        img0 = image(self.path('tmp', 'input_1.png'))
+        sizeX = img0.size[0]
+        sizeY = img0.size[1]
+        img1 = image(self.path('tmp', 'coarsened.png'))
+        img1.resize((sizeX, sizeY), method="nearest")
+        img1.save(self.path('tmp', 'coarsenedZ.png'))
 
         return
 
+    @cherrypy.expose
     @get_check_key
     def result(self):
         """
@@ -122,13 +173,10 @@ class app(base_app):
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_1.png')],
-                'output' : [self.url('tmp', 'coarsened.png'), self.url('tmp', 'interpolated.png'), self.url('tmp', 'contourori.png')],
-		}
-	img0 = image(self.path('tmp', 'input_1.png'))
-	sizeX=img0.size[0]
-	sizeY=img0.size[1]
+                'output' : [self.url('tmp', 'coarsenedZ.png'),
+                            self.url('tmp', 'interpolated.png'),
+                            self.url('tmp', 'contourori.png')],
+                }
         stdout = open(self.path('tmp', 'stdout.txt'), 'r')
-        return self.tmpl_out("result.html", urld=urld, run_time="%0.2f" % run_time, sizeX="%i" % sizeX, sizeY="%i" % sizeY,
-                             stdout=stdout.read())
-    result.exposed = True
+        return self.tmpl_out("result.html", urld=urld, stdout=stdout.read())
 
