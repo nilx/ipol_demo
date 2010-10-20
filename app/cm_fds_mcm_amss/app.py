@@ -4,9 +4,10 @@ mcm_amss ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app
-from lib import get_check_key, http_redirect_303
 from lib import index_dict
 from lib import image
+from lib import build
+from lib.misc import get_check_key, http_redirect_303, ctime
 import os.path
 import time
 import shutil
@@ -48,6 +49,68 @@ class app(base_app):
         # result() is modified from the template
         base_app.result.im_func.exposed = True
 
+
+    def build(self):
+        """
+        program build/update
+        """
+        if not os.path.isdir(self.bin_dir):
+            os.mkdir(self.bin_dir)
+        # MCM
+        # store common file path in variables
+        mcm_tgz_file = os.path.join(self.dl_dir, "fds_mcm.tar.gz")
+        mcm_tgz_url = \
+            "http://www.ipol.im/pub/algo/cm_fds_mcm_amss/fds_mcm.tar.gz"
+        mcm_prog_file = os.path.join(self.bin_dir, "mcm")
+        mcm_log = os.path.join(self.base_dir, "build_mcm.log")
+        # get the latest source archive
+        build.download(mcm_tgz_url, mcm_tgz_file)
+        # test if the dest file is missing, or too old
+        if (os.path.isfile(mcm_prog_file)
+            and ctime(mcm_tgz_file) < ctime(mcm_prog_file)):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(mcm_tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s mcm" %
+                      os.path.join(self.src_dir, "fds_mcm", "mcm")
+                      + " CC='ccache cc'"
+                      + " OMP=1 -j4", stdout=mcm_log)
+            # save into bin dir
+            shutil.copy(os.path.join(self.src_dir, "fds_mcm", "mcm", "mcm"),
+                        mcm_prog_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        # AMSS
+        # store common file path in variables
+        amss_tgz_file = os.path.join(self.dl_dir, "fds_amss.tar.gz")
+        amss_tgz_url = \
+            "http://www.ipol.im/pub/algo/cm_fds_mcm_amss/fds_amss.tar.gz"
+        amss_prog_file = os.path.join(self.bin_dir, "amss")
+        amss_log = os.path.join(self.base_dir, "build_amss.log")
+        # get the latest source archive
+        build.download(amss_tgz_url, amss_tgz_file)
+        # test if the dest file is missing, or too old
+        if (os.path.isfile(amss_prog_file)
+            and ctime(amss_tgz_file) < ctime(amss_prog_file)):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(amss_tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s amss" %
+                      os.path.join(self.src_dir, "fds_amss", "amss")
+                      + " CC='ccache cc'"
+                      + " OMP=1 -j4", stdout=amss_log)
+            # save into bin dir
+            shutil.copy(os.path.join(self.src_dir, "fds_amss", "amss", "amss"),
+                        amss_prog_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
 
     #
     # PARAMETER HANDLING
