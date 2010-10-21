@@ -7,7 +7,8 @@ interaction script
 from lib import base_app
 from lib import build
 from lib import image
-from lib.misc import get_check_key, http_redirect_303, app_expose
+from lib import http
+from lib.misc import get_check_key, app_expose
 from lib.misc import index_dict, ctime
 import cherrypy
 from cherrypy import TimeoutError
@@ -179,7 +180,7 @@ class app(base_app):
                               errmsg="The parameters must be rationals.")
 
         # redirect to the result page
-        http_redirect_303(self.url('result', {'key':self.key}))
+        http.redir_303(self.url('result?key=%s' % self.key))
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld,

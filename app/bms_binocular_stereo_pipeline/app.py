@@ -6,7 +6,8 @@ Binocular Stereo Pipeline
 from lib import base_app
 from lib import image
 from lib import build
-from lib.misc import get_check_key, http_redirect_303, app_expose, ctime
+from lib import http
+from lib.misc import get_check_key, app_expose, ctime
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -120,7 +121,7 @@ class app(base_app):
         """
         # no parameter
         # redirect to the result page
-        http_redirect_303(self.url('result', {'key':self.key}))
+        http.redir_303(self.url('result?key=%s' % self.key))
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld,

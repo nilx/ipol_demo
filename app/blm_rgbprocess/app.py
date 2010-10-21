@@ -5,7 +5,8 @@ rgbprocess ipol demo web app
 
 from lib import base_app
 from lib import build
-from lib.misc import get_check_key, http_redirect_303, ctime
+from lib import http
+from lib.misc import get_check_key, ctime
 import shutil
 import cherrypy
 from cherrypy import TimeoutError
@@ -86,7 +87,7 @@ class app(base_app):
         params handling and run redirection
         as a special case, we have no parameter to check and pass
         """
-        http_redirect_303(self.url('result', {'key':self.key}))
+        http.redir_303(self.url('result?key=%s' % self.key))
         urld = {'next_step' : self.url('result'),
                 'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}

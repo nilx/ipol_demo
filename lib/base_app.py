@@ -11,7 +11,7 @@ import cherrypy
 import os.path
 
 from .empty_app import empty_app
-from .misc import index_dict, prod, get_check_key, http_redirect_303
+from .misc import index_dict, prod, get_check_key
 from .image import thumbnail, image
 
 class base_app(empty_app):
@@ -264,7 +264,7 @@ class base_app(empty_app):
         kwargs = kwargs
         # redirect to the result page
         # TODO check_params as another function
-        http_redirect_303(self.url('result', {'key':self.key}))
+        http.redir_303(self.url('result?key=%s' % self.key))
         urld = {'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}
         return self.tmpl_out("run.html", urld=urld)
