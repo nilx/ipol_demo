@@ -178,5 +178,8 @@ class app(base_app):
                             self.url('tmp', 'contourori.png')],
                 }
         stdout = open(self.path('tmp', 'stdout.txt'), 'r')
-        return self.tmpl_out("result.html", urld=urld, stdout=stdout.read())
+        img0 = image(self.path('tmp', 'input_1.png'))
+        sizeX = img0.size[0]
+        sizeY = img0.size[1]
+        return self.tmpl_out("result.html", height=sizeY ,urld=urld, stdout=stdout.read())
 
