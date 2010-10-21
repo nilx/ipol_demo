@@ -235,7 +235,7 @@ class app(base_app):
             im.save(self.path('tmp', 'input_2' + self.input_ext))
             im.save(self.path('tmp', 'input_2' + self.display_ext))
 
-        http.redir_303(self.url('result?key=%s' % self.key))
+        http.refresh(self.url('result?key=%s' % self.key))
         urld = {'next_step' : self.url('result'),
                 'input' : [self.url('tmp', 'input_2' + self.display_ext)]}
         return self.tmpl_out("run.html", urld=urld)

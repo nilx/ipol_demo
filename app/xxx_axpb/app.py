@@ -94,7 +94,7 @@ class app(base_app):
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
-        http.redir_303(self.url('result?key=%s' % self.key))
+        http.refresh(self.url('result?key=%s' % self.key))
         urld = {'input' : [self.url('tmp', 'input_0.png')]}
         return self.tmpl_out("run.html", urld=urld)
 

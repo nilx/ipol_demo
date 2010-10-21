@@ -180,7 +180,7 @@ class app(base_app):
                               errmsg="The parameters must be rationals.")
 
         # redirect to the result page
-        http.redir_303(self.url('result?key=%s' % self.key))
+        http.refresh(self.url('result?key=%s' % self.key))
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld,

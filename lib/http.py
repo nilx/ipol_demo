@@ -5,6 +5,18 @@ HTTP tools
 
 import cherrypy
 
+# HTTP 201 handling is poor
+# Browsers act like with HTTP 200, without redirection
+def success_201(url):
+    """
+    HTTP "201 Created"
+    """
+    cherrypy.response.status = "201 Created"
+    cherrypy.response.headers['Location'] = "%s" % url
+
+# HTTP 301-303 are fairly well supported
+# These codes can't be used for a web page because the document is not
+# displayed.
 def redir_301(url):
     """
     HTTP "301 Moved Permanently" redirection
@@ -27,7 +39,7 @@ def redir_303(url):
     cherrypy.response.headers['Location'] = "%s" % url
 
 # HTTP 307 implementation is not reliable
-# would be better for a POST->POST wait->run redirection
+# It would be better for a POST->POST wait->run redirection.
 # http://www.alanflavell.org.uk/www/post-redirect.html
 # http://stackoverflow.com/questions/46582/redirect-post
 def redir_307(url):
@@ -37,9 +49,13 @@ def redir_307(url):
     cherrypy.response.status = "307 Temporary Redirect"
     cherrypy.response.headers['Location'] = "%s" % url
 
-def refresh(url, delay=0):
+# HTTP Refresh is non-standard but supposedly well supported
+# It has the advantage of displaying the page content before requesting
+# the next page.
+# It appears that while html meta refresh is well supported,
+# HTTP Refresh is not and triggers loops in IE and Opera
+def refresh(url, delay=1):
     """
     HTTP "Refresh" header
     """
-    cherrypy.response.headers['Refresh'] = "%i; %s" % (delay, url)
-
+    cherrypy.response.headers['Refresh'] = "%i;url=%s" % (delay, url)

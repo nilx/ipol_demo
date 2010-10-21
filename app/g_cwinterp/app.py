@@ -94,7 +94,7 @@ class app(base_app):
         params handling and run redirection
         as a special case, we have no parameter to check and pass
         """
-        http.redir_303(self.url('result?key=%s' % self.key))
+        http.refresh(self.url('result?key=%s' % self.key))
         urld = {'next_step' : self.url('result'),
                 'input' : [self.url('tmp', 'input_%i.png' % i)
                            for i in range(self.input_nb)]}

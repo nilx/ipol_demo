@@ -117,7 +117,7 @@ class app(base_app):
         """
         # no parameter
         # redirect to the result page
-        http.redir_303(self.url('result?key=%s' % self.key))
+        http.refresh(self.url('result?key=%s' % self.key))
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld,
