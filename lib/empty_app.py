@@ -180,7 +180,9 @@ class empty_app(object):
         and raise an error if it doesn't
         """
         
-        if not self.key.isalnum() or not os.path.isdir(self.path('tmp')):
+        if not (self.key
+                and self.key.isalnum()
+                and os.path.isdir(self.path('tmp'))):
             raise cherrypy.HTTPError(400, # Bad Request
                                      "The key is invalid")
 

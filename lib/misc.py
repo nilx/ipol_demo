@@ -72,24 +72,10 @@ def get_check_key(func):
         """
         original function with a preliminary key check
         """
-        if kwargs.has_key('key'):
-            self.key = kwargs.pop('key', '')
+        self.key = kwargs.pop('key', None)
         self.check_key()
         return func(self, *args, **kwargs)
     return checked_func
-
-#
-# CHERRYPY REDIRECTION
-#
-
-def http_redirect_303(url):
-    """
-    HTTP "303 See Other" redirection
-    """
-    # TODO drop 303 code, rename this function
-#    cherrypy.response.status = "303 See Other"
-#    cherrypy.response.headers['Location'] = "%s" % url
-    cherrypy.response.headers['Refresh'] = "0; %s" % url
 
 #
 # BASE_APP REUSE
