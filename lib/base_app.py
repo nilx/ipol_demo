@@ -190,7 +190,7 @@ class base_app(empty_app):
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
         # jump to the params page
-        return self.params(msg=msg)
+        return self.params(msg=msg, key=self.key)
 
     def input_upload(self, **kwargs):
         """
@@ -221,7 +221,7 @@ class base_app(empty_app):
         msg = self.process_input()
         self.log("input uploaded")
         # jump to the params page
-        return self.params(msg=msg)
+        return self.params(msg=msg, key=self.key)
 
     #
     # ERROR HANDLING

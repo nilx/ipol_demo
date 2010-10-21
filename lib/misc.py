@@ -72,8 +72,7 @@ def get_check_key(func):
         """
         original function with a preliminary key check
         """
-        if kwargs.has_key('key'):
-            self.key = kwargs.pop('key', '')
+        self.key = kwargs.pop('key', None)
         self.check_key()
         return func(self, *args, **kwargs)
     return checked_func
