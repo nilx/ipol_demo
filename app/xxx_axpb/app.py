@@ -5,7 +5,8 @@ demo example for the X->aX+b transform
 
 from lib import base_app
 from lib import build
-from lib.misc import get_check_key, http_redirect_303, app_expose
+from lib import http
+from lib.misc import get_check_key, app_expose
 from lib.misc import index_dict, ctime
 
 import cherrypy
@@ -93,10 +94,9 @@ class app(base_app):
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
-        http_redirect_303(self.url('result', {'key':self.key}))
+        http.refresh(self.url('result?key=%s' % self.key))
         urld = {'input' : [self.url('tmp', 'input_0.png')]}
         return self.tmpl_out("run.html", urld=urld)
-
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific

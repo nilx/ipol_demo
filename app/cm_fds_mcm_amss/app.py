@@ -7,7 +7,8 @@ from lib import base_app
 from lib import index_dict
 from lib import image
 from lib import build
-from lib.misc import get_check_key, http_redirect_303, ctime
+from lib import http
+from lib.misc import get_check_key, ctime
 import os.path
 import time
 import shutil
@@ -234,7 +235,7 @@ class app(base_app):
             im.save(self.path('tmp', 'input_2' + self.input_ext))
             im.save(self.path('tmp', 'input_2' + self.display_ext))
 
-        http_redirect_303(self.url('result', {'key':self.key}))
+        http.refresh(self.url('result?key=%s' % self.key))
         urld = {'next_step' : self.url('result'),
                 'input' : [self.url('tmp', 'input_2' + self.display_ext)]}
         return self.tmpl_out("run.html", urld=urld)
