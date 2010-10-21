@@ -28,7 +28,6 @@ class app(base_app):
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.tiff' # input image expected extension (ie file format)
-    display_ext = '.png' # displayed image extention (ie. file format)
     is_test = True
 
     def __init__(self):
@@ -39,7 +38,7 @@ class app(base_app):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
 
-        # select the base_app steps to expose
+       # select the base_app steps to expose
         # index() is generic
         base_app.index.im_func.exposed = True
         # input_xxx() are modified from the template
@@ -145,11 +144,11 @@ class app(base_app):
 
 
         im.save(self.path('tmp', 'input_1' + self.input_ext))
-        im.save(self.path('tmp', 'input_1' + self.display_ext))
+        im.save(self.path('tmp', 'input_1.png'))
 
     @cherrypy.expose
     @get_check_key
-    def params(self, newrun=False, grid_step="0", msg=None):
+    def params(self, newrun=False, grid_step=0, msg=None):
         """
         configure the algo execution
         """
@@ -169,7 +168,8 @@ class app(base_app):
 
         urld = {'run' : self.url('run'),
                 'params' : self.url('params'),
-                'input' : [self.url('tmp', 'input_1' + self.display_ext)]}
+                'input' : [self.url('tmp', 'input_1.png?grid=%i' 
+                                    % int(grid_step))]}
         return self.tmpl_out("params.html", urld=urld, msg=msg)
 
     #
@@ -216,7 +216,7 @@ class app(base_app):
             #save input image as input_2
             im = image(self.path('tmp', 'input_0' + self.input_ext))
             im.save(self.path('tmp', 'input_2' + self.input_ext))
-            im.save(self.path('tmp', 'input_2' + self.display_ext))
+            im.save(self.path('tmp', 'input_2.png'))
         else :
             #select subimage 
             im = image(self.path('tmp', 'input_0' + self.input_ext))
@@ -233,11 +233,11 @@ class app(base_app):
             #set default image size
             im.resize((400, 400), method="nearest")
             im.save(self.path('tmp', 'input_2' + self.input_ext))
-            im.save(self.path('tmp', 'input_2' + self.display_ext))
+            im.save(self.path('tmp', 'input_2.png'))
 
         http.refresh(self.url('result?key=%s' % self.key))
         urld = {'next_step' : self.url('result'),
-                'input' : [self.url('tmp', 'input_2' + self.display_ext)]}
+                'input' : [self.url('tmp', 'input_2.png')]}
         return self.tmpl_out("run.html", urld=urld)
 
     # run_algo() is defined here,
@@ -260,9 +260,9 @@ class app(base_app):
                             self.path('tmp', 'output_AMSS' + self.input_ext)])
         self.wait_proc([p1, p2], timeout)
         im = image(self.path('tmp', 'output_MCM' + self.input_ext))
-        im.save(self.path('tmp', 'output_MCM' + self.display_ext))
+        im.save(self.path('tmp', 'output_MCM.png'))
         im = image(self.path('tmp', 'output_AMSS' + self.input_ext))
-        im.save(self.path('tmp', 'output_AMSS' + self.display_ext))
+        im.save(self.path('tmp', 'output_AMSS.png'))
 
     @cherrypy.expose
     @get_check_key
@@ -298,9 +298,9 @@ class app(base_app):
 
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_2' + self.display_ext)],
-                'output' : [self.url('tmp', 'output_MCM' + self.display_ext),
-                            self.url('tmp', 'output_AMSS' + self.display_ext)]
+                'input' : [self.url('tmp', 'input_2.png')],
+                'output' : [self.url('tmp', 'output_MCM.png'),
+                            self.url('tmp', 'output_AMSS.png')]
                 }
 
 
