@@ -17,7 +17,6 @@ class app(base_app):
     """ rgbprocess app """
 
     title = "RGB process"
-    description = "Processing of the RGB color cube of an image"
 
     input_nb = 1
     input_max_pixels = 480000 # max size (in pixels) of an input image

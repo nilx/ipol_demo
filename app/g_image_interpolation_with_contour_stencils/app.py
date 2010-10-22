@@ -18,8 +18,6 @@ class app(base_app):
     """ cwinterp app """
 
     title = "Image Interpolation with Contour Stencils"
-    description = "Edge-directed image interpolation" \
-        + " based on total variation along curves. "
 
     input_nb = 1
     input_max_pixels = 1048576 # max size (in pixels) of an input image

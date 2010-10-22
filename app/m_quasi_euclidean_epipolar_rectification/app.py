@@ -22,9 +22,6 @@ class app(base_app):
     """ template demo app """
     
     title = "Quasi-Euclidean Epipolar Rectification"
-    description = """Please select or upload the image pair to rectify.
-    Both images must have the same size.
-    """
 
     input_nb = 2 # number of input images
     input_max_pixels = 1024 * 1024 # max size (in pixels) of an input image
