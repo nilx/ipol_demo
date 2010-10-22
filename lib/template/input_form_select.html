@@ -1,0 +1,21 @@
+%if inputd:
+<form action="${urld['select_form']}" method="get">
+<fieldset> 
+<legend>Select Data</legend> 
+<p>
+Click on an image to use it as the algorithm input.
+</p>
+%for id in sorted(inputd.keys()):
+<div class="select_input">
+%for url in inputd[id]['tn_url']:
+  <input type="image" name="${id | h}"
+	 width="${tn_size}" height="${tn_size}"
+         src="${url}" alt="${inputd[id]['title'] | h}"/>
+%endfor
+  <span class="label">${inputd[id]['title'] | h}</span>
+</div>
+%endfor
+</fieldset>
+</form>
+%endif
+

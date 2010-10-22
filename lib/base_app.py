@@ -28,7 +28,6 @@ class base_app(empty_app):
     input_ext = '.tiff' # input image expected extention (ie. file format)
     timeout = 60 # subprocess execution timeout
     is_test = True
-    allow_upload = True
 
     def __init__(self, base_dir):
         """
@@ -111,8 +110,7 @@ class base_app(empty_app):
         return self.tmpl_out("input.html", urld=urld,
                              tn_size=tn_size,
                              inputd=inputd,
-                             input_nb=self.input_nb,
-                             allow_upload=self.allow_upload)
+                             input_nb=self.input_nb)
 
     #
     # INPUT HANDLING TOOLS
