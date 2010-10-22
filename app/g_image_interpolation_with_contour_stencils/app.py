@@ -23,6 +23,7 @@ class app(base_app):
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
+    test = False
 
     def __init__(self):
         """
