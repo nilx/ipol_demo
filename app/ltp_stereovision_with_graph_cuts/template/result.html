@@ -1,20 +1,23 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
-You can run again this algorithm with new data, or other parameter values.
+The algorithm result is displayed hereafter. It ran in ${run_time}s.
 </p>
 
 <form action="${urld['new_input']}" method="get">
 <fieldset>
-<legend>restart with new input</legend> 
+<p>
+Restart this algorithm with new input data.
+</p>
 <input type="submit" value="back to : input" />
 </fieldset> 
 </form>
 
 <form action="${urld['run']}" method="get">
 <fieldset>
-<legend>use other parameters</legend> 
+<p>
+Restart this algorithm with other parameters.
+</p> 
 <input type="hidden" name="key" value="${key}">
 <input type="hidden" name="new_run" value="1">
 <label for="K"> K = </label>
@@ -43,6 +46,7 @@ You can run again this algorithm with new data, or other parameter values.
 </form>
 
 <h2>result</h2>
+
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
 <li><a href="#">disparity map, K=${k_used}, lambda=${lambda_used}
