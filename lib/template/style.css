@@ -13,6 +13,9 @@
     background: none;
     color: #990000; }
 
+.stdio {
+    font-size: 80%; }
+
 /***** forms ****/
 
 form div.select_input {

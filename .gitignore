@@ -23,7 +23,7 @@ app/*/*.zip
 app/*/tmp
 
 # ignore the thumbnails
-app/*/input/*.__*__.png
+app/*/input/.__*
 
 #ignore backup files
 *~

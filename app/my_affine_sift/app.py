@@ -18,10 +18,6 @@ class app(base_app):
     """ demo app """
     
     title = "ASIFT: A New Framework for Fully Affine Invariant Comparison"
-    description = """This program performs the affine scale-invariant
-    matching method known as ASIFT.<br />
-    Please select two images; color images will be converted into gray
-    level."""
 
     input_nb = 2
     input_max_pixels = None

@@ -1,13 +1,16 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
-You can run again this algorithm with new data.
+The algorithm result is displayed hereafter. It ran in ${run_time}s.
 </p>
 
 <form action="${urld['new_input']}" method="get">
-new input data:
+<fieldset>
+<p>
+You can run again this algorithm with new data.
+</p>
 <input type="submit" value="back to : input" />
+</fieldset>
 </form>
 
 <hr />
@@ -19,7 +22,6 @@ new input data:
 <li><a href="#">Filtered
     <span><img src=${urld['output'][0]} /></span></a></li>
 </ul>
-</div>
 
 <div class="gallery">
 <ul class="index">
@@ -30,7 +32,5 @@ new input data:
 <li><a href="#">Density
     <span><img src=${urld['outputViews'][1]} /></span></a></li>
 </ul> 
-</div> 
-
 
 <%include file="footer.html" />

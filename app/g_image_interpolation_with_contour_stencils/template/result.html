@@ -2,15 +2,17 @@
 
 <p>
 The algorithm result is displayed hereafter.<br />
-You can run again this algorithm with new data.
-</p>
-<p>
-Notice that if the input image dimensions are not divisible by 4, then the image has been cropped.
+Notice that if the input image dimensions are not divisible by 4, then
+the image has been cropped.
 </p>
 
 <form action="${urld['new_input']}" method="get">
-new input data:
+<fieldset> 
+<p>
+You can run again this algorithm with new data.
+</p>
 <input type="submit" value="back to : input" />
+</fieldset> 
 </form>
 
 <hr />
@@ -28,14 +30,9 @@ new input data:
 </ul>
 </div>
 
-<hr />
-
-<div>
 <h2>stdout</h2>
-<pre class="stdio" style="font-size:80%">
+<pre class="stdio">
 ${stdout}
 </pre>
-
-</div>
 
 <%include file="footer.html" />

@@ -20,8 +20,6 @@ class app(base_app):
     """ mcm_amss app """
 
     title = "Finite Difference Schemes for MCM and AMSS"
-    description = "Image filtering techniques based on FDSs" \
-        + " for the MCM and the AMSS"
 
     input_nb = 1
     input_max_pixels = 480000 # max size (in pixels) of an input image

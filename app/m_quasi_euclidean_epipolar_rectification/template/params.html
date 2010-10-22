@@ -1,19 +1,17 @@
 <%include file="header.html" />
 
+<form action="${urld['next_step']}" method="get">
+<fieldset>
 <p>
-%if msg:
-${msg | h}<br/>
-%endif
 You can now run the rectification process.
 </p>
-
-
-<form action="${urld['next_step']}" method="get">
 <input type="hidden" name="key" value="${key}">
 <input type="submit" value="next step : run" />
+</fieldset>
 </form>
 
 <h2>input images</h2>
+
 <div class="gallery" style="height: 1024px;">
 <ul class="index">
 <li><a href="#">first image
@@ -24,4 +22,3 @@ You can now run the rectification process.
 </div>
 
 <%include file="footer.html" />
-

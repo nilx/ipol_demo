@@ -18,9 +18,6 @@ class app(base_app):
     """ template demo app """
     
     title = "f(x)=ax+b"
-    description = """This example demo interface performs the simple
-    <i>f(x)=ax+b</i> transform on an image."""
-
     input_nb = 1 # number of input images
     input_max_pixels = 500000 # max size (in pixels) of an input image
     input_max_weight = 1 * 1024 * 1024 # max size (in bytes) of an input file

@@ -20,4 +20,6 @@ tools.cgitb.on = True
 download.auth.urlbase = "https://edit.ipol.im/"
 download.auth.username = "<your user name>"
 download.auth.password = "<your password>"
+# input thumbnail size
+input.thumbnail.size = 128
 

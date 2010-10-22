@@ -20,8 +20,6 @@ class base_app(empty_app):
     # default class attributes
     # to be modified in subclasses
     title = "base demo"
-    description = "This demo contains all the generic actions," \
-        + "none of which should be exposed."
 
     input_nb = 1 # number of input files
     input_max_pixels = 1024 * 1024 # max size of an input image
@@ -30,7 +28,6 @@ class base_app(empty_app):
     input_ext = '.tiff' # input image expected extention (ie. file format)
     timeout = 60 # subprocess execution timeout
     is_test = True
-    allow_upload = True
 
     def __init__(self, base_dir):
         """
@@ -51,10 +48,7 @@ class base_app(empty_app):
             directories=[os.path.join(self.base_dir,'template'), tmpl_dir],
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
-        # [TEST] flag
-        if self.is_test:
-            self.title = '[TEST] ' + self.title
-
+ 
         # TODO early attributes validation
 
     #
@@ -69,8 +63,7 @@ class base_app(empty_app):
         attrd = dict([(attr, getattr(self, attr, ''))
                       for attr in ['id',
                                    'key',
-                                   'title',
-                                   'description']])
+                                   'title']])
         kwargs.update(attrd)
 
         # create urld if it doesn't exist
@@ -103,7 +96,9 @@ class base_app(empty_app):
             # by splitting at blank characters
             inputd[key]['files'] = inputd[key]['files'].split()
             # generate thumbnails and thumbnail urls
-            tn_fname = [thumbnail(self.path('input', fname))
+            tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
+            tn_fname = [thumbnail(self.path('input', fname),
+                                  (tn_size,tn_size))
                         for fname in inputd[key]['files']]
             inputd[key]['tn_url'] = [self.url('input',
                                               os.path.basename(fname))
@@ -113,9 +108,9 @@ class base_app(empty_app):
         urld = {'select_form' : self.url('input_select'),
                 'upload_form' : self.url('input_upload')}
         return self.tmpl_out("input.html", urld=urld,
+                             tn_size=tn_size,
                              inputd=inputd,
-                             input_nb=self.input_nb,
-                             allow_upload=self.allow_upload)
+                             input_nb=self.input_nb)
 
     #
     # INPUT HANDLING TOOLS

@@ -2,33 +2,35 @@
 
 <p>
 The results of the algorithm are displayed hereafter.
-The CPU time required was ${run_time}s.<br />
-You can run again the numerical schemes with new data or new parameters.
+The CPU time required was ${run_time}s.
 </p>
 
 
 <form action="${urld['new_input']}" method="get">
-new input data:
+<fieldset>
+<p>
+Run again the numerical schemes with new data.
+</p>
 <input type="submit" value="back to : input" />
+</fieldset>
 </form>
 
-<br>
-
 <form action="${urld['new_run']}" method="get">
-new parameters:
+<fieldset>
+<p>
+Run again the numerical schemes with new parameters.
+</p>
 <input type="hidden" name="key" value="${key}">
 <input type="hidden" name="newrun" value=True>
 <input type="submit" value="back to : parameters selection" />
+<fieldset>
 </form>
-
-<br>
 
 <hr />
 
-
-<p>
+<h2>
 Results at normalized scale R=${scaleRnorm} (zooming factor=${zoomfactor})
-</p>
+</h2>
 
 <div class="gallery">
 <ul class="index">
@@ -40,7 +42,5 @@ Results at normalized scale R=${scaleRnorm} (zooming factor=${zoomfactor})
     <span><img src=${urld['output'][1]} /></span></a></li>
 </ul>
 </div>
-
-
 
 <%include file="footer.html" />

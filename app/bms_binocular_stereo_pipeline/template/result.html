@@ -1,17 +1,20 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+The algorithm result is displayed hereafter. It ran in ${run_time}s.
 </p>
 
 <form action="${urld['new_input']}" method="get">
 <fieldset>
-<legend>restart with new input</legend> 
+<p>
+Restart with new input.
+</p>
 <input type="submit" value="back to : input" />
 </fieldset> 
 </form>
 
 <h2>input images</h2>
+
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
 <li><a href="#">first image
@@ -22,6 +25,7 @@ The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
 </div>
 
 <h2>rectified images and disparity maps</h2>
+
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
 <li><a href="#">second image
@@ -59,7 +63,8 @@ The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
 </ul>
 
 <h2>stdout</h2>
-<pre>
+
+<pre class="stdio">
 ${stdout}
 </pre>
 

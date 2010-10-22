@@ -66,14 +66,6 @@ class app(base_app):
     """ template demo app """
     
     title = "Computing Visual Correspondence with Occlusions using Graph Cuts"
-    description = """V. Kolmogorov and R. Zabih's method tries to minimize an 
-    energy defined on all possible configurations.<br />
-    Please select two images; color images will be converted into gray
-    level; images larger than 1M pixels will be resized.<br/>
-    Warning: this algorithm only works on orthorectified images. If
-    your pair is not orthorectified, use 
-    <a href='../../m_quasi_euclidean_epipolar_rectification/'>a
-    rectification step</a> first."""
 
     input_nb = 2 # number of input images
     input_max_pixels = 1024*1024 # max size (in pixels) of an input image
