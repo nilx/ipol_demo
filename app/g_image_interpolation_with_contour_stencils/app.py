@@ -17,7 +17,7 @@ import time
 class app(base_app):
     """ cwinterp app """
 
-    title = "Contour Stencil Windowed Interpolation"
+    title = "Image Interpolation with Contour Stencils"
     description = "Edge-directed image interpolation" \
         + " based on total variation along curves. "
 
