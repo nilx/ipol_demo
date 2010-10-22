@@ -5,6 +5,7 @@
 <p>
 Click on an image to use it as the algorithm input.
 </p>
+<div style="max-height:30em; overflow:auto;">
 %for id in sorted(inputd.keys()):
 <div class="select_input">
 %for url in inputd[id]['tn_url']:
@@ -15,6 +16,7 @@ Click on an image to use it as the algorithm input.
   <span class="label">${inputd[id]['title'] | h}</span>
 </div>
 %endfor
+</div>
 </fieldset>
 </form>
 %endif
