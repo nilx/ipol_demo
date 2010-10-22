@@ -12,7 +12,6 @@ import cherrypy
 from cherrypy import TimeoutError
 from lib import image
 import os.path
-import time
 
 class app(base_app):
     """ cwinterp app """
@@ -24,7 +23,7 @@ class app(base_app):
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
-    is_test = True
+    test = True;
 
     def __init__(self):
         """
@@ -61,7 +60,8 @@ class app(base_app):
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
-        if all([(os.path.isfile(bin_file) and ctime(tgz_file) < ctime(bin_file))
+        if all([(os.path.isfile(bin_file)
+                 and ctime(tgz_file) < ctime(bin_file))
                 for bin_file in src_bin.values()]):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
@@ -108,26 +108,19 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-        """
-        the core algo runner
-        could also be called by a batch processor
-        this one needs no parameter
-        """
-
-        #check image dimensions (must be divisible by 4)
+        # check image dimensions (must be divisible by 4)
         img0 = image(self.path('tmp', 'input_0.png'))
-        sizeX = img0.size[0]
-        sizeY = img0.size[1]
-        sizeXX = (sizeX/4)*4
-        sizeYY = (sizeY/4)*4
-        img0.crop((0, 0, sizeXX, sizeYY))       
-        img0.save(self.path('tmp', 'input_1.png'))
-
+        (sizeX, sizeY) = img0.size
+        if (sizeX % 4 or sizeY % 4):
+            sizeX = (sizeX / 4) * 4
+            sizeY = (sizeY / 4) * 4
+            img0.crop((0, 0, sizeX, sizeY))       
+            img0.save(self.path('tmp', 'input_0.png'))
 
         a = 4
         b = 0.35
         p = self.run_proc(['imcoarsen', str(a), str(b),
-                           'input_1.png', 'coarsened.png'],
+                           'input_0.png', 'coarsened.png'],
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p, timeout)
 
@@ -138,13 +131,10 @@ class app(base_app):
                            stdout=stdout, stderr=stdout)
         self.wait_proc(p2, timeout)
 
-        p3 = self.run_proc(['imdiff', 'input_1.png', 'interpolated.png'],
+        p3 = self.run_proc(['imdiff', 'input_0.png', 'interpolated.png'],
                           stdout=stdout, stderr=stdout)
         self.wait_proc([p3, p4], timeout)
 
-        img0 = image(self.path('tmp', 'input_1.png'))
-        sizeX = img0.size[0]
-        sizeY = img0.size[1]
         img1 = image(self.path('tmp', 'coarsened.png'))
         img1.resize((sizeX, sizeY), method="nearest")
         img1.save(self.path('tmp', 'coarsenedZ.png'))
@@ -159,11 +149,8 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # run the algorithm
-        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
         try:
-            run_time = time.time()
-            self.run_algo(stdout=stdout)
-            run_time = time.time() - run_time
+            self.run_algo(stdout=open(self.path('tmp', 'stdout.txt'), 'w'))
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -171,14 +158,16 @@ class app(base_app):
         self.log("input processed")
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_1.png')],
+                'input' : [self.url('tmp', 'input_0.png')],
                 'output' : [self.url('tmp', 'coarsenedZ.png'),
                             self.url('tmp', 'interpolated.png'),
                             self.url('tmp', 'contourori.png')],
                 }
         stdout = open(self.path('tmp', 'stdout.txt'), 'r')
-        img0 = image(self.path('tmp', 'input_1.png'))
-        sizeX = img0.size[0]
-        sizeY = img0.size[1]
-        return self.tmpl_out("result.html", height=sizeY ,urld=urld, stdout=stdout.read())
+        img0 = image(self.path('tmp', 'input_0.png'))
+        (sizeX, sizeY) = img0.size
+        return self.tmpl_out("result.html", 
+                             height=sizeY ,
+                             urld=urld, 
+                             stdout=stdout.read())
 
