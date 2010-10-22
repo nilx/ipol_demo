@@ -1,16 +1,11 @@
 <%include file="header.html" />
 
-
-
-
-<span class="title">
-MCM and AMSS algorithms demo
-</span>
-
-<div id="content">
-
+<p>
+You can now choose the parameters, and run the numerical schemes.
+<p>
 
 <form action="${urld['run']}" method="get">
+<fieldset>
 <input type="hidden" name="key" value="${key}">
 <p>
 Select normalized scale (at normalized scale R a disk of radius R disappears):
@@ -27,13 +22,17 @@ Select normalized scale (at normalized scale R a disk of radius R disappears):
 </select>
 </p>
 <p>Click on the image to run algorithms or select a portion of it 
-using a grid (such a portion will be rescaled to 400x400 pixels before processing).<br/>
+using a grid (such a portion will be rescaled to 400x400 pixels before
+processing).
+</p>
 <input type="image" name="" src="${urld['input'][0]}" /> 
 </form>
 
-<p>Redraw the grid with a different step size.
 <form action="${urld['params']}" method="get">
-step 
+<p>
+Redraw the grid with a different step size.
+</p>
+<input type="hidden" name="key" value="${key}">
 <select name="grid_step">
   <option value="0" selected>No grid (zoom 1x)</option>
   <option value="50">50 (zoom 8x)</option>
@@ -41,11 +40,7 @@ step
   <option value="100">100 (zoom 4x)</option>
   <option value="200">200 (zoom 2x)</option>
 </select>
-<input type="hidden" name="key" value="${key}">
 <input type="submit" value="Redraw" />
-</form></p>
-
-</div>
-
+</form>
 
 <%include file="footer.html" />
