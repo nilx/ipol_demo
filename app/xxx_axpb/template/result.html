@@ -1,33 +1,41 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed  hereafter.<br />
-You can run again this algorithm, with new data or other parameters
+The algorithm result is displayed  hereafter.
 </p>
 
 <form action="${urld['new_input']}" method="get">
-new input data:
+<fieldset>
+<p>
+Restart this algorithm with new data.
+</p>
 <input type="submit" value="back to : input" />
+<fieldset>
 </form>
 
 <form action="${urld['new_run']}" method="get">
+<fieldset>
+<p>
+Restart this algorithm with new parameters.
+</p>
 <input type="hidden" name="key" value="${key}">
 <input type="hidden" name="newrun" value="1">
-new parameters:
 <input type="submit" value="back to : parameters" />
+</fieldset>
 </form>
 
 <hr />
 
-<div>
 <h2>input</h2>
+
 % for url in urld['input']:
 <img src="${url}" alt="" /> <br/>
 % endfor
+
 <h2>output</h2>
+
 % for url in urld['output']:
 <img src="${url}" alt="" /> <br/>
 % endfor
-</div>
 
 <%include file="footer.html" />
