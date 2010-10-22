@@ -7,6 +7,8 @@ image tools
 # IMAGE THUMBNAILER
 #
 
+from .misc import ctime
+
 import os.path
 import PIL.Image
 import PIL.ImageDraw
@@ -26,9 +28,10 @@ def thumbnail(location, size=(128, 128), ext=".png"):
     (folder, fname) = os.path.split(location)
     basename = os.path.splitext(fname)[0]
 
-    tn_location = os.path.join(folder,
-                               basename + ".__%ix%i__" % size + ext)
-    if not os.path.isfile(tn_location):
+    tn_location = os.path.join(folder, ".__%ix%i__" % size
+                               + basename + ext)
+    if not (os.path.isfile(tn_location)
+            and ctime(location) < ctime(tn_location)):
         # no thumbnail, create it
         im = PIL.Image.open(location)
         tn = PIL.Image.new('RGBA', size, (0, 0, 0, 0))

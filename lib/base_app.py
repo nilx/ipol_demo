@@ -100,7 +100,9 @@ class base_app(empty_app):
             # by splitting at blank characters
             inputd[key]['files'] = inputd[key]['files'].split()
             # generate thumbnails and thumbnail urls
-            tn_fname = [thumbnail(self.path('input', fname))
+            tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
+            tn_fname = [thumbnail(self.path('input', fname),
+                                  (tn_size,tn_size))
                         for fname in inputd[key]['files']]
             inputd[key]['tn_url'] = [self.url('input',
                                               os.path.basename(fname))
@@ -110,6 +112,7 @@ class base_app(empty_app):
         urld = {'select_form' : self.url('input_select'),
                 'upload_form' : self.url('input_upload')}
         return self.tmpl_out("input.html", urld=urld,
+                             tn_size=tn_size,
                              inputd=inputd,
                              input_nb=self.input_nb,
                              allow_upload=self.allow_upload)
