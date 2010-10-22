@@ -51,10 +51,7 @@ class base_app(empty_app):
             directories=[os.path.join(self.base_dir,'template'), tmpl_dir],
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
-        # [TEST] flag
-        if self.is_test:
-            self.title = '[TEST] ' + self.title
-
+ 
         # TODO early attributes validation
 
     #
