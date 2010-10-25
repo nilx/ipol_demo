@@ -1,0 +1,85 @@
+<%include file="header.html" />
+
+<p>
+The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+You can run again this algorithm with new data.
+</p>
+
+<form action="${urld['new_input']}" method="get">
+new input data:
+<input type="submit" value="back to : input" />
+</form>
+
+<hr />
+
+<div class="gallery">
+<ul class="index">
+<li><a href="#">Original
+    <span><img src=${urld['input'][0]} /></span></a></li>
+<li><a href="#">Filtered
+    <span><img src=${urld['output'][0]} /></span></a></li>
+</ul>
+</div>
+
+RGB views: original, filtered, density view
+<div class="gallery">
+<ul class="index">
+<li><a href="#">View 1
+    <span><img src=${urld['views'][0]} /></span></a></li>
+<li><a href="#">View 2
+    <span><img src=${urld['views'][1]} /></span></a></li>
+<li><a href="#">View 3
+    <span><img src=${urld['views'][2]} /></span></a></li>
+<li><a href="#">View 4
+    <span><img src=${urld['views'][3]} /></span></a></li>
+<li><a href="#">View 5
+    <span><img src=${urld['views'][4]} /></span></a></li>
+<li><a href="#">View 6
+    <span><img src=${urld['views'][5]} /></span></a></li>
+<li><a href="#">View 7
+    <span><img src=${urld['views'][6]} /></span></a></li>
+<li><a href="#">View 8
+    <span><img src=${urld['views'][7]} /></span></a></li>
+<li><a href="#">View 9
+    <span><img src=${urld['views'][8]} /></span></a></li>
+<li><a href="#">View 10
+    <span><img src=${urld['views'][9]} /></span></a></li>
+<li><a href="#">View 11
+    <span><img src=${urld['views'][10]} /></span></a></li>
+<li><a href="#">View 12
+    <span><img src=${urld['views'][11]} /></span></a></li>
+<li><a href="#">View 13
+    <span><img src=${urld['views'][12]} /></span></a></li>
+<li><a href="#">View 14
+    <span><img src=${urld['views'][13]} /></span></a></li>
+<li><a href="#">View 15
+    <span><img src=${urld['views'][14]} /></span></a></li>
+<li><a href="#">View 16
+    <span><img src=${urld['views'][15]} /></span></a></li>
+<li><a href="#">View 17
+    <span><img src=${urld['views'][16]} /></span></a></li>
+<li><a href="#">View 18
+    <span><img src=${urld['views'][17]} /></span></a></li>
+<li><a href="#">View 19
+    <span><img src=${urld['views'][18]} /></span></a></li>
+<li><a href="#">View 20
+    <span><img src=${urld['views'][19]} /></span></a></li>
+<li><a href="#">View 21
+    <span><img src=${urld['views'][20]} /></span></a></li>
+<li><a href="#">View 22
+    <span><img src=${urld['views'][21]} /></span></a></li>
+<li><a href="#">View 23
+    <span><img src=${urld['views'][22]} /></span></a></li>
+<li><a href="#">View 24
+    <span><img src=${urld['views'][23]} /></span></a></li>
+<li><a href="#">View 25
+    <span><img src=${urld['views'][24]} /></span></a></li>
+<li><a href="#">View 26
+    <span><img src=${urld['views'][25]} /></span></a></li>
+<li><a href="#">View 27
+    <span><img src=${urld['views'][26]} /></span></a></li>
+</ul> 
+</div> 
+
+
+<%include file="footer.html" />

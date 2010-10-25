@@ -147,7 +147,7 @@ class app(base_app):
 
         """
         Version 2
-        """
+
         p = self.run_proc(['rgbprocess', 'rmisolated',
                            'input_0.png', 'input_1.png'],
                           stdout=stdout, stderr=stdout)
@@ -171,6 +171,51 @@ class app(base_app):
                             'output_1.png', 'input_0.png', 'output_2.png'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p2, p4, p5, p6], timeout)
+	"""
+
+	""" 
+	Version 3
+
+	"""
+
+	print "remove isolated"
+        p1 = self.run_proc(['rgbprocess', 'rmisolated', 'input_0.png', 'input_1.png'], stdout=stdout, stderr=stdout)
+
+	print "view parameters"
+        p2 = self.run_proc(['rgbprocess', 'RGBviewsparams', 'RGBviewsparams.txt'], stdout=stdout, stderr=stdout)
+        self.wait_proc([p1, p2], timeout)
+
+	print "LLP2"
+        p3 = self.run_proc(['rgbprocess', 'filter', 'input_1.png', 'output_1.png'],
+                           stdout=stdout, stderr=stdout)
+        wOut = 256
+        hOut = 256
+	displayDensity=0
+	print "original views"
+        p4 = self.run_proc(['rgbprocess', 'RGBviews', 'input_1.png', 'RGBviewsparams.txt', 'inRGB', 
+			   str(wOut), str(hOut), str(displayDensity)], stdout=stdout, stderr=stdout)
+        self.wait_proc([p3, p4], timeout)
+
+
+	print "filtered views"
+        p5 = self.run_proc(['rgbprocess', 'RGBviews', 'output_1.png', 'RGBviewsparams.txt', 'outRGB', 
+			   str(wOut), str(hOut), str(displayDensity)], stdout=stdout, stderr=stdout)
+ 	displayDensity=1
+
+	print "density views"
+        p6 = self.run_proc(['rgbprocess', 'RGBviews', 'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
+			   str(wOut), str(hOut), str(displayDensity)], stdout=stdout, stderr=stdout)
+        self.wait_proc([p5, p6], timeout)
+
+ 	print "combine views"
+        p7 = self.run_proc(['rgbprocess', 'combineviews', 'RGBviewsparams.txt', 'inRGB', 'outRGB', 'dstyRGB', 'view'], 
+			   stdout=stdout, stderr=stdout)
+
+	print "merge images"
+        p8 = self.run_proc(['rgbprocess', 'mergeimages', 'output_1.png', 'input_0.png', 'output_2.png'],
+                           stdout=stdout, stderr=stdout)
+        self.wait_proc([p7, p8], timeout)
+
 
     @cherrypy.expose
     @get_check_key
@@ -213,7 +258,7 @@ class app(base_app):
 
         """
         Version 2
-        """
+
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
                 'input' : [self.url('tmp', 'input_0.png'),
@@ -224,9 +269,27 @@ class app(base_app):
                                  self.url('tmp', 'dstview123.png')]
                 }
 
+	"""
+
+        """
+        Version 3
+	"""
+
+        urld = {'new_run' : self.url('params'),
+                'new_input' : self.url('index'),
+                'input' : [self.url('tmp', 'input_0.png')],
+                'output' : [self.url('tmp', 'output_2.png')],
+                'views' : [self.url('tmp', 'view_%i.png' % i) 
+			   for i in range(100, 127)]
+                }
+
 
         #return self.tmpl_out("result.html", urld=urld,
         #                     run_time="%0.2f" % run_time)
-        return self.tmpl_out("result2.html", urld=urld,
-                             run_time="%0.2f" % run_time)
+        #return self.tmpl_out("result2.html", urld=urld,
+        #                    run_time="%0.2f" % run_time)
+        return self.tmpl_out("result3.html", urld=urld,
+                            run_time="%0.2f" % run_time)
+
+
 
