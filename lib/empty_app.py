@@ -22,7 +22,7 @@ class empty_app(object):
     """
     This app only contains configuration and tools, no actions.
     """
-    # TODO : rewrite the path/url functions
+    # TODO : rewrite the url functions
 
     def __init__(self, base_dir):
         """
@@ -59,30 +59,6 @@ class empty_app(object):
             (lambda x : None)
         self.tmp = cherrypy.tools.staticdir(dir=self.tmp_dir)\
             (lambda x : None)
-
-    #
-    # FILE PATH MODEL 
-    #
-
-    def path(self, folder, fname=''):
-        """
-        file path scheme
-
-        @param folder: the path folder category:
-          - tmp : the unique temporary folder (using the key)
-          - bin : the binary folder
-          - input : the input folder
-        @return: the local file path
-        """
-        # TODO use key instead of tmp
-        if folder == 'tmp':
-            # TODO check key != None
-            path = os.path.join(self.tmp_dir, self.key, fname)
-        elif folder == 'bin':
-            path = os.path.join(self.bin_dir, fname)
-        elif folder == 'input':
-            path = os.path.join(self.input_dir, fname)
-        return os.path.abspath(path)
 
     #
     # URL MODEL 
@@ -216,10 +192,10 @@ class empty_app(object):
         newenv = os.environ.copy()
         # TODO clear the PATH, hard-rewrite the exec arg0
         # TODO use shell-string execution
-        newenv.update({'PATH' : self.path('bin')})
+        newenv.update({'PATH' : self.bin_dir})
         # run
         return Popen(args, stdin=stdin, stdout=stdout, stderr=stderr,
-                     env=newenv, cwd=self.path('tmp'))
+                     env=newenv, cwd=self.key_dir)
 
     def wait_proc(self, process, timeout=False):
         """

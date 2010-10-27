@@ -91,14 +91,14 @@ class base_app(empty_app):
         demo presentation and input menu
         """
         # read the input index as a dict
-        inputd = index_dict(self.path('input'))
+        inputd = index_dict(self.input_dir)
         for key in inputd.keys():
             # convert the files to a list of file names
             # by splitting at blank characters
             inputd[key]['files'] = inputd[key]['files'].split()
             # generate thumbnails and thumbnail urls
             tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
-            tn_fname = [thumbnail(self.path('input', fname),
+            tn_fname = [thumbnail(os.path.join(self.input_dir, fname),
                                   (tn_size,tn_size))
                         for fname in inputd[key]['files']]
             inputd[key]['tn_url'] = [self.url('input',
@@ -125,7 +125,7 @@ class base_app(empty_app):
         for i in range(self.input_nb):
             # open the file as an image
             try:
-                im = image(self.path('tmp', 'input_%i' % i))
+                im = image(os.path.join(self.key_dir, 'input_%i' % i))
             except IOError:
                 raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -139,11 +139,11 @@ class base_app(empty_app):
                 msg = """The image has been resized
                       for a reduced computation time."""
             # save a working copy
-            im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
+            im.save(os.path.join(self.key_dir, 'input_%i' % i + self.input_ext))
             # save a web viewable copy
-            im.save(self.path('tmp', 'input_%i.png' % i))
+            im.save(os.path.join(self.key_dir, 'input_%i.png' % i))
             # delete the original
-            os.unlink(self.path('tmp', 'input_%i' % i))
+            os.unlink(os.path.join(self.key_dir, 'input_%i' % i))
         return msg
 
     def clone_input(self):
@@ -151,8 +151,8 @@ class base_app(empty_app):
         clone the input for a re-run of the algo
         """
         # get a new key
-        oldkey = self.key
-        oldpath = self.path('tmp')
+        old_key = self.key
+        old_key_dir = self.key_dir
         self.new_key()
         # copy the input files
         fnames = ['input_%i' % i + self.input_ext
@@ -160,9 +160,9 @@ class base_app(empty_app):
         fnames += ['input_%i.png' % i
                    for i in range(self.input_nb)]
         for fname in fnames:
-            shutil.copy(os.path.join(oldpath, fname),
-                        os.path.join(self.path('tmp'), fname))
-        self.log("input cloned from %s" % oldkey)
+            shutil.copy(os.path.join(old_key_dir, fname),
+                        os.path.join(self.key_dir, fname))
+        self.log("input cloned from %s" % old_key)
         return
 
     #
@@ -178,11 +178,11 @@ class base_app(empty_app):
         input_id = kwargs.keys()[0].split('.')[0]
         assert input_id == kwargs.keys()[1].split('.')[0]
         # get the images
-        input_dict = index_dict(self.path('input'))
+        input_dict = index_dict(self.input_dir)
         fnames = input_dict[input_id]['files'].split()
         for i in range(len(fnames)):
-            shutil.copy(self.path('input', fnames[i]),
-                        self.path('tmp', 'input_%i' % i))
+            shutil.copy(os.path.join(self.input_dir, fnames[i]),
+                        os.path.join(self.key_dir, 'input_%i' % i))
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
         # jump to the params page
@@ -195,7 +195,7 @@ class base_app(empty_app):
         self.new_key()
         for i in range(self.input_nb):
             file_up = kwargs['file_%i' % i]
-            file_save = file(self.path('tmp', 'input_%i' % i), 'wb')
+            file_save = file(os.path.join(self.key_dir, 'input_%i' % i), 'wb')
             if '' == file_up.filename:
                 # missing file
                 raise cherrypy.HTTPError(400, # Bad Request
