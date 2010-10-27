@@ -158,7 +158,7 @@ class app(base_app):
         """
         # save and validate the parameters
         try:
-            params_file = index_dict(self.path('tmp'))
+            params_file = index_dict(self.key_dir)
             params_file['params'] = {}
             if 'K' in kwargs:
                 k = str2frac(kwargs['K'])
@@ -176,32 +176,32 @@ class app(base_app):
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld,
-                             height=image(self.path('tmp', 
-                                                    'input_0.png')).size[1])
+                             height=image(os.path.join(self.key_dir, 
+                                                       'input_0.png')).size[1])
 
     def compute_k_auto(self):
         """
         compute default K and lambda values
         """
         # create autok.conf file
-        kfile = open(self.path('tmp', 'autok.conf'), 'w')
+        kfile = open(os.path.join(self.key_dir, 'autok.conf'), 'w')
         kfile.write("LOAD_COLOR input_0.ppm input_1.ppm\n")
         kfile.write("SET disp_range -15 0 0 0\n")
         kfile.close()
         
         # run autok
-        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
+        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
         p = self.run_proc(['autoK', 'autok.conf'],
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p)
         stdout.close()
         
         # get k from stdout
-        stdout = open(self.path('tmp', 'stdout.txt'), 'r')
+        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'r')
         k_auto = str2frac(stdout.readline()) 
         lambda_auto = simplify_frac((k_auto[0], k_auto[1] * 5))
         stdout.close()
-        params_file = index_dict(self.path('tmp'))
+        params_file = index_dict(self.key_dir)
         params_file['params']['k_auto'] = frac2str(k_auto)
         params_file['params']['lambda_auto'] = frac2str(lambda_auto)
         params_file.save()
@@ -214,11 +214,11 @@ class app(base_app):
         this one needs no parameter
         """
         # get the default parameters
-        params_file = index_dict(self.path('tmp'))
+        params_file = index_dict(self.key_dir)
         if 'k_auto' not in params_file['params']:
             del params_file
             (k_auto, lambda_auto) = self.compute_k_auto()
-            params_file = index_dict(self.path('tmp'))
+            params_file = index_dict(self.key_dir)
         else:
             k_auto = str2frac(params_file['params']['k_auto'])
             lambda_auto = str2frac(params_file['params']['lambda_auto'])
@@ -234,18 +234,18 @@ class app(base_app):
         nproc = 6   # number of slices
         margin = 6  # overlap margin 
 
-        input0_fnames = image(self.path('tmp', 'input_0.ppm')) \
+        input0_fnames = image(os.path.join(self.key_dir, 'input_0.ppm')) \
             .split(nproc, margin=margin,
-                   fname=self.path('tmp', 'input0_split.ppm'))
-        input1_fnames = image( self.path('tmp', 'input_1.ppm')) \
+                   fname=os.path.join(self.key_dir, 'input0_split.ppm'))
+        input1_fnames = image( os.path.join(self.key_dir, 'input_1.ppm')) \
             .split(nproc, margin=margin,
-                   fname=self.path('tmp', 'input1_split.ppm'))
+                   fname=os.path.join(self.key_dir, 'input1_split.ppm'))
         output_fnames = ['output_split.__%0.2i__.png' % n
                          for n in range(nproc)]
         plist = []
         for n in range(nproc):
             # creating the conf files (one per process)
-            conf_file = open(self.path('tmp', 'match_%i.conf' % n),'w')
+            conf_file = open(os.path.join(self.key_dir, 'match_%i.conf' % n),'w')
             conf_file.write("LOAD_COLOR %s %s\n"
                             % (input0_fnames[n], input1_fnames[n]))
             conf_file.write("SET disp_range -15 0 0 0\n")
@@ -264,15 +264,16 @@ class app(base_app):
         self.wait_proc(plist, timeout)
 
         # join all the partial results into a global one
-        output_img = image().join([image(self.path('tmp', output_fnames[n]))
+        output_img = image().join([image(os.path.join(self.key_dir,
+                                                      output_fnames[n]))
                                    for n in range(nproc)], margin=margin)
-        output_img.save(self.path('tmp', fname='disp_output.ppm'))
+        output_img.save(os.path.join(self.key_dir, 'disp_output.ppm'))
 
         # delete the strips
         for fname in input0_fnames + input1_fnames:
             os.unlink(fname)
         for fname in output_fnames:
-            os.unlink(self.path('tmp', fname))
+            os.unlink(os.path.join(self.key_dir, fname))
         return
 
     @cherrypy.expose
@@ -299,10 +300,10 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
         
-        params_file = index_dict(self.path('tmp'))
+        params_file = index_dict(self.key_dir)
 
-        im = image(self.path('tmp', 'disp_output.ppm'))
-        im.save(self.path('tmp', 'dispmap.png'))
+        im = image(os.path.join(self.key_dir, 'disp_output.ppm'))
+        im.save(os.path.join(self.key_dir, 'dispmap.png'))
         
         urld = {'new_input' : self.url('index'),
                 'run' : self.url('run'),
@@ -310,7 +311,7 @@ something must have gone wrong""")
                            self.url('tmp', 'input_1.png')],
                 'output' : [self.url('tmp', 'dispmap.png')]}
                 
-        params_file = index_dict(self.path('tmp'))
+        params_file = index_dict(self.key_dir)
         k_used = params_file['params']['k_used']
         lambda_used = params_file['params']['lambda_used']
         k_auto = params_file['params']['k_auto']
@@ -329,8 +330,8 @@ something must have gone wrong""")
 
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
-                             height=image(self.path('tmp', 
-                                                    'input_0.png')).size[1],
+                             height=image(os.path.join(self.key_dir, 
+                                                       'input_0.png')).size[1],
                              k_used=k_used,
                              lambda_used=lambda_used,
                              k_proposed=k_proposed,

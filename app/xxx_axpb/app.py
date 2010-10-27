@@ -83,7 +83,7 @@ class app(base_app):
         """
         # save and validate the parameters
         try:
-            params_file = index_dict(self.path('tmp'))
+            params_file = index_dict(self.key_dir)
             params_file['params'] = {'a' : float(a),
                                      'b' : float(b)}
             params_file.save()
@@ -118,7 +118,7 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # read the parameters
-        params_file = index_dict(self.path('tmp'))
+        params_file = index_dict(self.key_dir)
         a = float(params_file['params']['a'])
         b = float(params_file['params']['b'])
         # run the algorithm

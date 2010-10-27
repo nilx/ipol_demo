@@ -225,7 +225,7 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # run the algorithm
-        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
+        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
         try:
             run_time = time.time()
             self.run_algo(stdout=stdout)

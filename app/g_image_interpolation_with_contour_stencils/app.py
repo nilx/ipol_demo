@@ -109,13 +109,13 @@ class app(base_app):
         this one needs no parameter
         """
         # check image dimensions (must be divisible by 4)
-        img0 = image(self.path('tmp', 'input_0.png'))
+        img0 = image(os.path.join(self.key_dir, 'input_0.png'))
         (sizeX, sizeY) = img0.size
         if (sizeX % 4 or sizeY % 4):
             sizeX = (sizeX / 4) * 4
             sizeY = (sizeY / 4) * 4
             img0.crop((0, 0, sizeX, sizeY))       
-            img0.save(self.path('tmp', 'input_0.png'))
+            img0.save(os.path.join(self.key_dir, 'input_0.png'))
 
         a = 4
         b = 0.35
@@ -135,9 +135,9 @@ class app(base_app):
                           stdout=stdout, stderr=stdout)
         self.wait_proc([p3, p4], timeout)
 
-        img1 = image(self.path('tmp', 'coarsened.png'))
+        img1 = image(os.path.join(self.key_dir, 'coarsened.png'))
         img1.resize((sizeX, sizeY), method="nearest")
-        img1.save(self.path('tmp', 'coarsenedZ.png'))
+        img1.save(os.path.join(self.key_dir, 'coarsenedZ.png'))
 
         return
 
@@ -150,7 +150,7 @@ class app(base_app):
         """
         # run the algorithm
         try:
-            self.run_algo(stdout=open(self.path('tmp', 'stdout.txt'), 'w'))
+            self.run_algo(stdout=open(os.path.join(self.key_dir, 'stdout.txt'), 'w'))
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -163,8 +163,8 @@ class app(base_app):
                             self.url('tmp', 'interpolated.png'),
                             self.url('tmp', 'contourori.png')],
                 }
-        stdout = open(self.path('tmp', 'stdout.txt'), 'r')
-        img0 = image(self.path('tmp', 'input_0.png'))
+        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'r')
+        img0 = image(os.path.join(self.key_dir, 'input_0.png'))
         (sizeX, sizeY) = img0.size
         return self.tmpl_out("result.html", 
                              height=sizeY ,

@@ -148,7 +148,7 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # no parameters
-        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
+        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout, stdout=stdout)
@@ -165,9 +165,9 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
 
-        match = open(self.path('tmp', 'match.txt'))
+        match = open(os.path.join(self.key_dir, 'match.txt'))
         nbmatch = int(match.readline().split()[0])
-        match_SIFT = open(self.path('tmp', 'match_SIFT.txt'))
+        match_SIFT = open(os.path.join(self.key_dir, 'match_SIFT.txt'))
         nbmatch_SIFT = int(match_SIFT.readline().split()[0])
 
         urld = {'new_run' : self.url('params'),
@@ -180,7 +180,7 @@ something must have gone wrong""")
                 'match' : self.url('tmp', 'match.txt'),
                 'keys_0' : self.url('tmp', 'keys_0.txt'),
                 'keys_1' : self.url('tmp', 'keys_1.txt')}
-        stdout = open(self.path('tmp', 'stdout.txt'), 'r')
+        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'r')
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
                              nbmatch=nbmatch,

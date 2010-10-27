@@ -97,8 +97,8 @@ class app(base_app):
         """
         if newrun:
             self.clone_input()
-        if (image(self.path('tmp', 'input_0.png')).size
-            != image(self.path('tmp', 'input_1.png')).size):
+        if (image(os.path.join(self.key_dir, 'input_0.png')).size
+            != image(os.path.join(self.key_dir, 'input_1.png')).size):
             return self.error('badparams',
                               "The images must have the same size")
         urld = {'next_step' : self.url('run'),
@@ -118,8 +118,8 @@ class app(base_app):
         urld = {'input' : [self.url('tmp', 'input_0.png'),
                            self.url('tmp', 'input_1.png')]}
         return self.tmpl_out("run.html", urld=urld,
-                             height=image(self.path('tmp', 
-                                                    'input_0.png')).size[1])
+                             height=image(os.path.join(self.key_dir,
+                                                       'input_0.png')).size[1])
 
     def run_algo(self, timeout=None):
         """
@@ -128,10 +128,10 @@ class app(base_app):
         this one needs no parameter
         """
         # run Rectify.sh
-        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
+        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
         p = self.run_proc(['Rectify.sh',
-                           self.path('tmp', 'input_0.png'),
-                           self.path('tmp', 'input_1.png')],
+                           os.path.join(self.key_dir, 'input_0.png'),
+                           os.path.join(self.key_dir, 'input_1.png')],
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p, timeout)
         stdout.close()
@@ -163,12 +163,13 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
         
-        shutil.move(self.path('tmp', 'input_0.png_input_1.png_pairs_orsa.txt'),
-                    self.path('tmp', 'orsa.txt'))
-        shutil.move(self.path('tmp', 'input_0.png_h.txt'),
-                    self.path('tmp', 'H_input_0.txt'))
-        shutil.move(self.path('tmp', 'input_1.png_h.txt'),
-                    self.path('tmp', 'H_input_1.txt'))
+        shutil.move(os.path.join(self.key_dir, 
+                                 'input_0.png_input_1.png_pairs_orsa.txt'),
+                    os.path.join(self.key_dir, 'orsa.txt'))
+        shutil.move(os.path.join(self.key_dir, 'input_0.png_h.txt'),
+                    os.path.join(self.key_dir, 'H_input_0.txt'))
+        shutil.move(os.path.join(self.key_dir, 'input_1.png_h.txt'),
+                    os.path.join(self.key_dir, 'H_input_1.txt'))
 
         urld = {'new_input' : self.url('index'),
                 'run' : self.url('run'),
@@ -184,7 +185,8 @@ something must have gone wrong""")
                 
         return self.tmpl_out("result.html", urld=urld,
                              run_time="%0.2f" % run_time,
-                             height=image(self.path('tmp', 
-                                                    'input_0.png')).size[1],
-                             stdout=open(self.path('tmp', 
-                                                   'stdout.txt'), 'r').read())
+                             height=image(os.path.join(self.key_dir, 
+                                                       'input_0.png')).size[1],
+                             stdout=open(os.path.join(self.key_dir, 
+                                                      'stdout.txt'), 
+                                         'r').read())

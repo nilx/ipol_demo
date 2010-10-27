@@ -120,9 +120,10 @@ class app(base_app):
         draw a grid on the input image
         """
 
-        print "input image path:", self.path('tmp', 'input_0' + self.input_ext)
+        print "input image path:", os.path.join(self.key_dir,
+                                                'input_0' + self.input_ext) 
         try:
-            im = image(self.path('tmp', 'input_0' + self.input_ext))
+            im = image(os.path.join(self.key_dir, 'input_0' + self.input_ext))
         except IOError:
             raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -141,8 +142,8 @@ class app(base_app):
                 im.draw_line((x1, y1, x2, y1))
 
 
-        im.save(self.path('tmp', 'input_1' + self.input_ext))
-        im.save(self.path('tmp', 'input_1.png'))
+        im.save(os.path.join(self.key_dir, 'input_1' + self.input_ext))
+        im.save(os.path.join(self.key_dir, 'input_1.png'))
 
     @cherrypy.expose
     @get_check_key
@@ -154,7 +155,7 @@ class app(base_app):
             self.clone_input()
 
         try:
-            params_file = index_dict(self.path('tmp'))
+            params_file = index_dict(self.key_dir)
             params_file['paramsGrid'] = {'grid_step' : int(grid_step)}
             params_file.save()
         except:
@@ -184,7 +185,7 @@ class app(base_app):
         """
 
         # read grid parameters
-        params_file = index_dict(self.path('tmp'))
+        params_file = index_dict(self.key_dir)
         gridStep = int(params_file['paramsGrid']['grid_step'])
  
 
@@ -199,7 +200,7 @@ class app(base_app):
         print "scaleR=", float(scaleR)
 
         try:
-            params_file = index_dict(self.path('tmp'))
+            params_file = index_dict(self.key_dir)
             params_file['params'] = {'scaler' : float(scaleR)}
             params_file.save()
         except:
@@ -212,12 +213,12 @@ class app(base_app):
         if (gridStep == 0) :
             #process whole image 
             #save input image as input_2
-            im = image(self.path('tmp', 'input_0' + self.input_ext))
-            im.save(self.path('tmp', 'input_2' + self.input_ext))
-            im.save(self.path('tmp', 'input_2.png'))
+            im = image(os.path.join(self.key_dir, 'input_0' + self.input_ext))
+            im.save(os.path.join(self.key_dir, 'input_2' + self.input_ext))
+            im.save(os.path.join(self.key_dir, 'input_2.png'))
         else :
             #select subimage 
-            im = image(self.path('tmp', 'input_0' + self.input_ext))
+            im = image(os.path.join(self.key_dir, 'input_0' + self.input_ext))
             x1 = (gridX / gridStep) * gridStep
             y1 = (gridY / gridStep) * gridStep
             x2 = x1 + gridStep
@@ -230,8 +231,8 @@ class app(base_app):
             #print "crop:", x1, y1, x2, y2
             #set default image size
             im.resize((400, 400), method="nearest")
-            im.save(self.path('tmp', 'input_2' + self.input_ext))
-            im.save(self.path('tmp', 'input_2.png'))
+            im.save(os.path.join(self.key_dir, 'input_2' + self.input_ext))
+            im.save(os.path.join(self.key_dir, 'input_2.png'))
 
         http.refresh(self.url('result?key=%s' % self.key))
         urld = {'next_step' : self.url('result'),
@@ -251,16 +252,20 @@ class app(base_app):
 
         #Process image
         p1 = self.run_proc(['mcm', str(scaleR), 
-                            self.path('tmp', 'input_2' + self.input_ext),
-                            self.path('tmp', 'output_MCM' + self.input_ext)])
+                            os.path.join(self.key_dir, 'input_2' +
+                                         self.input_ext), 
+                            os.path.join(self.key_dir, 'output_MCM' +
+                                         self.input_ext)]) 
         p2 = self.run_proc(['amss', str(scaleR),
-                            self.path('tmp', 'input_2' + self.input_ext),
-                            self.path('tmp', 'output_AMSS' + self.input_ext)])
+                            os.path.join(self.key_dir, 'input_2' +
+                                         self.input_ext), 
+                            os.path.join(self.key_dir, 'output_AMSS' +
+                                         self.input_ext)]) 
         self.wait_proc([p1, p2], timeout)
-        im = image(self.path('tmp', 'output_MCM' + self.input_ext))
-        im.save(self.path('tmp', 'output_MCM.png'))
-        im = image(self.path('tmp', 'output_AMSS' + self.input_ext))
-        im.save(self.path('tmp', 'output_AMSS.png'))
+        im = image(os.path.join(self.key_dir, 'output_MCM' + self.input_ext))
+        im.save(os.path.join(self.key_dir, 'output_MCM.png'))
+        im = image(os.path.join(self.key_dir, 'output_AMSS' + self.input_ext))
+        im.save(os.path.join(self.key_dir, 'output_AMSS.png'))
 
     @cherrypy.expose
     @get_check_key
@@ -270,7 +275,7 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # read the parameters
-        params_file = index_dict(self.path('tmp'))
+        params_file = index_dict(self.key_dir)
         # normalized scale
         scaleRnorm = float(params_file['params']['scaler'])
         # read grid parameters
@@ -283,7 +288,7 @@ class app(base_app):
         scaleR = scaleRnorm*zoomfactor
 
        # run the algorithm
-        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
+        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
         try:
             run_time = time.time()
             self.run_algo(scaleR, stdout=stdout)

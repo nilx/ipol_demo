@@ -186,7 +186,7 @@ class empty_app(object):
                 and self.key.isalnum()
                 and os.path.isdir(self.key_dir)
                 and (self.tmp_dir == 
-                     os.path.commonprefix(self.key_dir, self.tmp_dir))):
+                     os.path.commonprefix([self.key_dir, self.tmp_dir]))):
             raise cherrypy.HTTPError(400, # Bad Request
                                      "The key is invalid")
 
