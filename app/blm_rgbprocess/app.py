@@ -6,6 +6,8 @@ rgbprocess ipol demo web app
 from lib import base_app
 from lib import build
 from lib import http
+from lib import index_dict
+from lib import image
 from lib.misc import get_check_key, ctime
 import shutil
 import cherrypy
@@ -77,19 +79,144 @@ class app(base_app):
             shutil.rmtree(self.src_dir)
         return
 
+    #
+    # PARAMETER HANDLING
+    #
+
+    @cherrypy.expose
+    @get_check_key
+    def params(self, newrun=False, msg=None):
+        """
+        configure the algo execution
+        """
+        if newrun:
+            self.clone_input()
+        urld = {'run' : self.url('run'),
+		'select_first' : self.url('select_subimage_first'),
+                'input' : [self.url('tmp', 'input_0.png')]}
+
+        return self.tmpl_out("params.html", urld=urld, msg=msg)
+ 
+
+    @cherrypy.expose
+    @get_check_key
+    def select_subimage_first(self, newrun=False, msg=None):
+        
+        # configure first point selection
+
+        urld = {'cancel' : self.url('params'),
+		'select_second' : self.url('select_subimage_second'),
+                'input' : [self.url('tmp', 'input_0.png')]}
+
+        return self.tmpl_out("select_subimage_first.html", urld=urld, msg=msg)
+
+    @cherrypy.expose
+    @get_check_key
+    def select_subimage_second(self, newrun=False, msg=None, x=None, y=None):
+ 
+	print "x=", x
+	print "y=", y
+	#save upper-left corner coordinates
+        try:
+            params_file = index_dict(self.path('tmp'))
+            params_file['subimageFirst'] = {'firstx' : int(x), 'firsty' : int(y)}
+            params_file.save()
+        except:
+            return self.error(errcode='badFirstPoint',
+                              errmsg="Wrong first point selection")
+
+
+	#draw a red cross at the first subimage corner (upper-left) on the input image
+        try:
+            im = image(self.path('tmp', 'input_0.png'))
+        except IOError:
+            raise cherrypy.HTTPError(400, # Bad Request
+                                         "Bad input file")
+
+	y1=int(y)
+	y2=int(y)
+	if int(x) >= 2 :
+	  x1=int(x)-2
+	else :
+	  x1=0
+	if int(x)+2 < im.size[0] :
+	  x2=int(x)+2
+	else :
+	  x2=im.size[0]
+ 
+	x3=int(x)
+	x4=int(x)
+	if int(y) >= 2 :
+	  y3=int(y)-2
+	else :
+	  y3=0
+	if int(y)+2 < im.size[1] :
+	  y4=int(y)+2
+	else :
+	  y4=im.size[1]
+
+	im.draw_line((x1, y1, x2, y2), color="red")
+	im.draw_line((x3, y3, x4, y4), color="red")
+
+
+        im.save(self.path('tmp', 'input_0First.png'))
+
+
+	#configure second point selection
+
+        urld = {'cancel' : self.url('params'),
+		'select_first' : self.url('select_subimage_first'),
+		'run' : self.url('run'),
+                'input' : [self.url('tmp', 'input_0First.png')]}
+
+        return self.tmpl_out("select_subimage_second.html", urld=urld, msg=msg)
+
+
     # run() is defined here,
     # because the parameters validation depends on the algorithm
     @cherrypy.expose
     @get_check_key
-    def run(self):
+    def run(self, x=None, y=None):
         """
         params handling and run redirection
         as a special case, we have no parameter to check and pass
         """
+
+	#crop subimage, if selected
+        if (x == None) or (y == None) :
+	  #no subimage selected
+           im = image(self.path('tmp', 'input_0.png'))
+           im.save(self.path('tmp', 'input_00.png'))
+	else :
+	  #crop and resize
+           im = image(self.path('tmp', 'input_0.png'))
+
+	   #read upper-left corner coordinates
+           params_file = index_dict(self.path('tmp'))
+           x1 = int(params_file['subimageFirst']['firstx'])
+           y1 = int(params_file['subimageFirst']['firsty'])
+
+	   #crop
+           im.crop((x1, y1, int(x), int(y)))
+
+	   #resize, if necessary
+	   if (im.size[0] < 400) and (im.size[1] < 400) :
+	     sX=400
+	     sY=400
+ 	     if im.size[0] > im.size[1] :
+		sY=int(float(im.size[1])/float(im.size[0])*400)
+	     else :
+		sX=int(float(im.size[0])/float(im.size[1])*400)
+             im.resize((sX, sY), method="bilinear")
+
+	   # save result
+           im.save(self.path('tmp', 'input_00.png'))
+
+
+
         http.refresh(self.url('result?key=%s' % self.key))
         urld = {'next_step' : self.url('result'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
+                'input' : [self.url('tmp', 'input_00.png')]}
         return self.tmpl_out("run.html", urld=urld)
 
     # run_algo() is defined here,
@@ -179,7 +306,7 @@ class app(base_app):
 	"""
 
 	print "remove isolated"
-        p1 = self.run_proc(['rgbprocess', 'rmisolated', 'input_0.png', 'input_1.png'], stdout=stdout, stderr=stdout)
+        p1 = self.run_proc(['rgbprocess', 'rmisolated', 'input_00.png', 'input_1.png'], stdout=stdout, stderr=stdout)
 
 	print "view parameters"
         p2 = self.run_proc(['rgbprocess', 'RGBviewsparams', 'RGBviewsparams.txt'], stdout=stdout, stderr=stdout)
@@ -212,7 +339,7 @@ class app(base_app):
 			   stdout=stdout, stderr=stdout)
 
 	print "merge images"
-        p8 = self.run_proc(['rgbprocess', 'mergeimages', 'output_1.png', 'input_0.png', 'output_2.png'],
+        p8 = self.run_proc(['rgbprocess', 'mergeimages', 'output_1.png', 'input_00.png', 'output_2.png'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p7, p8], timeout)
 
@@ -277,7 +404,8 @@ class app(base_app):
 
         urld = {'new_run' : self.url('params'),
                 'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png')],
+ 		'select_first' : self.url('select_subimage_first'),
+                'input' : [self.url('tmp', 'input_00.png')],
                 'output' : [self.url('tmp', 'output_2.png')],
                 'views' : [self.url('tmp', 'view_%i.png' % i) 
 			   for i in range(100, 127)]
@@ -289,7 +417,8 @@ class app(base_app):
         #return self.tmpl_out("result2.html", urld=urld,
         #                    run_time="%0.2f" % run_time)
         return self.tmpl_out("result3.html", urld=urld,
-                            run_time="%0.2f" % run_time)
+                            run_time="%0.2f" % run_time, 
+			    sizeY="%i" % image(self.path('tmp', 'input_00.png')).size[1])
 
 
 

@@ -9,10 +9,16 @@ You can run again this algorithm with new data.
 new input data:
 <input type="submit" value="back to : input" />
 </form>
+or
+<form action="${urld['select_first']}" method="get">
+<input type="hidden" name="key" value="${key}">
+<input type="submit" value="Select new subimage" />
+</form>
+
 
 <hr />
 
-<div class="gallery">
+<div class="gallery" style="height:${sizeY}px;">
 <ul class="index">
 <li><a href="#">Original
     <span><img src=${urld['input'][0]} /></span></a></li>
@@ -20,6 +26,8 @@ new input data:
     <span><img src=${urld['output'][0]} /></span></a></li>
 </ul>
 </div>
+
+<hr />
 
 RGB views: original, filtered, density view
 <div class="gallery" style="height:600px; width:100%; font-size:xx-small;">

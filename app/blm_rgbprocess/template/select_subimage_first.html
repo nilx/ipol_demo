@@ -1,0 +1,17 @@
+<%include file="header.html" />
+
+<p>
+Click on the image to select the upper-left corner of the subimage or
+<form action="${urld['cancel']}" method="get">
+<input type="hidden" name="key" value="${key}">
+<input type="submit" value="Cancel" />
+</form>
+<p>
+
+<form action="${urld['select_second']}" method="get">
+<input type="hidden" name="key" value="${key}">
+<input type="image" name="" src="${urld['input'][0]}" /> 
+</form>
+
+
+<%include file="footer.html" />

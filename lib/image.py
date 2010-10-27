@@ -138,6 +138,7 @@ class image(object):
 
         try:
             method_kw = {"nearest" : PIL.Image.NEAREST,
+			 "bilinear" : PIL.Image.BILINEAR,
                          "bicubic" : PIL.Image.BICUBIC}[method]
         except KeyError:
             raise KeyError('method must be "nearest" or "bicubic"')
