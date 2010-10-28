@@ -17,7 +17,6 @@ from .image import thumbnail, image
 
 class base_app(empty_app):
     """ base demo app class with a typical flow """
-
     # default class attributes
     # to be modified in subclasses
     title = "base demo"
@@ -70,10 +69,10 @@ class base_app(empty_app):
         # create urld if it doesn't exist
         kwargs.setdefault('urld', {})
         # add urld items
-        kwargs['urld'].update({'xlink_algo' : self.url('algo'),
-                               'xlink_demo' : self.url('demo'),
-                               'xlink_archive' : self.url('archive'),
-                               'xlink_forum' : self.url('forum')})
+        kwargs['urld'].update({'xlink_algo' : '/TODO/algo',
+                               'xlink_demo' : '/TODO/demo',
+                               'xlink_archive' : '/TODO/archive',
+                               'xlink_forum' : '/TODO/forum'})
 
         tmpl = self.tmpl_lookup.get_template(tmpl_fname)
         return tmpl.render(**kwargs)
@@ -88,23 +87,19 @@ class base_app(empty_app):
         """
         # read the input index as a dict
         inputd = index_dict(self.input_dir)
-        for key in inputd.keys():
+        for id in inputd.keys():
             # convert the files to a list of file names
             # by splitting at blank characters
-            inputd[key]['files'] = inputd[key]['files'].split()
+            inputd[id]['files'] = inputd[id]['files'].split()
             # generate thumbnails and thumbnail urls
             tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
             tn_fname = [thumbnail(os.path.join(self.input_dir, fname),
-                                  (tn_size,tn_size))
-                        for fname in inputd[key]['files']]
-            inputd[key]['tn_url'] = [self.url('input',
-                                              os.path.basename(fname))
-                                     for fname in tn_fname]
+                                  (tn_size, tn_size))
+                        for fname in inputd[id]['files']]
+            inputd[id]['tn_url'] = [self.input_url + os.path.basename(fname)
+                                    for fname in tn_fname]
 
-        # urls dict
-        urld = {'select_form' : self.url('input_select'),
-                'upload_form' : self.url('input_upload')}
-        return self.tmpl_out("input.html", urld=urld,
+        return self.tmpl_out("input.html",
                              tn_size=tn_size,
                              inputd=inputd,
                              input_nb=self.input_nb)
@@ -146,8 +141,8 @@ class base_app(empty_app):
         """
         clone the input for a re-run of the algo
         """
+        self.log("cloning input from %s" % self.key)
         # get a new key
-        old_key = self.key
         old_key_dir = self.key_dir
         self.new_key()
         # copy the input files
@@ -158,7 +153,6 @@ class base_app(empty_app):
         for fname in fnames:
             shutil.copy(os.path.join(old_key_dir, fname),
                         os.path.join(self.key_dir, fname))
-        self.log("input cloned from %s" % old_key)
         return
 
     #
@@ -236,10 +230,9 @@ class base_app(empty_app):
         """
         if newrun:
             self.clone_input()
-        urld = {'next_step' : self.url('run'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
-        return self.tmpl_out("params.html", urld=urld, msg=msg)
+        return self.tmpl_out("params.html", msg=msg,
+                             input = [self.key_url + 'input_%i.png' % i
+                                      for i in range(self.input_nb)])
 
     #
     # EXECUTION AND RESULTS
@@ -256,10 +249,10 @@ class base_app(empty_app):
         kwargs = kwargs
         # redirect to the result page
         # TODO check_params as another function
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
-        return self.tmpl_out("run.html", urld=urld)
+        http.refresh(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html",
+                             input=[self.key_url + 'input_%i.png' % i
+                                    for i in range(self.input_nb)])
 
     def run_algo(self, params):
         """
@@ -284,9 +277,7 @@ class base_app(empty_app):
         # TODO pass these parameters to the template
         self.run_algo({})
         self.log("input processed")
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)],
-                'output' : [self.url('tmp', 'output.png')]}
-        return self.tmpl_out("result.html", urld=urld)
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input_%i.png' % i
+                                    for i in range(self.input_nb)],
+                             output=[self.key_url + 'output.png'])

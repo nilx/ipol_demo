@@ -72,67 +72,20 @@ class empty_app(object):
             value = (os.path.abspath(os.path.join(self.base_dir, 'tmp',
                                                   self.key))
                      if self.key else None)
+        # url
+        elif attr == 'base_url':
+            value = cherrypy.url(path="/")
+        elif attr == 'input_url':
+            value = cherrypy.url(path="/input/")
+        elif attr == 'tmp_url':
+            value = cherrypy.url(path="/tmp/")
+        elif attr == 'key_url':
+            value = (cherrypy.url(path="/tmp/%s/" % self.key)
+                     if self.key else None)
+        # real attribute
         else:
             value = object.__getattribute__(self, attr)
         return value
-
-    #
-    # URL MODEL 
-    #
-
-    def _url_xlink(self, link):
-        """
-        link url scheme
-        """
-        if link == 'demo':
-            return cherrypy.url(path="/pub/demo/%s/" % self.id,
-                                script_name='')
-        elif link == 'algo':
-            return cherrypy.url(path="/pub/algo/%s/" % self.id,
-                                script_name='')
-        elif link == 'archive':
-            return cherrypy.url(path="/pub/archive/%s/" % self.id,
-                                script_name='')
-        elif link == 'forum':
-            return cherrypy.url(path="/pub/forum/%s/" % self.id,
-                                script_name='')
-
-    def _url_file(self, folder, fname=None):
-        """
-        url scheme for files:
-        * tmp   -> ./tmp/<key>/<file_name>
-        * input -> ./input/<file_name>
-        """
-        # TODO use key instead of tmp
-        if fname == None:
-            fname = ''
-        if folder == 'tmp':
-            return cherrypy.url(path="tmp/%s/" % self.key + fname)
-        elif folder == 'input':
-            return cherrypy.url(path='input/' + fname)
-
-    def _url_action(self, action, params=None):
-        """
-        url scheme for actions
-        """
-        query_string = ''
-        if params:
-            query_string = '&'.join(["%s=%s" % (key, value)
-                                     for (key, value) in params.items()])
-        return cherrypy.url(path="%s" % action, qs=query_string)
-
-    def url(self, arg1, arg2=None):
-        """
-        url scheme
-        """
-        # TODO include a configurable url base
-        #       taken from the config file 
-        if arg1 in ['demo', 'algo', 'archive', 'forum']:
-            return self._url_xlink(link=arg1)
-        elif arg1 in ['tmp', 'input']:
-            return self._url_file(folder=arg1, fname=arg2)
-        else:
-            return self._url_action(action=arg1, params=arg2)
 
     #
     # UPDATE

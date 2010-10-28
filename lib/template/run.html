@@ -12,10 +12,9 @@ reload this page and display the result.
 <br />
 
 <div>
-%for url in urld['input']:
-<img src="${url}" alt="" />
+%for input_url in input:
+<img src="${input_url}" alt="" />
 %endfor
 </div>
 
 <%include file="footer.html" />
-
