@@ -51,12 +51,12 @@ class app(base_app):
         # store common file path in variables
         tgz_url = "https://edit.ipol.im/pub/algo/" \
             + "g_image_interpolation_with_contour_stencils/src.tar.gz"
-        tgz_file = os.path.join(self.dl_dir, "src.tar.gz")
+        tgz_file = self.dl_dir + "src.tar.gz"
         progs = ["cwinterp", "imcoarsen", "imdiff"]
-        src_bin = dict([(os.path.join(self.src_dir, prog),
-                         os.path.join(self.bin_dir, prog))
+        src_bin = dict([(self.src_dir + prog,
+                         self.bin_dir + prog)
                         for prog in progs])
-        log_file = os.path.join(self.base_dir, "build.log")
+        log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
@@ -109,13 +109,13 @@ class app(base_app):
         this one needs no parameter
         """
         # check image dimensions (must be divisible by 4)
-        img0 = image(os.path.join(self.key_dir, 'input_0.png'))
+        img0 = image(self.key_dir + 'input_0.png')
         (sizeX, sizeY) = img0.size
         if (sizeX % 4 or sizeY % 4):
             sizeX = (sizeX / 4) * 4
             sizeY = (sizeY / 4) * 4
             img0.crop((0, 0, sizeX, sizeY))       
-            img0.save(os.path.join(self.key_dir, 'input_0.png'))
+            img0.save(self.key_dir + 'input_0.png')
 
         a = 4
         b = 0.35
@@ -135,9 +135,9 @@ class app(base_app):
                           stdout=stdout, stderr=stdout)
         self.wait_proc([p3, p4], timeout)
 
-        img1 = image(os.path.join(self.key_dir, 'coarsened.png'))
+        img1 = image(self.key_dir + 'coarsened.png')
         img1.resize((sizeX, sizeY), method="nearest")
-        img1.save(os.path.join(self.key_dir, 'coarsenedZ.png'))
+        img1.save(self.key_dir + 'coarsenedZ.png')
 
         return
 
@@ -150,14 +150,14 @@ class app(base_app):
         """
         # run the algorithm
         try:
-            self.run_algo(stdout=open(os.path.join(self.key_dir, 'stdout.txt'), 'w'))
+            self.run_algo(stdout=open(self.key_dir + 'stdout.txt', 'w'))
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
             return self.error(errcode='runtime')
         self.log("input processed")
-        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'r')
-        img0 = image(os.path.join(self.key_dir, 'input_0.png'))
+        stdout = open(self.key_dir + 'stdout.txt', 'r')
+        img0 = image(self.key_dir + 'input_0.png')
         (sizeX, sizeY) = img0.size
         return self.tmpl_out("result.html", 
                              input=[self.key_url + 'input_0.png'],
