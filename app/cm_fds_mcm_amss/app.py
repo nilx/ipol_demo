@@ -301,5 +301,8 @@ class app(base_app):
                                      self.key_url + 'output_AMSS.png'],
                              run_time="%0.2f" % run_time,
                              scaleRnorm="%2.2f" % scaleRnorm,
-                             zoomfactor="%2.2f" % zoomfactor)
+                             zoomfactor="%2.2f" % zoomfactor, 
+			     sizeY="%i" \
+                                 % image(os.path.join(self.key_dir,
+                                                      'input_2.png')).size[1])
 
