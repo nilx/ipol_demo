@@ -172,10 +172,10 @@ class app(base_app):
                               errmsg="The parameters must be rationals.")
 
         # redirect to the result page
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')]}
-        return self.tmpl_out("run.html", urld=urld,
+        http.refresh(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html",
+                             input=[self.key_url + 'input_0.png',
+                                    self.key_url + 'input_1.png'],
                              height=image(os.path.join(self.key_dir, 
                                                        'input_0.png')).size[1])
 
@@ -300,22 +300,11 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
         
-        params_file = index_dict(self.key_dir)
-
-        im = image(os.path.join(self.key_dir, 'disp_output.ppm'))
-        im.save(os.path.join(self.key_dir, 'dispmap.png'))
+        disp = image(os.path.join(self.key_dir, 'disp_output.ppm'))
+        disp.save(os.path.join(self.key_dir, 'dispmap.png'))
         
-        urld = {'new_input' : self.url('index'),
-                'run' : self.url('run'),
-                'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')],
-                'output' : [self.url('tmp', 'dispmap.png')]}
-                
         params_file = index_dict(self.key_dir)
-        k_used = params_file['params']['k_used']
-        lambda_used = params_file['params']['lambda_used']
-        k_auto = params_file['params']['k_auto']
-        k = str2frac(k_auto)
+        k = str2frac(params_file['params']['k_auto'])
         l = (k[0], k[1] * 5)
         k_proposed = [frac2str((k[0] * 1, k[1] * 2)),
                       frac2str((k[0] * 2, k[1] * 3)),
@@ -328,12 +317,15 @@ something must have gone wrong""")
                       frac2str((l[0] * 3, l[1] * 2)),
                       frac2str((l[0] * 2, l[1] * 1))]
 
-        return self.tmpl_out("result.html", urld=urld,
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input_0.png',
+                                    self.key_url + 'input_1.png'],
+                             output=[self.key_url + 'dispmap.png'],
                              run_time="%0.2f" % run_time,
                              height=image(os.path.join(self.key_dir, 
                                                        'input_0.png')).size[1],
-                             k_used=k_used,
-                             lambda_used=lambda_used,
+                             k_used=params_file['params']['k_used'],
+                             lambda_used=params_file['params']['lambda_used'],
                              k_proposed=k_proposed,
                              l_proposed=l_proposed)
 
