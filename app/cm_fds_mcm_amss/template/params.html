@@ -6,7 +6,7 @@ You can now choose the parameters, and run the numerical schemes.
 
 <form action="${urld['run']}" method="get">
 <fieldset>
-<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="key" value="${app.key}">
 <p>
 Select normalized scale (at normalized scale R a disk of radius R disappears):
 <select name="scaleR">
@@ -32,7 +32,7 @@ processing).
 <p>
 Redraw the grid with a different step size.
 </p>
-<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="key" value="${app.key}">
 <select name="grid_step">
   <option value="0" selected>No grid (zoom 1x)</option>
   <option value="50">50 (zoom 8x)</option>

@@ -60,24 +60,20 @@ class base_app(empty_app):
         """
         templating shortcut, populated with the default app attributes
         """
-        # app attributes dict
-        attrd = dict([(attr, getattr(self, attr, ''))
-                      for attr in ['id',
-                                   'key',
-                                   'title']])
-        kwargs.update(attrd)
-
-        # create urld if it doesn't exist
-        kwargs.setdefault('urld', {})
-        # add urld items
-        kwargs['urld'].update({'start' : self.url('index'),
-                               'xlink_algo' : self.url('algo'),
-                               'xlink_demo' : self.url('demo'),
-                               'xlink_archive' : self.url('archive'),
-                               'xlink_forum' : self.url('forum')})
+        # pass the app object
+        kwargs['app'] = self
         # production flag
         kwargs['prod'] = (cherrypy.config['server.environment']
                           == 'production')
+
+        # TODO: no more urld
+        # create urld if it doesn't exist
+        kwargs.setdefault('urld', {})
+        # add urld items
+        kwargs['urld'].update({'xlink_algo' : self.url('algo'),
+                               'xlink_demo' : self.url('demo'),
+                               'xlink_archive' : self.url('archive'),
+                               'xlink_forum' : self.url('forum')})
 
         tmpl = self.tmpl_lookup.get_template(tmpl_fname)
         return tmpl.render(**kwargs)

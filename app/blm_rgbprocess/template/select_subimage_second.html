@@ -3,12 +3,12 @@
 <p>
 Click on the image to select the lower-right corner of the subimage and run the algorithm or
 <form action="${urld['select_first']}" method="get">
-<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="key" value="${app.key}">
 <input type="submit" value="Select new upper-left corner" />
 </form>
 or 
 <form action="${urld['cancel']}" method="get">
-<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="key" value="${app.key}">
 <input type="submit" value="Cancel" />
 </form>
 <p>
@@ -18,7 +18,7 @@ Remark: one of the subimage dimensions must be bigger than 400 pixels, otherwise
 </p>
 
 <form action="${urld['run']}" method="get">
-<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="key" value="${app.key}">
 <input type="image" name="" src="${urld['input'][0]}" /> 
 </form>
 
