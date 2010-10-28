@@ -45,7 +45,7 @@ class base_app(empty_app):
                                 'template')
         # first search in the subclass template dir
         self.tmpl_lookup = TemplateLookup( \
-            directories=[os.path.join(self.base_dir,'template'), tmpl_dir],
+            directories=[self.base_dir + 'template', tmpl_dir],
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
  
@@ -93,7 +93,7 @@ class base_app(empty_app):
             # convert the files to a list of file names
             # by splitting at blank characters
             # and generate thumbnails and thumbnail urls
-            tn_fname = [thumbnail(os.path.join(self.input_dir, fname),
+            tn_fname = [thumbnail(self.input_dir + fname,
                                   (tn_size, tn_size))
                         for fname in input_info['files'].split()]
             inputd[input_id]['tn_url'] = [self.input_url
@@ -116,7 +116,7 @@ class base_app(empty_app):
         for i in range(self.input_nb):
             # open the file as an image
             try:
-                im = image(os.path.join(self.key_dir, 'input_%i' % i))
+                im = image(self.key_dir + 'input_%i' % i)
             except IOError:
                 raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -130,11 +130,11 @@ class base_app(empty_app):
                 msg = """The image has been resized
                       for a reduced computation time."""
             # save a working copy
-            im.save(os.path.join(self.key_dir, 'input_%i' % i + self.input_ext))
+            im.save(self.key_dir + 'input_%i' % i + self.input_ext)
             # save a web viewable copy
-            im.save(os.path.join(self.key_dir, 'input_%i.png' % i))
+            im.save(self.key_dir + 'input_%i.png' % i)
             # delete the original
-            os.unlink(os.path.join(self.key_dir, 'input_%i' % i))
+            os.unlink(self.key_dir + 'input_%i' % i)
         return msg
 
     def clone_input(self):
@@ -151,8 +151,8 @@ class base_app(empty_app):
         fnames += ['input_%i.png' % i
                    for i in range(self.input_nb)]
         for fname in fnames:
-            shutil.copy(os.path.join(old_key_dir, fname),
-                        os.path.join(self.key_dir, fname))
+            shutil.copy(old_key_dir + fname,
+                        self.key_dir + fname)
         return
 
     #
@@ -171,8 +171,8 @@ class base_app(empty_app):
         input_dict = index_dict(self.input_dir)
         fnames = input_dict[input_id]['files'].split()
         for i in range(len(fnames)):
-            shutil.copy(os.path.join(self.input_dir, fnames[i]),
-                        os.path.join(self.key_dir, 'input_%i' % i))
+            shutil.copy(self.input_dir + fnames[i],
+                        self.key_dir + 'input_%i' % i)
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
         # jump to the params page
@@ -185,7 +185,7 @@ class base_app(empty_app):
         self.new_key()
         for i in range(self.input_nb):
             file_up = kwargs['file_%i' % i]
-            file_save = file(os.path.join(self.key_dir, 'input_%i' % i), 'wb')
+            file_save = file(self.key_dir + 'input_%i' % i, 'wb')
             if '' == file_up.filename:
                 # missing file
                 raise cherrypy.HTTPError(400, # Bad Request

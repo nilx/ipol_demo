@@ -32,9 +32,9 @@ class empty_app(object):
         look for special subfolders (input, tmp, ...)
         """
         # the demo ID is the folder name
-        self.base_dir = os.path.abspath(base_dir)
+        self.base_dir = os.path.abspath(base_dir) + os.path.sep
         self.id = os.path.basename(base_dir)
-        self.key = None
+        self.key = ''
 
         # create the missing subfolders
         for static_dir in [self.input_dir, self.tmp_dir]:
@@ -57,21 +57,19 @@ class empty_app(object):
         direct access to some image attributes
         """
 
+        # subfolder patterns
+        folder_pattern = {'input_dir' : 'input',
+                          'dl_dir' : 'dl',
+                          'src_dir' : 'src',
+                          'bin_dir' : 'bin',
+                          'tmp_dir' : 'tmp',
+                          'key_dir' : os.path.join('tmp', self.key)}
+
         # subfolders
-        if attr == 'input_dir':
-            value = os.path.abspath(os.path.join(self.base_dir, 'input'))
-        elif attr == 'dl_dir':
-            value = os.path.abspath(os.path.join(self.base_dir, 'dl'))
-        elif attr == 'src_dir':
-            value = os.path.abspath(os.path.join(self.base_dir, 'src'))
-        elif attr == 'bin_dir':
-            return os.path.abspath(os.path.join(self.base_dir, 'bin'))
-        elif attr == 'tmp_dir':
-            value = os.path.abspath(os.path.join(self.base_dir, 'tmp'))
-        elif attr == 'key_dir':
-            value = (os.path.abspath(os.path.join(self.base_dir, 'tmp',
-                                                  self.key))
-                     if self.key else None)
+        if attr in folder_pattern:
+            value = os.path.join(self.base_dir,
+                                 folder_pattern[attr])
+            value = os.path.abspath(value)+ os.path.sep
         # url
         elif attr == 'base_url':
             value = cherrypy.url(path="/")
@@ -80,8 +78,7 @@ class empty_app(object):
         elif attr == 'tmp_url':
             value = cherrypy.url(path="/tmp/")
         elif attr == 'key_url':
-            value = (cherrypy.url(path="/tmp/%s/" % self.key)
-                     if self.key else None)
+            value = cherrypy.url(path="/tmp/%s/" % self.key)
         # real attribute
         else:
             value = object.__getattribute__(self, attr)
