@@ -4,7 +4,7 @@
 The algorithm result is displayed hereafter. It ran in ${run_time}s.
 </p>
 
-<form action="${urld['new_input']}" method="get">
+<form action="${app.base_url}" method="get">
 <fieldset>
 <p>
 Restart with new input.
@@ -18,9 +18,9 @@ Restart with new input.
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
 <li><a href="#">first image
-    <span><img src="${urld['input'][0]}" /></span></a></li>
+    <span><img src="${input[0]}" /></span></a></li>
 <li><a href="#">second image
-    <span><img src="${urld['input'][1]}" /></span></a></li>
+    <span><img src="${input[1]}" /></span></a></li>
 </ul>
 </div>
 
@@ -29,33 +29,33 @@ Restart with new input.
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
 <li><a href="#">second image
-    <span><img src="${urld['rect'][1]}" /></span></a></li>
+    <span><img src="${rect[1]}" /></span></a></li>
 <li><a href="#">first image
-    <span><img src="${urld['rect'][0]}" /></span></a></li>
+    <span><img src="${rect[0]}" /></span></a></li>
 <li><a href="#">disparity map
-    <span><img src="${urld['disp'][0]}" /></span></a></li>
+    <span><img src="${disp[0]}" /></span></a></li>
 <li><a href="#">denser disp. map
-    <span><img src="${urld['disp'][1]}" /></span></a></li>
+    <span><img src="${disp[1]}" /></span></a></li>
 </ul>
 </div>
 
 <ul>
-  <li><a href="${urld['orsa']}">correspondences</a></li>
+  <li><a href="${orsa}">correspondences</a></li>
   <li>homography: 
-    <a href="${urld['homo'][0]}">first image</a>,
-    <a href="${urld['homo'][1]}">second image</a>
+    <a href="${homo[0]}">first image</a>,
+    <a href="${homo[1]}">second image</a>
   </li>
   <li>rectified images: 
-    <a href="${urld['rect'][0]}">first image</a>,
-    <a href="${urld['rect'][1]}">second image</a>
+    <a href="${rect[0]}">first image</a>,
+    <a href="${rect[1]}">second image</a>
   </li>
   <li>exact floating-point maps: 
-    <a href="${urld['exact'][0]}">pixel accurate meaningful</a>,
-    <a href="${urld['exact'][1]}">subpixel accurate meaningful</a>,
-    <a href="${urld['exact'][2]}">final subpixel accurate</a>
+    <a href="${exact[0]}">pixel accurate meaningful</a>,
+    <a href="${exact[1]}">subpixel accurate meaningful</a>,
+    <a href="${exact[2]}">final subpixel accurate</a>
   </li>
   <li>
-    <a href="${urld['ply']}">3D mesh</a><br/>
+    <a href="${ply}">3D mesh</a><br/>
     This PLY file, containing 3D point cloud reconstruction data,
     can be visualized with open source softwares
     <a href="http://meshlab.sourceforge.net/">MeshLab</a> or

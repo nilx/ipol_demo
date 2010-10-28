@@ -102,10 +102,9 @@ class app(base_app):
             != image(os.path.join(self.key_dir, 'input_1.png')).size):
             return self.error('badparams',
                               "The images must have the same size")
-        urld = {'next_step' : self.url('run'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
-        return self.tmpl_out("params.html", urld=urld, msg=msg)
+        return self.tmpl_out("params.html", msg=msg,
+                             input=[self.key_url + 'input_%i.png' % i
+                                    for i in range(self.input_nb)])
 
     @cherrypy.expose
     @get_check_key
@@ -115,10 +114,10 @@ class app(base_app):
         """
         # no parameter
         # redirect to the result page
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')]}
-        return self.tmpl_out("run.html", urld=urld,
+        http.refresh(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html", 
+                             input=[self.key_url + 'input_0.png',
+                                    self.key_url + 'tmp', 'input_1.png'],
                              height=image(os.path.join(self.key_dir, 
                                                        'input_0.png')).size[1])
 
@@ -184,25 +183,22 @@ something must have gone wrong""")
         shutil.move(os.path.join(self.key_dir, 'disp3_H_input_0.png.ply'),
                     os.path.join(self.key_dir, 'disp3_H_input_0.ply'))
 
-        urld = {'new_input' : self.url('index'),
-                'run' : self.url('run'),
-                'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')],
-                'disp' : [self.url('tmp', 'disp1_H_input_0.png'),
-                          self.url('tmp', 'disp3_H_input_0.png')],
-                'rect' : [self.url('tmp', 'H_input_0.png'),
-                          self.url('tmp', 'H_input_1.png')],
-                'orsa' : self.url('tmp', 'orsa.txt'),
-                'homo' : [self.url('tmp', 'H_input_0.txt'),
-                          self.url('tmp', 'H_input_1.txt')],
-                'exact' : [self.url('tmp', 'disp1_H_input_0.tif'),
-                           self.url('tmp', 'disp2_H_input_0.tif'),
-                           self.url('tmp', 'disp3_H_input_0.tif')],
-                'ply': self.url('tmp', 'disp3_H_input_0.ply')}
-
-        return self.tmpl_out("result.html", urld=urld,
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input_0.png',
+                                    self.key_url + 'input_1.png'],
+                             disp=[self.key_url + 'disp1_H_input_0.png',
+                                   self.key_url + 'disp3_H_input_0.png'],
+                             rect=[self.key_url + 'H_input_0.png',
+                                   self.key_url + 'H_input_1.png'],
+                             orsa=self.key_url + 'orsa.txt',
+                             homo=[self.key_url + 'H_input_0.txt',
+                                   self.key_url + 'H_input_1.txt'],
+                             exact=[self.key_url + 'disp1_H_input_0.tif',
+                                    self.key_url + 'disp2_H_input_0.tif',
+                                    self.key_url + 'disp3_H_input_0.tif'],
+                             ply=self.key_url + 'disp3_H_input_0.ply',
                              run_time="%0.2f" % run_time,
-                             height=image(os.path.join(key_dir, 
-                                                    'input_0.png')).size[1],
-                             stdout=open(os.path.join(key_dir, 
-                                                   'stdout.txt'), 'r').read())
+                             height=image(os.path.join(self.key_dir, 
+                                                       'input_0.png')).size[1],
+                             stdout=open(os.path.join(self.key_dir, 
+                                                      'stdout.txt'), 'r').read())
