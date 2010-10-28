@@ -91,9 +91,9 @@ class app(base_app):
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'input' : [self.url('tmp', 'input_0.png')]}
-        return self.tmpl_out("run.html", urld=urld)
+        http.refresh(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html",
+                             input=[self.key_url + 'input_0.png'])
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
@@ -129,8 +129,6 @@ class app(base_app):
         except RuntimeError:
             return self.error(errcode='runtime')
         self.log("input processed")
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png')],
-                'output' : [self.url('tmp', 'output.png')]}
-        return self.tmpl_out("result.html", urld=urld)
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input_0.png'],
+                             output=[self.key_url + 'output.png'])

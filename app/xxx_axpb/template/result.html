@@ -4,7 +4,7 @@
 The algorithm result is displayed  hereafter.
 </p>
 
-<form action="${urld['new_input']}" method="get">
+<form action="${app.base_url}" method="get">
 <fieldset>
 <p>
 Restart this algorithm with new data.
@@ -13,7 +13,7 @@ Restart this algorithm with new data.
 </fieldset>
 </form>
 
-<form action="${urld['new_run']}" method="get">
+<form action="${app.base_url + 'params'}" method="get">
 <fieldset>
 <p>
 Restart this algorithm with new parameters.
@@ -28,14 +28,14 @@ Restart this algorithm with new parameters.
 
 <h2>input</h2>
 
-% for url in urld['input']:
-<img src="${url}" alt="" /> <br/>
+% for input_url in input:
+<img src="${input_url}" alt="" /> <br/>
 % endfor
 
 <h2>output</h2>
 
-% for url in urld['output']:
-<img src="${url}" alt="" /> <br/>
+% for output_url in output:
+<img src="${output_url}" alt="" /> <br/>
 % endfor
 
 <%include file="footer.html" />
