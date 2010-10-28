@@ -46,18 +46,20 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_file = os.path.join(self.dl_dir, "MissStereo.tar.gz")
+        tgz_file = self.dl_dir + "MissStereo.tar.gz"
         tgz_url = "https://edit.ipol.im/edit/algo/" + \
             "m_quasi_euclidean_epipolar_rectification/MissStereo.tar.gz"
-        build_dir = os.path.join(self.src_dir, "MissStereo", "build")
-        src_bin = dict([(os.path.join(build_dir, "bin", prog),
-                         os.path.join(self.bin_dir, prog))
+        build_dir = (self.src_dir
+                     + os.path.join("MissStereo", "build") + os.path.sep)
+        src_bin = dict([(build_dir + os.path.join("bin", prog),
+                         self.bin_dir + prog)
                         for prog in ["homography", "orsa", "rectify",
                                      "sift", "size", "showRect"]])
-        src_bin[os.path.join(self.src_dir, "MissStereo",
-                             "scripts", "MissStereo.sh")] \
-            = os.path.join(self.bin_dir, "Rectify.sh")
-        log_file = os.path.join(self.base_dir, "build.log")
+        src_bin[self.src_dir
+                + os.path.join("MissStereo",
+                               "scripts", "MissStereo.sh")] \
+                               = self.bin_dir + "Rectify.sh"
+        log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if any of the dest files is missing, or too old
@@ -97,8 +99,8 @@ class app(base_app):
         """
         if newrun:
             self.clone_input()
-        if (image(os.path.join(self.key_dir, 'input_0.png')).size
-            != image(os.path.join(self.key_dir, 'input_1.png')).size):
+        if (image(self.key_dir + 'input_0.png').size
+            != image(self.key_dir + 'input_1.png').size):
             return self.error('badparams',
                               "The images must have the same size")
         return self.tmpl_out("params.html", msg=msg,
@@ -117,8 +119,8 @@ class app(base_app):
         return self.tmpl_out("run.html", 
                              input=[self.key_url + 'input_0.png',
                                     self.key_url + 'input_1.png'],
-                             height=image(os.path.join(self.key_dir,
-                                                       'input_0.png')).size[1])
+                             height=image(self.key_dir
+                                          + 'input_0.png').size[1])
 
     def run_algo(self, timeout=None):
         """
@@ -127,10 +129,10 @@ class app(base_app):
         this one needs no parameter
         """
         # run Rectify.sh
-        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
+        stdout = open(self.key_dir + 'stdout.txt', 'w')
         p = self.run_proc(['Rectify.sh',
-                           os.path.join(self.key_dir, 'input_0.png'),
-                           os.path.join(self.key_dir, 'input_1.png')],
+                           self.key_dir + 'input_0.png',
+                           self.key_dir + 'input_1.png'],
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p, timeout)
         stdout.close()
@@ -162,13 +164,12 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
         
-        shutil.move(os.path.join(self.key_dir, 
-                                 'input_0.png_input_1.png_pairs_orsa.txt'),
-                    os.path.join(self.key_dir, 'orsa.txt'))
-        shutil.move(os.path.join(self.key_dir, 'input_0.png_h.txt'),
-                    os.path.join(self.key_dir, 'H_input_0.txt'))
-        shutil.move(os.path.join(self.key_dir, 'input_1.png_h.txt'),
-                    os.path.join(self.key_dir, 'H_input_1.txt'))
+        shutil.move(self.key_dir + 'input_0.png_input_1.png_pairs_orsa.txt',
+                    self.key_dir + 'orsa.txt')
+        shutil.move(self.key_dir + 'input_0.png_h.txt',
+                    self.key_dir + 'H_input_0.txt')
+        shutil.move(self.key_dir + 'input_1.png_h.txt',
+                    self.key_dir + 'H_input_1.txt')
 
         return self.tmpl_out("result.html",
                              input=[self.key_url + 'input_0.png',
@@ -181,8 +182,7 @@ something must have gone wrong""")
                              homo=[self.key_url + 'H_input_0.txt',
                                    self.key_url + 'H_input_1.txt'],
                              run_time="%0.2f" % run_time,
-                             height=image(os.path.join(self.key_dir, 
-                                                       'input_0.png')).size[1],
-                             stdout=open(os.path.join(self.key_dir, 
-                                                      'stdout.txt'), 
-                                         'r').read())
+                             height=image(self.key_dir
+                                          + 'input_0.png').size[1],
+                             stdout=open(self.key_dir
+                                         + 'stdout.txt', 'r').read())
