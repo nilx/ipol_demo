@@ -98,16 +98,16 @@ class app(base_app):
         if not os.path.isdir(self.bin_dir):
             os.mkdir(self.bin_dir)
         # store common file path in variables
-        match_tgz_file = os.path.join(self.dl_dir, "match.tar.gz")
+        match_tgz_file = self.dl_dir + "match.tar.gz"
         match_tgz_url = "https://edit.ipol.im/edit/algo/" \
             + "ltp_stereovision_with_graph_cuts/match.tar.gz"
-        match_prog_file = os.path.join(self.bin_dir, "match")
-        match_log_file = os.path.join(self.base_dir, "build_match.log")
-        autok_tgz_file = os.path.join(self.dl_dir, "autoK.tar.gz")
+        match_prog_file = self.bin_dir + "match"
+        match_log_file = self.base_dir + "build_match.log"
+        autok_tgz_file = self.dl_dir + "autoK.tar.gz"
         autok_tgz_url = "https://edit.ipol.im/edit/algo/" \
             + "ltp_stereovision_with_graph_cuts/autoK.tar.gz"
-        autok_prog_file = os.path.join(self.bin_dir, "autoK")
-        autok_log_file = os.path.join(self.base_dir, "build_autok.log")
+        autok_prog_file = self.bin_dir + "autoK"
+        autok_log_file = self.base_dir + "build_autok.log"
         # get the latest source archive
         build.download(match_tgz_url, match_tgz_file)
         build.download(autok_tgz_url, autok_tgz_file)
@@ -121,12 +121,12 @@ class app(base_app):
             # extract the archive
             build.extract(match_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s ../bin/match" %
-                      os.path.join(self.src_dir, "match-v3.3.src", "unix")
+            build.run("make -C %s ../bin/match"
+                      % (self.src_dir + os.path.join("match-v3.3.src", "unix"))
                       + " CCOMP='ccache c++' -j4", stdout=match_log_file)
             # save into bin dir
-            shutil.copy(os.path.join(self.src_dir,
-                                     "match-v3.3.src", "bin", "match"),
+            shutil.copy(self.src_dir
+                        + os.path.join("match-v3.3.src", "bin", "match"),
                         match_prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -140,11 +140,11 @@ class app(base_app):
             # extract the archive
             build.extract(autok_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s ../bin/autoK" %
-                      os.path.join(self.src_dir, "autoK", "unix")
+            build.run("make -C %s ../bin/autoK"
+                      % (self.src_dir + os.path.join("autoK", "unix"))
                       + " CCOMP='ccache c++' -j4", stdout=autok_log_file)
             # save into bin dir
-            shutil.copy(os.path.join(self.src_dir, "autoK", "bin", "autoK"),
+            shutil.copy(self.src_dir + os.path.join("autoK", "bin", "autoK"),
                         autok_prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -176,28 +176,28 @@ class app(base_app):
         return self.tmpl_out("run.html",
                              input=[self.key_url + 'input_0.png',
                                     self.key_url + 'input_1.png'],
-                             height=image(os.path.join(self.key_dir, 
-                                                       'input_0.png')).size[1])
+                             height=image(self.key_dir
+                                          + 'input_0.png').size[1])
 
     def compute_k_auto(self):
         """
         compute default K and lambda values
         """
         # create autok.conf file
-        kfile = open(os.path.join(self.key_dir, 'autok.conf'), 'w')
+        kfile = open(self.key_dir + 'autok.conf', 'w')
         kfile.write("LOAD_COLOR input_0.ppm input_1.ppm\n")
         kfile.write("SET disp_range -15 0 0 0\n")
         kfile.close()
         
         # run autok
-        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
+        stdout = open(self.key_dir +'stdout.txt', 'w')
         p = self.run_proc(['autoK', 'autok.conf'],
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p)
         stdout.close()
         
         # get k from stdout
-        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'r')
+        stdout = open(self.key_dir + 'stdout.txt', 'r')
         k_auto = str2frac(stdout.readline()) 
         lambda_auto = simplify_frac((k_auto[0], k_auto[1] * 5))
         stdout.close()
@@ -234,18 +234,18 @@ class app(base_app):
         nproc = 6   # number of slices
         margin = 6  # overlap margin 
 
-        input0_fnames = image(os.path.join(self.key_dir, 'input_0.ppm')) \
+        input0_fnames = image(self.key_dir + 'input_0.ppm') \
             .split(nproc, margin=margin,
-                   fname=os.path.join(self.key_dir, 'input0_split.ppm'))
-        input1_fnames = image( os.path.join(self.key_dir, 'input_1.ppm')) \
+                   fname=self.key_dir + 'input0_split.ppm')
+        input1_fnames = image(self.key_dir + 'input_1.ppm') \
             .split(nproc, margin=margin,
-                   fname=os.path.join(self.key_dir, 'input1_split.ppm'))
+                   fname=self.key_dir + 'input1_split.ppm')
         output_fnames = ['output_split.__%0.2i__.png' % n
                          for n in range(nproc)]
         plist = []
         for n in range(nproc):
             # creating the conf files (one per process)
-            conf_file = open(os.path.join(self.key_dir, 'match_%i.conf' % n),'w')
+            conf_file = open(self.key_dir + 'match_%i.conf' % n,'w')
             conf_file.write("LOAD_COLOR %s %s\n"
                             % (input0_fnames[n], input1_fnames[n]))
             conf_file.write("SET disp_range -15 0 0 0\n")
@@ -264,16 +264,15 @@ class app(base_app):
         self.wait_proc(plist, timeout)
 
         # join all the partial results into a global one
-        output_img = image().join([image(os.path.join(self.key_dir,
-                                                      output_fnames[n]))
+        output_img = image().join([image(self.key_dir + output_fnames[n])
                                    for n in range(nproc)], margin=margin)
-        output_img.save(os.path.join(self.key_dir, 'disp_output.ppm'))
+        output_img.save(self.key_dir + 'disp_output.ppm')
 
         # delete the strips
         for fname in input0_fnames + input1_fnames:
             os.unlink(fname)
         for fname in output_fnames:
-            os.unlink(os.path.join(self.key_dir, fname))
+            os.unlink(self.key_dir + fname)
         return
 
     @cherrypy.expose
@@ -300,8 +299,8 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
         
-        disp = image(os.path.join(self.key_dir, 'disp_output.ppm'))
-        disp.save(os.path.join(self.key_dir, 'dispmap.png'))
+        disp = image(self.key_dir + 'disp_output.ppm')
+        disp.save(self.key_dir + 'dispmap.png')
         
         params_file = index_dict(self.key_dir)
         k = str2frac(params_file['params']['k_auto'])
@@ -322,8 +321,7 @@ something must have gone wrong""")
                                     self.key_url + 'input_1.png'],
                              output=[self.key_url + 'dispmap.png'],
                              run_time="%0.2f" % run_time,
-                             height=image(os.path.join(self.key_dir, 
-                                                       'input_0.png')).size[1],
+                             height=image(self.key_dir + 'input_0.png').size[1],
                              k_used=params_file['params']['k_used'],
                              lambda_used=params_file['params']['lambda_used'],
                              k_proposed=k_proposed,
