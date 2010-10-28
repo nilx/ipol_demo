@@ -1,25 +1,27 @@
 <%include file="header.html" />
 
 <p>
-Click on the image to select the lower-right corner of the subimage and run the algorithm or
-<form action="${urld['select_first']}" method="get">
+Click on the image to select the lower-right corner of the subimage
+and run the algorithm or
+<form action="${app.base_url + 'select_subimage_first'}" method="get">
 <input type="hidden" name="key" value="${app.key}">
 <input type="submit" value="Select new upper-left corner" />
 </form>
 or 
-<form action="${urld['cancel']}" method="get">
+<form action="${app.base_url + 'params'}" method="get">
 <input type="hidden" name="key" value="${app.key}">
 <input type="submit" value="Cancel" />
 </form>
 <p>
 
 <p>
-Remark: one of the subimage dimensions must be bigger than 400 pixels, otherwise the subimage will be rescaled.
+Remark: one of the subimage dimensions must be bigger than 400 pixels,
+otherwise the subimage will be rescaled.
 </p>
 
-<form action="${urld['run']}" method="get">
+<form action="${app.base_url + 'run'}" method="get">
 <input type="hidden" name="key" value="${app.key}">
-<input type="image" name="" src="${urld['input'][0]}" /> 
+<input type="image" name="" src="${input[0]}" /> 
 </form>
 
 

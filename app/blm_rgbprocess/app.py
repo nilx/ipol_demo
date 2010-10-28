@@ -91,11 +91,9 @@ class app(base_app):
         """
         if newrun:
             self.clone_input()
-        urld = {'run' : self.url('run'),
-		'select_first' : self.url('select_subimage_first'),
-                'input' : [self.url('tmp', 'input_0.png')]}
 
-        return self.tmpl_out("params.html", urld=urld, msg=msg)
+        return self.tmpl_out("params.html", msg=msg,
+                             input=[self.key_url + 'input_0.png'])
  
 
     @cherrypy.expose
@@ -104,11 +102,9 @@ class app(base_app):
         
         # configure first point selection
 
-        urld = {'cancel' : self.url('params'),
-		'select_second' : self.url('select_subimage_second'),
-                'input' : [self.url('tmp', 'input_0.png')]}
+        return self.tmpl_out("select_subimage_first.html", msg=msg,
+                             input=[self.key_url + 'input_0.png'])
 
-        return self.tmpl_out("select_subimage_first.html", urld=urld, msg=msg)
 
     @cherrypy.expose
     @get_check_key
@@ -125,8 +121,8 @@ class app(base_app):
             return self.error(errcode='badFirstPoint',
                               errmsg="Wrong first point selection")
 
-
-	#draw a red cross at the first subimage corner (upper-left) on the input image
+	# draw a red cross at the first subimage corner (upper-left)
+        # on the input image
         try:
             im = image(os.path.join(self.key_dir, 'input_0.png'))
         except IOError:
@@ -162,15 +158,9 @@ class app(base_app):
         im.save(os.path.join(self.key_dir, 'input_0First.png'))
 
 
-	#configure second point selection
-
-        urld = {'cancel' : self.url('params'),
-		'select_first' : self.url('select_subimage_first'),
-		'run' : self.url('run'),
-                'input' : [self.url('tmp', 'input_0First.png')]}
-
-        return self.tmpl_out("select_subimage_second.html", urld=urld, msg=msg)
-
+	# configure second point selection
+        return self.tmpl_out("select_subimage_second.html", msg=msg,
+                             input=[self.key_url + 'input_0First.png'])
 
     # run() is defined here,
     # because the parameters validation depends on the algorithm
@@ -214,10 +204,9 @@ class app(base_app):
 
 
 
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'next_step' : self.url('result'),
-                'input' : [self.url('tmp', 'input_00.png')]}
-        return self.tmpl_out("run.html", urld=urld)
+        http.refresh(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html",
+                             input=[self.key_url + 'input_00.png'])
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
@@ -402,21 +391,11 @@ class app(base_app):
         Version 3
 	"""
 
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
- 		'select_first' : self.url('select_subimage_first'),
-                'input' : [self.url('tmp', 'input_00.png')],
-                'output' : [self.url('tmp', 'output_2.png')],
-                'views' : [self.url('tmp', 'view_%i.png' % i) 
-			   for i in range(100, 127)]
-                }
-
-
-        #return self.tmpl_out("result.html", urld=urld,
-        #                     run_time="%0.2f" % run_time)
-        #return self.tmpl_out("result2.html", urld=urld,
-        #                    run_time="%0.2f" % run_time)
-        return self.tmpl_out("result3.html", urld=urld,
+        return self.tmpl_out("result3.html",
+                             input=[self.key_url + 'input_00.png'],
+                             output=[self.key_url + 'output_2.png'],
+                             views=[self.key_url + 'view_%i.png' % i 
+                                    for i in range(100, 127)],
                             run_time="%0.2f" % run_time, 
 			    sizeY="%i" \
                                  % image(os.path.join(self.key_dir,

@@ -2,20 +2,20 @@
 
 
 <p>
-<form action="${urld['run']}" method="get">
+<form action="${app.base_url + 'run'}" method="get">
 <input type="hidden" name="key" value="${app.key}">
 <input type="submit" value="Run the algorithm on the whole image" />
 </form>
 or 
-<form action="${urld['select_first']}" method="get">
+<form action="${app.base_url + 'select_subimage_first'}" method="get">
 <input type="hidden" name="key" value="${app.key}">
 <input type="submit" value="Select subimage" />
 </form>
 </p>
 
 <ul>
-% for url in urld['input']:
-<img src="${url}" alt="" />
+% for input_url in input:
+<img src="${input_url}" alt="" />
 % endfor
 </ul>
 
