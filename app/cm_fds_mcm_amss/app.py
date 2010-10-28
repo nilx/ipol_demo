@@ -56,11 +56,11 @@ class app(base_app):
             os.mkdir(self.bin_dir)
         # MCM
         # store common file path in variables
-        mcm_tgz_file = os.path.join(self.dl_dir, "fds_mcm.tar.gz")
+        mcm_tgz_file = self.dl_dir + "fds_mcm.tar.gz"
         mcm_tgz_url = \
             "http://www.ipol.im/pub/algo/cm_fds_mcm_amss/fds_mcm.tar.gz"
-        mcm_prog_file = os.path.join(self.bin_dir, "mcm")
-        mcm_log = os.path.join(self.base_dir, "build_mcm.log")
+        mcm_prog_file = self.bin_dir + "mcm"
+        mcm_log = self.base_dir + "build_mcm.log"
         # get the latest source archive
         build.download(mcm_tgz_url, mcm_tgz_file)
         # test if the dest file is missing, or too old
@@ -72,22 +72,22 @@ class app(base_app):
             # extract the archive
             build.extract(mcm_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s mcm" %
-                      os.path.join(self.src_dir, "fds_mcm", "mcm")
+            build.run("make -C %s mcm"
+                      % (self.src_dir + os.path.join("fds_mcm", "mcm"))
                       + " CC='ccache cc'"
                       + " OMP=1 -j4", stdout=mcm_log)
             # save into bin dir
-            shutil.copy(os.path.join(self.src_dir, "fds_mcm", "mcm", "mcm"),
+            shutil.copy(self.src_dir + os.path.join("fds_mcm", "mcm", "mcm"),
                         mcm_prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         # AMSS
         # store common file path in variables
-        amss_tgz_file = os.path.join(self.dl_dir, "fds_amss.tar.gz")
+        amss_tgz_file = self.dl_dir + "fds_amss.tar.gz"
         amss_tgz_url = \
             "http://www.ipol.im/pub/algo/cm_fds_mcm_amss/fds_amss.tar.gz"
-        amss_prog_file = os.path.join(self.bin_dir, "amss")
-        amss_log = os.path.join(self.base_dir, "build_amss.log")
+        amss_prog_file = self.bin_dir + "amss"
+        amss_log = self.base_dir + "build_amss.log"
         # get the latest source archive
         build.download(amss_tgz_url, amss_tgz_file)
         # test if the dest file is missing, or too old
@@ -99,12 +99,12 @@ class app(base_app):
             # extract the archive
             build.extract(amss_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s amss" %
-                      os.path.join(self.src_dir, "fds_amss", "amss")
+            build.run("make -C %s amss"
+                      % (self.src_dir + os.path.join("fds_amss", "amss"))
                       + " CC='ccache cc'"
                       + " OMP=1 -j4", stdout=amss_log)
             # save into bin dir
-            shutil.copy(os.path.join(self.src_dir, "fds_amss", "amss", "amss"),
+            shutil.copy(self.src_dir + os.path.join("fds_amss", "amss", "amss"),
                         amss_prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -121,10 +121,9 @@ class app(base_app):
         """
         # TODO: rewrite as an image function
 
-        print "input image path:", os.path.join(self.key_dir,
-                                                'input_0' + self.input_ext) 
+        print "input image path:", self.key_dir + 'input_0' + self.input_ext
         try:
-            im = image(os.path.join(self.key_dir, 'input_0' + self.input_ext))
+            im = image(self.key_dir + 'input_0' + self.input_ext)
         except IOError:
             raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -143,8 +142,8 @@ class app(base_app):
                 im.draw_line((x1, y1, x2, y1))
 
 
-        im.save(os.path.join(self.key_dir, 'input_1' + self.input_ext))
-        im.save(os.path.join(self.key_dir, 'input_1.png'))
+        im.save(self.key_dir + 'input_1' + self.input_ext)
+        im.save(self.key_dir + 'input_1.png')
 
     @cherrypy.expose
     @get_check_key
@@ -209,12 +208,12 @@ class app(base_app):
         if (gridStep == 0) :
             #process whole image 
             #save input image as input_2
-            im = image(os.path.join(self.key_dir, 'input_0' + self.input_ext))
-            im.save(os.path.join(self.key_dir, 'input_2' + self.input_ext))
-            im.save(os.path.join(self.key_dir, 'input_2.png'))
+            im = image(self.key_dir + 'input_0' + self.input_ext)
+            im.save(self.key_dir + 'input_2' + self.input_ext)
+            im.save(self.key_dir + 'input_2.png')
         else :
             #select subimage 
-            im = image(os.path.join(self.key_dir, 'input_0' + self.input_ext))
+            im = image(self.key_dir + 'input_0' + self.input_ext)
             x1 = (gridX / gridStep) * gridStep
             y1 = (gridY / gridStep) * gridStep
             x2 = x1 + gridStep
@@ -227,8 +226,8 @@ class app(base_app):
             #print "crop:", x1, y1, x2, y2
             #set default image size
             im.resize((400, 400), method="nearest")
-            im.save(os.path.join(self.key_dir, 'input_2' + self.input_ext))
-            im.save(os.path.join(self.key_dir, 'input_2.png'))
+            im.save(self.key_dir + 'input_2' + self.input_ext)
+            im.save(self.key_dir + 'input_2.png')
 
         http.refresh(self.base_url + 'result?key=%s' % self.key)
         return self.tmpl_out("run.html",
@@ -246,22 +245,18 @@ class app(base_app):
         this one needs no parameter
         """             
 
-        #Process image
-        p1 = self.run_proc(['mcm', str(scaleR), 
-                            os.path.join(self.key_dir, 'input_2' +
-                                         self.input_ext), 
-                            os.path.join(self.key_dir, 'output_MCM' +
-                                         self.input_ext)]) 
+        # process image
+        p1 = self.run_proc(['mcm', str(scaleR),
+                            self.key_dir + 'input_2' + self.input_ext,
+                            self.key_dir + 'output_MCM' + self.input_ext])
         p2 = self.run_proc(['amss', str(scaleR),
-                            os.path.join(self.key_dir, 'input_2' +
-                                         self.input_ext), 
-                            os.path.join(self.key_dir, 'output_AMSS' +
-                                         self.input_ext)]) 
+                            self.key_dir + 'input_2' + self.input_ext, 
+                            self.key_dir + 'output_AMSS' + self.input_ext]) 
         self.wait_proc([p1, p2], timeout)
-        im = image(os.path.join(self.key_dir, 'output_MCM' + self.input_ext))
-        im.save(os.path.join(self.key_dir, 'output_MCM.png'))
-        im = image(os.path.join(self.key_dir, 'output_AMSS' + self.input_ext))
-        im.save(os.path.join(self.key_dir, 'output_AMSS.png'))
+        im = image(self.key_dir + 'output_MCM' + self.input_ext)
+        im.save(self.key_dir + 'output_MCM.png')
+        im = image(self.key_dir + 'output_AMSS' + self.input_ext)
+        im.save(self.key_dir + 'output_AMSS.png')
 
     @cherrypy.expose
     @get_check_key
@@ -284,7 +279,7 @@ class app(base_app):
         scaleR = scaleRnorm*zoomfactor
 
        # run the algorithm
-        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
+        stdout = open(self.key_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
             self.run_algo(scaleR, stdout=stdout)
@@ -302,7 +297,5 @@ class app(base_app):
                              run_time="%0.2f" % run_time,
                              scaleRnorm="%2.2f" % scaleRnorm,
                              zoomfactor="%2.2f" % zoomfactor, 
-			     sizeY="%i" \
-                                 % image(os.path.join(self.key_dir,
-                                                      'input_2.png')).size[1])
-
+			     sizeY="%i" % image(self.key_dir
+                                                + 'input_2.png').size[1])
