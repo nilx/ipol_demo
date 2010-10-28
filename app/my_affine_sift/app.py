@@ -113,10 +113,10 @@ class app(base_app):
         params handling and run redirection
         """
         # no parameters
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')]}
-        return self.tmpl_out("run.html", urld=urld)
+        http.refresh(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html",
+                             input=[self.key_url + 'input_0.png',
+                                    self.key_url + 'input_1.png'])
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
@@ -169,19 +169,17 @@ something must have gone wrong""")
         nbmatch = int(match.readline().split()[0])
         match_SIFT = open(os.path.join(self.key_dir, 'match_SIFT.txt'))
         nbmatch_SIFT = int(match_SIFT.readline().split()[0])
-
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')],
-                'output_h' : self.url('tmp', 'outputH.png'),
-                'output_v' : self.url('tmp', 'outputV.png'),
-                'output_v_sift' : self.url('tmp', 'outputV_SIFT.png'),
-                'match' : self.url('tmp', 'match.txt'),
-                'keys_0' : self.url('tmp', 'keys_0.txt'),
-                'keys_1' : self.url('tmp', 'keys_1.txt')}
         stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'r')
-        return self.tmpl_out("result.html", urld=urld,
+
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input_0.png',
+                                    self.key_url + 'input_1.png'],
+                             output_h=self.key_url + 'outputH.png',
+                             output_v=self.key_url + 'outputV.png',
+                             output_v_sift=self.key_url + 'outputV_SIFT.png',
+                             match=self.key_url + 'match.txt',
+                             keys_0=self.key_url + 'keys_0.txt',
+                             keys_1=self.key_url + 'keys_1.txt',
                              run_time="%0.2f" % run_time,
                              nbmatch=nbmatch,
                              nbmatch_SIFT=nbmatch_SIFT,
