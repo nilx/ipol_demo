@@ -87,22 +87,22 @@ class base_app(empty_app):
         """
         # read the input index as a dict
         inputd = index_dict(self.input_dir)
-        for id in inputd.keys():
+        tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
+        # TODO: build via list-comprehension
+        for (input_id, input_info) in inputd.items():
             # convert the files to a list of file names
             # by splitting at blank characters
-            inputd[id]['files'] = inputd[id]['files'].split()
-            # generate thumbnails and thumbnail urls
-            tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
+            # and generate thumbnails and thumbnail urls
             tn_fname = [thumbnail(os.path.join(self.input_dir, fname),
                                   (tn_size, tn_size))
-                        for fname in inputd[id]['files']]
-            inputd[id]['tn_url'] = [self.input_url + os.path.basename(fname)
-                                    for fname in tn_fname]
+                        for fname in input_info['files'].split()]
+            inputd[input_id]['tn_url'] = [self.input_url
+                                          + os.path.basename(fname)
+                                          for fname in tn_fname]
 
         return self.tmpl_out("input.html",
                              tn_size=tn_size,
-                             inputd=inputd,
-                             input_nb=self.input_nb)
+                             inputd=inputd)
 
     #
     # INPUT HANDLING TOOLS
