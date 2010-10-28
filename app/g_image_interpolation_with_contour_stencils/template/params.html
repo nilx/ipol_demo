@@ -1,6 +1,6 @@
 <%include file="header.html" />
 
-<form action="${urld['next_step']}" method="get">
+<form action="${app.base_url + 'run'}" method="get">
 <fieldset> 
 <p>
 You can now run the algorithm.
@@ -11,8 +11,8 @@ You can now run the algorithm.
 </form>
 
 <ul>
-% for url in urld['input']:
-<img src="${url}" alt="" />
+% for input_url in input:
+<img src="${input_url}" alt="" />
 % endfor
 </ul>
 

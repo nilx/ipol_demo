@@ -92,11 +92,11 @@ class app(base_app):
         params handling and run redirection
         as a special case, we have no parameter to check and pass
         """
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'next_step' : self.url('result'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
-        return self.tmpl_out("run.html", urld=urld)
+        http.refresh(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html",
+                             input=[self.key_url + 'input_%i.png' % i
+                                    for i in range(self.input_nb)])
+
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
@@ -156,18 +156,14 @@ class app(base_app):
         except RuntimeError:
             return self.error(errcode='runtime')
         self.log("input processed")
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png')],
-                'output' : [self.url('tmp', 'coarsenedZ.png'),
-                            self.url('tmp', 'interpolated.png'),
-                            self.url('tmp', 'contourori.png')],
-                }
         stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'r')
         img0 = image(os.path.join(self.key_dir, 'input_0.png'))
         (sizeX, sizeY) = img0.size
         return self.tmpl_out("result.html", 
+                             input=[self.key_url + 'input_0.png'],
+                             output=[self.key_url + 'coarsenedZ.png',
+                                     self.key_url + 'interpolated.png',
+                                     self.key_url + 'contourori.png'],
                              height=sizeY ,
-                             urld=urld, 
                              stdout=stdout.read())
 
