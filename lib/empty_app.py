@@ -36,14 +36,6 @@ class empty_app(object):
         self.id = os.path.basename(base_dir)
         self.key = None
 
-        # data subfolders
-        self.input_dir = os.path.join(self.base_dir, 'input')
-        self.tmp_dir = os.path.join(self.base_dir, 'tmp')
-        self.key_dir = None
-        self.dl_dir = os.path.join(self.base_dir, 'dl')
-        self.src_dir = os.path.join(self.base_dir, 'src')
-        self.bin_dir = os.path.join(self.base_dir, 'bin')
-
         # create the missing subfolders
         for static_dir in [self.input_dir, self.tmp_dir]:
             if not os.path.isdir(static_dir):
@@ -59,6 +51,30 @@ class empty_app(object):
             (lambda x : None)
         self.tmp = cherrypy.tools.staticdir(dir=self.tmp_dir)\
             (lambda x : None)
+
+    def __getattr__(self, attr):
+        """
+        direct access to some image attributes
+        """
+
+        # subfolders
+        if attr == 'input_dir':
+            value = os.path.abspath(os.path.join(self.base_dir, 'input'))
+        elif attr == 'dl_dir':
+            value = os.path.abspath(os.path.join(self.base_dir, 'dl'))
+        elif attr == 'src_dir':
+            value = os.path.abspath(os.path.join(self.base_dir, 'src'))
+        elif attr == 'bin_dir':
+            return os.path.abspath(os.path.join(self.base_dir, 'bin'))
+        elif attr == 'tmp_dir':
+            value = os.path.abspath(os.path.join(self.base_dir, 'tmp'))
+        elif attr == 'key_dir':
+            value = (os.path.abspath(os.path.join(self.base_dir, 'tmp',
+                                                  self.key))
+                     if self.key else None)
+        else:
+            value = object.__getattribute__(self, attr)
+        return value
 
     #
     # URL MODEL 
@@ -128,7 +144,6 @@ class empty_app(object):
         """
         cherrypy.log("warning: no build method",
                      context='SETUP/%s' % self.id, traceback=False)
-        pass
 
     #
     # KEY MANAGEMENT
@@ -148,7 +163,6 @@ class empty_app(object):
         for seed in seeds:
             keygen.update(str(seed))
         self.key = keygen.hexdigest()
-        self.key_dir = os.path.join(self.tmp_dir, self.key)
         os.mkdir(self.key_dir)
         return
 
