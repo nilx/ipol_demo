@@ -52,9 +52,9 @@ class app(base_app):
         # store common file path in variables
         tgz_url = "https://edit.ipol.im/edit/algo/" \
             + "blm_color_dimensional_filtering/rgbprocess.tar.gz"
-        tgz_file = os.path.join(self.dl_dir, "rgbprocess.tar.gz")
-        prog_file = os.path.join(self.bin_dir, "rgbprocess")
-        log_file = os.path.join(self.base_dir, "build.log")
+        tgz_file = self.dl_dir + "rgbprocess.tar.gz"
+        prog_file = self.bin_dir + "rgbprocess"
+        log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if the dest file is missing, or too old
@@ -67,14 +67,14 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the program
             build.run("make -C %s rgbprocess"
-                      % os.path.join(self.src_dir, "rgbprocess")
+                      % (self.src_dir + "rgbprocess")
                       + " CXX='ccache c++' -j4", stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(os.path.join(self.src_dir, 
-                                     "rgbprocess", "rgbprocess"), prog_file)
+            shutil.copy(self.src_dir 
+                        + os.path.join("rgbprocess", "rgbprocess"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
@@ -115,7 +115,8 @@ class app(base_app):
 	#save upper-left corner coordinates
         try:
             params_file = index_dict(self.key_dir)
-            params_file['subimageFirst'] = {'firstx' : int(x), 'firsty' : int(y)}
+            params_file['subimageFirst'] = {'firstx' : int(x),
+                                            'firsty' : int(y)}
             params_file.save()
         except:
             return self.error(errcode='badFirstPoint',
@@ -124,7 +125,7 @@ class app(base_app):
 	# draw a red cross at the first subimage corner (upper-left)
         # on the input image
         try:
-            im = image(os.path.join(self.key_dir, 'input_0.png'))
+            im = image(self.key_dir + 'input_0.png')
         except IOError:
             raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -155,7 +156,7 @@ class app(base_app):
 	im.draw_line((x3, y3, x4, y4), color="red")
 
 
-        im.save(os.path.join(self.key_dir, 'input_0First.png'))
+        im.save(self.key_dir + 'input_0First.png')
 
 
 	# configure second point selection
@@ -175,11 +176,11 @@ class app(base_app):
 	#crop subimage, if selected
         if (x == None) or (y == None) :
 	  #no subimage selected
-           im = image(os.path.join(self.key_dir, 'input_0.png'))
-           im.save(os.path.join(self.key_dir, 'input_00.png'))
+           im = image(self.key_dir + 'input_0.png')
+           im.save(self.key_dir + 'input_00.png')
 	else :
 	  #crop and resize
-           im = image(os.path.join(self.key_dir, 'input_0.png'))
+           im = image(self.key_dir + 'input_0.png')
 
 	   #read upper-left corner coordinates
            params_file = index_dict(self.key_dir)
@@ -200,7 +201,7 @@ class app(base_app):
              im.resize((sX, sY), method="bilinear")
 
 	   # save result
-           im.save(os.path.join(self.key_dir, 'input_00.png'))
+           im.save(self.key_dir + 'input_00.png')
 
 
 
@@ -341,7 +342,7 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # run the algorithm
-        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
+        stdout = open(self.key_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
             self.run_algo(stdout=stdout)
@@ -397,6 +398,5 @@ class app(base_app):
                              views=[self.key_url + 'view_%i.png' % i 
                                     for i in range(100, 127)],
                             run_time="%0.2f" % run_time, 
-			    sizeY="%i" \
-                                 % image(os.path.join(self.key_dir,
-                                                      'input_00.png')).size[1])
+			    sizeY="%i" % image(self.key_dir 
+                                               + 'input_00.png').size[1])
