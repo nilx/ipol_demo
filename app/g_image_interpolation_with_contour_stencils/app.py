@@ -157,13 +157,13 @@ class app(base_app):
             return self.error(errcode='runtime')
         self.log("input processed")
         stdout = open(self.key_dir + 'stdout.txt', 'r')
-        img0 = image(self.key_dir + 'input_0.png')
-        (sizeX, sizeY) = img0.size
+        
         return self.tmpl_out("result.html", 
                              input=[self.key_url + 'input_0.png'],
                              output=[self.key_url + 'coarsenedZ.png',
                                      self.key_url + 'interpolated.png',
                                      self.key_url + 'contourori.png'],
-                             height=sizeY ,
+                             height=image(self.key_dir
+                                          + 'input_0.png').size[1],
                              stdout=stdout.read())
 

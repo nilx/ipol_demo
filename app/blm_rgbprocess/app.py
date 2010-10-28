@@ -98,21 +98,24 @@ class app(base_app):
 
     @cherrypy.expose
     @get_check_key
-    def select_subimage_first(self, newrun=False, msg=None):
-        
+    def select_subimage_first(self, msg=None):
+        """
+        first step of the sub-image selection
+        """
         # configure first point selection
-
         return self.tmpl_out("select_subimage_first.html", msg=msg,
                              input=[self.key_url + 'input_0.png'])
 
 
     @cherrypy.expose
     @get_check_key
-    def select_subimage_second(self, newrun=False, msg=None, x=None, y=None):
- 
-	print "x=", x
-	print "y=", y
-	#save upper-left corner coordinates
+    def select_subimage_second(self, msg=None, x=None, y=None):
+        """
+        second step of the sub-image selection
+        """
+        print "x=", x
+        print "y=", y
+        #save upper-left corner coordinates
         try:
             params_file = index_dict(self.key_dir)
             params_file['subimageFirst'] = {'firstx' : int(x),
@@ -122,7 +125,7 @@ class app(base_app):
             return self.error(errcode='badFirstPoint',
                               errmsg="Wrong first point selection")
 
-	# draw a red cross at the first subimage corner (upper-left)
+        # draw a red cross at the first subimage corner (upper-left)
         # on the input image
         try:
             im = image(self.key_dir + 'input_0.png')
@@ -130,36 +133,34 @@ class app(base_app):
             raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
 
-	y1=int(y)
-	y2=int(y)
-	if int(x) >= 2 :
-	  x1=int(x)-2
-	else :
-	  x1=0
-	if int(x)+2 < im.size[0] :
-	  x2=int(x)+2
-	else :
-	  x2=im.size[0]
+        y1 = int(y)
+        y2 = int(y)
+        if int(x) >= 2 :
+            x1 = int(x)-2
+        else :
+            x1 = 0
+        if int(x)+2 < im.size[0] :
+            x2 = int(x) + 2
+        else :
+            x2 = im.size[0]
  
-	x3=int(x)
-	x4=int(x)
-	if int(y) >= 2 :
-	  y3=int(y)-2
-	else :
-	  y3=0
-	if int(y)+2 < im.size[1] :
-	  y4=int(y)+2
-	else :
-	  y4=im.size[1]
+        x3 = int(x)
+        x4 = int(x)
+        if int(y) >= 2 :
+            y3 = int(y)-2
+        else :
+            y3 = 0
+        if int(y) + 2 < im.size[1] :
+            y4 = int(y) + 2
+        else :
+            y4 = im.size[1]
 
-	im.draw_line((x1, y1, x2, y2), color="red")
-	im.draw_line((x3, y3, x4, y4), color="red")
-
+        im.draw_line((x1, y1, x2, y2), color="red")
+        im.draw_line((x3, y3, x4, y4), color="red")
 
         im.save(self.key_dir + 'input_0First.png')
 
-
-	# configure second point selection
+        # configure second point selection
         return self.tmpl_out("select_subimage_second.html", msg=msg,
                              input=[self.key_url + 'input_0First.png'])
 
@@ -173,35 +174,35 @@ class app(base_app):
         as a special case, we have no parameter to check and pass
         """
 
-	#crop subimage, if selected
+        #crop subimage, if selected
         if (x == None) or (y == None) :
-	  #no subimage selected
-           im = image(self.key_dir + 'input_0.png')
-           im.save(self.key_dir + 'input_00.png')
-	else :
-	  #crop and resize
-           im = image(self.key_dir + 'input_0.png')
+            # no subimage selected
+            im = image(self.key_dir + 'input_0.png')
+            im.save(self.key_dir + 'input_00.png')
+        else :
+            # crop and resize
+            im = image(self.key_dir + 'input_0.png')
 
-	   #read upper-left corner coordinates
-           params_file = index_dict(self.key_dir)
-           x1 = int(params_file['subimageFirst']['firstx'])
-           y1 = int(params_file['subimageFirst']['firsty'])
+            # read upper-left corner coordinates
+            params_file = index_dict(self.key_dir)
+            x1 = int(params_file['subimageFirst']['firstx'])
+            y1 = int(params_file['subimageFirst']['firsty'])
 
-	   #crop
-           im.crop((x1, y1, int(x), int(y)))
+            # crop
+            im.crop((x1, y1, int(x), int(y)))
 
-	   #resize, if necessary
-	   if (im.size[0] < 400) and (im.size[1] < 400) :
-	     sX=400
-	     sY=400
- 	     if im.size[0] > im.size[1] :
-		sY=int(float(im.size[1])/float(im.size[0])*400)
-	     else :
-		sX=int(float(im.size[0])/float(im.size[1])*400)
-             im.resize((sX, sY), method="bilinear")
+            # resize, if necessary
+            if (im.size[0] < 400) and (im.size[1] < 400) :
+                sX = 400
+                sY = 400
+                if im.size[0] > im.size[1] :
+                    sY = int(float(im.size[1]) / float(im.size[0]) * 400)
+                else :
+                    sX = int(float(im.size[0]) / float(im.size[1]) * 400)
+                im.resize((sX, sY), method="bilinear")
 
-	   # save result
-           im.save(self.key_dir + 'input_00.png')
+            # save result
+            im.save(self.key_dir + 'input_00.png')
 
 
 
@@ -288,48 +289,62 @@ class app(base_app):
                             'output_1.png', 'input_0.png', 'output_2.png'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p2, p4, p5, p6], timeout)
-	"""
+        """
 
-	""" 
-	Version 3
+        """ 
+        Version 3
 
-	"""
+        """
 
-	print "remove isolated"
-        p1 = self.run_proc(['rgbprocess', 'rmisolated', 'input_00.png', 'input_1.png'], stdout=stdout, stderr=stdout)
+        print "remove isolated"
+        p1 = self.run_proc(['rgbprocess', 'rmisolated',
+                            'input_00.png', 'input_1.png'],
+                           stdout=stdout, stderr=stdout)
 
-	print "view parameters"
-        p2 = self.run_proc(['rgbprocess', 'RGBviewsparams', 'RGBviewsparams.txt'], stdout=stdout, stderr=stdout)
+        print "view parameters"
+        p2 = self.run_proc(['rgbprocess', 'RGBviewsparams',
+                            'RGBviewsparams.txt'],
+                           stdout=stdout, stderr=stdout)
         self.wait_proc([p1, p2], timeout)
 
-	print "LLP2"
-        p3 = self.run_proc(['rgbprocess', 'filter', 'input_1.png', 'output_1.png'],
+        print "LLP2"
+        p3 = self.run_proc(['rgbprocess', 'filter',
+                            'input_1.png', 'output_1.png'],
                            stdout=stdout, stderr=stdout)
         wOut = 256
         hOut = 256
-	displayDensity=0
-	print "original views"
-        p4 = self.run_proc(['rgbprocess', 'RGBviews', 'input_1.png', 'RGBviewsparams.txt', 'inRGB', 
-			   str(wOut), str(hOut), str(displayDensity)], stdout=stdout, stderr=stdout)
+        displayDensity = 0
+        print "original views"
+        p4 = self.run_proc(['rgbprocess', 'RGBviews',
+                            'input_1.png', 'RGBviewsparams.txt', 'inRGB', 
+                            str(wOut), str(hOut), str(displayDensity)],
+                           stdout=stdout, stderr=stdout)
         self.wait_proc([p3, p4], timeout)
 
 
-	print "filtered views"
-        p5 = self.run_proc(['rgbprocess', 'RGBviews', 'output_1.png', 'RGBviewsparams.txt', 'outRGB', 
-			   str(wOut), str(hOut), str(displayDensity)], stdout=stdout, stderr=stdout)
- 	displayDensity=1
+        print "filtered views"
+        p5 = self.run_proc(['rgbprocess', 'RGBviews',
+                            'output_1.png', 'RGBviewsparams.txt', 'outRGB', 
+                            str(wOut), str(hOut), str(displayDensity)],
+                           stdout=stdout, stderr=stdout)
+        displayDensity = 1
 
-	print "density views"
-        p6 = self.run_proc(['rgbprocess', 'RGBviews', 'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
-			   str(wOut), str(hOut), str(displayDensity)], stdout=stdout, stderr=stdout)
+        print "density views"
+        p6 = self.run_proc(['rgbprocess', 'RGBviews',
+                            'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
+                           str(wOut), str(hOut), str(displayDensity)],
+                           stdout=stdout, stderr=stdout)
         self.wait_proc([p5, p6], timeout)
 
- 	print "combine views"
-        p7 = self.run_proc(['rgbprocess', 'combineviews', 'RGBviewsparams.txt', 'inRGB', 'outRGB', 'dstyRGB', 'view'], 
-			   stdout=stdout, stderr=stdout)
+        print "combine views"
+        p7 = self.run_proc(['rgbprocess', 'combineviews',
+                            'RGBviewsparams.txt',
+                            'inRGB', 'outRGB', 'dstyRGB', 'view'], 
+                           stdout=stdout, stderr=stdout)
 
-	print "merge images"
-        p8 = self.run_proc(['rgbprocess', 'mergeimages', 'output_1.png', 'input_00.png', 'output_2.png'],
+        print "merge images"
+        p8 = self.run_proc(['rgbprocess', 'mergeimages',
+                            'output_1.png', 'input_00.png', 'output_2.png'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p7, p8], timeout)
 
@@ -386,11 +401,11 @@ class app(base_app):
                                  self.url('tmp', 'dstview123.png')]
                 }
 
-	"""
+        """
 
         """
         Version 3
-	"""
+        """
 
         return self.tmpl_out("result3.html",
                              input=[self.key_url + 'input_00.png'],
@@ -398,5 +413,5 @@ class app(base_app):
                              views=[self.key_url + 'view_%i.png' % i 
                                     for i in range(100, 127)],
                             run_time="%0.2f" % run_time, 
-			    sizeY="%i" % image(self.key_dir 
+                            sizeY="%i" % image(self.key_dir 
                                                + 'input_00.png').size[1])
