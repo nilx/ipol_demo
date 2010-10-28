@@ -118,7 +118,7 @@ class app(base_app):
 	print "y=", y
 	#save upper-left corner coordinates
         try:
-            params_file = index_dict(self.path('tmp'))
+            params_file = index_dict(self.key_dir)
             params_file['subimageFirst'] = {'firstx' : int(x), 'firsty' : int(y)}
             params_file.save()
         except:
@@ -128,7 +128,7 @@ class app(base_app):
 
 	#draw a red cross at the first subimage corner (upper-left) on the input image
         try:
-            im = image(self.path('tmp', 'input_0.png'))
+            im = image(os.path.join(self.key_dir, 'input_0.png'))
         except IOError:
             raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -159,7 +159,7 @@ class app(base_app):
 	im.draw_line((x3, y3, x4, y4), color="red")
 
 
-        im.save(self.path('tmp', 'input_0First.png'))
+        im.save(os.path.join(self.key_dir, 'input_0First.png'))
 
 
 	#configure second point selection
@@ -185,14 +185,14 @@ class app(base_app):
 	#crop subimage, if selected
         if (x == None) or (y == None) :
 	  #no subimage selected
-           im = image(self.path('tmp', 'input_0.png'))
-           im.save(self.path('tmp', 'input_00.png'))
+           im = image(os.path.join(self.key_dir, 'input_0.png'))
+           im.save(os.path.join(self.key_dir, 'input_00.png'))
 	else :
 	  #crop and resize
-           im = image(self.path('tmp', 'input_0.png'))
+           im = image(os.path.join(self.key_dir, 'input_0.png'))
 
 	   #read upper-left corner coordinates
-           params_file = index_dict(self.path('tmp'))
+           params_file = index_dict(self.key_dir)
            x1 = int(params_file['subimageFirst']['firstx'])
            y1 = int(params_file['subimageFirst']['firsty'])
 
@@ -210,7 +210,7 @@ class app(base_app):
              im.resize((sX, sY), method="bilinear")
 
 	   # save result
-           im.save(self.path('tmp', 'input_00.png'))
+           im.save(os.path.join(self.key_dir, 'input_00.png'))
 
 
 
@@ -418,7 +418,6 @@ class app(base_app):
         #                    run_time="%0.2f" % run_time)
         return self.tmpl_out("result3.html", urld=urld,
                             run_time="%0.2f" % run_time, 
-			    sizeY="%i" % image(self.path('tmp', 'input_00.png')).size[1])
-
-
-
+			    sizeY="%i" \
+                                 % image(os.path.join(self.key_dir,
+                                                      'input_00.png')).size[1])
