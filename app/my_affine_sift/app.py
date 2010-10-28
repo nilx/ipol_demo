@@ -51,16 +51,16 @@ class app(base_app):
         if not os.path.isdir(self.bin_dir):
             os.mkdir(self.bin_dir)
         # store common file path in variables
-        asift_tgz_file = os.path.join(self.dl_dir, "ASIFT_png.tar.gz")
+        asift_tgz_file = self.dl_dir + "ASIFT_png.tar.gz"
         asift_tgz_url = \
             "http://www.ipol.im/pub/algo/my_affine_sift/ASIFT_png.tar.gz"
-        asift_prog_file = os.path.join(self.bin_dir, "asift")
-        asift_log_file = os.path.join(self.base_dir, "build_asift.log")
-        sift_tgz_file = os.path.join(self.dl_dir, "SIFT_png.tar.gz")
+        asift_prog_file = self.bin_dir + "asift"
+        asift_log_file = self.base_dir + "build_asift.log"
+        sift_tgz_file = self.dl_dir + "SIFT_png.tar.gz"
         sift_tgz_url = \
             "http://www.ipol.im/pub/algo/my_affine_sift/SIFT_png.tar.gz"
-        sift_prog_file = os.path.join(self.bin_dir, "sift")
-        sift_log_file = os.path.join(self.base_dir, "build_sift.log")
+        sift_prog_file = self.bin_dir + "sift"
+        sift_log_file = self.base_dir + "build_sift.log"
         # get the latest source archive
         build.download(asift_tgz_url, asift_tgz_file)
         build.download(sift_tgz_url, sift_tgz_file)
@@ -75,11 +75,12 @@ class app(base_app):
             build.extract(asift_tgz_file, self.src_dir)
             # build the program
             build.run("make -C %s demo_ASIFT" %
-                      os.path.join(self.src_dir, "ASIFT_png")
+                      (self.src_dir + "ASIFT_png")
                       + " CC='ccache cc' CXX='ccache c++'"
                       + " OMP=1 -j4", stdout=asift_log_file)
             # save into bin dir
-            shutil.copy(os.path.join(self.src_dir, "ASIFT_png", "demo_ASIFT"),
+            shutil.copy(self.src_dir + os.path.join("ASIFT_png",
+                                                    "demo_ASIFT"),
                         asift_prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -94,11 +95,11 @@ class app(base_app):
             build.extract(sift_tgz_file, self.src_dir)
             # build the program
             build.run("make -C %s demo_SIFT" %
-                      os.path.join(self.src_dir, "SIFT_png")
+                      (self.src_dir + "SIFT_png")
                       + " CC='ccache cc' CXX='ccache c++'"
                       + " OMP=1 -j4", stdout=sift_log_file)
             # save into bin dir
-            shutil.copy(os.path.join(self.src_dir, "SIFT_png", "demo_SIFT"),
+            shutil.copy(self.src_dir + os.path.join("SIFT_png", "demo_SIFT"),
                         sift_prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -148,7 +149,7 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # no parameters
-        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'w')
+        stdout = open(self.key_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout, stdout=stdout)
@@ -165,11 +166,11 @@ The program ended with a failure return code,
 something must have gone wrong""")
         self.log("input processed")
 
-        match = open(os.path.join(self.key_dir, 'match.txt'))
+        match = open(self.key_dir + 'match.txt')
         nbmatch = int(match.readline().split()[0])
-        match_SIFT = open(os.path.join(self.key_dir, 'match_SIFT.txt'))
+        match_SIFT = open(self.key_dir + 'match_SIFT.txt')
         nbmatch_SIFT = int(match_SIFT.readline().split()[0])
-        stdout = open(os.path.join(self.key_dir, 'stdout.txt'), 'r')
+        stdout = open(self.key_dir + 'stdout.txt', 'r')
 
         return self.tmpl_out("result.html",
                              input=[self.key_url + 'input_0.png',
