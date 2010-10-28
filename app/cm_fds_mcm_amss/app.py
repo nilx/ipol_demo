@@ -119,6 +119,7 @@ class app(base_app):
         """
         draw a grid on the input image
         """
+        # TODO: rewrite as an image function
 
         print "input image path:", os.path.join(self.key_dir,
                                                 'input_0' + self.input_ext) 
@@ -153,7 +154,6 @@ class app(base_app):
         """
         if newrun:
             self.clone_input()
-
         try:
             params_file = index_dict(self.key_dir)
             params_file['paramsGrid'] = {'grid_step' : int(grid_step)}
@@ -162,14 +162,10 @@ class app(base_app):
             return self.error(errcode='badparamsGrid',
                               errmsg="Wrong grid parameters")
 
-
         self.draw_grid(int(grid_step))
-
-        urld = {'run' : self.url('run'),
-                'params' : self.url('params'),
-                'input' : [self.url('tmp', 'input_1.png?grid=%i' 
-                                    % int(grid_step))]}
-        return self.tmpl_out("params.html", urld=urld, msg=msg)
+        return self.tmpl_out("params.html", msg=msg,
+                             input=[self.key_url + 'input_1.png'
+                                    + '?grid_step=%i' % int(grid_step)])
 
     #
     # EXECUTION AND RESULTS
@@ -234,10 +230,10 @@ class app(base_app):
             im.save(os.path.join(self.key_dir, 'input_2' + self.input_ext))
             im.save(os.path.join(self.key_dir, 'input_2.png'))
 
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'next_step' : self.url('result'),
-                'input' : [self.url('tmp', 'input_2.png')]}
-        return self.tmpl_out("run.html", urld=urld)
+        http.refresh(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html",
+                             input=[self.key_url + 'input_2.png'])
+
 
     # run_algo() is defined here,
     # because it is the actual algorithm execution, hence specific
@@ -299,16 +295,11 @@ class app(base_app):
             return self.error(errcode='runtime')
         self.log("input processed")
 
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_2.png')],
-                'output' : [self.url('tmp', 'output_MCM.png'),
-                            self.url('tmp', 'output_AMSS.png')]
-                }
-
-
         return self.tmpl_out("result.html",
-                             urld=urld, run_time="%0.2f" % run_time,
+                             input=[self.key_url + 'input_2.png'],
+                             output=[self.key_url + 'output_MCM.png',
+                                     self.key_url + 'output_AMSS.png'],
+                             run_time="%0.2f" % run_time,
                              scaleRnorm="%2.2f" % scaleRnorm,
                              zoomfactor="%2.2f" % zoomfactor)
 
