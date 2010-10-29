@@ -83,25 +83,36 @@ class app(base_app):
             shutil.rmtree(self.src_dir)
         return
 
-    # run() is defined here,
-    # because the parameters validation depends on the algorithm
     @cherrypy.expose
     @get_check_key
-    def run(self):
+    def wait(self):
         """
         params handling and run redirection
         as a special case, we have no parameter to check and pass
         """
-        http.refresh(self.base_url + 'result?key=%s' % self.key)
-        return self.tmpl_out("run.html",
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
                              input=[self.key_url + 'input_%i.png' % i
                                     for i in range(self.input_nb)])
 
 
-    # run_algo() is defined here,
-    # because it is the actual algorithm execution, hence specific
-    # run_algo() is called from result(),
-    # with the parameters validated in run()
+    @cherrypy.expose
+    @get_check_key
+    def run(self):
+        """
+        algorithm execution
+        """
+        try:
+            self.run_algo(stdout=open(self.key_dir + 'stdout.txt', 'w'))
+        except TimeoutError:
+            return self.error(errcode='timeout') 
+        except RuntimeError:
+            return self.error(errcode='runtime')
+
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
+
+
     def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
@@ -148,16 +159,6 @@ class app(base_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # run the algorithm
-        try:
-            self.run_algo(stdout=open(self.key_dir + 'stdout.txt', 'w'))
-        except TimeoutError:
-            return self.error(errcode='timeout') 
-        except RuntimeError:
-            return self.error(errcode='runtime')
-        self.log("input processed")
-        stdout = open(self.key_dir + 'stdout.txt', 'r')
-        
         return self.tmpl_out("result.html", 
                              input=[self.key_url + 'input_0.png'],
                              output=[self.key_url + 'coarsenedZ.png',
@@ -165,5 +166,5 @@ class app(base_app):
                                      self.key_url + 'contourori.png'],
                              height=image(self.key_dir
                                           + 'input_0.png').size[1],
-                             stdout=stdout.read())
-
+                             stdout=open(self.key_dir 
+                                         + 'stdout.txt', 'r').read())

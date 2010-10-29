@@ -3,12 +3,8 @@ demo example for the X->aX+b transform
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import build
-from lib import http
-from lib.misc import get_check_key, app_expose
-from lib.misc import index_dict, ctime
-
+from lib import base_app, build, http, image
+from lib.misc import get_check_key, app_expose, index_dict, ctime
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -73,11 +69,9 @@ class app(base_app):
             shutil.rmtree(self.src_dir)
         return
 
-    # run() is defined here,
-    # because the parameters validation depends on the algorithm
     @cherrypy.expose
     @get_check_key
-    def run(self, a="1.", b="0"):
+    def wait(self, a="1.", b="0"):
         """
         params handling and run redirection
         """
@@ -91,14 +85,30 @@ class app(base_app):
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
-        http.refresh(self.base_url + 'result?key=%s' % self.key)
-        return self.tmpl_out("run.html",
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
                              input=[self.key_url + 'input_0.png'])
 
-    # run_algo() is defined here,
-    # because it is the actual algorithm execution, hence specific
-    # run_algo() is called from result(),
-    # with the parameters validated in run()
+    @cherrypy.expose
+    @get_check_key
+    def run(self):
+        """
+        algo execution
+        """
+        # read the parameters
+        params_file = index_dict(self.key_dir)
+        a = float(params_file['params']['a'])
+        b = float(params_file['params']['b'])
+        # run the algorithm
+        try:
+            self.run_algo(a, b)
+        except TimeoutError:
+            return self.error(errcode='timeout') 
+        except RuntimeError:
+            return self.error(errcode='runtime')
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
+
     def run_algo(self, a, b):
         """
         the core algo runner
@@ -115,20 +125,8 @@ class app(base_app):
     def result(self):
         """
         display the algo results
-        SHOULD be defined in the derived classes, to check the parameters
         """
-        # read the parameters
-        params_file = index_dict(self.key_dir)
-        a = float(params_file['params']['a'])
-        b = float(params_file['params']['b'])
-        # run the algorithm
-        try:
-            self.run_algo(a, b)
-        except TimeoutError:
-            return self.error(errcode='timeout') 
-        except RuntimeError:
-            return self.error(errcode='runtime')
-        self.log("input processed")
         return self.tmpl_out("result.html",
                              input=[self.key_url + 'input_0.png'],
-                             output=[self.key_url + 'output.png'])
+                             output=[self.key_url + 'output.png'],
+                             height=image(self.key_dir + 'output.png').size[1])

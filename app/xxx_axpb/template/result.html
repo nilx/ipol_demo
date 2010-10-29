@@ -26,16 +26,13 @@ Restart this algorithm with new parameters.
 
 <hr />
 
-<h2>input</h2>
+<h2>result</h2>
 
-% for input_url in input:
-<img src="${input_url}" alt="" /> <br/>
-% endfor
-
-<h2>output</h2>
-
-% for output_url in output:
-<img src="${output_url}" alt="" /> <br/>
-% endfor
+<div class="gallery" style="height:${height}px">
+<ul class="index">
+<li><a href="#">input<span><img src="${input[0]}" alt="input" /></a></li>
+<li><a href="#">output<span><img src="${output[0]}" alt="output" /></a></li>
+</ul>
+</div>
 
 <%include file="footer.html" />

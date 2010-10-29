@@ -170,11 +170,9 @@ class app(base_app):
     # EXECUTION AND RESULTS
     #
 
-    # run() is defined here,
-    # because the parameters validation depends on the algorithm
     @cherrypy.expose
     @get_check_key
-    def run(self, scaleR="1.0", x=None, y=None):
+    def wait(self, scaleR="1.0", x=None, y=None):
         """
         params handling and run redirection
         """
@@ -229,15 +227,45 @@ class app(base_app):
             im.save(self.key_dir + 'input_2' + self.input_ext)
             im.save(self.key_dir + 'input_2.png')
 
-        http.refresh(self.base_url + 'result?key=%s' % self.key)
-        return self.tmpl_out("run.html",
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
                              input=[self.key_url + 'input_2.png'])
 
 
-    # run_algo() is defined here,
-    # because it is the actual algorithm execution, hence specific
-    # run_algo() is called from result(),
-    # with the parameters validated in run()
+    @cherrypy.expose
+    @get_check_key
+    def run(self):
+        """
+        algo execution
+        """
+        # read the parameters
+        params_file = index_dict(self.key_dir)
+        # normalized scale
+        scaleRnorm = float(params_file['params']['scaler'])
+        # read grid parameters
+        gridStep = int(params_file['paramsGrid']['grid_step'])
+
+        # de-normalize scale
+        zoomfactor = 1.0
+        if gridStep != 0 :
+            zoomfactor = 400.0 / gridStep
+        scaleR = scaleRnorm*zoomfactor
+
+        # run the algorithm
+        stdout = open(self.key_dir + 'stdout.txt', 'w')
+        try:
+            run_time = time.time()
+            self.run_algo(scaleR, stdout=stdout)
+            params_file['params']['run_time'] = time.time() - run_time
+            params_file.save()
+        except TimeoutError:
+            return self.error(errcode='timeout') 
+        except RuntimeError:
+            return self.error(errcode='runtime')
+
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
+
     def run_algo(self, scaleR, stdout=None, timeout=False):
         """
         the core algo runner
@@ -272,29 +300,16 @@ class app(base_app):
         # read grid parameters
         gridStep = int(params_file['paramsGrid']['grid_step'])
 
-        #de-normalize scale
+        # de-normalize scale
         zoomfactor = 1.0
         if gridStep != 0 :
             zoomfactor = 400.0 / gridStep
-        scaleR = scaleRnorm*zoomfactor
-
-       # run the algorithm
-        stdout = open(self.key_dir + 'stdout.txt', 'w')
-        try:
-            run_time = time.time()
-            self.run_algo(scaleR, stdout=stdout)
-            run_time = time.time() - run_time
-        except TimeoutError:
-            return self.error(errcode='timeout') 
-        except RuntimeError:
-            return self.error(errcode='runtime')
-        self.log("input processed")
 
         return self.tmpl_out("result.html",
                              input=[self.key_url + 'input_2.png'],
                              output=[self.key_url + 'output_MCM.png',
                                      self.key_url + 'output_AMSS.png'],
-                             run_time="%0.2f" % run_time,
+                             run_time=float(params_file['params']['run_time']),
                              scaleRnorm="%2.2f" % scaleRnorm,
                              zoomfactor="%2.2f" % zoomfactor, 
 			     sizeY="%i" % image(self.key_dir

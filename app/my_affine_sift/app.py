@@ -3,11 +3,8 @@ ASIFT demo interaction script
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import image
-from lib import build
-from lib import http
-from lib.misc import get_check_key, app_expose, ctime
+from lib import base_app, image, build, http
+from lib.misc import get_check_key, app_expose, ctime, index_dict
 from cherrypy import TimeoutError
 import cherrypy
 import os.path
@@ -105,24 +102,41 @@ class app(base_app):
             shutil.rmtree(self.src_dir)
         return
 
-    # run() is defined here,
-    # because the parameters validation depends on the algorithm
     @cherrypy.expose
     @get_check_key
-    def run(self):
+    def wait(self):
         """
         params handling and run redirection
         """
         # no parameters
-        http.refresh(self.base_url + 'result?key=%s' % self.key)
-        return self.tmpl_out("run.html",
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
                              input=[self.key_url + 'input_0.png',
                                     self.key_url + 'input_1.png'])
 
-    # run_algo() is defined here,
-    # because it is the actual algorithm execution, hence specific
-    # run_algo() is called from result(),
-    # with the parameters validated in run()
+    @cherrypy.expose
+    @get_check_key
+    def run(self):
+        """
+        algorithm execution
+        """
+        stdout = open(self.key_dir + 'stdout.txt', 'w')
+        try:
+            run_time = time.time()
+            self.run_algo(timeout=self.timeout, stdout=stdout)
+            params_file = index_dict(self.key_dir)
+            params_file['params'] = {}
+            params_file['params']['run_time'] = time.time() - run_time
+            params_file.save()
+        except TimeoutError:
+            return self.error(errcode='timeout',
+                              errmsg="Try again with simpler images.")
+        except RuntimeError:
+            return self.error(errcode='runtime')
+
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
+
     def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
@@ -146,31 +160,10 @@ class app(base_app):
     def result(self):
         """
         display the algo results
-        SHOULD be defined in the derived classes, to check the parameters
         """
-        # no parameters
-        stdout = open(self.key_dir + 'stdout.txt', 'w')
-        try:
-            run_time = time.time()
-            self.run_algo(timeout=self.timeout, stdout=stdout)
-            run_time = time.time() - run_time
-        except TimeoutError:
-            return self.error(errcode='timeout',
-                              errmsg="""
-The algorithm took more than %i seconds and had to be interrupted.
-Try again with simpler images.""" % self.timeout)
-        except RuntimeError:
-            return self.error(errcode='retime',
-                              errmsg="""
-The program ended with a failure return code,
-something must have gone wrong""")
-        self.log("input processed")
-
         match = open(self.key_dir + 'match.txt')
-        nbmatch = int(match.readline().split()[0])
         match_SIFT = open(self.key_dir + 'match_SIFT.txt')
-        nbmatch_SIFT = int(match_SIFT.readline().split()[0])
-        stdout = open(self.key_dir + 'stdout.txt', 'r')
+        run_time = float(index_dict(self.key_dir)['params']['run_time'])
 
         return self.tmpl_out("result.html",
                              input=[self.key_url + 'input_0.png',
@@ -181,8 +174,8 @@ something must have gone wrong""")
                              match=self.key_url + 'match.txt',
                              keys_0=self.key_url + 'keys_0.txt',
                              keys_1=self.key_url + 'keys_1.txt',
-                             run_time="%0.2f" % run_time,
-                             nbmatch=nbmatch,
-                             nbmatch_SIFT=nbmatch_SIFT,
-                             stdout=stdout.read())
-
+                             run_time=run_time,
+                             nbmatch=int(match.readline().split()[0]),
+                             nbmatch_SIFT=int(match_SIFT.readline().split()[0]),
+                             stdout=open(self.key_dir
+                                         + 'stdout.txt', 'r').read())
