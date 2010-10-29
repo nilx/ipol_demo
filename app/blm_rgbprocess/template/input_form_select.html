@@ -1,0 +1,45 @@
+%if inputd:
+<form action="${app.base_url + 'input_select'}" method="get">
+<fieldset> 
+<legend>Select Data</legend> 
+<p>
+Click on an image to use it as the algorithm input.
+</p>
+<div style="max-height:30em; overflow:auto;">
+%for id in sorted(inputd.keys()):
+<div class="select_input">
+%for url in inputd[id]['tn_url']:
+  <input type="image" name="${id | h}"
+	 width="${tn_size}" height="${tn_size}"
+         src="${url}" alt="${inputd[id]['title'] | h}"/>
+%endfor
+  <span class="label">${inputd[id]['title'] | h}</span>
+</div>
+%endfor
+</div>
+
+
+
+<p><small><a class="toggle" href="#credits">credits</a></small></p>
+
+<div class="toggleable" id="credits">
+
+<p><small>
+
+%for id in sorted(inputd.keys()):
+	<a href="${inputd[id]['href_url']}"><img width="${cr_size}" height="${cr_size}" src="${inputd[id]['cr_url']}" /></a>
+  	<span class="label">${inputd[id]['credits']}</span>
+%endfor
+
+</small></p>
+
+</div>
+
+
+
+
+
+</fieldset>
+</form>
+%endif
+
