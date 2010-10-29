@@ -252,3 +252,23 @@ class image(object):
         draw.line(coords, fill=color)
         del draw
         return self
+
+    def draw_grid(self, step, offset=(0, 0), color="white"):
+        """
+        draw a grid on the input image
+
+        @param step: the grid step
+        @param offset: the grid offset
+        @param color: the grid color
+        @return: the image object
+        """
+        assert (step > 0)
+        # vertical lines
+        y = self.im.size[1]
+        for x in range(offset[0], self.im.size[0], step):
+            self.draw_line(((x, 0), (x, y)))
+        # horizontal lines
+        x = self.im.size[0]
+        for y in range(offset[1], self.im.size[1], step):
+            self.draw_line(((0, y), (x, y)))
+        return self
