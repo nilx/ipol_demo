@@ -4,45 +4,61 @@
 You can now choose the parameters, and run the numerical schemes.
 <p>
 
-<form action="${app.base_url + 'wait'}" method="get">
+<form action="${app.base_url + 'grid'}" method="get">
 <fieldset>
 <input type="hidden" name="key" value="${app.key}">
-<p>
-Select normalized scale (at normalized scale R a disk of radius R disappears):
-<select name="scaleR">
-  <option value="0.2">0.2</option>
-  <option value="0.4">0.4</option>
-  <option value="0.5">0.5</option>
-  <option value="0.75">0.75</option>
-  <option value="1.0" selected>1.0</option>
-  <option value="1.25">1.25</option>
-  <option value="1.5">1.5</option>
-  <option value="1.75">1.75</option>
-  <option value="2.0">2.0</option>
-</select>
-</p>
-<p>
-<input type="submit" value="Run the algorithm on the whole image" />
-or select a portion of it 
-using a grid (such a portion will be rescaled to 400x400 pixels before
-processing).
-</p>
-<input type="image" name="" src="${input[0]}" /> 
-</form>
-
-<form action="${app.base_url + 'params'}" method="get">
-<p>
-Redraw the grid with a different step size.
-</p>
-<input type="hidden" name="key" value="${app.key}">
-<select name="grid_step">
-  <option value="0" selected>no grid (zoom 1x)</option>
-  <option value="50">50 (zoom 8x)</option>
-  <option value="80">80 (zoom 5x)</option>
-  <option value="100">100 (zoom 4x)</option>
-  <option value="200">200 (zoom 2x)</option>
-</select>
-<input type="submit" value="Redraw" />
+<ol>
+  <li>
+    Select the normalized scale (at normalized scale R a disk of radius R
+    disappears): 
+    <select name="scaleR">
+      <option value="0.2">0.2</option>
+      <option value="0.4">0.4</option>
+      <option value="0.5">0.5</option>
+      <option value="0.75">0.75</option>
+      <option value="1.0" selected>1.0</option>
+      <option value="1.25">1.25</option>
+      <option value="1.5">1.5</option>
+      <option value="1.75">1.75</option>
+      <option value="2.0">2.0</option>
+    </select>
+  </li>
+  <li>
+    Run the algorithm...
+    <ul>
+      <li>
+	on the whole image: <input type="submit" name="action" value="Run" />
+      </li>
+      <li>
+	or select a portion of the image using a grid (such a
+	portion will be rescaled to 400x400 pixels before processing):
+	<ol>
+	  <li>
+	    redraw the grid with a different step size: 
+	    <select name="step">
+	      <option value="0" selected>no grid (zoom 1x)</option>
+	      <option value="50">50 (zoom 8x)</option>
+	      <option value="80">80 (zoom 5x)</option>
+	      <option value="100">100 (zoom 4x)</option>
+	      <option value="200">200 (zoom 2x)</option>
+	    </select>
+	    <input type="submit" name="action" value="Redraw" />
+	  </li>
+	  <li>
+	    and select the portion of the image by clicking:<br />
+%if grid:
+	    <input type="hidden" name="grid_step" value="${step}">
+	    <input type="image" name="" src="${input[0]}" />
+%else:
+	    <img src="${input[0]}" />
+%endif
+	  </li>
+	</ol>
+      </li>
+    </ul>
+  </li>
+</ol>
+</fieldset>
 </form>
 
 <%include file="footer.html" />

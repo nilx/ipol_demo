@@ -114,57 +114,60 @@ class app(base_app):
     # PARAMETER HANDLING
     #
 
-
-    def draw_grid(self, grid_step):
-        """
-        draw a grid on the input image
-        """
-        # TODO: rewrite as an image function
-
-        print "input image path:", self.key_dir + 'input_0' + self.input_ext
-        try:
-            im = image(self.key_dir + 'input_0' + self.input_ext)
-        except IOError:
-            raise cherrypy.HTTPError(400, # Bad Request
-                                         "Bad input file")
-
-        if grid_step != 0 :
-            #vertical lines
-            y1 = 0
-            y2 = im.size[1]
-            for x1 in range(0, im.size[0], grid_step):
-                im.draw_line((x1, y1, x1, y2))
-
-            #horizontal lines
-            x1 = 0
-            x2 = im.size[0]
-            for y1 in range(0, im.size[1], grid_step):
-                im.draw_line((x1, y1, x2, y1))
-
-
-        im.save(self.key_dir + 'input_1' + self.input_ext)
-        im.save(self.key_dir + 'input_1.png')
-
     @cherrypy.expose
     @get_check_key
-    def params(self, newrun=False, grid_step=0, msg=None):
+    def grid(self, step, scaleR, grid_step=0, action=None, x=0, y=0):
         """
-        configure the algo execution
+        handle the grid drawing and selection
         """
-        if newrun:
-            self.clone_input()
-        try:
-            params_file = index_dict(self.key_dir)
-            params_file['paramsGrid'] = {'grid_step' : int(grid_step)}
-            params_file.save()
-        except:
-            return self.error(errcode='badparamsGrid',
-                              errmsg="Wrong grid parameters")
-
-        self.draw_grid(int(grid_step))
-        return self.tmpl_out("params.html", msg=msg,
-                             input=[self.key_url + 'input_1.png'
-                                    + '?grid_step=%i' % int(grid_step)])
+        if action == 'Run':
+            # use the whole image
+            img = image(self.key_dir + 'input_0.png')
+            img.save(self.key_dir + 'input' + self.input_ext)
+            img.save(self.key_dir + 'input.png')
+            # go to the wait page, with the key and scale
+            http.redir_303(self.base_url
+                           + "wait?key=%s&scaleR=%s&step=%s" 
+                           % (self.key, scaleR, step))
+            return
+        elif action == 'Redraw':
+            # draw the grid
+            step = int(step)
+            if 0 < step:
+                img = image(self.key_dir + 'input_0.png')
+                img.draw_grid(step)
+                img.save(self.key_dir + 'input_grid.png')
+                input=[self.key_url + 'input_grid.png'
+                       + '?step=%i' % step]
+                grid=True
+            else:
+                input=[self.key_url + 'input_0.png']
+                grid=False
+            return self.tmpl_out("params.html",
+                                 input=input, step=step, grid=grid)
+        else:
+            # use a part of the image
+            x = int(x)
+            y = int(y)
+            # get the step used to draw the grid
+            step = int(grid_step)
+            assert step > 0
+            # cut the image section
+            img = image(self.key_dir + 'input_0.png')
+            x0 = (x / step) * step
+            y0 = (y / step) * step
+            x1 = min(img.size[0], x0 + step)
+            y1 = min(img.size[1], y0 + step)
+            img.crop((x0, y0, x1, y1))
+            # zoom and save image
+            img.resize((400, 400), method="nearest")
+            img.save(self.key_dir + 'input' + self.input_ext)
+            img.save(self.key_dir + 'input.png')
+            # go to the wait page, with the key and scale
+            http.redir_303(self.base_url
+                           + "wait?key=%s&scaleR=%s&step=%s" 
+                           % (self.key, scaleR, step))
+            return
 
     #
     # EXECUTION AND RESULTS
@@ -172,65 +175,27 @@ class app(base_app):
 
     @cherrypy.expose
     @get_check_key
-    def wait(self, scaleR="1.0", x=None, y=None):
+    def wait(self, scaleR, step):
         """
         params handling and run redirection
         """
-
-        # read grid parameters
-        params_file = index_dict(self.key_dir)
-        gridStep = int(params_file['paramsGrid']['grid_step'])
- 
-
-        # save and validate the parameters
-        if (x == None) or (y == None) :
-            x = 0
-            y = 0
-
-        print "x=", x
-        print "y=", y
-        print "grid_step=", gridStep
-        print "scaleR=", float(scaleR)
-
+        # read parameters
         try:
             params_file = index_dict(self.key_dir)
-            params_file['params'] = {'scaler' : float(scaleR)}
+            params_file['params'] = {'scale_r' : float(scaleR),
+                                     'grid_step' : int(step),
+                                     'zoom_factor' : (400.0 / int(step)
+                                                      if int(step) > 0
+                                                      else 1.)}
             params_file.save()
-        except:
+        except ValueError:
             return self.error(errcode='badparams',
                               errmsg="Wrong input parameters")
 
-        #Select image to process
-        gridX = int(x)
-        gridY = int(y)
-        if (gridStep == 0) :
-            #process whole image 
-            #save input image as input_2
-            im = image(self.key_dir + 'input_0' + self.input_ext)
-            im.save(self.key_dir + 'input_2' + self.input_ext)
-            im.save(self.key_dir + 'input_2.png')
-        else :
-            #select subimage 
-            im = image(self.key_dir + 'input_0' + self.input_ext)
-            x1 = (gridX / gridStep) * gridStep
-            y1 = (gridY / gridStep) * gridStep
-            x2 = x1 + gridStep
-            if x2 > im.size[0] :
-                x2 = im.size[0]
-            y2 = y1+gridStep
-            if y2 > im.size[1] :
-                y2 = im.size[1]
-            im.crop((x1, y1, x2, y2))
-            #print "crop:", x1, y1, x2, y2
-            #set default image size
-            im.resize((400, 400), method="nearest")
-            im.save(self.key_dir + 'input_2' + self.input_ext)
-            im.save(self.key_dir + 'input_2.png')
-
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input_2.png'])
-
+                             input=[self.key_url
+                                    + 'input.png?step=%s' % step])
 
     @cherrypy.expose
     @get_check_key
@@ -240,22 +205,18 @@ class app(base_app):
         """
         # read the parameters
         params_file = index_dict(self.key_dir)
-        # normalized scale
-        scaleRnorm = float(params_file['params']['scaler'])
-        # read grid parameters
-        gridStep = int(params_file['paramsGrid']['grid_step'])
+        scale_r = float(params_file['params']['scale_r'])
+        grid_step = int(params_file['params']['grid_step'])
+        zoom_factor = float(params_file['params']['zoom_factor'])
 
-        # de-normalize scale
-        zoomfactor = 1.0
-        if gridStep != 0 :
-            zoomfactor = 400.0 / gridStep
-        scaleR = scaleRnorm*zoomfactor
+        # denormalize the scale
+        scale_r *= zoom_factor
 
         # run the algorithm
         stdout = open(self.key_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(scaleR, stdout=stdout)
+            self.run_algo(scale_r, stdout=stdout)
             params_file['params']['run_time'] = time.time() - run_time
             params_file.save()
         except TimeoutError:
@@ -266,7 +227,7 @@ class app(base_app):
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
         return self.tmpl_out("run.html")
 
-    def run_algo(self, scaleR, stdout=None, timeout=False):
+    def run_algo(self, scale_r, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
@@ -274,11 +235,11 @@ class app(base_app):
         """             
 
         # process image
-        p1 = self.run_proc(['mcm', str(scaleR),
-                            self.key_dir + 'input_2' + self.input_ext,
+        p1 = self.run_proc(['mcm', str(scale_r),
+                            self.key_dir + 'input' + self.input_ext,
                             self.key_dir + 'output_MCM' + self.input_ext])
-        p2 = self.run_proc(['amss', str(scaleR),
-                            self.key_dir + 'input_2' + self.input_ext, 
+        p2 = self.run_proc(['amss', str(scale_r),
+                            self.key_dir + 'input' + self.input_ext, 
                             self.key_dir + 'output_AMSS' + self.input_ext]) 
         self.wait_proc([p1, p2], timeout)
         im = image(self.key_dir + 'output_MCM' + self.input_ext)
@@ -295,22 +256,17 @@ class app(base_app):
         """
         # read the parameters
         params_file = index_dict(self.key_dir)
-        # normalized scale
-        scaleRnorm = float(params_file['params']['scaler'])
-        # read grid parameters
-        gridStep = int(params_file['paramsGrid']['grid_step'])
-
-        # de-normalize scale
-        zoomfactor = 1.0
-        if gridStep != 0 :
-            zoomfactor = 400.0 / gridStep
+        scale_r = float(params_file['params']['scale_r'])
+        grid_step = int(params_file['params']['grid_step'])
+        zoom_factor = float(params_file['params']['zoom_factor'])
 
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_2.png'],
+                             input=[self.key_url 
+                                    + 'input.png?step=%s' % grid_step],
                              output=[self.key_url + 'output_MCM.png',
                                      self.key_url + 'output_AMSS.png'],
                              run_time=float(params_file['params']['run_time']),
-                             scaleRnorm="%2.2f" % scaleRnorm,
-                             zoomfactor="%2.2f" % zoomfactor, 
+                             scaleRnorm="%2.2f" % scale_r,
+                             zoomfactor="%2.2f" % zoom_factor, 
 			     sizeY="%i" % image(self.key_dir
-                                                + 'input_2.png').size[1])
+                                                + 'input.png').size[1])
