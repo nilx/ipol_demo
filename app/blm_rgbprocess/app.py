@@ -86,298 +86,139 @@ class app(base_app):
 
     @cherrypy.expose
     @get_check_key
-    def params(self, newrun=False, msg=None):
+    def rectangle(self, action=None, x=None, y=None, x0=None, y0=None):
         """
-        configure the algo execution
+        select a rectangle in the image
         """
-        if newrun:
-            self.clone_input()
-
-        return self.tmpl_out("params.html", msg=msg,
-                             input=[self.key_url + 'input_0.png'])
- 
+        if action == 'Run':
+            # use the whole image
+            img = image(self.key_dir + 'input_0.png')
+            img.save(self.key_dir + 'input' + self.input_ext)
+            img.save(self.key_dir + 'input.png')
+            # go to the wait page, with the key
+            http.redir_303(self.base_url + "wait?key=%s" % self.key)
+            return
+        else:
+            # use a part of the image
+            if x0 == None:
+                # first corner selection
+                x = int(x)
+                y = int(y)
+                # draw a cross at the first corner
+                img = image(self.key_dir + 'input_0.png')
+                img.draw_cross((x, y), size=4, color="white")
+                img.draw_cross((x, y), size=2, color="red")
+                img.save(self.key_dir + 'input.png')
+                return self.tmpl_out("params.html",
+                                     input=[self.key_url 
+                                            + 'input.png?xy=%i,%i' % (x, y)],
+                                     x0=x, y0=y)
+            else:
+                # second corner selection
+                x0 = int(x0)
+                y0 = int(y0)
+                x1 = int(x)
+                y1 = int(y)
+                # reorder the corners
+                (x0, x1) = (min(x0, x1), max(x0, x1))
+                (y0, y1) = (min(y0, y1), max(y0, y1))
+                assert (x1 - x0) > 0
+                assert (y1 - y0) > 0
+                # crop the image
+                img = image(self.key_dir + 'input_0.png')
+                img.crop((x0, y0, x1, y1))
+                # zoom the cropped area
+                (dx, dy) = img.size
+                if (dx < 400) and (dy < 400) :
+                    if dx > dy :
+                        dy = int(float(dy) / float(dx) * 400)
+                        dx = 400
+                    else :
+                        dx = int(float(dx) / float(dy) * 400)
+                        dy = 400
+                    img.resize((dx, dy), method="bilinear")
+                img.save(self.key_dir + 'input' + self.input_ext)
+                img.save(self.key_dir + 'input.png')
+                # go to the wait page, with the key
+                http.redir_303(self.base_url + "wait?key=%s" % self.key)
+            return
 
     @cherrypy.expose
     @get_check_key
-    def select_subimage_first(self, msg=None):
-        """
-        first step of the sub-image selection
-        """
-        # configure first point selection
-        return self.tmpl_out("select_subimage_first.html", msg=msg,
-                             input=[self.key_url + 'input_0.png'])
-
-
-    @cherrypy.expose
-    @get_check_key
-    def select_subimage_second(self, msg=None, x=None, y=None):
-        """
-        second step of the sub-image selection
-        """
-        print "x=", x
-        print "y=", y
-        #save upper-left corner coordinates
-        try:
-            params_file = index_dict(self.key_dir)
-            params_file['subimageFirst'] = {'firstx' : int(x),
-                                            'firsty' : int(y)}
-            params_file.save()
-        except:
-            return self.error(errcode='badFirstPoint',
-                              errmsg="Wrong first point selection")
-
-        # draw a white-red cross at the first subimage corner (upper-left)
-        # on the input image
-        try:
-            im = image(self.key_dir + 'input_0.png')
-        except IOError:
-            raise cherrypy.HTTPError(400, # Bad Request
-                                         "Bad input file")
-
-	# draw white cross
-        y1 = int(y)
-        y2 = int(y)
-        if int(x) >= 4 :
-            x1 = int(x)-4
-        else :
-            x1 = 0
-        if int(x)+4 < im.size[0] :
-            x2 = int(x) + 4
-        else :
-            x2 = im.size[0]
- 
-        x3 = int(x)
-        x4 = int(x)
-        if int(y) >= 4 :
-            y3 = int(y)-4
-        else :
-            y3 = 0
-        if int(y) + 4 < im.size[1] :
-            y4 = int(y) + 4
-        else :
-            y4 = im.size[1]
-
-        im.draw_line((x1, y1, x2, y2), color="white")
-        im.draw_line((x3, y3, x4, y4), color="white")
-
-	# draw red cross
-        y1 = int(y)
-        y2 = int(y)
-        if int(x) >= 2 :
-            x1 = int(x)-2
-        else :
-            x1 = 0
-        if int(x)+2 < im.size[0] :
-            x2 = int(x) + 2
-        else :
-            x2 = im.size[0]
- 
-        x3 = int(x)
-        x4 = int(x)
-        if int(y) >= 2 :
-            y3 = int(y)-2
-        else :
-            y3 = 0
-        if int(y) + 2 < im.size[1] :
-            y4 = int(y) + 2
-        else :
-            y4 = im.size[1]
-
-        im.draw_line((x1, y1, x2, y2), color="red")
-        im.draw_line((x3, y3, x4, y4), color="red")
-
-        im.save(self.key_dir + 'input_0First.png')
-
-        # configure second point selection
-        return self.tmpl_out("select_subimage_second.html", msg=msg,
-                             input=[self.key_url + 'input_0First.png'])
-
-    # run() is defined here,
-    # because the parameters validation depends on the algorithm
-    @cherrypy.expose
-    @get_check_key
-    def run(self, x=None, y=None):
+    def wait(self):
         """
         params handling and run redirection
-        as a special case, we have no parameter to check and pass
         """
+        # no parameters
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
+                             input=[self.key_url + 'input.png'])
 
-        #crop subimage, if selected
-        if (x == None) or (y == None) :
-            # no subimage selected
-            im = image(self.key_dir + 'input_0.png')
-            im.save(self.key_dir + 'input_00.png')
-        else :
-            # crop and resize
-            im = image(self.key_dir + 'input_0.png')
-
-            # read upper-left corner coordinates
+    @cherrypy.expose
+    @get_check_key
+    def run(self):
+        """
+        algorithm execution
+        """
+        stdout = open(self.key_dir + 'stdout.txt', 'w')
+        try:
+            run_time = time.time()
+            self.run_algo(stdout=stdout)
             params_file = index_dict(self.key_dir)
-            x1 = int(params_file['subimageFirst']['firstx'])
-            y1 = int(params_file['subimageFirst']['firsty'])
+            params_file['params'] = {}
+            params_file['params']['run_time'] = time.time() - run_time
+            params_file.save()
+        except TimeoutError:
+            return self.error(errcode='timeout') 
+        except RuntimeError:
+            return self.error(errcode='runtime')
 
-            # crop
-	    xmin=min(x1, int(x))
-	    ymin=min(y1, int(y))
-	    xmax=max(x1, int(x))
-	    ymax=max(y1, int(y))
-	    
-            im.crop((xmin, ymin, xmax, ymax))
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
 
-            # resize, if necessary
-            if (im.size[0] < 400) and (im.size[1] < 400) :
-                sX = 400
-                sY = 400
-                if im.size[0] > im.size[1] :
-                    sY = int(float(im.size[1]) / float(im.size[0]) * 400)
-                else :
-                    sX = int(float(im.size[0]) / float(im.size[1]) * 400)
-                im.resize((sX, sY), method="bilinear")
-
-            # save result
-            im.save(self.key_dir + 'input_00.png')
-
-
-
-        http.refresh(self.base_url + 'result?key=%s' % self.key)
-        return self.tmpl_out("run.html",
-                             input=[self.key_url + 'input_00.png'])
-
-    # run_algo() is defined here,
-    # because it is the actual algorithm execution, hence specific
-    # run_algo() is called from result(),
-    # with the parameters validated in run()
     def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
-        """
-        the core algo runner
-        could also be called by a batch processor
-        this one needs no parameter
-        """
-
-        """
-        Version 1
-
-        p = self.run_proc(['rgbprocess', 'filter',
-                           'input_0.png', 'output.png'])
-        p2 = self.run_proc(['rgbprocess', 'rmisolated',
-                            'input_0.png', 'output_0.png'])
-        self.wait_proc(p2)
-        wOut=256
-        hOut=256
-        #p3 = self.run_proc(['rgbprocess', 'pcaviews',
-        #                    'output_0.png', 'output_0.png',
-        #                    'view12.png', 'view13.png', 'view23.png',
-        #                    str(wOut), str(hOut)])
-        p3 = self.run_proc(['rgbprocess', 'pcaviewsB',
-                            'output_0.png', 'output_0.png',
-                            'view123.png', str(wOut), str(hOut)])
-        self.wait_proc(p)
-        p4 = self.run_proc(['rgbprocess', 'rmisolated',
-                            'output.png', 'output_1.png'])
-        self.wait_proc(p4)
-        #p5 = self.run_proc(['rgbprocess', 'pcaviews',
-        #                    'output_1.png', 'input_0.png',
-        #                    'outview12.png', 'outview13.png', 'outview23.png',
-        #                    str(wOut), str(hOut)])
-        p5 = self.run_proc(['rgbprocess', 'pcaviewsB',
-                            'output_1.png', 'output_0.png',
-                            'outview123.png', str(wOut), str(hOut)])
-        p6 = self.run_proc(['rgbprocess', 'density',
-                            'output_1.png', 'output_0.png',
-                            'dstview123.png', str(wOut), str(hOut)])
-        self.wait_proc(p3)
-        self.wait_proc(p5)
-        self.wait_proc(p6)
-        return
-        """
-
-        """
-        Version 2
-
-        p = self.run_proc(['rgbprocess', 'rmisolated',
-                           'input_0.png', 'input_1.png'],
-                          stdout=stdout, stderr=stdout)
-        self.wait_proc(p, timeout)
-        wOut = 256
-        hOut = 256
-        p2 = self.run_proc(['rgbprocess', 'pcaviewsB',
-                            'input_1.png', 'input_1.png', 'view123.png',
-                            str(wOut), str(hOut)], stdout=stdout, stderr=stdout)
-        p3 = self.run_proc(['rgbprocess', 'filter',
-                            'input_1.png', 'output_1.png'],
-                           stdout=stdout, stderr=stdout)
-        self.wait_proc(p3, timeout)
-        p4 = self.run_proc(['rgbprocess', 'pcaviewsB', 
-                            'output_1.png', 'input_1.png', 'outview123.png',
-                            str(wOut), str(hOut)], stdout=stdout, stderr=stdout)
-        p5 = self.run_proc(['rgbprocess', 'density',
-                            'output_1.png', 'input_1.png', 'dstview123.png',
-                            str(wOut), str(hOut)], stdout=stdout, stderr=stdout)
-        p6 = self.run_proc(['rgbprocess', 'combineimages',
-                            'output_1.png', 'input_0.png', 'output_2.png'],
-                           stdout=stdout, stderr=stdout)
-        self.wait_proc([p2, p4, p5, p6], timeout)
-        """
-
-        """ 
-        Version 3
-
-        """
-
-        print "remove isolated"
         p1 = self.run_proc(['rgbprocess', 'rmisolated',
-                            'input_00.png', 'input_1.png'],
+                            'input.png', 'input_1.png'],
                            stdout=stdout, stderr=stdout)
-
-        print "view parameters"
         p2 = self.run_proc(['rgbprocess', 'RGBviewsparams',
                             'RGBviewsparams.txt'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p1, p2], timeout)
 
-        print "LLP2"
         p3 = self.run_proc(['rgbprocess', 'filter',
                             'input_1.png', 'output_1.png'],
                            stdout=stdout, stderr=stdout)
         wOut = 300
         hOut = 300
         displayDensity = 0
-        print "original views"
         p4 = self.run_proc(['rgbprocess', 'RGBviews',
                             'input_1.png', 'RGBviewsparams.txt', 'inRGB', 
                             str(wOut), str(hOut), str(displayDensity)],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p3, p4], timeout)
 
-
-        print "filtered views"
         p5 = self.run_proc(['rgbprocess', 'RGBviews',
                             'output_1.png', 'RGBviewsparams.txt', 'outRGB', 
                             str(wOut), str(hOut), str(displayDensity)],
                            stdout=stdout, stderr=stdout)
         displayDensity = 1
-
-        print "density views"
         p6 = self.run_proc(['rgbprocess', 'RGBviews',
                             'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
                            str(wOut), str(hOut), str(displayDensity)],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p5, p6], timeout)
 
-        print "combine views"
         p7 = self.run_proc(['rgbprocess', 'combineviews',
                             'RGBviewsparams.txt',
                             'inRGB', 'outRGB', 'dstyRGB', 'view'], 
                            stdout=stdout, stderr=stdout)
-
-        print "merge images"
         p8 = self.run_proc(['rgbprocess', 'mergeimages',
-                            'output_1.png', 'input_00.png', 'output_2.png'],
+                            'output_1.png', 'input.png', 'output_2.png'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p7, p8], timeout)
 
@@ -387,64 +228,14 @@ class app(base_app):
     def result(self):
         """
         display the algo results
-        SHOULD be defined in the derived classes, to check the parameters
         """
-        # run the algorithm
-        stdout = open(self.key_dir + 'stdout.txt', 'w')
-        try:
-            run_time = time.time()
-            self.run_algo(stdout=stdout)
-            run_time = time.time() - run_time
-        except TimeoutError:
-            return self.error(errcode='timeout') 
-        except RuntimeError:
-            return self.error(errcode='runtime')
-        self.log("input processed")
+        params_file = index_dict(self.key_dir)
 
-        """
-        Version 1
-
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png')],
-                #'inputViews' : [self.url('tmp', 'view12.png'),
-                #self.url('tmp', 'view13.png'),
-                #self.url('tmp', 'view23.png')],
-                'inputViews' : [self.url('tmp', 'view123.png')],
-                'output' : [self.url('tmp', 'output.png')],
-                #'outputViews' : [self.url('tmp', 'outview12.png'),
-                #                 self.url('tmp', 'outview13.png'),
-                #                 self.url('tmp', 'outview23.png')]
-                #'outputViews' : [self.url('tmp', 'outview123.png')]
-                'outputViews' : [self.url('tmp', 'outview123.png'),
-                                 self.url('tmp', 'dstview123.png')]
-                }
-        """
-
-        """
-        Version 2
-
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')],
-                'inputViews' : [self.url('tmp', 'view123.png')],
-                'output' : [self.url('tmp', 'output_2.png')],
-                'outputViews' : [self.url('tmp', 'outview123.png'),
-                                 self.url('tmp', 'dstview123.png')]
-                }
-
-        """
-
-        """
-        Version 3
-        """
-
-        return self.tmpl_out("result3.html",
-                             input=[self.key_url + 'input_00.png'],
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input.png'],
                              output=[self.key_url + 'output_2.png'],
                              views=[self.key_url + 'view_%i.png' % i 
                                     for i in range(100, 127)],
-                            run_time="%0.2f" % run_time, 
-                            sizeY="%i" % image(self.key_dir 
-                                               + 'input_00.png').size[1])
+                             run_time=float(params_file['params']['run_time']),
+                             sizeY="%i" % image(self.key_dir 
+                                                + 'input.png').size[1])

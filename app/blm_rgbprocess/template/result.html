@@ -1,36 +1,83 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.
-</p>
-
-<form action="${urld['new_input']}" method="get">
-<fieldset>
-<p>
+The algorithm result is displayed hereafter.
+It ran in ${"%0.2f" % run_time}s.<br />
 You can run again this algorithm with new data.
 </p>
+
+<form action="${app.base_url}" method="get">
+new input data:
 <input type="submit" value="back to : input" />
-</fieldset>
+</form>
+or
+<form action="${app.base_url + 'params'}" method="get">
+<input type="hidden" name="key" value="${app.key}">
+<input type="submit" value="Select new subimage" />
 </form>
 
 <hr />
 
-<div class="gallery">
+<h2>Original/Filtered</h2>
+<div class="gallery" style="height:${sizeY}px;">
 <ul class="index">
 <li><a href="#">Original
-    <span><img src=${urld['input'][0]} /></span></a></li>
+    <span><img src=${input[0]} /></span></a></li>
 <li><a href="#">Filtered
-    <span><img src=${urld['output'][0]} /></span></a></li>
+    <span><img src=${output[0]} /></span></a></li>
 </ul>
+</div>
 
-<div class="gallery">
+<h2>RGB views</h2>
+<p>
+Top: original and filtered. Bottom: density.
+</p>
+<div class="gallery" style="height:600px; width:100%; font-size:small;">
 <ul class="index">
-<li><a href="#">Original Views
-    <span><img src=${urld['inputViews'][0]} /></span></a></li>
-<li><a href="#">Filtered Views
-    <span><img src=${urld['outputViews'][0]} /></span></a></li> 
-<li><a href="#">Density
-    <span><img src=${urld['outputViews'][1]} /></span></a></li>
+<li><a href="#">VIEW 1
+    <span><img src="${views[0]}" /></span></a></li>
+<li><a href="#">VIEW 2
+    <span><img src="${views[1]}" /></span></a></li>
+<li><a href="#">VIEW 3
+    <span><img src="${views[2]}" /></span></a></li>
+<li><a href="#">VIEW 4
+    <span><img src="${views[3]}" /></span></a></li>
+<li><a href="#">VIEW 5
+    <span><img src="${views[4]}" /></span></a></li>
+<li><a href="#">VIEW 6
+    <span><img src="${views[5]}" /></span></a></li>
+<li><a href="#">VIEW 7
+    <span><img src="${views[6]}" /></span></a></li>
+<li><a href="#">VIEW 8
+    <span><img src="${views[7]}" /></span></a></li>
+<li><a href="#">VIEW 9
+    <span><img src="${views[8]}" /></span></a></li>
+<li><a href="#">VIEW 10
+    <span><img src="${views[9]}" /></span></a></li>
+<li><a href="#">VIEW 11
+    <span><img src="${views[10]}" /></span></a></li>
+<li><a href="#">VIEW 12
+    <span><img src="${views[11]}" /></span></a></li>
+<li><a href="#">VIEW 13
+    <span><img src="${views[12]}" /></span></a></li>
+<li><a href="#">VIEW 14
+    <span><img src="${views[13]}" /></span></a></li>
+<li><a href="#">VIEW 15
+    <span><img src="${views[14]}" /></span></a></li>
+<li><a href="#">VIEW 16
+    <span><img src="${views[15]}" /></span></a></li>
+<li><a href="#">VIEW 17
+    <span><img src="${views[16]}" /></span></a></li>
+<li><a href="#">VIEW 18
+    <span><img src="${views[17]}" /></span></a></li>
+<li><a href="#">VIEW 19
+    <span><img src="${views[18]}" /></span></a></li>
+<li><a href="#">VIEW 20
+    <span><img src="${views[19]}" /></span></a></li>
+<li><a href="#">VIEW 21
+    <span><img src="${views[20]}" /></span></a></li>
 </ul> 
+</div> 
+
 
 <%include file="footer.html" />

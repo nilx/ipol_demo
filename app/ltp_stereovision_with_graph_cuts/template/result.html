@@ -1,7 +1,8 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.
+The algorithm result is displayed hereafter.
+It ran in ${"%0.2f" % run_time}s.
 </p>
 
 <form action="${app.base_url}" method="get">
@@ -34,7 +35,7 @@ Restart this algorithm with other parameters.
 <select name="lambda">
 %for l in l_proposed:
   <option value="${l}"
-%if l == lambda_used:
+%if l == l_used:
 	  selected="selected"
 %endif
 	  >${l}</option>
@@ -49,7 +50,7 @@ Restart this algorithm with other parameters.
 
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
-<li><a href="#">disparity map, K=${k_used}, lambda=${lambda_used}
+<li><a href="#">disparity map, K=${k_used}, lambda=${l_used}
     <span><img src="${output[0]}" /></span></a></li>
 <li><a href="#">first input image
     <span><img src="${input[0]}" /></span></a></li>
@@ -58,5 +59,3 @@ Restart this algorithm with other parameters.
 </ul>
 
 <%include file="footer.html" />
-
-

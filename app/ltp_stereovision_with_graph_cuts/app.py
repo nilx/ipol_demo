@@ -4,12 +4,8 @@ interaction script
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import build
-from lib import image
-from lib import http
-from lib.misc import get_check_key, app_expose
-from lib.misc import index_dict, ctime
+from lib import base_app, build, image, http
+from lib.misc import get_check_key, app_expose, index_dict, ctime
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -20,24 +16,6 @@ import shutil
 # FRACTION UTILITY FUNCTIONS
 #
 
-def gcd(q):
-    """
-    compute the greatest common divider, Euclid algorithm
-    """
-    (a, b) = q
-    if 0 == b:
-        return a
-    return gcd((b, a % b))
-
-def simplify_frac(q):
-    """
-    simplify a fraction
-    """
-    (a, b) = q
-    assert 0 != b
-    g = gcd((a, b))
-    return (a / g, b / g)
-
 def str2frac(qstr):
     """
     parse the string representation of a rational number
@@ -47,13 +25,12 @@ def str2frac(qstr):
         qstr += "/1"
     # split the fraction
     (a, b) = [int(x) for x in qstr.split('/')][:2]
-    return simplify_frac((a, b))
+    return (a, b)
 
 def frac2str(q):
     """
     represent a rational number as string
     """
-    q = simplify_frac(q)
     if 1 == q[1]:
         return "%i" % q[0]
     else:
@@ -150,19 +127,19 @@ class app(base_app):
             shutil.rmtree(self.src_dir)
         return
 
+
     @cherrypy.expose
     @get_check_key
-    def run(self, **kwargs):
+    def wait(self, **kwargs):
         """
         params handling and run redirection
         """
-        # save and validate the parameters
         try:
             params_file = index_dict(self.key_dir)
             params_file['params'] = {}
             if 'K' in kwargs:
-                k = str2frac(kwargs['K'])
-                params_file['params']['k'] = frac2str(k)
+                k_ = str2frac(kwargs['K'])
+                params_file['params']['k'] = frac2str(k_)
             if 'lambda' in kwargs:
                 lambda_ = str2frac(kwargs['lambda'])
                 params_file['params']['lambda'] = frac2str(lambda_)
@@ -171,18 +148,40 @@ class app(base_app):
             return self.error(errcode='badparams',
                               errmsg="The parameters must be rationals.")
 
-        # redirect to the result page
-        http.refresh(self.base_url + 'result?key=%s' % self.key)
-        return self.tmpl_out("run.html",
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
                              input=[self.key_url + 'input_0.png',
                                     self.key_url + 'input_1.png'],
                              height=image(self.key_dir
                                           + 'input_0.png').size[1])
 
-    def compute_k_auto(self):
+
+    @cherrypy.expose
+    @get_check_key
+    def run(self, **kwargs):
+        """
+        algorithm execution
+        """
+        try:
+            run_time = time.time()
+            self.run_algo(timeout=self.timeout)
+            params_file = index_dict(self.key_dir)
+            params_file['params']['run_time'] = time.time() - run_time
+            params_file.save()
+        except TimeoutError:
+            return self.error(errcode='timeout',
+                              errmsg="Try again with simpler images.")
+        except RuntimeError:
+            return self.error(errcode='runtime')
+        
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
+
+    def _compute_k_auto(self):
         """
         compute default K and lambda values
         """
+        # TODO: cleanup, refactor
         # create autok.conf file
         kfile = open(self.key_dir + 'autok.conf', 'w')
         kfile.write("LOAD_COLOR input_0.ppm input_1.ppm\n")
@@ -199,7 +198,7 @@ class app(base_app):
         # get k from stdout
         stdout = open(self.key_dir + 'stdout.txt', 'r')
         k_auto = str2frac(stdout.readline()) 
-        lambda_auto = simplify_frac((k_auto[0], k_auto[1] * 5))
+        lambda_auto = (k_auto[0], k_auto[1] * 5)
         stdout.close()
         params_file = index_dict(self.key_dir)
         params_file['params']['k_auto'] = frac2str(k_auto)
@@ -213,15 +212,12 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
+        # TODO: cleanup, refactor
         # get the default parameters
+        (k_auto, lambda_auto) = self._compute_k_auto()
         params_file = index_dict(self.key_dir)
-        if 'k_auto' not in params_file['params']:
-            del params_file
-            (k_auto, lambda_auto) = self.compute_k_auto()
-            params_file = index_dict(self.key_dir)
-        else:
-            k_auto = str2frac(params_file['params']['k_auto'])
-            lambda_auto = str2frac(params_file['params']['lambda_auto'])
+        params_file['params']['k_auto'] = frac2str(k_auto)
+        params_file['params']['lambda_auto'] = frac2str(lambda_auto)
 
         # use default or overrriden parameter values
         params_file['params']['k_used'] = \
@@ -267,6 +263,7 @@ class app(base_app):
         output_img = image().join([image(self.key_dir + output_fnames[n])
                                    for n in range(nproc)], margin=margin)
         output_img.save(self.key_dir + 'disp_output.ppm')
+        output_img.save(self.key_dir + 'dispmap.png')
 
         # delete the strips
         for fname in input0_fnames + input1_fnames:
@@ -280,50 +277,27 @@ class app(base_app):
     def result(self):
         """
         display the algo results
-        SHOULD be defined in the derived classes, to check the parameters
         """
-        # no parameters
-        try:
-            run_time = time.time()
-            self.run_algo(timeout=self.timeout)
-            run_time = time.time() - run_time
-        except TimeoutError:
-            return self.error(errcode='timeout',
-                              errmsg="""
-The algorithm took more than %i seconds and had to be interrupted.
-Try again with simpler images.""" % self.timeout)
-        except RuntimeError:
-            return self.error(errcode='retime',
-                              errmsg="""
-The program ended with a failure return code,
-something must have gone wrong""")
-        self.log("input processed")
-        
-        disp = image(self.key_dir + 'disp_output.ppm')
-        disp.save(self.key_dir + 'dispmap.png')
-        
         params_file = index_dict(self.key_dir)
+        run_time = float(params_file['params']['run_time'])
         k = str2frac(params_file['params']['k_auto'])
-        l = (k[0], k[1] * 5)
-        k_proposed = [frac2str((k[0] * 1, k[1] * 2)),
-                      frac2str((k[0] * 2, k[1] * 3)),
-                      frac2str((k[0] * 1, k[1] * 1)),
-                      frac2str((k[0] * 3, k[1] * 2)),
-                      frac2str((k[0] * 2, k[1] * 1))]
-        l_proposed = [frac2str((l[0] * 1, l[1] * 2)),
-                      frac2str((l[0] * 2, l[1] * 3)),
-                      frac2str((l[0] * 1, l[1] * 1)),
-                      frac2str((l[0] * 3, l[1] * 2)),
-                      frac2str((l[0] * 2, l[1] * 1))]
+        l = str2frac(params_file['params']['lambda_auto'])
 
         return self.tmpl_out("result.html",
                              input=[self.key_url + 'input_0.png',
                                     self.key_url + 'input_1.png'],
                              output=[self.key_url + 'dispmap.png'],
-                             run_time="%0.2f" % run_time,
+                             run_time=run_time,
                              height=image(self.key_dir + 'input_0.png').size[1],
                              k_used=params_file['params']['k_used'],
-                             lambda_used=params_file['params']['lambda_used'],
-                             k_proposed=k_proposed,
-                             l_proposed=l_proposed)
-
+                             l_used=params_file['params']['lambda_used'],
+                             k_proposed=[frac2str((k[0] * 1, k[1] * 2)),
+                                         frac2str((k[0] * 2, k[1] * 3)),
+                                         frac2str((k[0] * 1, k[1] * 1)),
+                                         frac2str((k[0] * 3, k[1] * 2)),
+                                         frac2str((k[0] * 2, k[1] * 1))],
+                             l_proposed=[frac2str((l[0] * 1, l[1] * 2)),
+                                         frac2str((l[0] * 2, l[1] * 3)),
+                                         frac2str((l[0] * 1, l[1] * 1)),
+                                         frac2str((l[0] * 3, l[1] * 2)),
+                                         frac2str((l[0] * 2, l[1] * 1))])
