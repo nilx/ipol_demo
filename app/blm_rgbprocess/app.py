@@ -125,7 +125,7 @@ class app(base_app):
             return self.error(errcode='badFirstPoint',
                               errmsg="Wrong first point selection")
 
-        # draw a red cross at the first subimage corner (upper-left)
+        # draw a white-red cross at the first subimage corner (upper-left)
         # on the input image
         try:
             im = image(self.key_dir + 'input_0.png')
@@ -133,6 +133,33 @@ class app(base_app):
             raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
 
+	# draw white cross
+        y1 = int(y)
+        y2 = int(y)
+        if int(x) >= 4 :
+            x1 = int(x)-4
+        else :
+            x1 = 0
+        if int(x)+4 < im.size[0] :
+            x2 = int(x) + 4
+        else :
+            x2 = im.size[0]
+ 
+        x3 = int(x)
+        x4 = int(x)
+        if int(y) >= 4 :
+            y3 = int(y)-4
+        else :
+            y3 = 0
+        if int(y) + 4 < im.size[1] :
+            y4 = int(y) + 4
+        else :
+            y4 = im.size[1]
+
+        im.draw_line((x1, y1, x2, y2), color="white")
+        im.draw_line((x3, y3, x4, y4), color="white")
+
+	# draw red cross
         y1 = int(y)
         y2 = int(y)
         if int(x) >= 2 :
@@ -189,7 +216,12 @@ class app(base_app):
             y1 = int(params_file['subimageFirst']['firsty'])
 
             # crop
-            im.crop((x1, y1, int(x), int(y)))
+	    xmin=min(x1, int(x))
+	    ymin=min(y1, int(y))
+	    xmax=max(x1, int(x))
+	    ymax=max(y1, int(y))
+	    
+            im.crop((xmin, ymin, xmax, ymax))
 
             # resize, if necessary
             if (im.size[0] < 400) and (im.size[1] < 400) :
@@ -311,8 +343,8 @@ class app(base_app):
         p3 = self.run_proc(['rgbprocess', 'filter',
                             'input_1.png', 'output_1.png'],
                            stdout=stdout, stderr=stdout)
-        wOut = 256
-        hOut = 256
+        wOut = 300
+        hOut = 300
         displayDensity = 0
         print "original views"
         p4 = self.run_proc(['rgbprocess', 'RGBviews',
