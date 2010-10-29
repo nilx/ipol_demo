@@ -217,7 +217,14 @@ class base_app(empty_app):
         """
         signal an error
         """
-        return self.tmpl_out("error.html", errcode=errcode, errmsg=errmsg)
+        msgd = {'badparams' : 'Error: bad parameters. ',
+                'timeout' : 'Error: execution timeout. '
+                + 'The algorithm took more than %i seconds ' % self.timeout
+                + 'and had to be interrupted. ',
+                'returncode' : 'Error: execution failed. '}
+        msg = msgd.get(errcode, 'Error: an unknown error occured. ') + errmsg
+
+        return self.tmpl_out("error.html", msg=msg)
 
     #
     # PARAMETER HANDLING
@@ -239,20 +246,35 @@ class base_app(empty_app):
     #
 
     @get_check_key
-    def run(self, **kwargs):
+    def wait(self, **kwargs):
         """
         params handling and run redirection
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # simply avoid pylint warnmings
-        # kwargs *is* used in derived classes
+        # pylint compliance (kwargs *is* used in derived classes)
         kwargs = kwargs
-        # redirect to the result page
-        # TODO check_params as another function
-        http.refresh(self.base_url + 'result?key=%s' % self.key)
-        return self.tmpl_out("run.html",
+        # TODO check_params as a hook
+        # use http meta refresh (display the page content meanwhile)
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
                              input=[self.key_url + 'input_%i.png' % i
                                     for i in range(self.input_nb)])
+
+    @get_check_key
+    def run(self, **kwargs):
+        """
+        algo execution and redirection to result
+        SHOULD be defined in the derived classes, to check the parameters
+        """
+        # pylint compliance (kwargs *is* used in derived classes)
+        kwargs = kwargs
+        # run the algo
+        # TODO ensure only running once
+        self.run_algo({})
+        # redirect to the result page
+        # use http 303 for transparent non-permanent redirection
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
 
     def run_algo(self, params):
         """
@@ -268,15 +290,9 @@ class base_app(empty_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # TODO ensure only running once
-        # TODO save each result in a new archive
-        # TODO give the archive link
+        # TODO archive the results, display the archive link
         # TODO give the option to not be public
         #        (and remember it from a cookie)
-        # TODO read the kwargs from a file, and pass to run_algo
-        # TODO pass these parameters to the template
-        self.run_algo({})
-        self.log("input processed")
         return self.tmpl_out("result.html",
                              input=[self.key_url + 'input_%i.png' % i
                                     for i in range(self.input_nb)],

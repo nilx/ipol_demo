@@ -1,18 +1,7 @@
 <%include file="header.html" />
 
 <p class="error">
-%if errcode == 'badparams':
-Error: bad parameters<br />
 ${errmsg | h}
-%elif errcode == 'timeout':
-Error: execution timeout<br />
-${errmsg | h}
-%elif errcode == 'returncode':
-Error: execution failed<br />
-${errmsg | h}
-%else:
-An error occured.
-%endif
 </p>
 
 <%include file="footer.html" />
