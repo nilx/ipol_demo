@@ -315,7 +315,7 @@ class app(base_app):
         """
         params_file = index_dict(self.key_dir)
 
-        return self.tmpl_out("result3.html",
+        return self.tmpl_out("result.html",
                              input=[self.key_url + 'input_00.png'],
                              output=[self.key_url + 'output_2.png'],
                              views=[self.key_url + 'view_%i.png' % i 
