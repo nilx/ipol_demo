@@ -85,160 +85,77 @@ class app(base_app):
 
     @cherrypy.expose
     @get_check_key
-    def params(self, newrun=False, msg=None):
+    def rectangle(self, action=None, x=None, y=None, x0=None, y0=None):
         """
-        configure the algo execution
+        select a rectangle in the image
         """
-        if newrun:
-            self.clone_input()
-
-        return self.tmpl_out("params.html", msg=msg,
-                             input=[self.key_url + 'input_0.png'])
- 
+        if action == 'Run':
+            # use the whole image
+            img = image(self.key_dir + 'input_0.png')
+            img.save(self.key_dir + 'input' + self.input_ext)
+            img.save(self.key_dir + 'input.png')
+            # go to the wait page, with the key
+            http.redir_303(self.base_url + "wait?key=%s" % self.key)
+            return
+        else:
+            # use a part of the image
+            if x0 == None:
+                # first corner selection
+                x = int(x)
+                y = int(y)
+                # draw a cross at the first corner
+                img = image(self.key_dir + 'input_0.png')
+                img.draw_cross((x, y), size=4, color="white")
+                img.draw_cross((x, y), size=2, color="red")
+                img.save(self.key_dir + 'input.png')
+                return self.tmpl_out("params.html",
+                                     input=[self.key_url 
+                                            + 'input.png?xy=%i,%i' % (x, y)],
+                                     x0=x, y0=y)
+            else:
+                # second corner selection
+                x0 = int(x0)
+                y0 = int(y0)
+                x1 = int(x)
+                y1 = int(y)
+                # reorder the corners
+                (x0, x1) = (min(x0, x1), max(x0, x1))
+                (y0, y1) = (min(y0, y1), max(y0, y1))
+                assert (x1 - x0) > 0
+                assert (y1 - y0) > 0
+                # crop the image
+                img = image(self.key_dir + 'input_0.png')
+                img.crop((x0, y0, x1, y1))
+                # zoom the cropped area
+                (dx, dy) = img.size
+                if (dx < 400) and (dy < 400) :
+                    if dx > dy :
+                        dy = int(float(dy) / float(dx) * 400)
+                        dx = 400
+                    else :
+                        dx = int(float(dx) / float(dy) * 400)
+                        dy = 400
+                    img.resize((dx, dy), method="bilinear")
+                img.save(self.key_dir + 'input' + self.input_ext)
+                img.save(self.key_dir + 'input.png')
+                # go to the wait page, with the key
+                http.redir_303(self.base_url + "wait?key=%s" % self.key)
+            return
 
     @cherrypy.expose
     @get_check_key
-    def select_subimage_first(self, msg=None):
-        """
-        first step of the sub-image selection
-        """
-        # configure first point selection
-        return self.tmpl_out("select_subimage_first.html", msg=msg,
-                             input=[self.key_url + 'input_0.png'])
-
-
-    @cherrypy.expose
-    @get_check_key
-    def select_subimage_second(self, msg=None, x=None, y=None):
-        """
-        second step of the sub-image selection
-        """
-        print "x=", x
-        print "y=", y
-        #save upper-left corner coordinates
-        try:
-            params_file = index_dict(self.key_dir)
-            params_file['subimageFirst'] = {'firstx' : int(x),
-                                            'firsty' : int(y)}
-            params_file.save()
-        except:
-            return self.error(errcode='badFirstPoint',
-                              errmsg="Wrong first point selection")
-
-        # draw a white-red cross at the first subimage corner (upper-left)
-        # on the input image
-        try:
-            im = image(self.key_dir + 'input_0.png')
-        except IOError:
-            raise cherrypy.HTTPError(400, # Bad Request
-                                         "Bad input file")
-
-	# draw white cross
-        y1 = int(y)
-        y2 = int(y)
-        if int(x) >= 4 :
-            x1 = int(x)-4
-        else :
-            x1 = 0
-        if int(x)+4 < im.size[0] :
-            x2 = int(x) + 4
-        else :
-            x2 = im.size[0]
- 
-        x3 = int(x)
-        x4 = int(x)
-        if int(y) >= 4 :
-            y3 = int(y)-4
-        else :
-            y3 = 0
-        if int(y) + 4 < im.size[1] :
-            y4 = int(y) + 4
-        else :
-            y4 = im.size[1]
-
-        im.draw_line((x1, y1, x2, y2), color="white")
-        im.draw_line((x3, y3, x4, y4), color="white")
-
-	# draw red cross
-        y1 = int(y)
-        y2 = int(y)
-        if int(x) >= 2 :
-            x1 = int(x)-2
-        else :
-            x1 = 0
-        if int(x)+2 < im.size[0] :
-            x2 = int(x) + 2
-        else :
-            x2 = im.size[0]
- 
-        x3 = int(x)
-        x4 = int(x)
-        if int(y) >= 2 :
-            y3 = int(y)-2
-        else :
-            y3 = 0
-        if int(y) + 2 < im.size[1] :
-            y4 = int(y) + 2
-        else :
-            y4 = im.size[1]
-
-        im.draw_line((x1, y1, x2, y2), color="red")
-        im.draw_line((x3, y3, x4, y4), color="red")
-
-        im.save(self.key_dir + 'input_0First.png')
-
-        # configure second point selection
-        return self.tmpl_out("select_subimage_second.html", msg=msg,
-                             input=[self.key_url + 'input_0First.png'])
-
-    @cherrypy.expose
-    @get_check_key
-    def wait(self, x=None, y=None):
+    def wait(self):
         """
         params handling and run redirection
         """
-        # crop subimage, if selected
-        if (x == None) or (y == None):
-            # no subimage selected
-            im = image(self.key_dir + 'input_0.png')
-            im.save(self.key_dir + 'input_00.png')
-        else:
-            # crop and resize
-            im = image(self.key_dir + 'input_0.png')
-
-            # read upper-left corner coordinates
-            params_file = index_dict(self.key_dir)
-            x1 = int(params_file['subimageFirst']['firstx'])
-            y1 = int(params_file['subimageFirst']['firsty'])
-
-            # crop
-	    xmin=min(x1, int(x))
-	    ymin=min(y1, int(y))
-	    xmax=max(x1, int(x))
-	    ymax=max(y1, int(y))
-	    
-            im.crop((xmin, ymin, xmax, ymax))
-
-            # resize, if necessary
-            if (im.size[0] < 400) and (im.size[1] < 400) :
-                sX = 400
-                sY = 400
-                if im.size[0] > im.size[1] :
-                    sY = int(float(im.size[1]) / float(im.size[0]) * 400)
-                else :
-                    sX = int(float(im.size[0]) / float(im.size[1]) * 400)
-                im.resize((sX, sY), method="bilinear")
-
-            # save result
-            im.save(self.key_dir + 'input_00.png')
-
+        # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input_00.png'])
+                             input=[self.key_url + 'input.png'])
 
     @cherrypy.expose
     @get_check_key
-    def run(self, x=None, y=None):
+    def run(self):
         """
         algorithm execution
         """
@@ -254,8 +171,6 @@ class app(base_app):
             return self.error(errcode='timeout') 
         except RuntimeError:
             return self.error(errcode='runtime')
-        self.log("input processed")
-
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
         return self.tmpl_out("run.html")
@@ -267,7 +182,7 @@ class app(base_app):
         this one needs no parameter
         """
         p1 = self.run_proc(['rgbprocess', 'rmisolated',
-                            'input_00.png', 'input_1.png'],
+                            'input.png', 'input_1.png'],
                            stdout=stdout, stderr=stdout)
         p2 = self.run_proc(['rgbprocess', 'RGBviewsparams',
                             'RGBviewsparams.txt'],
@@ -302,7 +217,7 @@ class app(base_app):
                             'inRGB', 'outRGB', 'dstyRGB', 'view'], 
                            stdout=stdout, stderr=stdout)
         p8 = self.run_proc(['rgbprocess', 'mergeimages',
-                            'output_1.png', 'input_00.png', 'output_2.png'],
+                            'output_1.png', 'input.png', 'output_2.png'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p7, p8], timeout)
 
@@ -316,10 +231,10 @@ class app(base_app):
         params_file = index_dict(self.key_dir)
 
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_00.png'],
+                             input=[self.key_url + 'input.png'],
                              output=[self.key_url + 'output_2.png'],
                              views=[self.key_url + 'view_%i.png' % i 
                                     for i in range(100, 127)],
                              run_time=float(params_file['params']['run_time']),
                              sizeY="%i" % image(self.key_dir 
-                                                + 'input_00.png').size[1])
+                                                + 'input.png').size[1])

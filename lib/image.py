@@ -272,3 +272,20 @@ class image(object):
         for y in range(offset[1], self.im.size[1], step):
             self.draw_line(((0, y), (x, y)))
         return self
+
+    def draw_cross(self, position, size=2, color="white"):
+        """
+        draw a cross on the input image
+
+        @param position: the cross center position
+        @param size: the cross size (length of each branch)
+        @param color: the grid color
+        @return: the image object
+        """
+        assert (size >= 0)
+        (x, y) = position
+        # vertical line
+        self.draw_line(((x, y - size), (x, y + size)), color=color)
+        # horizontal
+        self.draw_line(((x - size, y), (x + size, y)), color=color)
+        return self

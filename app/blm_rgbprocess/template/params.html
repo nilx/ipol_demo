@@ -1,22 +1,30 @@
 <%include file="header.html" />
 
-
-<p>
-<form action="${app.base_url + 'wait'}" method="get">
-<input type="hidden" name="key" value="${app.key}">
-<input type="submit" value="Run the algorithm on the whole image" />
+<form action="${app.base_url + 'rectangle'}" method="get">
+  <fieldset>
+    <input type="hidden" name="key" value="${app.key}">
+    <p>
+      You can now run the algorithm on the whole image:
+      <input type="submit" name="action" value="Run" />
+    </p>
+    <ul>
+      You can also select a part of this image to be used with the
+      algorithm (will be zoomed if not larger than 400 pixels):
+      <li>
+	Click on the first corner on the image.
+      </li>
+      <li>
+%if x0 and y0:
+        <input type="hidden" name="x0" value="${x0}">
+	<input type="hidden" name="y0" value="${y0}">
+        Click on the second corner on the image.
+%else:
+	&nbsp;
+%endif
+      </li>
+      <input type="image" name="" src="${input[0]}" />
+    </ul>
+  </fieldset>
 </form>
-or 
-<form action="${app.base_url + 'select_subimage_first'}" method="get">
-<input type="hidden" name="key" value="${app.key}">
-<input type="submit" value="Select subimage" />
-</form>
-</p>
-
-<ul>
-% for input_url in input:
-<img src="${input_url}" alt="" />
-% endfor
-</ul>
 
 <%include file="footer.html" />
