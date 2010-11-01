@@ -1,10 +1,11 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.<br />
+The algorithm result is displayed hereafter.
+It ran in ${"%0.2f" % run_time}s.<br />
 </p>
 
-<form action="${urld['new_input']}" method="get">
+<form action="${app.base_url}" method="get">
 <fieldset>
 <p>
 Restart with new input.
@@ -18,9 +19,9 @@ Restart with new input.
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
 <li><a href="#">first image
-    <span><img src="${urld['input'][0]}" /></span></a></li>
+    <span><img src="${input[0]}" /></span></a></li>
 <li><a href="#">second image
-    <span><img src="${urld['input'][1]}" /></span></a></li>
+    <span><img src="${input[1]}" /></span></a></li>
 </ul>
 </div>
 
@@ -29,21 +30,21 @@ Restart with new input.
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
 <li><a href="#">first image
-    <span><img src="${urld['show'][0]}" /></span></a></li>
+    <span><img src="${rect[0]}" /></span></a></li>
 <li><a href="#">second image
-    <span><img src="${urld['show'][1]}" /></span></a></li>
+    <span><img src="${rect[1]}" /></span></a></li>
 </ul>
 </div>
 
 <ul>
-  <li><a href="${urld['orsa']}">correspondences</a></li>
+  <li><a href="${orsa}">correspondences</a></li>
   <li>homography: 
-    <a href="${urld['homo_0']}">first image</a>,
-    <a href="${urld['homo_1']}">second image</a>
+    <a href="${homo[0]}">first image</a>,
+    <a href="${homo[1]}">second image</a>
   </li>
   <li>rectified images (without annotations): 
-    <a href="${urld['output'][0]}">first image</a>,
-    <a href="${urld['output'][1]}">second image</a>
+    <a href="${output[0]}">first image</a>,
+    <a href="${output[1]}">second image</a>
   </li>
 </ul>
 
