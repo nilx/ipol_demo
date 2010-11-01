@@ -1,20 +1,30 @@
 <%include file="header.html" />
 
-
-<form action="${urld['next_step']}" method="get">
-<fieldset>
-<p>
-You can now run the algorithm.
-</p>
-<input type="hidden" name="key" value="${key}">
-<input type="submit" value="run algorithm" />
-</fieldset>
+<form action="${app.base_url + 'rectangle'}" method="get">
+  <fieldset>
+    <input type="hidden" name="key" value="${app.key}">
+    <p>
+      You can now run the algorithm on the whole image:
+      <input type="submit" name="action" value="Run" />
+    </p>
+    <ul>
+      You can also select a part of this image to be used with the
+      algorithm (will be zoomed if not larger than 400 pixels):
+      <li>
+	Click on the first corner on the image.
+      </li>
+      <li>
+%if x0 and y0:
+        <input type="hidden" name="x0" value="${x0}">
+	<input type="hidden" name="y0" value="${y0}">
+        Click on the second corner on the image.
+%else:
+	&nbsp;
+%endif
+      </li>
+      <input type="image" name="" src="${input[0]}" />
+    </ul>
+  </fieldset>
 </form>
-
-<ul>
-% for url in urld['input']:
-<img src="${url}" alt="" />
-% endfor
-</ul>
 
 <%include file="footer.html" />
