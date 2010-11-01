@@ -1,10 +1,11 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter. It ran in ${run_time}s.
+The algorithm result is displayed hereafter.
+It ran in ${"%0.2f" % run_time}s.
 </p>
 
-<form action="${urld['new_input']}" method="get">
+<form action="${app.base_url}" method="get">
 <fieldset>
 <p>
 Restart this algorithm with new input data.
@@ -13,12 +14,12 @@ Restart this algorithm with new input data.
 </fieldset> 
 </form>
 
-<form action="${urld['run']}" method="get">
+<form action="${app.base_url + 'run'}" method="get">
 <fieldset>
 <p>
 Restart this algorithm with other parameters.
 </p> 
-<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="key" value="${app.key}">
 <input type="hidden" name="new_run" value="1">
 <label for="K"> K = </label>
 <select name="K">
@@ -34,7 +35,7 @@ Restart this algorithm with other parameters.
 <select name="lambda">
 %for l in l_proposed:
   <option value="${l}"
-%if l == lambda_used:
+%if l == l_used:
 	  selected="selected"
 %endif
 	  >${l}</option>
@@ -49,14 +50,12 @@ Restart this algorithm with other parameters.
 
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
-<li><a href="#">disparity map, K=${k_used}, lambda=${lambda_used}
-    <span><img src="${urld['output'][0]}" /></span></a></li>
+<li><a href="#">disparity map, K=${k_used}, lambda=${l_used}
+    <span><img src="${output[0]}" /></span></a></li>
 <li><a href="#">first input image
-    <span><img src="${urld['input'][0]}" /></span></a></li>
+    <span><img src="${input[0]}" /></span></a></li>
 <li><a href="#">second input image
-    <span><img src="${urld['input'][1]}" /></span></a></li>
+    <span><img src="${input[1]}" /></span></a></li>
 </ul>
 
 <%include file="footer.html" />
-
-
