@@ -10,13 +10,13 @@ from mako.lookup import TemplateLookup
 import cherrypy
 import os.path
 
+from . import http
 from .empty_app import empty_app
 from .misc import index_dict, prod, get_check_key
 from .image import thumbnail, image
 
 class base_app(empty_app):
     """ base demo app class with a typical flow """
-
     # default class attributes
     # to be modified in subclasses
     title = "base demo"
@@ -45,7 +45,7 @@ class base_app(empty_app):
                                 'template')
         # first search in the subclass template dir
         self.tmpl_lookup = TemplateLookup( \
-            directories=[os.path.join(self.base_dir,'template'), tmpl_dir],
+            directories=[self.base_dir + 'template', tmpl_dir],
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
  
@@ -59,24 +59,20 @@ class base_app(empty_app):
         """
         templating shortcut, populated with the default app attributes
         """
-        # app attributes dict
-        attrd = dict([(attr, getattr(self, attr, ''))
-                      for attr in ['id',
-                                   'key',
-                                   'title']])
-        kwargs.update(attrd)
-
-        # create urld if it doesn't exist
-        kwargs.setdefault('urld', {})
-        # add urld items
-        kwargs['urld'].update({'start' : self.url('index'),
-                               'xlink_algo' : self.url('algo'),
-                               'xlink_demo' : self.url('demo'),
-                               'xlink_archive' : self.url('archive'),
-                               'xlink_forum' : self.url('forum')})
+        # pass the app object
+        kwargs['app'] = self
         # production flag
         kwargs['prod'] = (cherrypy.config['server.environment']
                           == 'production')
+
+        # TODO: no more urld
+        # create urld if it doesn't exist
+        kwargs.setdefault('urld', {})
+        # add urld items
+        kwargs['urld'].update({'xlink_algo' : '/TODO/algo',
+                               'xlink_demo' : '/TODO/demo',
+                               'xlink_archive' : '/TODO/archive',
+                               'xlink_forum' : '/TODO/forum'})
 
         tmpl = self.tmpl_lookup.get_template(tmpl_fname)
         return tmpl.render(**kwargs)
@@ -90,27 +86,23 @@ class base_app(empty_app):
         demo presentation and input menu
         """
         # read the input index as a dict
-        inputd = index_dict(self.path('input'))
-        for key in inputd.keys():
+        inputd = index_dict(self.input_dir)
+        tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
+        # TODO: build via list-comprehension
+        for (input_id, input_info) in inputd.items():
             # convert the files to a list of file names
             # by splitting at blank characters
-            inputd[key]['files'] = inputd[key]['files'].split()
-            # generate thumbnails and thumbnail urls
-            tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
-            tn_fname = [thumbnail(self.path('input', fname),
-                                  (tn_size,tn_size))
-                        for fname in inputd[key]['files']]
-            inputd[key]['tn_url'] = [self.url('input',
-                                              os.path.basename(fname))
-                                     for fname in tn_fname]
+            # and generate thumbnails and thumbnail urls
+            tn_fname = [thumbnail(self.input_dir + fname,
+                                  (tn_size, tn_size))
+                        for fname in input_info['files'].split()]
+            inputd[input_id]['tn_url'] = [self.input_url
+                                          + os.path.basename(fname)
+                                          for fname in tn_fname]
 
-        # urls dict
-        urld = {'select_form' : self.url('input_select'),
-                'upload_form' : self.url('input_upload')}
-        return self.tmpl_out("input.html", urld=urld,
+        return self.tmpl_out("input.html",
                              tn_size=tn_size,
-                             inputd=inputd,
-                             input_nb=self.input_nb)
+                             inputd=inputd)
 
     #
     # INPUT HANDLING TOOLS
@@ -124,7 +116,7 @@ class base_app(empty_app):
         for i in range(self.input_nb):
             # open the file as an image
             try:
-                im = image(self.path('tmp', 'input_%i' % i))
+                im = image(self.key_dir + 'input_%i' % i)
             except IOError:
                 raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -138,20 +130,20 @@ class base_app(empty_app):
                 msg = """The image has been resized
                       for a reduced computation time."""
             # save a working copy
-            im.save(self.path('tmp', 'input_%i' % i + self.input_ext))
+            im.save(self.key_dir + 'input_%i' % i + self.input_ext)
             # save a web viewable copy
-            im.save(self.path('tmp', 'input_%i.png' % i))
+            im.save(self.key_dir + 'input_%i.png' % i)
             # delete the original
-            os.unlink(self.path('tmp', 'input_%i' % i))
+            os.unlink(self.key_dir + 'input_%i' % i)
         return msg
 
     def clone_input(self):
         """
         clone the input for a re-run of the algo
         """
+        self.log("cloning input from %s" % self.key)
         # get a new key
-        oldkey = self.key
-        oldpath = self.path('tmp')
+        old_key_dir = self.key_dir
         self.new_key()
         # copy the input files
         fnames = ['input_%i' % i + self.input_ext
@@ -159,9 +151,8 @@ class base_app(empty_app):
         fnames += ['input_%i.png' % i
                    for i in range(self.input_nb)]
         for fname in fnames:
-            shutil.copy(os.path.join(oldpath, fname),
-                        os.path.join(self.path('tmp'), fname))
-        self.log("input cloned from %s" % oldkey)
+            shutil.copy(old_key_dir + fname,
+                        self.key_dir + fname)
         return
 
     #
@@ -177,11 +168,11 @@ class base_app(empty_app):
         input_id = kwargs.keys()[0].split('.')[0]
         assert input_id == kwargs.keys()[1].split('.')[0]
         # get the images
-        input_dict = index_dict(self.path('input'))
+        input_dict = index_dict(self.input_dir)
         fnames = input_dict[input_id]['files'].split()
         for i in range(len(fnames)):
-            shutil.copy(self.path('input', fnames[i]),
-                        self.path('tmp', 'input_%i' % i))
+            shutil.copy(self.input_dir + fnames[i],
+                        self.key_dir + 'input_%i' % i)
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
         # jump to the params page
@@ -194,7 +185,7 @@ class base_app(empty_app):
         self.new_key()
         for i in range(self.input_nb):
             file_up = kwargs['file_%i' % i]
-            file_save = file(self.path('tmp', 'input_%i' % i), 'wb')
+            file_save = file(self.key_dir + 'input_%i' % i, 'wb')
             if '' == file_up.filename:
                 # missing file
                 raise cherrypy.HTTPError(400, # Bad Request
@@ -226,7 +217,14 @@ class base_app(empty_app):
         """
         signal an error
         """
-        return self.tmpl_out("error.html", errcode=errcode, errmsg=errmsg)
+        msgd = {'badparams' : 'Error: bad parameters. ',
+                'timeout' : 'Error: execution timeout. '
+                + 'The algorithm took more than %i seconds ' % self.timeout
+                + 'and had to be interrupted. ',
+                'returncode' : 'Error: execution failed. '}
+        msg = msgd.get(errcode, 'Error: an unknown error occured. ') + errmsg
+
+        return self.tmpl_out("error.html", msg=msg)
 
     #
     # PARAMETER HANDLING
@@ -239,30 +237,44 @@ class base_app(empty_app):
         """
         if newrun:
             self.clone_input()
-        urld = {'next_step' : self.url('run'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
-        return self.tmpl_out("params.html", urld=urld, msg=msg)
+        return self.tmpl_out("params.html", msg=msg,
+                             input = [self.key_url + 'input_%i.png' % i
+                                      for i in range(self.input_nb)])
 
     #
     # EXECUTION AND RESULTS
     #
 
     @get_check_key
-    def run(self, **kwargs):
+    def wait(self, **kwargs):
         """
         params handling and run redirection
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # simply avoid pylint warnmings
-        # kwargs *is* used in derived classes
+        # pylint compliance (kwargs *is* used in derived classes)
         kwargs = kwargs
+        # TODO check_params as a hook
+        # use http meta refresh (display the page content meanwhile)
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
+                             input=[self.key_url + 'input_%i.png' % i
+                                    for i in range(self.input_nb)])
+
+    @get_check_key
+    def run(self, **kwargs):
+        """
+        algo execution and redirection to result
+        SHOULD be defined in the derived classes, to check the parameters
+        """
+        # pylint compliance (kwargs *is* used in derived classes)
+        kwargs = kwargs
+        # run the algo
+        # TODO ensure only running once
+        self.run_algo({})
         # redirect to the result page
-        # TODO check_params as another function
-        http.redir_303(self.url('result?key=%s' % self.key))
-        urld = {'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
-        return self.tmpl_out("run.html", urld=urld)
+        # use http 303 for transparent non-permanent redirection
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
 
     def run_algo(self, params):
         """
@@ -278,18 +290,10 @@ class base_app(empty_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # TODO ensure only running once
-        # TODO save each result in a new archive
-        # TODO give the archive link
+        # TODO archive the results, display the archive link
         # TODO give the option to not be public
         #        (and remember it from a cookie)
-        # TODO read the kwargs from a file, and pass to run_algo
-        # TODO pass these parameters to the template
-        self.run_algo({})
-        self.log("input processed")
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)],
-                'output' : [self.url('tmp', 'output.png')]}
-        return self.tmpl_out("result.html", urld=urld)
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input_%i.png' % i
+                                    for i in range(self.input_nb)],
+                             output=[self.key_url + 'output.png'])

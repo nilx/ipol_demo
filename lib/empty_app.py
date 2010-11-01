@@ -22,7 +22,7 @@ class empty_app(object):
     """
     This app only contains configuration and tools, no actions.
     """
-    # TODO : rewrite the path/url functions
+    # TODO : rewrite the url functions
 
     def __init__(self, base_dir):
         """
@@ -32,16 +32,9 @@ class empty_app(object):
         look for special subfolders (input, tmp, ...)
         """
         # the demo ID is the folder name
-        self.base_dir = os.path.abspath(base_dir)
+        self.base_dir = os.path.abspath(base_dir) + os.path.sep
         self.id = os.path.basename(base_dir)
-        self.key = None
-
-        # data subfolders
-        self.input_dir = os.path.join(self.base_dir, 'input')
-        self.tmp_dir = os.path.join(self.base_dir, 'tmp')
-        self.dl_dir = os.path.join(self.base_dir, 'dl')
-        self.src_dir = os.path.join(self.base_dir, 'src')
-        self.bin_dir = os.path.join(self.base_dir, 'bin')
+        self.key = ''
 
         # create the missing subfolders
         for static_dir in [self.input_dir, self.tmp_dir]:
@@ -59,87 +52,37 @@ class empty_app(object):
         self.tmp = cherrypy.tools.staticdir(dir=self.tmp_dir)\
             (lambda x : None)
 
-    #
-    # FILE PATH MODEL 
-    #
+    def __getattr__(self, attr):
+        """
+        direct access to some image attributes
+        """
 
-    def path(self, folder, fname=''):
-        """
-        file path scheme
+        # subfolder patterns
+        folder_pattern = {'input_dir' : 'input',
+                          'dl_dir' : 'dl',
+                          'src_dir' : 'src',
+                          'bin_dir' : 'bin',
+                          'tmp_dir' : 'tmp',
+                          'key_dir' : os.path.join('tmp', self.key)}
 
-        @param folder: the path folder category:
-          - tmp : the unique temporary folder (using the key)
-          - bin : the binary folder
-          - input : the input folder
-        @return: the local file path
-        """
-        # TODO use key instead of tmp
-        if folder == 'tmp':
-            # TODO check key != None
-            path = os.path.join(self.tmp_dir, self.key, fname)
-        elif folder == 'bin':
-            path = os.path.join(self.bin_dir, fname)
-        elif folder == 'input':
-            path = os.path.join(self.input_dir, fname)
-        return os.path.abspath(path)
-
-    #
-    # URL MODEL 
-    #
-
-    def _url_xlink(self, link):
-        """
-        link url scheme
-        """
-        if link == 'demo':
-            return cherrypy.url(path="/pub/demo/%s/" % self.id,
-                                script_name='')
-        elif link == 'algo':
-            return cherrypy.url(path="/pub/algo/%s/" % self.id,
-                                script_name='')
-        elif link == 'archive':
-            return cherrypy.url(path="/pub/archive/%s/" % self.id,
-                                script_name='')
-        elif link == 'forum':
-            return cherrypy.url(path="/pub/forum/%s/" % self.id,
-                                script_name='')
-
-    def _url_file(self, folder, fname=None):
-        """
-        url scheme for files:
-        * tmp   -> ./tmp/<key>/<file_name>
-        * input -> ./input/<file_name>
-        """
-        # TODO use key instead of tmp
-        if fname == None:
-            fname = ''
-        if folder == 'tmp':
-            return cherrypy.url(path="tmp/%s/" % self.key + fname)
-        elif folder == 'input':
-            return cherrypy.url(path='input/' + fname)
-
-    def _url_action(self, action, params=None):
-        """
-        url scheme for actions
-        """
-        query_string = ''
-        if params:
-            query_string = '&'.join(["%s=%s" % (key, value)
-                                     for (key, value) in params.items()])
-        return cherrypy.url(path="%s" % action, qs=query_string)
-
-    def url(self, arg1, arg2=None):
-        """
-        url scheme
-        """
-        # TODO include a configurable url base
-        #       taken from the config file 
-        if arg1 in ['demo', 'algo', 'archive', 'forum']:
-            return self._url_xlink(link=arg1)
-        elif arg1 in ['tmp', 'input']:
-            return self._url_file(folder=arg1, fname=arg2)
+        # subfolders
+        if attr in folder_pattern:
+            value = os.path.join(self.base_dir,
+                                 folder_pattern[attr])
+            value = os.path.abspath(value)+ os.path.sep
+        # url
+        elif attr == 'base_url':
+            value = cherrypy.url(path="/")
+        elif attr == 'input_url':
+            value = cherrypy.url(path="/input/")
+        elif attr == 'tmp_url':
+            value = cherrypy.url(path="/tmp/")
+        elif attr == 'key_url':
+            value = cherrypy.url(path="/tmp/%s/" % self.key)
+        # real attribute
         else:
-            return self._url_action(action=arg1, params=arg2)
+            value = object.__getattribute__(self, attr)
+        return value
 
     #
     # UPDATE
@@ -151,7 +94,6 @@ class empty_app(object):
         """
         cherrypy.log("warning: no build method",
                      context='SETUP/%s' % self.id, traceback=False)
-        pass
 
     #
     # KEY MANAGEMENT
@@ -171,7 +113,7 @@ class empty_app(object):
         for seed in seeds:
             keygen.update(str(seed))
         self.key = keygen.hexdigest()
-        os.mkdir(self.path('tmp'))
+        os.mkdir(self.key_dir)
         return
 
     def check_key(self):
@@ -182,7 +124,9 @@ class empty_app(object):
         
         if not (self.key
                 and self.key.isalnum()
-                and os.path.isdir(self.path('tmp'))):
+                and os.path.isdir(self.key_dir)
+                and (self.tmp_dir == 
+                     os.path.commonprefix([self.key_dir, self.tmp_dir]))):
             raise cherrypy.HTTPError(400, # Bad Request
                                      "The key is invalid")
 
@@ -212,10 +156,10 @@ class empty_app(object):
         newenv = os.environ.copy()
         # TODO clear the PATH, hard-rewrite the exec arg0
         # TODO use shell-string execution
-        newenv.update({'PATH' : self.path('bin')})
+        newenv.update({'PATH' : self.bin_dir})
         # run
         return Popen(args, stdin=stdin, stdout=stdout, stderr=stderr,
-                     env=newenv, cwd=self.path('tmp'))
+                     env=newenv, cwd=self.key_dir)
 
     def wait_proc(self, process, timeout=False):
         """

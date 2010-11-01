@@ -7,7 +7,6 @@ various help tools for the IPOL demo environment
 import os.path
 import ConfigParser
 import time
-import cherrypy
 
 #
 # TINY STUFF

@@ -1,4 +1,4 @@
-<form action="${urld['upload_form']}" method="post"
+<form action="${app.base_url + 'input_upload'}" method="post"
       enctype="multipart/form-data">
 <fieldset> 
 <legend>Upload Data</legend> 
@@ -6,7 +6,7 @@
 Upload your own images to use as the algorithm input.
 </p>
 <div class="upload_input">
-%for i in range(input_nb):
+%for i in range(app.input_nb):
   <label for="file_${i}">input image</label>
   <input type="file" name="file_${i}" id="file_${i}" size="40" /><br />
 %endfor
