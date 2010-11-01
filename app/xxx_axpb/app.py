@@ -3,12 +3,8 @@ demo example for the X->aX+b transform
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import build
-from lib import http
-from lib.misc import get_check_key, app_expose
-from lib.misc import index_dict, ctime
-
+from lib import base_app, build, http, image
+from lib.misc import get_check_key, app_expose, index_dict, ctime
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -47,9 +43,9 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_file = os.path.join(self.dl_dir, "axpb.tar.gz")
-        prog_file = os.path.join(self.bin_dir, "axpb")
-        log_file = os.path.join(self.base_dir, "build.log")
+        tgz_file = self.dl_dir + "axpb.tar.gz"
+        prog_file = self.bin_dir + "axpb"
+        log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download("https://edit.ipol.im/meta/dev/axpb.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
@@ -62,28 +58,26 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the program
             build.run("make -C %s axpb"
-                      % os.path.join(self.src_dir, "axpb")
+                      % (self.src_dir + "axpb")
                       + " CC='ccache cc' -j4", stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(os.path.join(self.src_dir, "axpb", "axpb"), prog_file)
+            shutil.copy(self.src_dir + os.path.join("axpb", "axpb"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
 
-    # run() is defined here,
-    # because the parameters validation depends on the algorithm
     @cherrypy.expose
     @get_check_key
-    def run(self, a="1.", b="0"):
+    def wait(self, a="1.", b="0"):
         """
         params handling and run redirection
         """
         # save and validate the parameters
         try:
-            params_file = index_dict(self.path('tmp'))
+            params_file = index_dict(self.key_dir)
             params_file['params'] = {'a' : float(a),
                                      'b' : float(b)}
             params_file.save()
@@ -91,14 +85,30 @@ class app(base_app):
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'input' : [self.url('tmp', 'input_0.png')]}
-        return self.tmpl_out("run.html", urld=urld)
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
+                             input=[self.key_url + 'input_0.png'])
 
-    # run_algo() is defined here,
-    # because it is the actual algorithm execution, hence specific
-    # run_algo() is called from result(),
-    # with the parameters validated in run()
+    @cherrypy.expose
+    @get_check_key
+    def run(self):
+        """
+        algo execution
+        """
+        # read the parameters
+        params_file = index_dict(self.key_dir)
+        a = float(params_file['params']['a'])
+        b = float(params_file['params']['b'])
+        # run the algorithm
+        try:
+            self.run_algo(a, b)
+        except TimeoutError:
+            return self.error(errcode='timeout') 
+        except RuntimeError:
+            return self.error(errcode='runtime')
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
+
     def run_algo(self, a, b):
         """
         the core algo runner
@@ -115,22 +125,8 @@ class app(base_app):
     def result(self):
         """
         display the algo results
-        SHOULD be defined in the derived classes, to check the parameters
         """
-        # read the parameters
-        params_file = index_dict(self.path('tmp'))
-        a = float(params_file['params']['a'])
-        b = float(params_file['params']['b'])
-        # run the algorithm
-        try:
-            self.run_algo(a, b)
-        except TimeoutError:
-            return self.error(errcode='timeout') 
-        except RuntimeError:
-            return self.error(errcode='runtime')
-        self.log("input processed")
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png')],
-                'output' : [self.url('tmp', 'output.png')]}
-        return self.tmpl_out("result.html", urld=urld)
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input_0.png'],
+                             output=[self.key_url + 'output.png'],
+                             height=image(self.key_dir + 'output.png').size[1])
