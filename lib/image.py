@@ -125,7 +125,8 @@ class image(object):
 
         @param size: target size, given as an integer number of pixels,
         a float scale ratio, or a pair (width, height)
-        @param method: interpolation method, can be "nearest" or "bicubic"
+        @param method: interpolation method, can be "nearest",
+                       "bilinear" or "bicubic"
         """
         if isinstance(size, int):
             # size is a number of pixels -> convert to a float scale
@@ -138,9 +139,10 @@ class image(object):
 
         try:
             method_kw = {"nearest" : PIL.Image.NEAREST,
+			 "bilinear" : PIL.Image.BILINEAR,
                          "bicubic" : PIL.Image.BICUBIC}[method]
         except KeyError:
-            raise KeyError('method must be "nearest" or "bicubic"')
+            raise KeyError('method must be "nearest", "bilinear" or "bicubic"')
 
         self.im = self.im.resize(size, method_kw)
         return self
@@ -249,4 +251,41 @@ class image(object):
         draw = PIL.ImageDraw.Draw(self.im)
         draw.line(coords, fill=color)
         del draw
+        return self
+
+    def draw_grid(self, step, offset=(0, 0), color="white"):
+        """
+        draw a grid on the input image
+
+        @param step: the grid step
+        @param offset: the grid offset
+        @param color: the grid color
+        @return: the image object
+        """
+        assert (step > 0)
+        # vertical lines
+        y = self.im.size[1]
+        for x in range(offset[0], self.im.size[0], step):
+            self.draw_line(((x, 0), (x, y)))
+        # horizontal lines
+        x = self.im.size[0]
+        for y in range(offset[1], self.im.size[1], step):
+            self.draw_line(((0, y), (x, y)))
+        return self
+
+    def draw_cross(self, position, size=2, color="white"):
+        """
+        draw a cross on the input image
+
+        @param position: the cross center position
+        @param size: the cross size (length of each branch)
+        @param color: the grid color
+        @return: the image object
+        """
+        assert (size >= 0)
+        (x, y) = position
+        # vertical line
+        self.draw_line(((x, y - size), (x, y + size)), color=color)
+        # horizontal
+        self.draw_line(((x - size, y), (x + size, y)), color=color)
         return self
