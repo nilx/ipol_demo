@@ -2,11 +2,10 @@
 
 <p>
 The results of the algorithm are displayed hereafter.
-The CPU time required was ${run_time}s.
+The CPU time required was ${"%0.2f" % run_time}s.
 </p>
 
-
-<form action="${urld['new_input']}" method="get">
+<form action="${app.base_url}" method="get">
 <fieldset>
 <p>
 Run again the numerical schemes with new data.
@@ -15,15 +14,15 @@ Run again the numerical schemes with new data.
 </fieldset>
 </form>
 
-<form action="${urld['new_run']}" method="get">
+<form action="${app.base_url + 'params'}" method="get">
 <fieldset>
 <p>
 Run again the numerical schemes with new parameters.
 </p>
-<input type="hidden" name="key" value="${key}">
+<input type="hidden" name="key" value="${app.key}">
 <input type="hidden" name="newrun" value=True>
 <input type="submit" value="back to : parameters selection" />
-<fieldset>
+</fieldset>
 </form>
 
 <hr />
@@ -32,14 +31,14 @@ Run again the numerical schemes with new parameters.
 Results at normalized scale R=${scaleRnorm} (zooming factor=${zoomfactor})
 </h2>
 
-<div class="gallery">
+<div class="gallery" style="height:${sizeY}px;">
 <ul class="index">
 <li><a href="#">Original
-    <span><img src=${urld['input'][0]} /></span></a></li>
+    <span><img src=${input[0]} /></span></a></li>
 <li><a href="#">MCM result
-    <span><img src=${urld['output'][0]} /></span></a></li>
+    <span><img src=${output[0]} /></span></a></li>
 <li><a href="#">AMSS result
-    <span><img src=${urld['output'][1]} /></span></a></li>
+    <span><img src=${output[1]} /></span></a></li>
 </ul>
 </div>
 
