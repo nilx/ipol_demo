@@ -3,11 +3,8 @@ Binocular Stereo Pipeline
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import image
-from lib import build
-from lib import http
-from lib.misc import get_check_key, app_expose, ctime
+from lib import base_app, image, build, http
+from lib.misc import get_check_key, app_expose, ctime, index_dict
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -46,19 +43,21 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_file = os.path.join(self.dl_dir, "MissStereo.tar.gz")
+        tgz_file = self.dl_dir + "MissStereo.tar.gz"
         tgz_url = "https://edit.ipol.im/edit/algo/" + \
             "m_quasi_euclidean_epipolar_rectification/MissStereo.tar.gz"
-        build_dir = os.path.join(self.src_dir, "MissStereo", "build")
-        src_bin = dict([(os.path.join(build_dir, "bin", prog),
-                         os.path.join(self.bin_dir, prog))
+        build_dir = (self.src_dir + os.path.join("MissStereo", "build")
+                     + os.path.sep)
+        src_bin = dict([(build_dir + os.path.join("bin", prog),
+                         self.bin_dir + prog)
                         for prog in ["homography", "orsa", "rectify",
                                      "sift", "size", "stereo",
                                      "convert", "mesh"]])
-        src_bin[os.path.join(self.src_dir, "MissStereo",
-                             "scripts", "MissStereo.sh")] \
-            = os.path.join(self.bin_dir, "MissStereo.sh")
-        log_file = os.path.join(self.base_dir, "build.log")
+        src_bin[self.src_dir
+                + os.path.join("MissStereo",
+                               "scripts", "MissStereo.sh")] \
+                               = os.path.join(self.bin_dir, "MissStereo.sh")
+        log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if any of the dest files is missing, or too old
@@ -98,29 +97,68 @@ class app(base_app):
         """
         if newrun:
             self.clone_input()
-        if (image(self.path('tmp', 'input_0.png')).size
-            != image(self.path('tmp', 'input_1.png')).size):
+        if (image(self.key_dir + 'input_0.png').size
+            != image(self.key_dir + 'input_1.png').size):
             return self.error('badparams',
                               "The images must have the same size")
-        urld = {'next_step' : self.url('run'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
-        return self.tmpl_out("params.html", urld=urld, msg=msg)
+        return self.tmpl_out("params.html", msg=msg,
+                             input=[self.key_url + 'input_%i.png' % i
+                                    for i in range(self.input_nb)])
+
+    @cherrypy.expose
+    @get_check_key
+    def wait(self, **kwargs):
+        """
+        params handling and run redirection
+        """
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html", 
+                             input=[self.key_url + 'input_0.png',
+                                    self.key_url + 'input_1.png'],
+                             height=image(self.key_dir
+                                          + 'input_0.png').size[1])
 
     @cherrypy.expose
     @get_check_key
     def run(self, **kwargs):
         """
-        params handling and run redirection
+        algorithm execution
         """
-        # no parameter
-        # redirect to the result page
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')]}
-        return self.tmpl_out("run.html", urld=urld,
-                             height=image(self.path('tmp', 
-                                                    'input_0.png')).size[1])
+        try:
+            run_time = time.time()
+            self.run_algo(timeout=self.timeout)
+            params_file = index_dict(self.key_dir)
+            params_file['params'] = {}
+            params_file['params']['run_time'] = time.time() - run_time
+            params_file.save()
+        except TimeoutError:
+            return self.error(errcode='timeout',
+                              errmsg="Try again with simpler images.")
+        except RuntimeError:
+            return self.error(errcode='runtime')
+        
+        shutil.move(self.key_dir + 'input_0.png_input_1.png_pairs_orsa.txt',
+                    self.key_dir + 'orsa.txt')
+        shutil.move(self.key_dir + 'input_0.png_h.txt',
+                    self.key_dir + 'H_input_0.txt')
+        shutil.move(self.key_dir + 'input_1.png_h.txt',
+                    self.key_dir + 'H_input_1.txt')
+        shutil.move(self.key_dir + 'disp1_H_input_0.png.png',
+                    self.key_dir + 'disp1_H_input_0.png')
+        shutil.move(self.key_dir + 'disp3_H_input_0.png.png',
+                    self.key_dir + 'disp3_H_input_0.png')
+        shutil.move(self.key_dir + 'disp1_H_input_0.png_float.tif',
+                    self.key_dir + 'disp1_H_input_0.tif')
+        shutil.move(self.key_dir + 'disp2_H_input_0.png_float.tif',
+                    self.key_dir + 'disp2_H_input_0.tif')
+        shutil.move(self.key_dir + 'disp3_H_input_0.png_float.tif',
+                    self.key_dir + 'disp3_H_input_0.tif')
+        shutil.move(self.key_dir + 'disp3_H_input_0.png.ply',
+                    self.key_dir + 'disp3_H_input_0.ply')
+
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
+
 
     def run_algo(self, timeout=None):
         """
@@ -129,10 +167,10 @@ class app(base_app):
         this one needs no parameter
         """
         # run Rectify.sh
-        stdout = open(self.path('tmp', 'stdout.txt'), 'w')
+        stdout = open(self.key_dir + 'stdout.txt', 'w')
         p = self.run_proc(['MissStereo.sh',
-                           self.path('tmp', 'input_0.png'),
-                           self.path('tmp', 'input_1.png')],
+                           self.key_dir + 'input_0.png',
+                           self.key_dir + 'input_1.png'],
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p, timeout)
         stdout.close()
@@ -146,62 +184,23 @@ class app(base_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # TODO check image size
-        # no parameters
-        try:
-            run_time = time.time()
-            self.run_algo(timeout=self.timeout)
-            run_time = time.time() - run_time
-        except TimeoutError:
-            return self.error(errcode='timeout',
-                              errmsg="""
-The algorithm took more than %i seconds and had to be interrupted.
-Try again with simpler images.""" % self.timeout)
-        except RuntimeError:
-            return self.error(errcode='retime',
-                              errmsg="""
-The program ended with a failure return code,
-something must have gone wrong""")
-        self.log("input processed")
-        
-        shutil.move(self.path('tmp', 'input_0.png_input_1.png_pairs_orsa.txt'),
-                    self.path('tmp', 'orsa.txt'))
-        shutil.move(self.path('tmp', 'input_0.png_h.txt'),
-                    self.path('tmp', 'H_input_0.txt'))
-        shutil.move(self.path('tmp', 'input_1.png_h.txt'),
-                    self.path('tmp', 'H_input_1.txt'))
-        shutil.move(self.path('tmp', 'disp1_H_input_0.png.png'),
-                    self.path('tmp', 'disp1_H_input_0.png'))
-        shutil.move(self.path('tmp', 'disp3_H_input_0.png.png'),
-                    self.path('tmp', 'disp3_H_input_0.png'))
-        shutil.move(self.path('tmp', 'disp1_H_input_0.png_float.tif'),
-                    self.path('tmp', 'disp1_H_input_0.tif'))
-        shutil.move(self.path('tmp', 'disp2_H_input_0.png_float.tif'),
-                    self.path('tmp', 'disp2_H_input_0.tif'))
-        shutil.move(self.path('tmp', 'disp3_H_input_0.png_float.tif'),
-                    self.path('tmp', 'disp3_H_input_0.tif'))
-        shutil.move(self.path('tmp', 'disp3_H_input_0.png.ply'),
-                    self.path('tmp', 'disp3_H_input_0.ply'))
-
-        urld = {'new_input' : self.url('index'),
-                'run' : self.url('run'),
-                'input' : [self.url('tmp', 'input_0.png'),
-                           self.url('tmp', 'input_1.png')],
-                'disp' : [self.url('tmp', 'disp1_H_input_0.png'),
-                          self.url('tmp', 'disp3_H_input_0.png')],
-                'rect' : [self.url('tmp', 'H_input_0.png'),
-                          self.url('tmp', 'H_input_1.png')],
-                'orsa' : self.url('tmp', 'orsa.txt'),
-                'homo' : [self.url('tmp', 'H_input_0.txt'),
-                          self.url('tmp', 'H_input_1.txt')],
-                'exact' : [self.url('tmp', 'disp1_H_input_0.tif'),
-                           self.url('tmp', 'disp2_H_input_0.tif'),
-                           self.url('tmp', 'disp3_H_input_0.tif')],
-                'ply': self.url('tmp', 'disp3_H_input_0.ply')}
-
-        return self.tmpl_out("result.html", urld=urld,
-                             run_time="%0.2f" % run_time,
-                             height=image(self.path('tmp', 
-                                                    'input_0.png')).size[1],
-                             stdout=open(self.path('tmp', 
-                                                   'stdout.txt'), 'r').read())
+        run_time = float(index_dict(self.key_dir)['params']['run_time'])
+        return self.tmpl_out("result.html",
+                             input=[self.key_url + 'input_0.png',
+                                    self.key_url + 'input_1.png'],
+                             disp=[self.key_url + 'disp1_H_input_0.png',
+                                   self.key_url + 'disp3_H_input_0.png'],
+                             rect=[self.key_url + 'H_input_0.png',
+                                   self.key_url + 'H_input_1.png'],
+                             orsa=self.key_url + 'orsa.txt',
+                             homo=[self.key_url + 'H_input_0.txt',
+                                   self.key_url + 'H_input_1.txt'],
+                             exact=[self.key_url + 'disp1_H_input_0.tif',
+                                    self.key_url + 'disp2_H_input_0.tif',
+                                    self.key_url + 'disp3_H_input_0.tif'],
+                             ply=self.key_url + 'disp3_H_input_0.ply',
+                             run_time=run_time,
+                             height=image(self.key_dir
+                                          + 'input_0.png').size[1],
+                             stdout=open(self.key_dir
+                                         + 'stdout.txt', 'r').read())
