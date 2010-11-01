@@ -6,7 +6,7 @@ Notice that if the input image dimensions are not divisible by 4, then
 the image has been cropped.
 </p>
 
-<form action="${urld['new_input']}" method="get">
+<form action="${app.base_url}" method="get">
 <fieldset> 
 <p>
 You can run again this algorithm with new data.
@@ -20,13 +20,13 @@ You can run again this algorithm with new data.
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
 <li><a href="#">Original
-    <span><img src="${urld['input'][0]}"  /></span></a></li>
+    <span><img src="${input[0]}"  /></span></a></li>
 <li><a href="#">Coarsened
-    <span><img src="${urld['output'][0]}"/></span></a></li>
+    <span><img src="${output[0]}"/></span></a></li>
 <li><a href="#">Interpolated
-    <span><img src="${urld['output'][1]}" /></span></a></li>
+    <span><img src="${output[1]}" /></span></a></li>
 <li><a href="#">Estimated Contour Orientations
-    <span><img src="${urld['output'][2]}" /></span></a></li>
+    <span><img src="${output[2]}" /></span></a></li>
 </ul>
 </div>
 

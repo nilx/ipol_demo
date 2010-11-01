@@ -51,12 +51,12 @@ class app(base_app):
         # store common file path in variables
         tgz_url = "https://edit.ipol.im/pub/algo/" \
             + "g_image_interpolation_with_contour_stencils/src.tar.gz"
-        tgz_file = os.path.join(self.dl_dir, "src.tar.gz")
+        tgz_file = self.dl_dir + "src.tar.gz"
         progs = ["cwinterp", "imcoarsen", "imdiff"]
-        src_bin = dict([(os.path.join(self.src_dir, prog),
-                         os.path.join(self.bin_dir, prog))
+        src_bin = dict([(self.src_dir + prog,
+                         self.bin_dir + prog)
                         for prog in progs])
-        log_file = os.path.join(self.base_dir, "build.log")
+        log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
@@ -83,25 +83,36 @@ class app(base_app):
             shutil.rmtree(self.src_dir)
         return
 
-    # run() is defined here,
-    # because the parameters validation depends on the algorithm
     @cherrypy.expose
     @get_check_key
-    def run(self):
+    def wait(self):
         """
         params handling and run redirection
         as a special case, we have no parameter to check and pass
         """
-        http.refresh(self.url('result?key=%s' % self.key))
-        urld = {'next_step' : self.url('result'),
-                'input' : [self.url('tmp', 'input_%i.png' % i)
-                           for i in range(self.input_nb)]}
-        return self.tmpl_out("run.html", urld=urld)
+        http.refresh(self.base_url + 'run?key=%s' % self.key)
+        return self.tmpl_out("wait.html",
+                             input=[self.key_url + 'input_%i.png' % i
+                                    for i in range(self.input_nb)])
 
-    # run_algo() is defined here,
-    # because it is the actual algorithm execution, hence specific
-    # run_algo() is called from result(),
-    # with the parameters validated in run()
+
+    @cherrypy.expose
+    @get_check_key
+    def run(self):
+        """
+        algorithm execution
+        """
+        try:
+            self.run_algo(stdout=open(self.key_dir + 'stdout.txt', 'w'))
+        except TimeoutError:
+            return self.error(errcode='timeout') 
+        except RuntimeError:
+            return self.error(errcode='runtime')
+
+        http.redir_303(self.base_url + 'result?key=%s' % self.key)
+        return self.tmpl_out("run.html")
+
+
     def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
@@ -109,13 +120,13 @@ class app(base_app):
         this one needs no parameter
         """
         # check image dimensions (must be divisible by 4)
-        img0 = image(self.path('tmp', 'input_0.png'))
+        img0 = image(self.key_dir + 'input_0.png')
         (sizeX, sizeY) = img0.size
         if (sizeX % 4 or sizeY % 4):
             sizeX = (sizeX / 4) * 4
             sizeY = (sizeY / 4) * 4
             img0.crop((0, 0, sizeX, sizeY))       
-            img0.save(self.path('tmp', 'input_0.png'))
+            img0.save(self.key_dir + 'input_0.png')
 
         a = 4
         b = 0.35
@@ -135,9 +146,9 @@ class app(base_app):
                           stdout=stdout, stderr=stdout)
         self.wait_proc([p3, p4], timeout)
 
-        img1 = image(self.path('tmp', 'coarsened.png'))
+        img1 = image(self.key_dir + 'coarsened.png')
         img1.resize((sizeX, sizeY), method="nearest")
-        img1.save(self.path('tmp', 'coarsenedZ.png'))
+        img1.save(self.key_dir + 'coarsenedZ.png')
 
         return
 
@@ -148,26 +159,12 @@ class app(base_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # run the algorithm
-        try:
-            self.run_algo(stdout=open(self.path('tmp', 'stdout.txt'), 'w'))
-        except TimeoutError:
-            return self.error(errcode='timeout') 
-        except RuntimeError:
-            return self.error(errcode='runtime')
-        self.log("input processed")
-        urld = {'new_run' : self.url('params'),
-                'new_input' : self.url('index'),
-                'input' : [self.url('tmp', 'input_0.png')],
-                'output' : [self.url('tmp', 'coarsenedZ.png'),
-                            self.url('tmp', 'interpolated.png'),
-                            self.url('tmp', 'contourori.png')],
-                }
-        stdout = open(self.path('tmp', 'stdout.txt'), 'r')
-        img0 = image(self.path('tmp', 'input_0.png'))
-        (sizeX, sizeY) = img0.size
         return self.tmpl_out("result.html", 
-                             height=sizeY ,
-                             urld=urld, 
-                             stdout=stdout.read())
-
+                             input=[self.key_url + 'input_0.png'],
+                             output=[self.key_url + 'coarsenedZ.png',
+                                     self.key_url + 'interpolated.png',
+                                     self.key_url + 'contourori.png'],
+                             height=image(self.key_dir
+                                          + 'input_0.png').size[1],
+                             stdout=open(self.key_dir 
+                                         + 'stdout.txt', 'r').read())
