@@ -2,10 +2,10 @@
 
 <p>
 The algorithm result is displayed hereafter.
-It ran in ${run_time}s.
+It ran in ${"%0.2f" % run_time}s.
 </p>
 
-<form action="${urld['new_input']}" method="get">
+<form action="${app.base_url}" method="get">
 <fieldset>
 <p>
 You can run again this algorithm with new data.
@@ -31,27 +31,27 @@ ${stdout}
   </tr>
   <tr>
     <td>
-      <img src="${urld['output_v']}" />
+      <img src="${output_v}" />
     </td>
     <td>
-      <img src="${urld['output_v_sift']}" />
+      <img src="${output_v_sift}" />
     </td>
   </tr>
 </table>
 
 <ul>
-<li><a href="${urld['output_h']}"/>
+<li><a href="${output_h}"/>
     ASIFT output image (horizontal layout)</li>
-<li><a href="${urld['match']}">coordinates of ASIFT match points</a></li>
+<li><a href="${match}">coordinates of ASIFT match points</a></li>
 <li>ASIFT keypoints in
-    the <a href="${urld['keys_0']}">first</a>
-    and <a href="${urld['keys_1']}">second</a> image</li>
+    the <a href="${keys_0}">first</a>
+    and <a href="${keys_1}">second</a> image</li>
 </ul>
 
 <h2>input</h2>
 
-% for url in urld['input']:
-<img src="${url}" alt="" /> <br/>
+% for input_url in input:
+<img src="${input_url}" alt="" /> <br/>
 % endfor
 
 <%include file="footer.html" />
