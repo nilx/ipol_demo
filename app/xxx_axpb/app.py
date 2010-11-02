@@ -77,7 +77,7 @@ class app(base_app):
         """
         # save and validate the parameters
         try:
-            params_file = index_dict(self.key_dir)
+            params_file = index_dict(self.work_dir)
             params_file['params'] = {'a' : float(a),
                                      'b' : float(b)}
             params_file.save()
@@ -87,7 +87,7 @@ class app(base_app):
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input_0.png'])
+                             input=[self.work_url + 'input_0.png'])
 
     @cherrypy.expose
     @get_check_key
@@ -96,7 +96,7 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        params_file = index_dict(self.key_dir)
+        params_file = index_dict(self.work_dir)
         a = float(params_file['params']['a'])
         b = float(params_file['params']['b'])
         # run the algorithm
@@ -127,6 +127,6 @@ class app(base_app):
         display the algo results
         """
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_0.png'],
-                             output=[self.key_url + 'output.png'],
-                             height=image(self.key_dir + 'output.png').size[1])
+                             input=[self.work_url + 'input_0.png'],
+                             output=[self.work_url + 'output.png'],
+                             height=image(self.work_dir + 'output.png').size[1])

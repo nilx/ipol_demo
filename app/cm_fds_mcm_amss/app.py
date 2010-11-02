@@ -122,9 +122,9 @@ class app(base_app):
         """
         if action == 'Run':
             # use the whole image
-            img = image(self.key_dir + 'input_0.png')
-            img.save(self.key_dir + 'input' + self.input_ext)
-            img.save(self.key_dir + 'input.png')
+            img = image(self.work_dir + 'input_0.png')
+            img.save(self.work_dir + 'input' + self.input_ext)
+            img.save(self.work_dir + 'input.png')
             # go to the wait page, with the key and scale
             http.redir_303(self.base_url
                            + "wait?key=%s&scaleR=%s&step=%s" 
@@ -134,14 +134,14 @@ class app(base_app):
             # draw the grid
             step = int(step)
             if 0 < step:
-                img = image(self.key_dir + 'input_0.png')
+                img = image(self.work_dir + 'input_0.png')
                 img.draw_grid(step)
-                img.save(self.key_dir + 'input_grid.png')
-                input=[self.key_url + 'input_grid.png'
+                img.save(self.work_dir + 'input_grid.png')
+                input=[self.work_url + 'input_grid.png'
                        + '?step=%i' % step]
                 grid=True
             else:
-                input=[self.key_url + 'input_0.png']
+                input=[self.work_url + 'input_0.png']
                 grid=False
             return self.tmpl_out("params.html",
                                  input=input, step=step, grid=grid)
@@ -153,7 +153,7 @@ class app(base_app):
             step = int(grid_step)
             assert step > 0
             # cut the image section
-            img = image(self.key_dir + 'input_0.png')
+            img = image(self.work_dir + 'input_0.png')
             x0 = (x / step) * step
             y0 = (y / step) * step
             x1 = min(img.size[0], x0 + step)
@@ -161,8 +161,8 @@ class app(base_app):
             img.crop((x0, y0, x1, y1))
             # zoom and save image
             img.resize((400, 400), method="nearest")
-            img.save(self.key_dir + 'input' + self.input_ext)
-            img.save(self.key_dir + 'input.png')
+            img.save(self.work_dir + 'input' + self.input_ext)
+            img.save(self.work_dir + 'input.png')
             # go to the wait page, with the key and scale
             http.redir_303(self.base_url
                            + "wait?key=%s&scaleR=%s&step=%s" 
@@ -181,7 +181,7 @@ class app(base_app):
         """
         # read parameters
         try:
-            params_file = index_dict(self.key_dir)
+            params_file = index_dict(self.work_dir)
             params_file['params'] = {'scale_r' : float(scaleR),
                                      'grid_step' : int(step),
                                      'zoom_factor' : (400.0 / int(step)
@@ -194,7 +194,7 @@ class app(base_app):
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url
+                             input=[self.work_url
                                     + 'input.png?step=%s' % step])
 
     @cherrypy.expose
@@ -204,7 +204,7 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        params_file = index_dict(self.key_dir)
+        params_file = index_dict(self.work_dir)
         scale_r = float(params_file['params']['scale_r'])
         grid_step = int(params_file['params']['grid_step'])
         zoom_factor = float(params_file['params']['zoom_factor'])
@@ -213,7 +213,7 @@ class app(base_app):
         scale_r *= zoom_factor
 
         # run the algorithm
-        stdout = open(self.key_dir + 'stdout.txt', 'w')
+        stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
             self.run_algo(scale_r, stdout=stdout)
@@ -236,16 +236,16 @@ class app(base_app):
 
         # process image
         p1 = self.run_proc(['mcm', str(scale_r),
-                            self.key_dir + 'input' + self.input_ext,
-                            self.key_dir + 'output_MCM' + self.input_ext])
+                            self.work_dir + 'input' + self.input_ext,
+                            self.work_dir + 'output_MCM' + self.input_ext])
         p2 = self.run_proc(['amss', str(scale_r),
-                            self.key_dir + 'input' + self.input_ext, 
-                            self.key_dir + 'output_AMSS' + self.input_ext]) 
+                            self.work_dir + 'input' + self.input_ext, 
+                            self.work_dir + 'output_AMSS' + self.input_ext]) 
         self.wait_proc([p1, p2], timeout)
-        im = image(self.key_dir + 'output_MCM' + self.input_ext)
-        im.save(self.key_dir + 'output_MCM.png')
-        im = image(self.key_dir + 'output_AMSS' + self.input_ext)
-        im.save(self.key_dir + 'output_AMSS.png')
+        im = image(self.work_dir + 'output_MCM' + self.input_ext)
+        im.save(self.work_dir + 'output_MCM.png')
+        im = image(self.work_dir + 'output_AMSS' + self.input_ext)
+        im.save(self.work_dir + 'output_AMSS.png')
 
     @cherrypy.expose
     @get_check_key
@@ -255,18 +255,18 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # read the parameters
-        params_file = index_dict(self.key_dir)
+        params_file = index_dict(self.work_dir)
         scale_r = float(params_file['params']['scale_r'])
         grid_step = int(params_file['params']['grid_step'])
         zoom_factor = float(params_file['params']['zoom_factor'])
 
         return self.tmpl_out("result.html",
-                             input=[self.key_url 
+                             input=[self.work_url 
                                     + 'input.png?step=%s' % grid_step],
-                             output=[self.key_url + 'output_MCM.png',
-                                     self.key_url + 'output_AMSS.png'],
+                             output=[self.work_url + 'output_MCM.png',
+                                     self.work_url + 'output_AMSS.png'],
                              run_time=float(params_file['params']['run_time']),
                              scaleRnorm="%2.2f" % scale_r,
                              zoomfactor="%2.2f" % zoom_factor, 
-			     sizeY="%i" % image(self.key_dir
+			     sizeY="%i" % image(self.work_dir
                                                 + 'input.png').size[1])

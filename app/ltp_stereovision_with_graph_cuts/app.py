@@ -135,7 +135,7 @@ class app(base_app):
         params handling and run redirection
         """
         try:
-            params_file = index_dict(self.key_dir)
+            params_file = index_dict(self.work_dir)
             params_file['params'] = {}
             if 'K' in kwargs:
                 k_ = str2frac(kwargs['K'])
@@ -150,9 +150,9 @@ class app(base_app):
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input_0.png',
-                                    self.key_url + 'input_1.png'],
-                             height=image(self.key_dir
+                             input=[self.work_url + 'input_0.png',
+                                    self.work_url + 'input_1.png'],
+                             height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
 
@@ -165,7 +165,7 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
-            params_file = index_dict(self.key_dir)
+            params_file = index_dict(self.work_dir)
             params_file['params']['run_time'] = time.time() - run_time
             params_file.save()
         except TimeoutError:
@@ -183,24 +183,24 @@ class app(base_app):
         """
         # TODO: cleanup, refactor
         # create autok.conf file
-        kfile = open(self.key_dir + 'autok.conf', 'w')
+        kfile = open(self.work_dir + 'autok.conf', 'w')
         kfile.write("LOAD_COLOR input_0.ppm input_1.ppm\n")
         kfile.write("SET disp_range -15 0 0 0\n")
         kfile.close()
         
         # run autok
-        stdout = open(self.key_dir +'stdout.txt', 'w')
+        stdout = open(self.work_dir +'stdout.txt', 'w')
         p = self.run_proc(['autoK', 'autok.conf'],
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p)
         stdout.close()
         
         # get k from stdout
-        stdout = open(self.key_dir + 'stdout.txt', 'r')
+        stdout = open(self.work_dir + 'stdout.txt', 'r')
         k_auto = str2frac(stdout.readline()) 
         lambda_auto = (k_auto[0], k_auto[1] * 5)
         stdout.close()
-        params_file = index_dict(self.key_dir)
+        params_file = index_dict(self.work_dir)
         params_file['params']['k_auto'] = frac2str(k_auto)
         params_file['params']['lambda_auto'] = frac2str(lambda_auto)
         params_file.save()
@@ -215,7 +215,7 @@ class app(base_app):
         # TODO: cleanup, refactor
         # get the default parameters
         (k_auto, lambda_auto) = self._compute_k_auto()
-        params_file = index_dict(self.key_dir)
+        params_file = index_dict(self.work_dir)
         params_file['params']['k_auto'] = frac2str(k_auto)
         params_file['params']['lambda_auto'] = frac2str(lambda_auto)
 
@@ -230,18 +230,18 @@ class app(base_app):
         nproc = 6   # number of slices
         margin = 6  # overlap margin 
 
-        input0_fnames = image(self.key_dir + 'input_0.ppm') \
+        input0_fnames = image(self.work_dir + 'input_0.ppm') \
             .split(nproc, margin=margin,
-                   fname=self.key_dir + 'input0_split.ppm')
-        input1_fnames = image(self.key_dir + 'input_1.ppm') \
+                   fname=self.work_dir + 'input0_split.ppm')
+        input1_fnames = image(self.work_dir + 'input_1.ppm') \
             .split(nproc, margin=margin,
-                   fname=self.key_dir + 'input1_split.ppm')
+                   fname=self.work_dir + 'input1_split.ppm')
         output_fnames = ['output_split.__%0.2i__.png' % n
                          for n in range(nproc)]
         plist = []
         for n in range(nproc):
             # creating the conf files (one per process)
-            conf_file = open(self.key_dir + 'match_%i.conf' % n,'w')
+            conf_file = open(self.work_dir + 'match_%i.conf' % n,'w')
             conf_file.write("LOAD_COLOR %s %s\n"
                             % (input0_fnames[n], input1_fnames[n]))
             conf_file.write("SET disp_range -15 0 0 0\n")
@@ -260,16 +260,16 @@ class app(base_app):
         self.wait_proc(plist, timeout)
 
         # join all the partial results into a global one
-        output_img = image().join([image(self.key_dir + output_fnames[n])
+        output_img = image().join([image(self.work_dir + output_fnames[n])
                                    for n in range(nproc)], margin=margin)
-        output_img.save(self.key_dir + 'disp_output.ppm')
-        output_img.save(self.key_dir + 'dispmap.png')
+        output_img.save(self.work_dir + 'disp_output.ppm')
+        output_img.save(self.work_dir + 'dispmap.png')
 
         # delete the strips
         for fname in input0_fnames + input1_fnames:
             os.unlink(fname)
         for fname in output_fnames:
-            os.unlink(self.key_dir + fname)
+            os.unlink(self.work_dir + fname)
         return
 
     @cherrypy.expose
@@ -278,17 +278,17 @@ class app(base_app):
         """
         display the algo results
         """
-        params_file = index_dict(self.key_dir)
+        params_file = index_dict(self.work_dir)
         run_time = float(params_file['params']['run_time'])
         k = str2frac(params_file['params']['k_auto'])
         l = str2frac(params_file['params']['lambda_auto'])
 
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_0.png',
-                                    self.key_url + 'input_1.png'],
-                             output=[self.key_url + 'dispmap.png'],
+                             input=[self.work_url + 'input_0.png',
+                                    self.work_url + 'input_1.png'],
+                             output=[self.work_url + 'dispmap.png'],
                              run_time=run_time,
-                             height=image(self.key_dir + 'input_0.png').size[1],
+                             height=image(self.work_dir + 'input_0.png').size[1],
                              k_used=params_file['params']['k_used'],
                              l_used=params_file['params']['lambda_used'],
                              k_proposed=[frac2str((k[0] * 1, k[1] * 2)),

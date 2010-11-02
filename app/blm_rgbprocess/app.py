@@ -91,9 +91,9 @@ class app(base_app):
         """
         if action == 'Run':
             # use the whole image
-            img = image(self.key_dir + 'input_0.png')
-            img.save(self.key_dir + 'input' + self.input_ext)
-            img.save(self.key_dir + 'input.png')
+            img = image(self.work_dir + 'input_0.png')
+            img.save(self.work_dir + 'input' + self.input_ext)
+            img.save(self.work_dir + 'input.png')
             # go to the wait page, with the key
             http.redir_303(self.base_url + "wait?key=%s" % self.key)
             return
@@ -104,12 +104,12 @@ class app(base_app):
                 x = int(x)
                 y = int(y)
                 # draw a cross at the first corner
-                img = image(self.key_dir + 'input_0.png')
+                img = image(self.work_dir + 'input_0.png')
                 img.draw_cross((x, y), size=4, color="white")
                 img.draw_cross((x, y), size=2, color="red")
-                img.save(self.key_dir + 'input.png')
+                img.save(self.work_dir + 'input.png')
                 return self.tmpl_out("params.html",
-                                     input=[self.key_url 
+                                     input=[self.work_url 
                                             + 'input.png?xy=%i,%i' % (x, y)],
                                      x0=x, y0=y)
             else:
@@ -124,7 +124,7 @@ class app(base_app):
                 assert (x1 - x0) > 0
                 assert (y1 - y0) > 0
                 # crop the image
-                img = image(self.key_dir + 'input_0.png')
+                img = image(self.work_dir + 'input_0.png')
                 img.crop((x0, y0, x1, y1))
                 # zoom the cropped area
                 (dx, dy) = img.size
@@ -136,8 +136,8 @@ class app(base_app):
                         dx = int(float(dx) / float(dy) * 400)
                         dy = 400
                     img.resize((dx, dy), method="bilinear")
-                img.save(self.key_dir + 'input' + self.input_ext)
-                img.save(self.key_dir + 'input.png')
+                img.save(self.work_dir + 'input' + self.input_ext)
+                img.save(self.work_dir + 'input.png')
                 # go to the wait page, with the key
                 http.redir_303(self.base_url + "wait?key=%s" % self.key)
             return
@@ -151,7 +151,7 @@ class app(base_app):
         # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input.png'])
+                             input=[self.work_url + 'input.png'])
 
     @cherrypy.expose
     @get_check_key
@@ -159,11 +159,11 @@ class app(base_app):
         """
         algorithm execution
         """
-        stdout = open(self.key_dir + 'stdout.txt', 'w')
+        stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
             self.run_algo(stdout=stdout)
-            params_file = index_dict(self.key_dir)
+            params_file = index_dict(self.work_dir)
             params_file['params'] = {}
             params_file['params']['run_time'] = time.time() - run_time
             params_file.save()
@@ -228,13 +228,13 @@ class app(base_app):
         """
         display the algo results
         """
-        params_file = index_dict(self.key_dir)
+        params_file = index_dict(self.work_dir)
 
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input.png'],
-                             output=[self.key_url + 'output_2.png'],
-                             views=[self.key_url + 'view_%i.png' % i 
+                             input=[self.work_url + 'input.png'],
+                             output=[self.work_url + 'output_2.png'],
+                             views=[self.work_url + 'view_%i.png' % i 
                                     for i in range(100, 127)],
                              run_time=float(params_file['params']['run_time']),
-                             sizeY="%i" % image(self.key_dir 
+                             sizeY="%i" % image(self.work_dir 
                                                 + 'input.png').size[1])

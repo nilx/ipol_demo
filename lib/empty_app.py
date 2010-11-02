@@ -63,7 +63,7 @@ class empty_app(object):
                           'src_dir' : 'src',
                           'bin_dir' : 'bin',
                           'tmp_dir' : 'tmp',
-                          'key_dir' : os.path.join('tmp', self.key)}
+                          'work_dir' : os.path.join('tmp', self.key)}
 
         # subfolders
         if attr in folder_pattern:
@@ -77,7 +77,7 @@ class empty_app(object):
             value = cherrypy.url(path="/input/")
         elif attr == 'tmp_url':
             value = cherrypy.url(path="/tmp/")
-        elif attr == 'key_url':
+        elif attr == 'work_url':
             value = cherrypy.url(path="/tmp/%s/" % self.key)
         # real attribute
         else:
@@ -113,7 +113,7 @@ class empty_app(object):
         for seed in seeds:
             keygen.update(str(seed))
         self.key = keygen.hexdigest()
-        os.mkdir(self.key_dir)
+        os.mkdir(self.work_dir)
         return
 
     def check_key(self):
@@ -124,9 +124,9 @@ class empty_app(object):
         
         if not (self.key
                 and self.key.isalnum()
-                and os.path.isdir(self.key_dir)
+                and os.path.isdir(self.work_dir)
                 and (self.tmp_dir == 
-                     os.path.commonprefix([self.key_dir, self.tmp_dir]))):
+                     os.path.commonprefix([self.work_dir, self.tmp_dir]))):
             raise cherrypy.HTTPError(400, # Bad Request
                                      "The key is invalid")
 
@@ -159,7 +159,7 @@ class empty_app(object):
         newenv.update({'PATH' : self.bin_dir})
         # run
         return Popen(args, stdin=stdin, stdout=stdout, stderr=stderr,
-                     env=newenv, cwd=self.key_dir)
+                     env=newenv, cwd=self.work_dir)
 
     def wait_proc(self, process, timeout=False):
         """

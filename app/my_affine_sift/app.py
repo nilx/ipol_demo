@@ -111,8 +111,8 @@ class app(base_app):
         # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input_0.png',
-                                    self.key_url + 'input_1.png'])
+                             input=[self.work_url + 'input_0.png',
+                                    self.work_url + 'input_1.png'])
 
     @cherrypy.expose
     @get_check_key
@@ -120,11 +120,11 @@ class app(base_app):
         """
         algorithm execution
         """
-        stdout = open(self.key_dir + 'stdout.txt', 'w')
+        stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout, stdout=stdout)
-            params_file = index_dict(self.key_dir)
+            params_file = index_dict(self.work_dir)
             params_file['params'] = {}
             params_file['params']['run_time'] = time.time() - run_time
             params_file.save()
@@ -161,21 +161,21 @@ class app(base_app):
         """
         display the algo results
         """
-        match = open(self.key_dir + 'match.txt')
-        match_SIFT = open(self.key_dir + 'match_SIFT.txt')
-        run_time = float(index_dict(self.key_dir)['params']['run_time'])
+        match = open(self.work_dir + 'match.txt')
+        match_SIFT = open(self.work_dir + 'match_SIFT.txt')
+        run_time = float(index_dict(self.work_dir)['params']['run_time'])
 
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_0.png',
-                                    self.key_url + 'input_1.png'],
-                             output_h=self.key_url + 'outputH.png',
-                             output_v=self.key_url + 'outputV.png',
-                             output_v_sift=self.key_url + 'outputV_SIFT.png',
-                             match=self.key_url + 'match.txt',
-                             keys_0=self.key_url + 'keys_0.txt',
-                             keys_1=self.key_url + 'keys_1.txt',
+                             input=[self.work_url + 'input_0.png',
+                                    self.work_url + 'input_1.png'],
+                             output_h=self.work_url + 'outputH.png',
+                             output_v=self.work_url + 'outputV.png',
+                             output_v_sift=self.work_url + 'outputV_SIFT.png',
+                             match=self.work_url + 'match.txt',
+                             keys_0=self.work_url + 'keys_0.txt',
+                             keys_1=self.work_url + 'keys_1.txt',
                              run_time=run_time,
                              nbmatch=int(match.readline().split()[0]),
                              nbmatch_SIFT=int(match_SIFT.readline().split()[0]),
-                             stdout=open(self.key_dir
+                             stdout=open(self.work_dir
                                          + 'stdout.txt', 'r').read())

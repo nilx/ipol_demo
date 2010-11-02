@@ -116,7 +116,7 @@ class base_app(empty_app):
         for i in range(self.input_nb):
             # open the file as an image
             try:
-                im = image(self.key_dir + 'input_%i' % i)
+                im = image(self.work_dir + 'input_%i' % i)
             except IOError:
                 raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -130,11 +130,11 @@ class base_app(empty_app):
                 msg = """The image has been resized
                       for a reduced computation time."""
             # save a working copy
-            im.save(self.key_dir + 'input_%i' % i + self.input_ext)
+            im.save(self.work_dir + 'input_%i' % i + self.input_ext)
             # save a web viewable copy
-            im.save(self.key_dir + 'input_%i.png' % i)
+            im.save(self.work_dir + 'input_%i.png' % i)
             # delete the original
-            os.unlink(self.key_dir + 'input_%i' % i)
+            os.unlink(self.work_dir + 'input_%i' % i)
         return msg
 
     def clone_input(self):
@@ -143,7 +143,7 @@ class base_app(empty_app):
         """
         self.log("cloning input from %s" % self.key)
         # get a new key
-        old_key_dir = self.key_dir
+        old_work_dir = self.work_dir
         self.new_key()
         # copy the input files
         fnames = ['input_%i' % i + self.input_ext
@@ -151,8 +151,8 @@ class base_app(empty_app):
         fnames += ['input_%i.png' % i
                    for i in range(self.input_nb)]
         for fname in fnames:
-            shutil.copy(old_key_dir + fname,
-                        self.key_dir + fname)
+            shutil.copy(old_work_dir + fname,
+                        self.work_dir + fname)
         return
 
     #
@@ -172,7 +172,7 @@ class base_app(empty_app):
         fnames = input_dict[input_id]['files'].split()
         for i in range(len(fnames)):
             shutil.copy(self.input_dir + fnames[i],
-                        self.key_dir + 'input_%i' % i)
+                        self.work_dir + 'input_%i' % i)
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
         # jump to the params page
@@ -185,7 +185,7 @@ class base_app(empty_app):
         self.new_key()
         for i in range(self.input_nb):
             file_up = kwargs['file_%i' % i]
-            file_save = file(self.key_dir + 'input_%i' % i, 'wb')
+            file_save = file(self.work_dir + 'input_%i' % i, 'wb')
             if '' == file_up.filename:
                 # missing file
                 raise cherrypy.HTTPError(400, # Bad Request
@@ -238,7 +238,7 @@ class base_app(empty_app):
         if newrun:
             self.clone_input()
         return self.tmpl_out("params.html", msg=msg,
-                             input = [self.key_url + 'input_%i.png' % i
+                             input = [self.work_url + 'input_%i.png' % i
                                       for i in range(self.input_nb)])
 
     #
@@ -257,7 +257,7 @@ class base_app(empty_app):
         # use http meta refresh (display the page content meanwhile)
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input_%i.png' % i
+                             input=[self.work_url + 'input_%i.png' % i
                                     for i in range(self.input_nb)])
 
     @get_check_key
@@ -294,6 +294,6 @@ class base_app(empty_app):
         # TODO give the option to not be public
         #        (and remember it from a cookie)
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_%i.png' % i
+                             input=[self.work_url + 'input_%i.png' % i
                                     for i in range(self.input_nb)],
-                             output=[self.key_url + 'output.png'])
+                             output=[self.work_url + 'output.png'])
