@@ -100,7 +100,7 @@ class base_app(empty_app):
                                           + os.path.basename(fname)
                                           for fname in tn_fname]
 
-	
+	"""
         return self.tmpl_out("input.html",
                              tn_size=tn_size,
                              inputd=inputd)
@@ -127,6 +127,7 @@ class base_app(empty_app):
                              tn_size=tn_size,
 			     cr_size=cr_size,
                              inputd=inputd)
+	"""
 	"""
 
 

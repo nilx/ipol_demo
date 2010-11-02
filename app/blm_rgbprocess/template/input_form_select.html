@@ -1,3 +1,5 @@
+
+
 %if inputd:
 <form action="${app.base_url + 'input_select'}" method="get">
 <fieldset> 
@@ -20,20 +22,36 @@ Click on an image to use it as the algorithm input.
 
 
 
-<p><small><a class="toggle" href="#credits">credits</a></small></p>
+<script type="text/javascript">
+function toggle() {
+	if(document.getElementById("toggleable").style.display == "none" ) {
+		document.getElementById("toggleable").style.display = "";
+	}
+	else {
+		document.getElementById("toggleable").style.display = "none";
+	}
+}
+</script>
+ 
 
-<div class="toggleable" id="credits">
+%if cr_size:
 
-<p><small>
+<p><small><a href="#" onclick="toggle();">Credits</a></small></p>
 
-%for id in sorted(inputd.keys()):
-	<a href="${inputd[id]['href_url']}"><img width="${cr_size}" height="${cr_size}" src="${inputd[id]['cr_url']}" /></a>
-  	<span class="label">${inputd[id]['credits']}</span>
+<div id="toggleable" style="display:none"> 
+
+		<p><small>
+		%for id in sorted(inputd.keys()):
+			<a href="${inputd[id]['href_url'][0]}"><img width="${cr_size}" height="${cr_size}" src="${inputd[id]['cr_url'][0]}" /></a>
+  			<span class="label">${inputd[id]['credits']}</span>
+			<br/>
 %endfor
-
-</small></p>
+		</small></p>
 
 </div>
+
+%endif
+
 
 
 
