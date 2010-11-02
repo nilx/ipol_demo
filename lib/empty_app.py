@@ -39,9 +39,6 @@ class empty_app(object):
         # create the missing subfolders
         for static_dir in [self.input_dir, self.tmp_dir]:
             if not os.path.isdir(static_dir):
-                cherrypy.log("warning: missing static folder, "
-                             "creating it : %s" % static_dir,
-                             context='SETUP', traceback=False)
                 os.mkdir(static_dir)
                 
         # static folders

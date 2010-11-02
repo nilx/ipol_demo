@@ -12,7 +12,8 @@ This code requires
 
 To test this service locally,
 * copy `demo.conf.example` to `demo.conf`
-* run the `demo.py` script (must be executable)
+* run the `demo.py` script
+  (must be executable, see options with ./demo.py help)
 * visit http://127.0.0.1:8080 with a graphical web browser
 
 % Development
