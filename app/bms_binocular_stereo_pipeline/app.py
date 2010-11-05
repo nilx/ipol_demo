@@ -137,18 +137,19 @@ class app(base_app):
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
-        ar = self.archive()
-        for i in (0, 1):
-            ar.add_file("input_%i.png" % i)
-            ar.add_file("rect_%i.png" % i)
-            f = open(self.work_dir + 'homo_%i.txt' % i)
-            ar.add_info({"homography %i" % i : f.readline()})
-            f.close()
-        ar.add_file("orsa.txt", compress=True)
-        ar.add_file("disp3_0.ply", compress=True)
-        ar.add_file("disp1_0.tif")
-        ar.add_file("disp2_0.tif")
-        ar.add_file("disp3_0.tif")
+        if self.cfg['meta']['original']:
+            ar = self.archive()
+            for i in (0, 1):
+                ar.add_file("input_%i.png" % i)
+                ar.add_file("rect_%i.png" % i)
+                f = open(self.work_dir + 'homo_%i.txt' % i)
+                ar.add_info({"homography %i" % i : f.readline()})
+                f.close()
+            ar.add_file("orsa.txt", compress=True)
+            ar.add_file("disp3_0.ply", compress=True)
+            ar.add_file("disp1_0.tif")
+            ar.add_file("disp2_0.tif")
+            ar.add_file("disp3_0.tif")
 
         return self.tmpl_out("run.html")
 

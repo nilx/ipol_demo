@@ -52,6 +52,8 @@ class empty_app(object):
             (lambda x : None)
         self.tmp = cherrypy.tools.staticdir(dir=self.tmp_dir)\
             (lambda x : None)
+#        self.archive = cherrypy.tools.staticdir(dir=self.archive_dir)\
+#            (lambda x : None)
 
     def __getattr__(self, attr):
         """
@@ -104,6 +106,7 @@ class empty_app(object):
         self.cfg = config.file_dict(self.work_dir)
         self.cfg.setdefault('param', {})
         self.cfg.setdefault('info', {})
+        self.cfg.setdefault('meta', {})
 
     #
     # UPDATE
@@ -240,5 +243,6 @@ class empty_app(object):
                           yyyymmdd[4:6],
                           yyyymmdd[6:])
         return archive.bucket(path=os.path.join(self.archive_dir,
-                                                yyyy, mm, dd),
+                                                yyyy, mm, dd,
+                                                self.key),
                               cwd=self.work_dir)

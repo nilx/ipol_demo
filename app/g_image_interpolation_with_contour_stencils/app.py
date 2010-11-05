@@ -110,11 +110,12 @@ class app(base_app):
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
-        ar = self.archive()
-        ar.add_file("input_0.png", "input.png")
-        ar.add_file("coarsened_zoom.png")
-        ar.add_file("interpolated.png")
-        ar.add_file("contour.png")
+        if self.cfg['meta']['original']:
+            ar = self.archive()
+            ar.add_file("input_0.png", "input.png")
+            ar.add_file("coarsened_zoom.png")
+            ar.add_file("interpolated.png")
+            ar.add_file("contour.png")
 
         return self.tmpl_out("run.html")
 

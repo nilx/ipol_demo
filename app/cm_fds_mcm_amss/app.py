@@ -220,13 +220,14 @@ class app(base_app):
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
-        ar = self.archive()
-        ar.add_file("input_0.png")
-        ar.add_file("input.png")
-        ar.add_file("output_MCM.png")
-        ar.add_file("output_AMSS.png")
-        ar.add_info({'scale_r' : self.cfg['param']['scale_r'],
-                     'zoom_factor' : self.cfg['param']['zoom_factor']})
+        if self.cfg['meta']['original']:
+            ar = self.archive()
+            ar.add_file("input_0.png")
+            ar.add_file("input.png")
+            ar.add_file("output_MCM.png")
+            ar.add_file("output_AMSS.png")
+            ar.add_info({'scale_r' : self.cfg['param']['scale_r'],
+                         'zoom_factor' : self.cfg['param']['zoom_factor']})
 
         return self.tmpl_out("run.html")
 

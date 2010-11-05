@@ -174,12 +174,13 @@ class app(base_app):
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
-        ar = self.archive()
-        ar.add_file("input_0.png")
-        ar.add_file("input_1.png")
-        ar.add_file("output.png")
-        ar.add_info({"k" : self.cfg['param']['k'],
-                     "lambda" : self.cfg['param']['lambda']})
+        if self.cfg['meta']['original']:
+            ar = self.archive()
+            ar.add_file("input_0.png")
+            ar.add_file("input_1.png")
+            ar.add_file("output.png")
+            ar.add_info({"k" : self.cfg['param']['k'],
+                         "lambda" : self.cfg['param']['lambda']})
 
         return self.tmpl_out("run.html")
 

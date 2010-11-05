@@ -107,10 +107,11 @@ class app(base_app):
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
-        ar = self.archive()
-        ar.add_file("input_0.png", "input.png")
-        ar.add_file("output.png")
-        ar.add_info({"a": a, "b": b})
+        if self.cfg['meta']['original']:
+            ar = self.archive()
+            ar.add_file("input_0.png", "input.png")
+            ar.add_file("output.png")
+            ar.add_info({"a": a, "b": b})
 
         return self.tmpl_out("run.html")
 

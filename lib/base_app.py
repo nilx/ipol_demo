@@ -143,7 +143,9 @@ class base_app(empty_app):
         self.log("cloning input from %s" % self.key)
         # get a new key
         old_work_dir = self.work_dir
+        old_cfg_meta = self.cfg['meta']
         self.new_key()
+        self.init_cfg()
         # copy the input files
         fnames = ['input_%i' % i + self.input_ext
                   for i in range(self.input_nb)]
@@ -152,6 +154,9 @@ class base_app(empty_app):
         for fname in fnames:
             shutil.copy(old_work_dir + fname,
                         self.work_dir + fname)
+        # copy cfg
+        self.cfg['meta'] = old_cfg_meta
+        self.cfg.save()
         return
 
     #
@@ -163,6 +168,7 @@ class base_app(empty_app):
         use the selected available input images
         """
         self.new_key()
+        self.init_cfg()
         # kwargs contains input_id.x and input_id.y
         input_id = kwargs.keys()[0].split('.')[0]
         assert input_id == kwargs.keys()[1].split('.')[0]
@@ -174,6 +180,9 @@ class base_app(empty_app):
                         self.work_dir + 'input_%i' % i)
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
+        # '' is the empty string, evals to False
+        self.cfg['meta']['original'] = ''
+        self.cfg.save()
         # jump to the params page
         return self.params(msg=msg, key=self.key)
 
@@ -182,6 +191,7 @@ class base_app(empty_app):
         use the uploaded input images
         """
         self.new_key()
+        self.init_cfg()
         for i in range(self.input_nb):
             file_up = kwargs['file_%i' % i]
             file_save = file(self.work_dir + 'input_%i' % i, 'wb')
@@ -205,6 +215,8 @@ class base_app(empty_app):
             file_save.close()
         msg = self.process_input()
         self.log("input uploaded")
+        self.cfg['meta']['original'] = True
+        self.cfg.save()
         # jump to the params page
         return self.params(msg=msg, key=self.key)
 
