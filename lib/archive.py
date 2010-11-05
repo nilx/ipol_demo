@@ -64,7 +64,7 @@ class bucket(object):
         if not compress:
             shutil.copy(src_fname, dst_fname)
         else:
-            f_in = open(src, 'rb')
+            f_in = open(src_fname, 'rb')
             f_out = gzip.open(dst_fname, 'wb')
             f_out.writelines(f_in)
             f_out.close()

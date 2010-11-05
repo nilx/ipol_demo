@@ -61,20 +61,18 @@ class index_dict(dict):
 # ACTION DECORATOR TO HANDLE DEMO KEY
 #
 
-def get_check_key(func):
+def init_app(func):
     """
-    decorator to read the key,
-    save it as a class attribute,
-    and check the key validity
+    decorator to reinitialize the app with the current request key
     """
-    def checked_func(self, *args, **kwargs):
+    def init_func(self, *args, **kwargs):
         """
         original function with a preliminary key check
         """
-        self.key = kwargs.pop('key', None)
-        self.check_key()
+        key = kwargs.pop('key', None)
+        self.init_key(key)
         return func(self, *args, **kwargs)
-    return checked_func
+    return init_func
 
 #
 # BASE_APP REUSE

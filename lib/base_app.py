@@ -12,7 +12,7 @@ import os.path
 
 from . import http
 from .empty_app import empty_app
-from .misc import index_dict, prod, get_check_key
+from .misc import index_dict, prod, init_app
 from .image import thumbnail, image
 
 class base_app(empty_app):
@@ -228,7 +228,7 @@ class base_app(empty_app):
     # PARAMETER HANDLING
     #
 
-    @get_check_key
+    @init_app
     def params(self, newrun=False, msg=None):
         """
         configure the algo execution
@@ -243,7 +243,7 @@ class base_app(empty_app):
     # EXECUTION AND RESULTS
     #
 
-    @get_check_key
+    @init_app
     def wait(self, **kwargs):
         """
         params handling and run redirection
@@ -258,7 +258,7 @@ class base_app(empty_app):
                              input=[self.work_url + 'input_%i.png' % i
                                     for i in range(self.input_nb)])
 
-    @get_check_key
+    @init_app
     def run(self, **kwargs):
         """
         algo execution and redirection to result
@@ -282,7 +282,7 @@ class base_app(empty_app):
         """
         pass
 
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results

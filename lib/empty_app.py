@@ -35,6 +35,7 @@ class empty_app(object):
         # the demo ID is the folder name
         self.base_dir = os.path.abspath(base_dir) + os.path.sep
         self.id = os.path.basename(base_dir)
+        # TODO: better key initialization
         self.key = ''
 
         # create the missing subfolders
@@ -52,7 +53,7 @@ class empty_app(object):
 
     def __getattr__(self, attr):
         """
-        direct access to some image attributes
+        direct access to some class attributes
         """
 
         # subfolder patterns
@@ -61,18 +62,19 @@ class empty_app(object):
                        'src_dir' : 'src',
                        'bin_dir' : 'bin',
                        'tmp_dir' : 'tmp',
-                       'archive_dir' : 'archive',
-                       'work_dir' : os.path.join('tmp', self.key)}
+                       'work_dir' : os.path.join('tmp', self.key),
+                       'archive_dir' : 'archive'}
         url_pattern = {'base_url' : '/',
                        'input_url' : '/input/',
                        'tmp_url' : '/tmp/',
-                       'work_url' : '/tmp/%s/' % self.key}
+                       'work_url' : '/tmp/%s/' % self.key,
+                       'archive_url' : '/archive/'}
 
         # subfolders
         if attr in dir_pattern:
             value = os.path.join(self.base_dir,
                                  dir_pattern[attr])
-            value = os.path.abspath(value)+ os.path.sep
+            value = os.path.abspath(value) + os.path.sep
         # url
         elif attr in url_pattern:
             value = cherrypy.url(path=url_pattern[attr])
@@ -80,6 +82,15 @@ class empty_app(object):
         else:
             value = object.__getattribute__(self, attr)
         return value
+
+    def init_key(self, key):
+        """
+        reinitialize the key between 2 page calls
+        """
+        # delete key
+        self.key = ''
+        # regenerate key-related attributes
+        self.new_key(key)
 
     #
     # UPDATE
@@ -96,36 +107,36 @@ class empty_app(object):
     # KEY MANAGEMENT
     #
 
-    def new_key(self):
+    def new_key(self, key=None):
         """
-        create a key and its storage folder
+        create a key if needed, and the key-related attributes
         """
-        keygen = hashlib.md5()
-        seeds = [cherrypy.request.remote.ip,
-                 # use port to improve discrimination
-                 # for proxied or NAT clients 
-                 cherrypy.request.remote.port, 
-                 datetime.now(),
-                 random()]
-        for seed in seeds:
-            keygen.update(str(seed))
-        self.key = keygen.hexdigest()
-        os.mkdir(self.work_dir)
-        return
-
-    def check_key(self):
-        """
-        verify a key exists, is safe and valid,
-        and raise an error if it doesn't
-        """
+        if key is None:
+            keygen = hashlib.md5()
+            seeds = [cherrypy.request.remote.ip,
+                     # use port to improve discrimination
+                     # for proxied or NAT clients 
+                     cherrypy.request.remote.port, 
+                     datetime.now(),
+                     random()]
+            for seed in seeds:
+                keygen.update(str(seed))
+            key = keygen.hexdigest()
         
+        self.key = key
+
+        # check key
         if not (self.key
                 and self.key.isalnum()
-                and os.path.isdir(self.work_dir)
                 and (self.tmp_dir == 
                      os.path.commonprefix([self.work_dir, self.tmp_dir]))):
-            raise cherrypy.HTTPError(400, # Bad Request
-                                     "The key is invalid")
+            # HTTP Bad Request
+            raise cherrypy.HTTPError(400, "The key is invalid")
+
+        if not os.path.isdir(self.work_dir):
+            os.mkdir(self.work_dir)
+
+        return
 
     #
     # LOGS
@@ -212,9 +223,9 @@ class empty_app(object):
         create an archive bucket
         """
         yyyymmdd = time.strftime("%Y%m%d")
+        (yyyy, mm, dd) = (yyyymmdd[:4],
+                          yyyymmdd[4:6],
+                          yyyymmdd[6:])
         return archive.bucket(path=os.path.join(self.archive_dir,
-                                                yyyymmdd[:4],
-                                                yyyymmdd[4:6],
-                                                yyyymmdd[6:],
-                                                self.key),
+                                                yyyy, mm, dd),
                               cwd=self.work_dir)
