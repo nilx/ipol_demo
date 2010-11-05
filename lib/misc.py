@@ -7,8 +7,6 @@ various help tools for the IPOL demo environment
 import os.path
 import time
 
-from .config import file_dict as index_dict
-
 #
 # TINY STUFF
 #

@@ -3,8 +3,8 @@ demo example for the X->aX+b transform
 """
 # pylint: disable=C0103
 
-from lib import base_app, build, http, image
-from lib.misc import init_app, app_expose, index_dict, ctime
+from lib import base_app, build, http, image, config
+from lib.misc import init_app, app_expose, ctime
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -77,7 +77,7 @@ class app(base_app):
         """
         # save and validate the parameters
         try:
-            params_file = index_dict(self.work_dir)
+            params_file = config.file_dict(self.work_dir)
             params_file['params'] = {'a' : float(a),
                                      'b' : float(b)}
             params_file.save()
@@ -96,7 +96,7 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        params_file = index_dict(self.work_dir)
+        params_file = config.file_dict(self.work_dir)
         a = float(params_file['params']['a'])
         b = float(params_file['params']['b'])
         # run the algorithm

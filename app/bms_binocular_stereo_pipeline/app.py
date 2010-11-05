@@ -3,8 +3,8 @@ Binocular Stereo Pipeline
 """
 # pylint: disable=C0103
 
-from lib import base_app, image, build, http
-from lib.misc import init_app, app_expose, ctime, index_dict
+from lib import base_app, image, build, http, config
+from lib.misc import init_app, app_expose, ctime
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -126,7 +126,7 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
-            params_file = index_dict(self.work_dir)
+            params_file = config.file_dict(self.work_dir)
             params_file['params'] = {}
             params_file['params']['run_time'] = time.time() - run_time
             params_file.save()
@@ -193,7 +193,7 @@ class app(base_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        run_time = float(index_dict(self.work_dir)['params']['run_time'])
+        run_time = float(config.file_dict(self.work_dir)['params']['run_time'])
         return self.tmpl_out("result.html",
                              input=['input_0.png', 'input_1.png'],
                              disp=['disp1_0.png', 'disp3_0.png'],

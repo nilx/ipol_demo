@@ -4,8 +4,8 @@ interaction script
 """
 # pylint: disable=C0103
 
-from lib import base_app, build, image, http
-from lib.misc import init_app, app_expose, index_dict, ctime
+from lib import base_app, build, image, http, config
+from lib.misc import init_app, app_expose, ctime
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -135,7 +135,7 @@ class app(base_app):
         params handling and run redirection
         """
         try:
-            params_file = index_dict(self.work_dir)
+            params_file = config.file_dict(self.work_dir)
             params_file['params'] = {}
             if 'K' in kwargs:
                 k_ = str2frac(kwargs['K'])
@@ -165,7 +165,7 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
-            params_file = index_dict(self.work_dir)
+            params_file = config.file_dict(self.work_dir)
             params_file['params']['run_time'] = time.time() - run_time
             params_file.save()
         except TimeoutError:
@@ -220,7 +220,7 @@ class app(base_app):
         # TODO: cleanup, refactor
         # get the default parameters
         (k_auto, lambda_auto) = self._compute_k_auto()
-        params_file = index_dict(self.work_dir)
+        params_file = config.file_dict(self.work_dir)
         params_file['params']['k_auto'] = frac2str(k_auto)
         params_file['params']['lambda_auto'] = frac2str(lambda_auto)
         # use default or overrriden parameter values
@@ -282,7 +282,7 @@ class app(base_app):
         """
         display the algo results
         """
-        params_file = index_dict(self.work_dir)
+        params_file = config.file_dict(self.work_dir)
         run_time = float(params_file['params']['run_time'])
         k = str2frac(params_file['params']['k'])
         l = str2frac(params_file['params']['lambda'])

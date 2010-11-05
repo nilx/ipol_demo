@@ -3,9 +3,7 @@ cwinterp ipol demo web app
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import build
-from lib import http
+from lib import base_app, build, http
 from lib.misc import init_app, ctime
 import shutil
 import cherrypy

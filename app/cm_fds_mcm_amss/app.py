@@ -3,11 +3,7 @@ mcm_amss ipol demo web app
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import index_dict
-from lib import image
-from lib import build
-from lib import http
+from lib import base_app, image, build, http
 from lib.misc import init_app, ctime
 import os.path
 import time
@@ -181,7 +177,7 @@ class app(base_app):
         """
         # read parameters
         try:
-            params_file = index_dict(self.work_dir)
+            params_file = config.file_dict(self.work_dir)
             params_file['params'] = {'scale_r' : float(scaleR),
                                      'grid_step' : int(step),
                                      'zoom_factor' : (400.0 / int(step)
@@ -203,7 +199,7 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        params_file = index_dict(self.work_dir)
+        params_file = config.file_dict(self.work_dir)
         scale_r = float(params_file['params']['scale_r'])
         grid_step = int(params_file['params']['grid_step'])
         zoom_factor = float(params_file['params']['zoom_factor'])
@@ -264,7 +260,7 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # read the parameters
-        params_file = index_dict(self.work_dir)
+        params_file = config.file_dict(self.work_dir)
         scale_r = float(params_file['params']['scale_r'])
         grid_step = int(params_file['params']['grid_step'])
         zoom_factor = float(params_file['params']['zoom_factor'])

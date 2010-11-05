@@ -3,11 +3,7 @@ rgbprocess ipol demo web app
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import build
-from lib import http
-from lib import index_dict
-from lib import image
+from lib import base_app, build, http, image, config
 from lib.misc import init_app, ctime
 import shutil
 import cherrypy
@@ -162,7 +158,7 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(stdout=stdout)
-            params_file = index_dict(self.work_dir)
+            params_file = config.file_dict(self.work_dir)
             params_file['params'] = {}
             params_file['params']['run_time'] = time.time() - run_time
             params_file.save()
@@ -235,7 +231,7 @@ class app(base_app):
         """
         display the algo results
         """
-        params_file = index_dict(self.work_dir)
+        params_file = config.file_dict(self.work_dir)
 
         return self.tmpl_out("result.html",
                              input=['input.png'],
