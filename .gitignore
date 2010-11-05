@@ -4,9 +4,6 @@ demo.conf
 # ignore compiled Python code
 *.pyc
 
-# ignore the development flags
-*.flag
-
 # download, source and binary files
 app/*/dl
 app/*/src
@@ -14,13 +11,9 @@ app/*/bin
 # build log
 app/*/*.log
 
-# archives
-app/*/*.gz
-app/*/*.tgz
-app/*/*.zip
-
-# temporary folder
+# temporary and archive files
 app/*/tmp
+app/*/archive
 
 # ignore the thumbnails
 app/*/input/.__*
