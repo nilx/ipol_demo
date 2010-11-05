@@ -179,7 +179,6 @@ class app(base_app):
                              output_v_sift='output_SIFT_V.png',
                              match='match_ASIFT.txt',
                              keys=['keys_0_ASIFT.txt', 'keys_1_ASIFT.txt'],
-                             run_time=float(self.cfg['info']['run_time']),
                              nbmatch=int(match_ASIFT.readline().split()[0]),
                              nbmatch_SIFT=int(match_SIFT.readline().split()[0]),
                              stdout=open(self.work_dir

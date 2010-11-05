@@ -200,7 +200,6 @@ class app(base_app):
                              exact=['disp1_0.tif', 'disp2_0.tif',
                                     'disp3_0.tif'],
                              ply='disp3_0.ply',
-                             run_time=float(self.cfg['info']['run_time']),
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              stdout=open(self.work_dir

@@ -234,6 +234,5 @@ class app(base_app):
                              output=['output_2.png'],
                              views=['view_%i.png' % i 
                                     for i in range(100, 127)],
-                             run_time=float(self.cfg['info']['run_time']),
                              sizeY="%i" % image(self.work_dir 
                                                 + 'input.png').size[1])

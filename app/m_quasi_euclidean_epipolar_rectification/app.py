@@ -189,7 +189,6 @@ class app(base_app):
                              output=['output_0.png', 'output_1.png'],
                              orsa='orsa.txt',
                              homo=['output_0.txt', 'output_1.txt'],
-                             run_time=float(self.cfg['info']['run_time']),
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              stdout=open(self.work_dir

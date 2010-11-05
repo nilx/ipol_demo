@@ -265,7 +265,6 @@ class app(base_app):
         return self.tmpl_out("result.html",
                              input=['input.png?step=%s' % grid_step],
                              output=['output_MCM.png', 'output_AMSS.png'],
-                             run_time=float(self.cfg['info']['run_time']),
                              scaleRnorm="%2.2f" % scale_r,
                              zoomfactor="%2.2f" % zoom_factor, 
 			     sizeY="%i" % image(self.work_dir

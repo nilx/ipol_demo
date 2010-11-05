@@ -284,7 +284,6 @@ class app(base_app):
         return self.tmpl_out("result.html",
                              input=['input_0.png', 'input_1.png'],
                              output=['output.png'],
-                             run_time=float(self.cfg['info']['run_time']),
                              height=image(self.work_dir 
                                           + 'input_0.png').size[1],
                              k=self.cfg['param']['k'],

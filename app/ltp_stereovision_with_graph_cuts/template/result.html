@@ -1,8 +1,8 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter.
-It ran in ${"%0.2f" % run_time}s.
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % float(app.cfg['info']['run_time'])}s.
 </p>
 
 <form action="${app.base_url}" method="get">
