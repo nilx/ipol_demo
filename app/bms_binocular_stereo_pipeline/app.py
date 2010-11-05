@@ -3,7 +3,7 @@ Binocular Stereo Pipeline
 """
 # pylint: disable=C0103
 
-from lib import base_app, image, build, http, config
+from lib import base_app, image, build, http
 from lib.misc import init_app, app_expose, ctime
 from cherrypy import TimeoutError
 import os.path
@@ -126,10 +126,8 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
-            params_file = config.file_dict(self.work_dir)
-            params_file['params'] = {}
-            params_file['params']['run_time'] = time.time() - run_time
-            params_file.save()
+            self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout',
                               errmsg="Try again with simpler images.")
@@ -193,7 +191,6 @@ class app(base_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        run_time = float(config.file_dict(self.work_dir)['params']['run_time'])
         return self.tmpl_out("result.html",
                              input=['input_0.png', 'input_1.png'],
                              disp=['disp1_0.png', 'disp3_0.png'],
@@ -203,7 +200,7 @@ class app(base_app):
                              exact=['disp1_0.tif', 'disp2_0.tif',
                                     'disp3_0.tif'],
                              ply='disp3_0.ply',
-                             run_time=run_time,
+                             run_time=float(self.cfg['info']['run_time']),
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              stdout=open(self.work_dir

@@ -3,7 +3,7 @@ ASIFT demo interaction script
 """
 # pylint: disable=C0103
 
-from lib import base_app, image, build, http, config
+from lib import base_app, image, build, http
 from lib.misc import init_app, app_expose, ctime
 from cherrypy import TimeoutError
 import cherrypy
@@ -124,10 +124,8 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout, stdout=stdout)
-            params_file = config.file_dict(self.work_dir)
-            params_file['params'] = {}
-            params_file['params']['run_time'] = time.time() - run_time
-            params_file.save()
+            self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout',
                               errmsg="Try again with simpler images.")
@@ -173,7 +171,6 @@ class app(base_app):
         """
         match_ASIFT = open(self.work_dir + 'match_ASIFT.txt')
         match_SIFT = open(self.work_dir + 'match_SIFT.txt')
-        run_time = float(config.file_dict(self.work_dir)['params']['run_time'])
 
         return self.tmpl_out("result.html",
                              input=['input_0.png', 'input_1.png'],
@@ -182,7 +179,7 @@ class app(base_app):
                              output_v_sift='output_SIFT_V.png',
                              match='match_ASIFT.txt',
                              keys=['keys_0_ASIFT.txt', 'keys_1_ASIFT.txt'],
-                             run_time=run_time,
+                             run_time=float(self.cfg['info']['run_time']),
                              nbmatch=int(match_ASIFT.readline().split()[0]),
                              nbmatch_SIFT=int(match_SIFT.readline().split()[0]),
                              stdout=open(self.work_dir

@@ -3,7 +3,7 @@ demo example for the X->aX+b transform
 """
 # pylint: disable=C0103
 
-from lib import base_app, build, http, image, config
+from lib import base_app, build, http, image
 from lib.misc import init_app, app_expose, ctime
 import cherrypy
 from cherrypy import TimeoutError
@@ -77,10 +77,9 @@ class app(base_app):
         """
         # save and validate the parameters
         try:
-            params_file = config.file_dict(self.work_dir)
-            params_file['params'] = {'a' : float(a),
-                                     'b' : float(b)}
-            params_file.save()
+            self.cfg['param'] = {'a' : float(a),
+                                  'b' : float(b)}
+            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
@@ -96,9 +95,8 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        params_file = config.file_dict(self.work_dir)
-        a = float(params_file['params']['a'])
-        b = float(params_file['params']['b'])
+        a = float(self.cfg['param']['a'])
+        b = float(self.cfg['param']['b'])
         # run the algorithm
         try:
             self.run_algo(a, b)

@@ -3,7 +3,7 @@ Quasi-Euclidean Epipolar Rectification
 """
 # pylint: disable=C0103
 
-from lib import base_app, image, http, build, config
+from lib import base_app, image, http, build
 from lib.misc import init_app, app_expose, ctime
 from cherrypy import TimeoutError
 import os.path
@@ -128,10 +128,8 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
-            params_file = config.file_dict(self.work_dir)
-            params_file['params'] = {}
-            params_file['params']['run_time'] = time.time() - run_time
-            params_file.save()
+            self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout')
         except RuntimeError:
@@ -184,7 +182,6 @@ class app(base_app):
         """
         display the algo results
         """
-        run_time = float(config.file_dict(self.work_dir)['params']['run_time'])
         return self.tmpl_out("result.html",
                              input=['input_0.png', 'input_1.png'],
                              rect=['output_0_annotated.png',
@@ -192,7 +189,7 @@ class app(base_app):
                              output=['output_0.png', 'output_1.png'],
                              orsa='orsa.txt',
                              homo=['output_0.txt', 'output_1.txt'],
-                             run_time=run_time,
+                             run_time=float(self.cfg['info']['run_time']),
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              stdout=open(self.work_dir

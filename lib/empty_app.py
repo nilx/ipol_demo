@@ -19,6 +19,7 @@ from cherrypy import TimeoutError
 import cherrypy
 
 from . import archive
+from . import config
 
 class empty_app(object):
     """
@@ -37,6 +38,7 @@ class empty_app(object):
         self.id = os.path.basename(base_dir)
         # TODO: better key initialization
         self.key = ''
+        self.cfg = {}
 
         # create the missing subfolders
         for static_dir in [self.input_dir, self.tmp_dir]:
@@ -91,6 +93,17 @@ class empty_app(object):
         self.key = ''
         # regenerate key-related attributes
         self.new_key(key)
+
+    def init_cfg(self):
+        """
+        reinitialize the config dictionary between 2 page calls
+        """
+        # delete cfg
+        self.cfg = {}
+        # read the config dict
+        self.cfg = config.file_dict(self.work_dir)
+        self.cfg.setdefault('param', {})
+        self.cfg.setdefault('info', {})
 
     #
     # UPDATE

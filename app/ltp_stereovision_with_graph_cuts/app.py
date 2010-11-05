@@ -4,7 +4,7 @@ interaction script
 """
 # pylint: disable=C0103
 
-from lib import base_app, build, image, http, config
+from lib import base_app, build, image, http
 from lib.misc import init_app, app_expose, ctime
 import cherrypy
 from cherrypy import TimeoutError
@@ -135,15 +135,13 @@ class app(base_app):
         params handling and run redirection
         """
         try:
-            params_file = config.file_dict(self.work_dir)
-            params_file['params'] = {}
             if 'K' in kwargs:
                 k_ = str2frac(kwargs['K'])
-                params_file['params']['k'] = frac2str(k_)
+                self.cfg['param']['k'] = frac2str(k_)
             if 'lambda' in kwargs:
                 lambda_ = str2frac(kwargs['lambda'])
-                params_file['params']['lambda'] = frac2str(lambda_)
-            params_file.save()
+                self.cfg['param']['lambda'] = frac2str(lambda_)
+            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be rationals.")
@@ -165,9 +163,8 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
-            params_file = config.file_dict(self.work_dir)
-            params_file['params']['run_time'] = time.time() - run_time
-            params_file.save()
+            self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout',
                               errmsg="Try again with simpler images.")
@@ -181,8 +178,8 @@ class app(base_app):
         ar.add_file("input_0.png")
         ar.add_file("input_1.png")
         ar.add_file("output.png")
-        ar.add_info({"k" : params_file['params']['k'],
-                     "lambda" : params_file['params']['lambda']})
+        ar.add_info({"k" : self.cfg['param']['k'],
+                     "lambda" : self.cfg['param']['lambda']})
 
         return self.tmpl_out("run.html")
 
@@ -220,17 +217,16 @@ class app(base_app):
         # TODO: cleanup, refactor
         # get the default parameters
         (k_auto, lambda_auto) = self._compute_k_auto()
-        params_file = config.file_dict(self.work_dir)
-        params_file['params']['k_auto'] = frac2str(k_auto)
-        params_file['params']['lambda_auto'] = frac2str(lambda_auto)
+        self.cfg['param']['k_auto'] = frac2str(k_auto)
+        self.cfg['param']['lambda_auto'] = frac2str(lambda_auto)
         # use default or overrriden parameter values
-        if not params_file['params'].has_key('k'):
-            params_file['params']['k'] = params_file['params']['k_auto']
-            params_file['params']['lambda'] = \
-                params_file['params']['lambda_auto']
-        params_file.save()
-        k = params_file['params']['k']
-        l = params_file['params']['lambda']
+        if not self.cfg['param'].has_key('k'):
+            self.cfg['param']['k'] = self.cfg['param']['k_auto']
+            self.cfg['param']['lambda'] = \
+                self.cfg['param']['lambda_auto']
+        self.cfg.save()
+        k = self.cfg['param']['k']
+        l = self.cfg['param']['lambda']
 
         # split the input images
         nproc = 6   # number of slices
@@ -282,19 +278,17 @@ class app(base_app):
         """
         display the algo results
         """
-        params_file = config.file_dict(self.work_dir)
-        run_time = float(params_file['params']['run_time'])
-        k = str2frac(params_file['params']['k'])
-        l = str2frac(params_file['params']['lambda'])
+        k = str2frac(self.cfg['param']['k'])
+        l = str2frac(self.cfg['param']['lambda'])
 
         return self.tmpl_out("result.html",
                              input=['input_0.png', 'input_1.png'],
                              output=['output.png'],
-                             run_time=run_time,
+                             run_time=float(self.cfg['info']['run_time']),
                              height=image(self.work_dir 
                                           + 'input_0.png').size[1],
-                             k=params_file['params']['k'],
-                             l=params_file['params']['lambda'],
+                             k=self.cfg['param']['k'],
+                             l=self.cfg['param']['lambda'],
                              k_proposed=[frac2str((k[0] * 1, k[1] * 2)),
                                          frac2str((k[0] * 2, k[1] * 3)),
                                          frac2str((k[0] * 1, k[1] * 1)),

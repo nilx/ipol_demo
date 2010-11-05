@@ -177,13 +177,12 @@ class app(base_app):
         """
         # read parameters
         try:
-            params_file = config.file_dict(self.work_dir)
-            params_file['params'] = {'scale_r' : float(scaleR),
+            self.cfg['param'] = {'scale_r' : float(scaleR),
                                      'grid_step' : int(step),
                                      'zoom_factor' : (400.0 / int(step)
                                                       if int(step) > 0
                                                       else 1.)}
-            params_file.save()
+            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="Wrong input parameters")
@@ -199,10 +198,9 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        params_file = config.file_dict(self.work_dir)
-        scale_r = float(params_file['params']['scale_r'])
-        grid_step = int(params_file['params']['grid_step'])
-        zoom_factor = float(params_file['params']['zoom_factor'])
+        scale_r = float(self.cfg['param']['scale_r'])
+        grid_step = int(self.cfg['param']['grid_step'])
+        zoom_factor = float(self.cfg['param']['zoom_factor'])
 
         # denormalize the scale
         scale_r *= zoom_factor
@@ -212,8 +210,8 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(scale_r, stdout=stdout)
-            params_file['params']['run_time'] = time.time() - run_time
-            params_file.save()
+            self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -227,8 +225,8 @@ class app(base_app):
         ar.add_file("input.png")
         ar.add_file("output_MCM.png")
         ar.add_file("output_AMSS.png")
-        ar.add_info({'scale_r' : params_file['params']['scale_r'],
-                     'zoom_factor' : params_file['params']['zoom_factor']})
+        ar.add_info({'scale_r' : self.cfg['param']['scale_r'],
+                     'zoom_factor' : self.cfg['param']['zoom_factor']})
 
         return self.tmpl_out("run.html")
 
@@ -260,15 +258,14 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # read the parameters
-        params_file = config.file_dict(self.work_dir)
-        scale_r = float(params_file['params']['scale_r'])
-        grid_step = int(params_file['params']['grid_step'])
-        zoom_factor = float(params_file['params']['zoom_factor'])
+        scale_r = float(self.cfg['param']['scale_r'])
+        grid_step = int(self.cfg['param']['grid_step'])
+        zoom_factor = float(self.cfg['param']['zoom_factor'])
 
         return self.tmpl_out("result.html",
                              input=['input.png?step=%s' % grid_step],
                              output=['output_MCM.png', 'output_AMSS.png'],
-                             run_time=float(params_file['params']['run_time']),
+                             run_time=float(self.cfg['info']['run_time']),
                              scaleRnorm="%2.2f" % scale_r,
                              zoomfactor="%2.2f" % zoom_factor, 
 			     sizeY="%i" % image(self.work_dir

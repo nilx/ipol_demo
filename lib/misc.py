@@ -27,6 +27,7 @@ def init_app(func):
         """
         key = kwargs.pop('key', None)
         self.init_key(key)
+        self.init_cfg()
         return func(self, *args, **kwargs)
     return init_func
 

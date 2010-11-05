@@ -34,6 +34,7 @@ class file_dict(dict):
         """
         save the (updated) dictionary to the config file
         """
+        # TODO: auto-save
         cfg = ConfigParser.RawConfigParser()
         for section in self.keys():
             cfg.add_section(section)
