@@ -137,14 +137,19 @@ class app(base_app):
         except RuntimeError:
             return self.error(errcode='runtime')
 
-        shutil.move(self.work_dir + 'input_0.png_input_1.png_pairs_orsa.txt',
-                    self.work_dir + 'orsa.txt')
-        shutil.move(self.work_dir + 'input_0.png_h.txt',
-                    self.work_dir + 'H_input_0.txt')
-        shutil.move(self.work_dir + 'input_1.png_h.txt',
-                    self.work_dir + 'H_input_1.txt')
-
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        ar = self.archive()
+        for i in (0, 1):
+            ar.add_file("input_%i.png" % i)
+            ar.add_file("output_%i.png" % i)
+            ar.add_file("output_%i_annotated.png" % i)
+            f = open(self.work_dir + 'output_%i.txt' % i)
+            ar.add_info({"homography %i" % i : f.readline()})
+            f.close()
+        ar.add_file("orsa.txt", compress=True)
+
         return self.tmpl_out("run.html")
 
     def run_algo(self, timeout=None):
@@ -160,6 +165,17 @@ class app(base_app):
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p, timeout)
         stdout.close()
+
+        mv_map = {'input_0.png_input_1.png_pairs_orsa.txt' : 'orsa.txt',
+                  'input_0.png_h.txt' : 'output_0.txt',
+                  'input_1.png_h.txt' : 'output_1.txt',
+                  'H_input_0.png' : 'output_0.png',
+                  'H_input_1.png' : 'output_1.png',
+                  'show_H_input_0.png' : 'output_0_annotated.png',
+                  'show_H_input_1.png' : 'output_1_annotated.png'}
+        for (src, dst) in mv_map.items():
+            shutil.move(self.work_dir + src, self.work_dir + dst)
+
         return
 
     @cherrypy.expose
@@ -172,13 +188,13 @@ class app(base_app):
         return self.tmpl_out("result.html",
                              input=[self.work_url + 'input_0.png',
                                     self.work_url + 'input_1.png'],
-                             rect=[self.work_url + 'show_H_input_0.png',
-                                   self.work_url + 'show_H_input_1.png'],
-                             output=[self.work_url + 'H_input_0.png',
-                                     self.work_url + 'H_input_1.png'],
+                             rect=[self.work_url + 'output_0_annotated.png',
+                                   self.work_url + 'output_1_annotated.png'],
+                             output=[self.work_url + 'output_0.png',
+                                     self.work_url + 'output_1.png'],
                              orsa=self.work_url + 'orsa.txt',
-                             homo=[self.work_url + 'H_input_0.txt',
-                                   self.work_url + 'H_input_1.txt'],
+                             homo=[self.work_url + 'output_0.txt',
+                                   self.work_url + 'output_1.txt'],
                              run_time=run_time,
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],

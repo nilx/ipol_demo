@@ -225,6 +225,16 @@ class app(base_app):
             return self.error(errcode='runtime')
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        ar = self.archive()
+        ar.add_file("input_0.png")
+        ar.add_file("input.png")
+        ar.add_file("output_MCM.png")
+        ar.add_file("output_AMSS.png")
+        ar.add_info({'scale_r' : params_file['params']['scale_r'],
+                     'zoom_factor' : params_file['params']['zoom_factor']})
+
         return self.tmpl_out("run.html")
 
     def run_algo(self, scale_r, stdout=None, timeout=False):

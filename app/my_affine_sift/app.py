@@ -135,6 +135,15 @@ class app(base_app):
             return self.error(errcode='runtime')
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        ar = self.archive()
+        ar.add_file("input_0.png")
+        ar.add_file("input_1.png")
+        ar.add_file("output_ASIFT_V.png")
+        ar.add_file("output_SIFT_V.png")
+        ar.add_file("match_ASIFT.txt", compress=True)
+
         return self.tmpl_out("run.html")
 
     def run_algo(self, stdout=None, timeout=False):
@@ -144,11 +153,12 @@ class app(base_app):
         this one needs no parameter
         """
         asift = self.run_proc(['asift', 'input_0.png', 'input_1.png', 
-                               'outputV.png', 'outputH.png',
-                               'match.txt', 'keys_0.txt', 'keys_1.txt'],
+                               'output_ASIFT_V.png', 'output_ASIFT_H.png',
+                               'match_ASIFT.txt',
+                               'keys_0_ASIFT.txt', 'keys_1_ASIFT.txt'],
                               stdout=stdout, stderr=stdout)
         sift = self.run_proc(['sift', 'input_0.png', 'input_1.png', 
-                              'outputV_SIFT.png', 'outputH_SIFT.png',
+                              'output_SIFT_V.png', 'output_SIFT_H.png',
                               'match_SIFT.txt',
                               'keys_0_SIFT.txt', 'keys_1_SIFT.txt'],
                              stdout=None, stderr=None)
@@ -156,26 +166,26 @@ class app(base_app):
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results
         """
-        match = open(self.work_dir + 'match.txt')
+        match_ASIFT = open(self.work_dir + 'match_ASIFT.txt')
         match_SIFT = open(self.work_dir + 'match_SIFT.txt')
         run_time = float(index_dict(self.work_dir)['params']['run_time'])
 
         return self.tmpl_out("result.html",
                              input=[self.work_url + 'input_0.png',
                                     self.work_url + 'input_1.png'],
-                             output_h=self.work_url + 'outputH.png',
-                             output_v=self.work_url + 'outputV.png',
-                             output_v_sift=self.work_url + 'outputV_SIFT.png',
-                             match=self.work_url + 'match.txt',
-                             keys_0=self.work_url + 'keys_0.txt',
-                             keys_1=self.work_url + 'keys_1.txt',
+                             output_h=self.work_url + 'output_ASIFT_H.png',
+                             output_v=self.work_url + 'output_ASIFT_V.png',
+                             output_v_sift=self.work_url + 'output_SIFT_V.png',
+                             match=self.work_url + 'match_ASIFT.txt',
+                             keys_0=self.work_url + 'keys_0_ASIFT.txt',
+                             keys_1=self.work_url + 'keys_1_ASIFT.txt',
                              run_time=run_time,
-                             nbmatch=int(match.readline().split()[0]),
+                             nbmatch=int(match_ASIFT.readline().split()[0]),
                              nbmatch_SIFT=int(match_SIFT.readline().split()[0]),
                              stdout=open(self.work_dir
                                          + 'stdout.txt', 'r').read())

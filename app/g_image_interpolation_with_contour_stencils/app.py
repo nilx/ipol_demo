@@ -110,6 +110,14 @@ class app(base_app):
             return self.error(errcode='runtime')
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        ar = self.archive()
+        ar.add_file("input_0.png", "input.png")
+        ar.add_file("coarsened_zoom.png")
+        ar.add_file("interpolated.png")
+        ar.add_file("contour.png")
+
         return self.tmpl_out("run.html")
 
 
@@ -138,7 +146,7 @@ class app(base_app):
         p2 = self.run_proc(['cwinterp', 'coarsened.png', 'interpolated.png'],
                           stdout=stdout, stderr=stdout)
         p4 = self.run_proc(['cwinterp', '-s', 'coarsened.png',
-                            'contourori.png'],
+                            'contour.png'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc(p2, timeout)
 
@@ -148,7 +156,7 @@ class app(base_app):
 
         img1 = image(self.work_dir + 'coarsened.png')
         img1.resize((sizeX, sizeY), method="nearest")
-        img1.save(self.work_dir + 'coarsenedZ.png')
+        img1.save(self.work_dir + 'coarsened_zoom.png')
 
         return
 
@@ -161,9 +169,9 @@ class app(base_app):
         """
         return self.tmpl_out("result.html", 
                              input=[self.work_url + 'input_0.png'],
-                             output=[self.work_url + 'coarsenedZ.png',
+                             output=[self.work_url + 'coarsened_zoom.png',
                                      self.work_url + 'interpolated.png',
-                                     self.work_url + 'contourori.png'],
+                                     self.work_url + 'contour.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              stdout=open(self.work_dir 

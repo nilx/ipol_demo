@@ -136,27 +136,23 @@ class app(base_app):
                               errmsg="Try again with simpler images.")
         except RuntimeError:
             return self.error(errcode='runtime')
-        
-        shutil.move(self.work_dir + 'input_0.png_input_1.png_pairs_orsa.txt',
-                    self.work_dir + 'orsa.txt')
-        shutil.move(self.work_dir + 'input_0.png_h.txt',
-                    self.work_dir + 'H_input_0.txt')
-        shutil.move(self.work_dir + 'input_1.png_h.txt',
-                    self.work_dir + 'H_input_1.txt')
-        shutil.move(self.work_dir + 'disp1_H_input_0.png.png',
-                    self.work_dir + 'disp1_H_input_0.png')
-        shutil.move(self.work_dir + 'disp3_H_input_0.png.png',
-                    self.work_dir + 'disp3_H_input_0.png')
-        shutil.move(self.work_dir + 'disp1_H_input_0.png_float.tif',
-                    self.work_dir + 'disp1_H_input_0.tif')
-        shutil.move(self.work_dir + 'disp2_H_input_0.png_float.tif',
-                    self.work_dir + 'disp2_H_input_0.tif')
-        shutil.move(self.work_dir + 'disp3_H_input_0.png_float.tif',
-                    self.work_dir + 'disp3_H_input_0.tif')
-        shutil.move(self.work_dir + 'disp3_H_input_0.png.ply',
-                    self.work_dir + 'disp3_H_input_0.ply')
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        ar = self.archive()
+        for i in (0, 1):
+            ar.add_file("input_%i.png" % i)
+            ar.add_file("rect_%i.png" % i)
+            f = open(self.work_dir + 'homo_%i.txt' % i)
+            ar.add_info({"homography %i" % i : f.readline()})
+            f.close()
+        ar.add_file("orsa.txt", compress=True)
+        ar.add_file("disp3_0.ply", compress=True)
+        ar.add_file("disp1_0.tif")
+        ar.add_file("disp2_0.tif")
+        ar.add_file("disp3_0.tif")
+
         return self.tmpl_out("run.html")
 
 
@@ -202,17 +198,17 @@ class app(base_app):
         return self.tmpl_out("result.html",
                              input=[self.work_url + 'input_0.png',
                                     self.work_url + 'input_1.png'],
-                             disp=[self.work_url + 'disp1_H_input_0.png',
-                                   self.work_url + 'disp3_H_input_0.png'],
-                             rect=[self.work_url + 'H_input_0.png',
-                                   self.work_url + 'H_input_1.png'],
+                             disp=[self.work_url + 'disp1_0.png',
+                                   self.work_url + 'disp3_0.png'],
+                             rect=[self.work_url + 'rect_0.png',
+                                   self.work_url + 'rect_1.png'],
                              orsa=self.work_url + 'orsa.txt',
-                             homo=[self.work_url + 'H_input_0.txt',
-                                   self.work_url + 'H_input_1.txt'],
-                             exact=[self.work_url + 'disp1_H_input_0.tif',
-                                    self.work_url + 'disp2_H_input_0.tif',
-                                    self.work_url + 'disp3_H_input_0.tif'],
-                             ply=self.work_url + 'disp3_H_input_0.ply',
+                             homo=[self.work_url + 'homo_0.txt',
+                                   self.work_url + 'homo_1.txt'],
+                             exact=[self.work_url + 'disp1_0.tif',
+                                    self.work_url + 'disp2_0.tif',
+                                    self.work_url + 'disp3_0.tif'],
+                             ply=self.work_url + 'disp3_0.ply',
                              run_time=run_time,
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],

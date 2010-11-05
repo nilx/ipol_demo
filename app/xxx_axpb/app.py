@@ -107,6 +107,13 @@ class app(base_app):
         except RuntimeError:
             return self.error(errcode='runtime')
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        ar = self.archive()
+        ar.add_file("input_0.png", "input.png")
+        ar.add_file("output.png")
+        ar.add_info({"a": a, "b": b})
+
         return self.tmpl_out("run.html")
 
     def run_algo(self, a, b):

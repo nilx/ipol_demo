@@ -175,6 +175,15 @@ class app(base_app):
             return self.error(errcode='runtime')
         
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        ar = self.archive()
+        ar.add_file("input_0.png")
+        ar.add_file("input_1.png")
+        ar.add_file("output.png")
+        ar.add_info({"k" : params_file['params']['k'],
+                     "lambda" : params_file['params']['lambda']})
+
         return self.tmpl_out("run.html")
 
     def _compute_k_auto(self):
@@ -200,10 +209,6 @@ class app(base_app):
         k_auto = str2frac(stdout.readline()) 
         lambda_auto = (k_auto[0], k_auto[1] * 5)
         stdout.close()
-        params_file = index_dict(self.work_dir)
-        params_file['params']['k_auto'] = frac2str(k_auto)
-        params_file['params']['lambda_auto'] = frac2str(lambda_auto)
-        params_file.save()
         return (k_auto, lambda_auto)
 
     def run_algo(self, timeout=None):
@@ -218,13 +223,14 @@ class app(base_app):
         params_file = index_dict(self.work_dir)
         params_file['params']['k_auto'] = frac2str(k_auto)
         params_file['params']['lambda_auto'] = frac2str(lambda_auto)
-
         # use default or overrriden parameter values
-        params_file['params']['k_used'] = \
-            params_file['params'].get('k', frac2str(k_auto))
-        params_file['params']['lambda_used'] = \
-            params_file['params'].get('lambda', frac2str(lambda_auto))
+        if not params_file['params'].has_key('k'):
+            params_file['params']['k'] = params_file['params']['k_auto']
+            params_file['params']['lambda'] = \
+                params_file['params']['lambda_auto']
         params_file.save()
+        k = params_file['params']['k']
+        l = params_file['params']['lambda']
 
         # split the input images
         nproc = 6   # number of slices
@@ -247,10 +253,8 @@ class app(base_app):
             conf_file.write("SET disp_range -15 0 0 0\n")
             conf_file.write("SET iter_max 30\n")
             conf_file.write("SET randomize_every_iteration\n")
-            conf_file.write("SET k %s\n"
-                            % params_file['params']['k_used'])
-            conf_file.write("SET lambda %s\n"
-                            % params_file['params']['lambda_used'])
+            conf_file.write("SET k %s\n" % k)
+            conf_file.write("SET lambda %s\n" % l)
             conf_file.write("KZ2\n")
             conf_file.write("SAVE_X_SCALED %s\n" % output_fnames[n])
             conf_file.close()
@@ -262,8 +266,8 @@ class app(base_app):
         # join all the partial results into a global one
         output_img = image().join([image(self.work_dir + output_fnames[n])
                                    for n in range(nproc)], margin=margin)
-        output_img.save(self.work_dir + 'disp_output.ppm')
-        output_img.save(self.work_dir + 'dispmap.png')
+        output_img.save(self.work_dir + 'output.ppm')
+        output_img.save(self.work_dir + 'output.png')
 
         # delete the strips
         for fname in input0_fnames + input1_fnames:
@@ -273,24 +277,25 @@ class app(base_app):
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results
         """
         params_file = index_dict(self.work_dir)
         run_time = float(params_file['params']['run_time'])
-        k = str2frac(params_file['params']['k_auto'])
-        l = str2frac(params_file['params']['lambda_auto'])
+        k = str2frac(params_file['params']['k'])
+        l = str2frac(params_file['params']['lambda'])
 
         return self.tmpl_out("result.html",
                              input=[self.work_url + 'input_0.png',
                                     self.work_url + 'input_1.png'],
-                             output=[self.work_url + 'dispmap.png'],
+                             output=[self.work_url + 'output.png'],
                              run_time=run_time,
-                             height=image(self.work_dir + 'input_0.png').size[1],
-                             k_used=params_file['params']['k_used'],
-                             l_used=params_file['params']['lambda_used'],
+                             height=image(self.work_dir 
+                                          + 'input_0.png').size[1],
+                             k=params_file['params']['k'],
+                             l=params_file['params']['lambda'],
                              k_proposed=[frac2str((k[0] * 1, k[1] * 2)),
                                          frac2str((k[0] * 2, k[1] * 3)),
                                          frac2str((k[0] * 1, k[1] * 1)),

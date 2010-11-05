@@ -23,22 +23,22 @@ Restart this algorithm with other parameters.
 <input type="hidden" name="new_run" value="1">
 <label for="K"> K = </label>
 <select name="K">
-%for k in k_proposed:
-  <option value="${k}"
-%if k == k_used:
+%for _k in k_proposed:
+  <option value="${_k}"
+%if _k == k:
 	  selected="selected"
 %endif
-	  >${k}</option>
+	  >${_k}</option>
 %endfor
 </select>
 <label for="lambda"> lambda = </label>
 <select name="lambda">
-%for l in l_proposed:
-  <option value="${l}"
-%if l == l_used:
+%for _l in l_proposed:
+  <option value="${_l}"
+%if _l == l:
 	  selected="selected"
 %endif
-	  >${l}</option>
+	  >${_l}</option>
 %endfor
 </select>
 <br />
@@ -50,7 +50,7 @@ Restart this algorithm with other parameters.
 
 <div class="gallery" style="height: ${height}px;">
 <ul class="index">
-<li><a href="#">disparity map, K=${k_used}, lambda=${l_used}
+<li><a href="#">disparity map, K=${k}, lambda=${l}
     <span><img src="${output[0]}" /></span></a></li>
 <li><a href="#">first input image
     <span><img src="${input[0]}" /></span></a></li>
