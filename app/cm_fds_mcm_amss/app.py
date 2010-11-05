@@ -8,7 +8,7 @@ from lib import index_dict
 from lib import image
 from lib import build
 from lib import http
-from lib.misc import get_check_key, ctime
+from lib.misc import init_app, ctime
 import os.path
 import time
 import shutil
@@ -115,7 +115,7 @@ class app(base_app):
     #
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def grid(self, step, scaleR, grid_step=0, action=None, x=0, y=0):
         """
         handle the grid drawing and selection
@@ -174,7 +174,7 @@ class app(base_app):
     #
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self, scaleR, step):
         """
         params handling and run redirection
@@ -198,7 +198,7 @@ class app(base_app):
                                     + 'input.png?step=%s' % step])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self):
         """
         algo execution
@@ -248,7 +248,7 @@ class app(base_app):
         im.save(self.work_dir + 'output_AMSS.png')
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results

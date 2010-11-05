@@ -8,7 +8,7 @@ from lib import build
 from lib import http
 from lib import index_dict
 from lib import image
-from lib.misc import get_check_key, ctime
+from lib.misc import init_app, ctime
 import shutil
 import cherrypy
 from cherrypy import TimeoutError
@@ -84,7 +84,7 @@ class app(base_app):
     #
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def rectangle(self, action=None, x=None, y=None, x0=None, y0=None):
         """
         select a rectangle in the image
@@ -143,7 +143,7 @@ class app(base_app):
             return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self):
         """
         params handling and run redirection
@@ -154,7 +154,7 @@ class app(base_app):
                              input=[self.work_url + 'input.png'])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self):
         """
         algorithm execution
@@ -223,7 +223,7 @@ class app(base_app):
 
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results

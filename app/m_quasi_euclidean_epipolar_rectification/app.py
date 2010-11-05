@@ -4,7 +4,7 @@ Quasi-Euclidean Epipolar Rectification
 # pylint: disable=C0103
 
 from lib import base_app, image, http, build
-from lib.misc import get_check_key, app_expose, ctime, index_dict
+from lib.misc import init_app, app_expose, ctime, index_dict
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -89,7 +89,7 @@ class app(base_app):
     #
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def params(self, newrun=False, msg=None):
         """
         configure the algo execution
@@ -105,7 +105,7 @@ class app(base_app):
                                     for i in range(self.input_nb)])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self, **kwargs):
         """
         params handling and run redirection
@@ -119,7 +119,7 @@ class app(base_app):
                                           + 'input_0.png').size[1])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self, **kwargs):
         """
         algorithm execution
@@ -163,7 +163,7 @@ class app(base_app):
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results

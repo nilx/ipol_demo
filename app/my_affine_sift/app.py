@@ -4,7 +4,7 @@ ASIFT demo interaction script
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import get_check_key, app_expose, ctime, index_dict
+from lib.misc import init_app, app_expose, ctime, index_dict
 from cherrypy import TimeoutError
 import cherrypy
 import os.path
@@ -103,7 +103,7 @@ class app(base_app):
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self):
         """
         params handling and run redirection
@@ -115,7 +115,7 @@ class app(base_app):
                                     self.work_url + 'input_1.png'])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self):
         """
         algorithm execution

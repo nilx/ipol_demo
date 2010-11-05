@@ -4,7 +4,7 @@ demo example for the X->aX+b transform
 # pylint: disable=C0103
 
 from lib import base_app, build, http, image
-from lib.misc import get_check_key, app_expose, index_dict, ctime
+from lib.misc import init_app, app_expose, index_dict, ctime
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -70,7 +70,7 @@ class app(base_app):
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self, a="1.", b="0"):
         """
         params handling and run redirection
@@ -90,7 +90,7 @@ class app(base_app):
                              input=[self.work_url + 'input_0.png'])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self):
         """
         algo execution
@@ -121,7 +121,7 @@ class app(base_app):
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results

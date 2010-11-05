@@ -4,7 +4,7 @@ Binocular Stereo Pipeline
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import get_check_key, app_expose, ctime, index_dict
+from lib.misc import init_app, app_expose, ctime, index_dict
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -90,7 +90,7 @@ class app(base_app):
     #
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def params(self, newrun=False, msg=None):
         """
         configure the algo execution
@@ -106,7 +106,7 @@ class app(base_app):
                                     for i in range(self.input_nb)])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self, **kwargs):
         """
         params handling and run redirection
@@ -119,7 +119,7 @@ class app(base_app):
                                           + 'input_0.png').size[1])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self, **kwargs):
         """
         algorithm execution
@@ -175,10 +175,24 @@ class app(base_app):
         self.wait_proc(p, timeout)
         stdout.close()
 
+        mv_map = {'input_0.png_input_1.png_pairs_orsa.txt' : 'orsa.txt',
+                  'input_0.png_h.txt' : 'homo_0.txt',
+                  'input_1.png_h.txt' : 'homo_1.txt',
+                  'disp1_H_input_0.png.png' : 'disp1_0.png',
+                  'disp3_H_input_0.png.png' : 'disp3_0.png',
+                  'disp1_H_input_0.png_float.tif' : 'disp1_0.tif',
+                  'disp2_H_input_0.png_float.tif' : 'disp2_0.tif',
+                  'disp3_H_input_0.png_float.tif' : 'disp3_0.tif',
+                  'disp3_H_input_0.png.ply' : 'disp3_0.ply',
+                  'H_input_0.png' : 'rect_0.png',
+                  'H_input_1.png' : 'rect_1.png'}
+        for (src, dst) in mv_map.items():
+            shutil.move(self.work_dir + src, self.work_dir + dst)
+
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results

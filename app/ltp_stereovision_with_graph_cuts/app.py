@@ -5,7 +5,7 @@ interaction script
 # pylint: disable=C0103
 
 from lib import base_app, build, image, http
-from lib.misc import get_check_key, app_expose, index_dict, ctime
+from lib.misc import init_app, app_expose, index_dict, ctime
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -129,7 +129,7 @@ class app(base_app):
 
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self, **kwargs):
         """
         params handling and run redirection
@@ -157,7 +157,7 @@ class app(base_app):
 
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self, **kwargs):
         """
         algorithm execution
