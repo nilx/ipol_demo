@@ -11,8 +11,9 @@ import cherrypy
 import os.path
 
 from . import http
+from . import config
 from .empty_app import empty_app
-from .misc import index_dict, prod, init_app
+from .misc import prod, init_app
 from .image import thumbnail, image
 
 class base_app(empty_app):
@@ -84,7 +85,7 @@ class base_app(empty_app):
         demo presentation and input menu
         """
         # read the input index as a dict
-        inputd = index_dict(self.input_dir)
+        inputd = config.file_dict(self.input_dir)
         tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
         # TODO: build via list-comprehension
         for (input_id, input_info) in inputd.items():
@@ -166,7 +167,7 @@ class base_app(empty_app):
         input_id = kwargs.keys()[0].split('.')[0]
         assert input_id == kwargs.keys()[1].split('.')[0]
         # get the images
-        input_dict = index_dict(self.input_dir)
+        input_dict = config.file_dict(self.input_dir)
         fnames = input_dict[input_id]['files'].split()
         for i in range(len(fnames)):
             shutil.copy(self.input_dir + fnames[i],

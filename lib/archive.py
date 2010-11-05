@@ -7,8 +7,9 @@ archive bucket class
 import os.path
 import time
 import shutil
-from .misc import index_dict
 import gzip
+
+from . import config
 
 class bucket(object):
     """
@@ -38,7 +39,7 @@ class bucket(object):
         self.cwd = os.path.abspath(cwd)
         assert os.path.isdir(self.cwd)
         # config dictionary
-        self.cfg = index_dict(self.path)
+        self.cfg = config.file_dict(self.path)
         self.cfg.setdefault('info', {})
         self.cfg.setdefault('file', {})
         self.cfg.setdefault('meta', {})
