@@ -137,11 +137,11 @@ class app(base_app):
                 img = image(self.work_dir + 'input_0.png')
                 img.draw_grid(step)
                 img.save(self.work_dir + 'input_grid.png')
-                input=[self.work_url + 'input_grid.png'
+                input=['input_grid.png'
                        + '?step=%i' % step]
                 grid=True
             else:
-                input=[self.work_url + 'input_0.png']
+                input=['input_0.png']
                 grid=False
             return self.tmpl_out("params.html",
                                  input=input, step=step, grid=grid)
@@ -194,8 +194,7 @@ class app(base_app):
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.work_url
-                                    + 'input.png?step=%s' % step])
+                             input=['input.png?step=%s' % step])
 
     @cherrypy.expose
     @init_app
@@ -271,10 +270,8 @@ class app(base_app):
         zoom_factor = float(params_file['params']['zoom_factor'])
 
         return self.tmpl_out("result.html",
-                             input=[self.work_url 
-                                    + 'input.png?step=%s' % grid_step],
-                             output=[self.work_url + 'output_MCM.png',
-                                     self.work_url + 'output_AMSS.png'],
+                             input=['input.png?step=%s' % grid_step],
+                             output=['output_MCM.png', 'output_AMSS.png'],
                              run_time=float(params_file['params']['run_time']),
                              scaleRnorm="%2.2f" % scale_r,
                              zoomfactor="%2.2f" % zoom_factor, 

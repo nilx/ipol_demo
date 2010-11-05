@@ -1,23 +1,23 @@
 %if inputd:
 <form action="${app.base_url + 'input_select'}" method="get">
-<fieldset> 
-<legend>Select Data</legend> 
-<p>
-Click on an image to use it as the algorithm input.
-</p>
-<div style="max-height:30em; overflow:auto;">
-%for id in sorted(inputd.keys()):
-<div class="select_input">
-%for url in inputd[id]['tn_url']:
-  <input type="image" name="${id | h}"
-	 width="${tn_size}" height="${tn_size}"
-         src="${url}" alt="${inputd[id]['title'] | h}"/>
-%endfor
-  <span class="label">${inputd[id]['title'] | h}</span>
-</div>
-%endfor
-</div>
-</fieldset>
+  <fieldset> 
+    <legend>Select Data</legend> 
+    <p>
+      Click on an image to use it as the algorithm input.
+    </p>
+    <div style="max-height:30em; overflow:auto;">
+      %for id in sorted(inputd.keys()):
+      <div class="select_input">
+	%for url in inputd[id]['tn_url']:
+	<input type="image" name="${id | h}"
+	       width="${tn_size}" height="${tn_size}"
+               src="${url}" alt="${inputd[id]['title'] | h}"/>
+	%endfor
+	<span class="label">${inputd[id]['title'] | h}</span>
+      </div>
+      %endfor
+    </div>
+  </fieldset>
 </form>
 %endif
 

@@ -1,45 +1,61 @@
 <%include file="header.html" />
 
 <p>
-The results of the algorithm are displayed hereafter.
-The CPU time required was ${"%0.2f" % run_time}s.
+  The results of the algorithm are displayed hereafter.
+  The CPU time required was ${"%0.2f" % run_time}s.
 </p>
 
 <form action="${app.base_url}" method="get">
-<fieldset>
-<p>
-Run again the numerical schemes with new data.
-</p>
-<input type="submit" value="back to : input" />
-</fieldset>
+  <fieldset>
+    <p>
+      Run again the numerical schemes with new data.
+    </p>
+    <input type="submit" value="back to : input" />
+  </fieldset>
 </form>
 
 <form action="${app.base_url + 'params'}" method="get">
-<fieldset>
-<p>
-Run again the numerical schemes with new parameters.
-</p>
-<input type="hidden" name="key" value="${app.key}">
-<input type="hidden" name="newrun" value=True>
-<input type="submit" value="back to : parameters selection" />
-</fieldset>
+  <fieldset>
+    <p>
+      Run again the numerical schemes with new parameters.
+    </p>
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value=True>
+    <input type="submit" value="back to : parameters selection" />
+  </fieldset>
 </form>
 
 <hr />
 
-<h2>
-Results at normalized scale R=${scaleRnorm} (zooming factor=${zoomfactor})
-</h2>
-
+<h2>result</h2>
+normalized scale R=${scaleRnorm}, zooming factor=${zoomfactor}
 <div class="gallery" style="height:${sizeY}px;">
-<ul class="index">
-<li><a href="#">Original
-    <span><img src=${input[0]} /></span></a></li>
-<li><a href="#">MCM result
-    <span><img src=${output[0]} /></span></a></li>
-<li><a href="#">AMSS result
-    <span><img src=${output[1]} /></span></a></li>
-</ul>
+  <ul class="index">
+    <li>
+      <a href="#">
+	Original
+	<span>
+	  <img src="${app.work_url + input[0]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	MCM result
+	<span>
+	  <img src="${app.work_url + output[0]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	AMSS result
+	<span>
+	  <img src="${app.work_url + output[1]}" />
+	</span>
+      </a>
+    </li>
+  </ul>
 </div>
 
 <%include file="footer.html" />

@@ -150,8 +150,8 @@ class app(base_app):
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.work_url + 'input_0.png',
-                                    self.work_url + 'input_1.png'],
+                             input=['input_0.png',
+                                    'input_1.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -288,9 +288,8 @@ class app(base_app):
         l = str2frac(params_file['params']['lambda'])
 
         return self.tmpl_out("result.html",
-                             input=[self.work_url + 'input_0.png',
-                                    self.work_url + 'input_1.png'],
-                             output=[self.work_url + 'output.png'],
+                             input=['input_0.png', 'input_1.png'],
+                             output=['output.png'],
                              run_time=run_time,
                              height=image(self.work_dir 
                                           + 'input_0.png').size[1],

@@ -101,7 +101,7 @@ class app(base_app):
             return self.error('badparams',
                               "The images must have the same size")
         return self.tmpl_out("params.html", msg=msg,
-                             input=[self.work_url + 'input_%i.png' % i
+                             input=['input_%i.png' % i
                                     for i in range(self.input_nb)])
 
     @cherrypy.expose
@@ -113,8 +113,8 @@ class app(base_app):
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html", 
-                             input=[self.work_url + 'input_0.png',
-                                    self.work_url + 'input_1.png'],
+                             input=['input_0.png',
+                                    'input_1.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -186,15 +186,12 @@ class app(base_app):
         """
         run_time = float(index_dict(self.work_dir)['params']['run_time'])
         return self.tmpl_out("result.html",
-                             input=[self.work_url + 'input_0.png',
-                                    self.work_url + 'input_1.png'],
-                             rect=[self.work_url + 'output_0_annotated.png',
-                                   self.work_url + 'output_1_annotated.png'],
-                             output=[self.work_url + 'output_0.png',
-                                     self.work_url + 'output_1.png'],
-                             orsa=self.work_url + 'orsa.txt',
-                             homo=[self.work_url + 'output_0.txt',
-                                   self.work_url + 'output_1.txt'],
+                             input=['input_0.png', 'input_1.png'],
+                             rect=['output_0_annotated.png',
+                                   'output_1_annotated.png'],
+                             output=['output_0.png', 'output_1.png'],
+                             orsa='orsa.txt',
+                             homo=['output_0.txt', 'output_1.txt'],
                              run_time=run_time,
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],

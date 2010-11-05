@@ -111,8 +111,8 @@ class app(base_app):
         # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.work_url + 'input_0.png',
-                                    self.work_url + 'input_1.png'])
+                             input=['input_0.png',
+                                    'input_1.png'])
 
     @cherrypy.expose
     @init_app
@@ -176,14 +176,12 @@ class app(base_app):
         run_time = float(index_dict(self.work_dir)['params']['run_time'])
 
         return self.tmpl_out("result.html",
-                             input=[self.work_url + 'input_0.png',
-                                    self.work_url + 'input_1.png'],
-                             output_h=self.work_url + 'output_ASIFT_H.png',
-                             output_v=self.work_url + 'output_ASIFT_V.png',
-                             output_v_sift=self.work_url + 'output_SIFT_V.png',
-                             match=self.work_url + 'match_ASIFT.txt',
-                             keys_0=self.work_url + 'keys_0_ASIFT.txt',
-                             keys_1=self.work_url + 'keys_1_ASIFT.txt',
+                             input=['input_0.png', 'input_1.png'],
+                             output_h='output_ASIFT_H.png',
+                             output_v='output_ASIFT_V.png',
+                             output_v_sift='output_SIFT_V.png',
+                             match='match_ASIFT.txt',
+                             keys=['keys_0_ASIFT.txt', 'keys_1_ASIFT.txt'],
                              run_time=run_time,
                              nbmatch=int(match_ASIFT.readline().split()[0]),
                              nbmatch_SIFT=int(match_SIFT.readline().split()[0]),

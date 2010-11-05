@@ -1,50 +1,75 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter.
-It ran in ${"%0.2f" % run_time}s.<br />
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % run_time}s.<br />
 </p>
 
 <form action="${app.base_url}" method="get">
-<fieldset>
-<p>
-Restart with new input.
-</p> 
-<input type="submit" value="back to : input" />
-</fieldset> 
+  <fieldset>
+    <p>
+      Restart with new input.
+    </p> 
+    <input type="submit" value="back to : input" />
+  </fieldset> 
 </form>
 
 <h2>input images</h2>
 
 <div class="gallery" style="height: ${height}px;">
-<ul class="index">
-<li><a href="#">first image
-    <span><img src="${input[0]}" /></span></a></li>
-<li><a href="#">second image
-    <span><img src="${input[1]}" /></span></a></li>
-</ul>
+  <ul class="index">
+    <li>
+      <a href="#">
+	first image
+	<span>
+	  <img src="${app.work_url + input[0]}" />
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second image
+	<span>
+	  <img src="${app.work_url + input[1]}" />
+	</span>
+      </a>
+    </li>
+  </ul>
 </div>
 
 <h2>output rectified images</h2>
 
 <div class="gallery" style="height: ${height}px;">
-<ul class="index">
-<li><a href="#">first image
-    <span><img src="${rect[0]}" /></span></a></li>
-<li><a href="#">second image
-    <span><img src="${rect[1]}" /></span></a></li>
+  <ul class="index">
+    <li>
+      <a href="#">
+	first image
+	<span>
+	  <img src="${app.work_url + rect[0]}" />
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second image
+	<span>
+	  <img src="${app.work_url + rect[1]}" />
+        </span>
+      </a>
+    </li>
 </ul>
 </div>
 
 <ul>
-  <li><a href="${orsa}">correspondences</a></li>
+  <li>
+    <a href="${app.work_url + orsa}">correspondences</a></li>
   <li>homography: 
-    <a href="${homo[0]}">first image</a>,
-    <a href="${homo[1]}">second image</a>
+    <a href="${app.work_url + homo[0]}">first image</a>,
+    <a href="${app.work_url + homo[1]}">second image</a>
   </li>
   <li>rectified images (without annotations): 
-    <a href="${output[0]}">first image</a>,
-    <a href="${output[1]}">second image</a>
+    <a href="${app.work_url + output[0]}">first image</a>,
+    <a href="${app.work_url + output[1]}">second image</a>
   </li>
 </ul>
 

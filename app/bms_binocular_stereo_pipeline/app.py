@@ -102,7 +102,7 @@ class app(base_app):
             return self.error('badparams',
                               "The images must have the same size")
         return self.tmpl_out("params.html", msg=msg,
-                             input=[self.work_url + 'input_%i.png' % i
+                             input=['input_%i.png' % i
                                     for i in range(self.input_nb)])
 
     @cherrypy.expose
@@ -113,8 +113,7 @@ class app(base_app):
         """
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html", 
-                             input=[self.work_url + 'input_0.png',
-                                    self.work_url + 'input_1.png'],
+                             input=['input_0.png', 'input_1.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -196,19 +195,14 @@ class app(base_app):
         """
         run_time = float(index_dict(self.work_dir)['params']['run_time'])
         return self.tmpl_out("result.html",
-                             input=[self.work_url + 'input_0.png',
-                                    self.work_url + 'input_1.png'],
-                             disp=[self.work_url + 'disp1_0.png',
-                                   self.work_url + 'disp3_0.png'],
-                             rect=[self.work_url + 'rect_0.png',
-                                   self.work_url + 'rect_1.png'],
-                             orsa=self.work_url + 'orsa.txt',
-                             homo=[self.work_url + 'homo_0.txt',
-                                   self.work_url + 'homo_1.txt'],
-                             exact=[self.work_url + 'disp1_0.tif',
-                                    self.work_url + 'disp2_0.tif',
-                                    self.work_url + 'disp3_0.tif'],
-                             ply=self.work_url + 'disp3_0.ply',
+                             input=['input_0.png', 'input_1.png'],
+                             disp=['disp1_0.png', 'disp3_0.png'],
+                             rect=['rect_0.png', 'rect_1.png'],
+                             orsa='orsa.txt',
+                             homo=['homo_0.txt', 'homo_1.txt'],
+                             exact=['disp1_0.tif', 'disp2_0.tif',
+                                    'disp3_0.tif'],
+                             ply='disp3_0.ply',
                              run_time=run_time,
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],

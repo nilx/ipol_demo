@@ -236,7 +236,7 @@ class base_app(empty_app):
         if newrun:
             self.clone_input()
         return self.tmpl_out("params.html", msg=msg,
-                             input = [self.work_url + 'input_%i.png' % i
+                             input = ['input_%i.png' % i
                                       for i in range(self.input_nb)])
 
     #
@@ -255,7 +255,7 @@ class base_app(empty_app):
         # use http meta refresh (display the page content meanwhile)
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.work_url + 'input_%i.png' % i
+                             input=['input_%i.png' % i
                                     for i in range(self.input_nb)])
 
     @init_app
@@ -292,6 +292,6 @@ class base_app(empty_app):
         # TODO give the option to not be public
         #        (and remember it from a cookie)
         return self.tmpl_out("result.html",
-                             input=[self.work_url + 'input_%i.png' % i
+                             input=['input_%i.png' % i
                                     for i in range(self.input_nb)],
-                             output=[self.work_url + 'output.png'])
+                             output=['output.png'])

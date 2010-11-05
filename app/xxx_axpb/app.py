@@ -87,7 +87,7 @@ class app(base_app):
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.work_url + 'input_0.png'])
+                             input=['input_0.png'])
 
     @cherrypy.expose
     @init_app
@@ -134,6 +134,6 @@ class app(base_app):
         display the algo results
         """
         return self.tmpl_out("result.html",
-                             input=[self.work_url + 'input_0.png'],
-                             output=[self.work_url + 'output.png'],
+                             input=['input_0.png'],
+                             output=['output.png'],
                              height=image(self.work_dir + 'output.png').size[1])

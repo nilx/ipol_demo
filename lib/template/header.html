@@ -1,42 +1,44 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>IPOL: ${app.title}</title>
-<meta name="language" content="english" />
-<!-- TODO: author -->
-<meta name="author" content="" />
-<link rel="icon" href="http://www.ipol.im/favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="http://www.ipol.im/style.css" type="text/css" />
-<link rel="stylesheet" href="http://www.ipol.im/local.css" type="text/css" />
-<style TYPE="text/css">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>IPOL: ${app.title}</title>
+    <meta name="language" content="english" />
+    <!-- TODO: author -->
+    <meta name="author" content="" />
+    <link rel="icon" href="http://www.ipol.im/favicon.ico"
+	  type="image/x-icon" />
+    <link rel="stylesheet" href="http://www.ipol.im/style.css"
+	  type="text/css" />
+    <link rel="stylesheet" href="http://www.ipol.im/local.css"
+	  type="text/css" />
+    <style TYPE="text/css">
 <!--
-<%include file="style.css" />
-
-%if not prod:
-<%include file="style_dev.css" />
-%endif
+    <%include file="style.css" />
+    
+    %if not prod:
+    <%include file="style_dev.css" />
+    %endif
 -->
-</style>
-</head>
-<body>
-<div class="pageheader">
-<div class="header">
-<div class="parentlinks">
-<a href="http://www.ipol.im/">ipol.im</a>
-»
-<a href="http://www.ipol.im/pub/">pub</a>
-»
-<a href="http://www.ipol.im/pub/demo/">demo</a>
-»
-</div> <!-- .parentlinks -->
-</div> <!-- .header -->
-</div> <!-- .pageheader -->
-<div id="main">
-<div id="pagetitle">
-<a href="${app.base_url}">${app.title}</a>
-</div> <!-- #pagetitle -->
-<%include file="crosslinks.html" />
-<div id="content">
-
+    </style>
+  </head>
+  <body>
+    <div class="pageheader">
+      <div class="header">
+	<div class="parentlinks">
+	  <a href="http://www.ipol.im/">ipol.im</a>
+	  »
+	  <a href="http://www.ipol.im/pub/">pub</a>
+	  »
+	  <a href="http://www.ipol.im/pub/demo/">demo</a>
+	  »
+	</div> <!-- .parentlinks -->
+      </div> <!-- .header -->
+    </div> <!-- .pageheader -->
+    <div id="main">
+      <div id="pagetitle">
+	<a href="${app.base_url}">${app.title}</a>
+      </div> <!-- #pagetitle -->
+      <%include file="crosslinks.html" />
+      <div id="content">

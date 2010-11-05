@@ -1,17 +1,17 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter.
-It ran in ${"%0.2f" % run_time}s.
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % run_time}s.
 </p>
 
 <form action="${app.base_url}" method="get">
-<fieldset>
-<p>
-You can run again this algorithm with new data.
-</p>
-<input type="submit" value="back to : input" />
-</fieldset>
+  <fieldset>
+    <p>
+      You can run again this algorithm with new data.
+    </p>
+    <input type="submit" value="back to : input" />
+  </fieldset>
 </form>
 
 <hr />
@@ -19,7 +19,7 @@ You can run again this algorithm with new data.
 <h2>stdout</h2>
 
 <pre class="stdio">
-${stdout}
+  ${stdout}
 </pre>
 
 <h2>output</h2>
@@ -31,27 +31,32 @@ ${stdout}
   </tr>
   <tr>
     <td>
-      <img src="${output_v}" />
+      <img src="${app.work_url + output_v}" />
     </td>
     <td>
-      <img src="${output_v_sift}" />
+      <img src="${app.work_url + output_v_sift}" />
     </td>
   </tr>
 </table>
 
 <ul>
-<li><a href="${output_h}"/>
-    ASIFT output image (horizontal layout)</li>
-<li><a href="${match}">coordinates of ASIFT match points</a></li>
-<li>ASIFT keypoints in
-    the <a href="${keys_0}">first</a>
-    and <a href="${keys_1}">second</a> image</li>
+  <li>
+    <a href="${app.work_url + output_h}"/>ASIFT output image
+    (horizontal layout)</a>
+  </li>
+  <li>
+    <a href="${app.work_url + match}">coordinates of ASIFT match
+    points</a>
+  </li>
+  <li>ASIFT keypoints in
+    the <a href="${app.work_url + keys[0]}">first</a>
+    and <a href="${app.work_url + keys[1]}">second</a> image</li>
 </ul>
 
 <h2>input</h2>
 
 % for input_url in input:
-<img src="${input_url}" alt="" /> <br/>
+<img src="${app.work_url + input_url}" alt="" /> <br/>
 % endfor
 
 <%include file="footer.html" />

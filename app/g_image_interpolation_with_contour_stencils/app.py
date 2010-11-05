@@ -92,7 +92,7 @@ class app(base_app):
         """
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.work_url + 'input_%i.png' % i
+                             input=['input_%i.png' % i
                                     for i in range(self.input_nb)])
 
 
@@ -168,10 +168,10 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         return self.tmpl_out("result.html", 
-                             input=[self.work_url + 'input_0.png'],
-                             output=[self.work_url + 'coarsened_zoom.png',
-                                     self.work_url + 'interpolated.png',
-                                     self.work_url + 'contour.png'],
+                             input=['input_0.png'],
+                             output=['coarsened_zoom.png',
+                                     'interpolated.png',
+                                     'contour.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              stdout=open(self.work_dir 

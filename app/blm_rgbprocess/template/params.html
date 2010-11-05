@@ -14,15 +14,15 @@
 	Click on the first corner on the image.
       </li>
       <li>
-%if x0 and y0:
+	%if x0 and y0:
         <input type="hidden" name="x0" value="${x0}">
 	<input type="hidden" name="y0" value="${y0}">
         Click on the second corner on the image.
-%else:
+	%else:
 	&nbsp;
-%endif
+	%endif
       </li>
-      <input type="image" name="" src="${input[0]}" />
+      <input type="image" name="" src="${app.work_url + input[0]}" />
     </ul>
   </fieldset>
 </form>
