@@ -12,14 +12,13 @@ from datetime import datetime
 from random import random
 
 import os
-import shutil
 import time
 from subprocess import Popen
 
 from cherrypy import TimeoutError
 import cherrypy
 
-from .misc import index_dict
+from . import archive
 
 class empty_app(object):
     """
@@ -62,17 +61,11 @@ class empty_app(object):
                        'src_dir' : 'src',
                        'bin_dir' : 'bin',
                        'tmp_dir' : 'tmp',
-                       'archive_dir' : 
-                       os.path.join('archive', 
-                                    self.key[:4], self.key[4:6],
-                                    self.key[6:8], self.key[8:]),
+                       'archive_dir' : 'archive',
                        'work_dir' : os.path.join('tmp', self.key)}
         url_pattern = {'base_url' : '/',
                        'input_url' : '/input/',
                        'tmp_url' : '/tmp/',
-                       'archive_url' : 
-                       '/archive/%s/%s/%s/%s' % (self.key[:4], self.key[4:6],
-                                                 self.key[6:8], self.key[8:]),
                        'work_url' : '/tmp/%s/' % self.key}
 
         # subfolders
@@ -116,7 +109,7 @@ class empty_app(object):
                  random()]
         for seed in seeds:
             keygen.update(str(seed))
-        self.key = time.strftime("%Y%m%d") + keygen.hexdigest()
+        self.key = keygen.hexdigest()
         os.mkdir(self.work_dir)
         return
 
@@ -214,35 +207,14 @@ class empty_app(object):
     # ARCHIVE
     #
 
-    def archive_file(self, src, dst=None):
+    def archive(self):
         """
-        save a file in the archive
+        create an archive bucket
         """
-        # create the archive dir (and path) if needed
-        if not os.path.isdir(self.archive_dir):
-            os.makedirs(self.archive_dir)
-        # default dst
-        if dst is None:
-            dst = src
-        # try work_dir
-        if not os.path.isfile(src):
-            src = self.work_dir + os.path.basename(src)
-        # dst in archive_dir
-        dst = self.archive_dir + os.path.basename(dst)
-        # copy the file
-        shutil.copy(src, dst)
-
-    def archive_info(self, key, value):
-        """
-        save an info in the archive
-        """
-        # TODO: allow dict input
-        cfg = index_dict(self.archive_dir)
-        try:
-            cfg['info'][key] = value
-        except KeyError:
-            if not cfg.has_key('info'):
-                cfg['info'] = {key : value}
-            else:
-                raise KeyError
-        cfg.save()
+        yyyymmdd = time.strftime("%Y%m%d")
+        return archive.bucket(path=os.path.join(self.archive_dir,
+                                                yyyymmdd[:4],
+                                                yyyymmdd[4:6],
+                                                yyyymmdd[6:],
+                                                self.key),
+                              cwd=self.work_dir)
