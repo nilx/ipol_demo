@@ -1,5 +1,6 @@
 """
 empty IPOL demo web app
+this class handles all the backend : paths, archives, indexes, ...
 """
 # pylint: disable=C0103
 
@@ -14,6 +15,7 @@ from random import random
 import os
 import time
 from subprocess import Popen
+import sqlite3
 
 from cherrypy import TimeoutError
 import cherrypy
@@ -41,9 +43,15 @@ class empty_app(object):
         self.cfg = {}
 
         # create the missing subfolders
-        for static_dir in [self.input_dir, self.tmp_dir]:
+        for static_dir in [self.input_dir, self.tmp_dir, self.archive_dir]:
             if not os.path.isdir(static_dir):
                 os.mkdir(static_dir)
+
+        # TODO : metge with getattr
+        self.archive_index = os.path.join(self.archive_dir, "index.db")
+        # initialize the index if needed
+        if not os.path.isfile(self.archive_index):
+            self.make_archive_index()
                 
         # static folders
         # cherrypy.tools.staticdir is a decorator,
@@ -52,8 +60,9 @@ class empty_app(object):
             (lambda x : None)
         self.tmp = cherrypy.tools.staticdir(dir=self.tmp_dir)\
             (lambda x : None)
-#        self.archive = cherrypy.tools.staticdir(dir=self.archive_dir)\
-#            (lambda x : None)
+        self.arc = cherrypy.tools.staticdir(dir=self.archive_dir)\
+            (lambda x : None)
+
 
     def __getattr__(self, attr):
         """
@@ -61,6 +70,7 @@ class empty_app(object):
         """
 
         # subfolder patterns
+        # TODO: "path" is the correct syntax
         dir_pattern = {'input_dir' : 'input',
                        'dl_dir' : 'dl',
                        'src_dir' : 'src',
@@ -72,7 +82,7 @@ class empty_app(object):
                        'input_url' : '/input/',
                        'tmp_url' : '/tmp/',
                        'work_url' : '/tmp/%s/' % self.key,
-                       'archive_url' : '/archive/'}
+                       'archive_url' : '/arc/'}
 
         # subfolders
         if attr in dir_pattern:
@@ -234,15 +244,56 @@ class empty_app(object):
     # ARCHIVE
     #
 
-    def archive(self):
+    def make_archive(self):
         """
         create an archive bucket
         """
-        yyyymmdd = time.strftime("%Y%m%d")
-        (yyyy, mm, dd) = (yyyymmdd[:4],
-                          yyyymmdd[4:6],
-                          yyyymmdd[6:])
-        return archive.bucket(path=os.path.join(self.archive_dir,
-                                                yyyy, mm, dd,
-                                                self.key),
-                              cwd=self.work_dir)
+        ar = archive.bucket(path=self.archive_dir,
+                            cwd=self.work_dir,
+                            id=self.key)
+        date = ar.cfg['meta']['date']
+        # add to the index
+        db = sqlite3.connect(self.archive_index)
+        c = db.cursor()
+        c.execute("""insert into buckets (id, date) values (?, ?)""",
+                  (self.key, date))
+        db.commit()
+        c.close()
+        return ar
+
+    def make_archive_index(self):
+        """
+        create an index of the archive buckets
+        """
+        cherrypy.log("(re)creating the archive index",
+                     context='SETUP/%s' % self.id, traceback=False)
+        db = sqlite3.connect(self.archive_index)
+        c = db.cursor()
+        # (re)create table
+        c.execute("""drop table if exists buckets""")
+        # TODO : check index use
+        c.execute("""drop index if exists buckets_by_date""")
+        c.execute("""create table buckets (id text unique, date text)""")
+        c.execute("""create index buckets_by_date on buckets (date)""")
+        # populate the db
+        for id in archive.list_id(self.archive_dir):
+            bucket = archive.bucket(path=self.archive_dir,
+                                    id=id)
+            date = bucket.cfg['meta']['date']
+            c.execute("""insert into buckets (id, date) values (?, ?)""",
+                      (id, date))
+        db.commit()
+        c.close()
+
+    def get_archive_id_by_date(self, limit=50, offset=0):
+        """
+        get some ids from the index
+        """
+        # TODO: use iterators
+        db = sqlite3.connect(self.archive_index)
+        c = db.cursor()
+        c.execute("select id from buckets order by date desc "
+                  + "limit ? offset ?",
+                  (limit, offset))
+        return [id[0] for id in c]
+

@@ -1,0 +1,55 @@
+<%include file="header.html" />
+
+<ul>
+  %for bucket in bucket_list:
+  <li>
+    <div class="bucket">
+      <div style="width: 35%; float: left;">
+	<h3>metadata</h3>
+	<dl class="meta">
+	  <dt>date</dt>
+	  <dd>${bucket['meta']['date'] | h}</dd>
+	  <dt>id</dt>
+	  <dd>${bucket['meta']['id'] | h}</dd>
+	</dl>
+	<h3>info</h3>
+	<dl class="info">
+	  %for (key, value) in bucket['info'].items():
+	  <dt>${key | h}</dt>
+	  <dd>${value | h}</dd>
+	  %endfor
+	</dl>
+      </div>
+      
+      <div style="width: 60%; float: right;">
+	<h3>images</h3>
+	<ul class="thumbnails">
+	  %for item in [i for i in bucket['files'] if i.is_file and i.has_tn]:
+	  <li>
+	    <a href="${bucket['url'] + item.name | h}">
+	      <img src="${bucket['url'] + item.tn_name | h}"
+		   alt="${item.name | h}"
+		   title="${item.name | h}: ${item.info | h}"/>
+	    </a>
+	  </li>
+	  %endfor
+	</ul>
+	<h3>other files</h3>
+	<ul class="files">
+	  %for item in [i for i in bucket['files'] if i.is_file and not i.has_tn]:
+	  <li>
+	    <a href="${bucket['url'] + item.name | h}"
+	       title="${item.info | h}">${item.name}</a>
+	  </li>
+	  %endfor
+	</ul>
+      </div>
+      <hr class="clear">
+    </div>
+    
+  </li>
+  %endfor
+</ul>
+
+<%include file="footer.html" />
+

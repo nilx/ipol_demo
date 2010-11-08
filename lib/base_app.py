@@ -1,5 +1,6 @@
 """
 base IPOL demo web app
+includes interaction and rendering
 """
 # pylint: disable=C0103
 
@@ -12,8 +13,9 @@ import os.path
 
 from . import http
 from . import config
+from . import archive
 from .empty_app import empty_app
-from .misc import prod, init_app
+from .misc import prod, init_app, mtime
 from .image import thumbnail, image
 
 class base_app(empty_app):
@@ -48,8 +50,6 @@ class base_app(empty_app):
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
  
-        # TODO early attributes validation
-
     #
     # TEMPLATES HANDLER
     #
@@ -308,3 +308,30 @@ class base_app(empty_app):
                              input=['input_%i.png' % i
                                     for i in range(self.input_nb)],
                              output=['output.png'])
+
+    #
+    # ARCHIVE
+    #
+    
+    @cherrypy.expose
+    def archive(self, offset=0):
+        """
+        lists the archive content
+        """
+        buckets = []
+        for id in self.get_archive_id_by_date(offset=offset):
+            ar = archive.bucket(self.archive_dir, id)
+            files = []
+            for fname in os.listdir(ar.path):
+                if (not os.path.isfile(os.path.join(ar.path, fname))
+                    or fname.startswith('.')):
+                    continue
+                files.append(archive.item(os.path.join(ar.path, fname)))
+            buckets += [{'url' : self.archive_url + archive.id2url(id),
+                         'files' : files,
+                         'meta' : ar.cfg['meta'],
+                         'info' : ar.cfg['info']}]
+        return self.tmpl_out("archive.html",
+                             bucket_list=buckets)
+
+

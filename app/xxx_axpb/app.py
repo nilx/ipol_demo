@@ -108,10 +108,11 @@ class app(base_app):
 
         # archive
         if self.cfg['meta']['original']:
-            ar = self.archive()
+            ar = self.make_archive()
             ar.add_file("input_0.png", "input.png")
             ar.add_file("output.png")
             ar.add_info({"a": a, "b": b})
+            ar.commit()
 
         return self.tmpl_out("run.html")
 

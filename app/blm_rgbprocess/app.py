@@ -169,12 +169,13 @@ class app(base_app):
 
         # archive
         if self.cfg['meta']['original']:
-            ar = self.archive()
+            ar = self.make_archive()
             ar.add_file("input_0.png")
             ar.add_file("input.png")
             ar.add_file("output_1.png")
             ar.add_file("output_2.png")
-            
+            ar.commit()
+
         return self.tmpl_out("run.html")
 
     def run_algo(self, stdout=None, timeout=False):

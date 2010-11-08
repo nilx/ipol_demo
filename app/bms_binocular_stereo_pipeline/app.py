@@ -138,7 +138,7 @@ class app(base_app):
 
         # archive
         if self.cfg['meta']['original']:
-            ar = self.archive()
+            ar = self.make_archive()
             for i in (0, 1):
                 ar.add_file("input_%i.png" % i)
                 ar.add_file("rect_%i.png" % i)
@@ -150,6 +150,7 @@ class app(base_app):
             ar.add_file("disp1_0.tif")
             ar.add_file("disp2_0.tif")
             ar.add_file("disp3_0.tif")
+            ar.commit()
 
         return self.tmpl_out("run.html")
 

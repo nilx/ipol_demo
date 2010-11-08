@@ -6,6 +6,7 @@ various help tools for the IPOL demo environment
 
 import os.path
 import time
+from datetime import datetime
 
 #
 # TINY STUFF
@@ -45,8 +46,30 @@ def app_expose(function):
 # TIME
 #
 
-def ctime(fname):
+def _timeformat(t, format="struct"):
     """
-    get the (unix) change time of a file
+    provide alternative time type pormatting:
+    * default: struct time
+    * s : seconds since Epoch
+    * iso : iso string
     """
-    return time.gmtime(os.path.getmtime(fname))
+    if "struct" == format:
+        return time.gmtime(t)
+    elif "s" == format:
+        return  t
+    elif "iso" == format:
+        return datetime.fromtimestamp(t).isoformat('-')
+    else:
+        raise AttributeError
+
+def ctime(path, format="struct"):
+    """
+    get the (unix) change time of a file/dir
+    """
+    return _timeformat(os.path.getctime(path), format)
+
+def mtime(path, format="struct"):
+    """
+    get the (unix) modification time of a file/dir
+    """
+    return _timeformat(os.path.getmtime(path), format)
