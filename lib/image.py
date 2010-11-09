@@ -13,27 +13,49 @@ import os.path
 import PIL.Image
 import PIL.ImageDraw
 
-def thumbnail(location, size=(128, 128), ext=".png"):
+def _deinterlace_png(path):
+    """
+    PIL 1.6 can't handle interlaced PNG
+    temporary workaround, fixed in PIL 1.7
+    """
+    im = PIL.Image.open(path)
+    if im.format == 'PNG':
+        try:
+            im.getpixel((0, 0))
+        except IOError:
+            # check the file exists
+            assert os.path.isfile(path)
+            # convert it to non-interlaced
+            os.system("/usr/bin/convert %s %s" 
+                      % (src, src))
+            im = PIL.Image.open(src)
+            # try once again, in case there is another problem
+            im.getpixel((0, 0))
+    return
+    
+
+def thumbnail(path, size=(128, 128), ext=".png"):
     """
     image thumbnailing function
 
-    @param location: full-size file name
+    @param path: full-size file name
     @param size: thumbnail size, default 128x128
     @param ext: thumbnail file extension (and format), default ".png"
 
     @return: thumbnail file name
     """
     # parse the file name
-    location = os.path.abspath(location)
-    (folder, fname) = os.path.split(location)
+    path = os.path.abspath(path)
+    _deinterlace_png(path)
+    (folder, fname) = os.path.split(path)
     basename = os.path.splitext(fname)[0]
 
-    tn_location = os.path.join(folder, ".__%ix%i__" % size
-                               + basename + ext)
-    if not (os.path.isfile(tn_location)
-            and ctime(location) < ctime(tn_location)):
+    tn_path = os.path.join(folder, ".__%ix%i__" % size
+                           + basename + ext)
+    if not (os.path.isfile(tn_path)
+            and ctime(path) < ctime(tn_path)):
         # no thumbnail, create it
-        im = PIL.Image.open(location)
+        im = PIL.Image.open(path)
         tn = PIL.Image.new('RGBA', size, (0, 0, 0, 0))
         im.thumbnail(size, resample=True)
         offset = ((size[0] - im.size[0]) / 2,
@@ -41,9 +63,9 @@ def thumbnail(location, size=(128, 128), ext=".png"):
         box = offset + (im.size[0] + offset[0],
                         im.size[1] + offset[1])
         tn.paste(im, box)
-        tn.save(tn_location)
+        tn.save(tn_path)
 
-    return tn_location
+    return tn_path
     
 #
 # IMAGE CLASS
@@ -72,23 +94,8 @@ class image(object):
         if isinstance(src, PIL.Image.Image):
             self.im = src
         if isinstance(src, str):
+            _deinterlace_png(src)
             self.im = PIL.Image.open(src)
-            # PIL 1.6 can't handle interlaced PNG
-            # temporary workaround, fixed in PIL 1.7 
-            if self.im.format == 'PNG':
-                try:
-                    self.im.getpixel((0, 0))
-                except IOError:
-                    # check the file exists
-                    assert os.path.isfile(src)
-                    # convert it to non-interlaced
-                    os.system("/usr/bin/convert %s %s" 
-                              % (src, src))
-                    # reload
-                    del self.im
-                    self.im = PIL.Image.open(src)
-                    # try once again, in case there is another problem
-                    self.im.getpixel((0, 0))
 
     def __getattr__(self, attr):
         """
