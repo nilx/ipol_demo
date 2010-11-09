@@ -133,14 +133,14 @@ class app(base_app):
                 img = image(self.work_dir + 'input_0.png')
                 img.draw_grid(step)
                 img.save(self.work_dir + 'input_grid.png')
-                input=['input_grid.png'
-                       + '?step=%i' % step]
-                grid=True
+                input_img = ['input_grid.png'
+                             + '?step=%i' % step]
+                grid = True
             else:
-                input=['input_0.png']
-                grid=False
+                input_img = ['input_0.png']
+                grid = False
             return self.tmpl_out("params.html",
-                                 input=input, step=step, grid=grid)
+                                 input=input_img, step=step, grid=grid)
         else:
             # use a part of the image
             x = int(x)
@@ -199,7 +199,6 @@ class app(base_app):
         """
         # read the parameters
         scale_r = float(self.cfg['param']['scale_r'])
-        grid_step = int(self.cfg['param']['grid_step'])
         zoom_factor = float(self.cfg['param']['zoom_factor'])
 
         # denormalize the scale
@@ -238,7 +237,7 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """             
-
+        stdout = stdout
         # process image
         p1 = self.run_proc(['mcm', str(scale_r),
                             self.work_dir + 'input' + self.input_ext,
