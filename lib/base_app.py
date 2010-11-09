@@ -315,6 +315,8 @@ class base_app(empty_app):
                 if (not os.path.isfile(os.path.join(ar.path, fname))
                     or fname.startswith('.')):
                     continue
+                if "index.cfg" == fname:
+                    continue
                 files.append(archive.item(os.path.join(ar.path, fname)))
             buckets += [{'url' : self.archive_url + archive.key2url(key),
                          'files' : files,

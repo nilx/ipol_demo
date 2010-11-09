@@ -12,6 +12,7 @@
 	  <dt>key</dt>
 	  <dd>${bucket['meta']['key'] | h}</dd>
 	</dl>
+	%if bucket['info']:
 	<h3>info</h3>
 	<dl class="info">
 	  %for (key, value) in bucket['info'].items():
@@ -19,12 +20,20 @@
 	  <dd>${value | h}</dd>
 	  %endfor
 	</dl>
+	%endif
       </div>
       
       <div style="width: 60%; float: right;">
+	<%
+	   images = filter(lambda i : i.is_file and i.has_tn,
+	                   bucket['files'])
+	   non_images = filter(lambda i : i.is_file and not i.has_tn,
+                               bucket['files'])
+	%>
+	%if images:
 	<h3>images</h3>
 	<ul class="thumbnails">
-	  %for item in [i for i in bucket['files'] if i.is_file and i.has_tn]:
+	  %for item in images:
 	  <li>
 	    <a href="${bucket['url'] + item.name | h}">
 	      <img src="${bucket['url'] + item.tn_name | h}"
@@ -34,15 +43,18 @@
 	  </li>
 	  %endfor
 	</ul>
+	%endif
+	%if non_images:
 	<h3>other files</h3>
 	<ul class="files">
-	  %for item in [i for i in bucket['files'] if i.is_file and not i.has_tn]:
+	  %for item in non_images:
 	  <li>
 	    <a href="${bucket['url'] + item.name | h}"
 	       title="${item.info | h}">${item.name}</a>
 	  </li>
 	  %endfor
 	</ul>
+	%endif
       </div>
       <hr class="clear">
     </div>
