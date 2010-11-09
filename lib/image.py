@@ -27,8 +27,8 @@ def _deinterlace_png(path):
             assert os.path.isfile(path)
             # convert it to non-interlaced
             os.system("/usr/bin/convert %s %s" 
-                      % (src, src))
-            im = PIL.Image.open(src)
+                      % (path, path))
+            im = PIL.Image.open(path)
             # try once again, in case there is another problem
             im.getpixel((0, 0))
     return
