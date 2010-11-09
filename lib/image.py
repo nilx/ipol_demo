@@ -266,11 +266,11 @@ class image(object):
         # vertical lines
         y = self.im.size[1]
         for x in range(offset[0], self.im.size[0], step):
-            self.draw_line(((x, 0), (x, y)))
+            self.draw_line(((x, 0), (x, y)), color)
         # horizontal lines
         x = self.im.size[0]
         for y in range(offset[1], self.im.size[1], step):
-            self.draw_line(((0, y), (x, y)))
+            self.draw_line(((0, y), (x, y)), color)
         return self
 
     def draw_cross(self, position, size=2, color="white"):

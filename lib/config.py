@@ -34,7 +34,7 @@ class file_dict(dict):
         """
         save the (updated) dictionary to the config file
         """
-        # TODO: auto-save
+        # TODO: rename commit()?
         cfg = ConfigParser.RawConfigParser()
         for section in self.keys():
             cfg.add_section(section)

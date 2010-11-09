@@ -9,33 +9,33 @@ import time
 import shutil
 import gzip
 
-from . import config, misc
+from . import config
 from .image import thumbnail
 
-def id2url(id):
+def key2url(key):
     """
     url construction scheme
     """
-    return "%s/%s/" % (id[:2], id[2:])
+    return "%s/%s/" % (key[:2], key[2:])
 
-def id2path(id):
+def key2path(key):
     """
     path construction scheme
     """
-    return os.path.join(id[:2], id[2:])
+    return os.path.join(key[:2], key[2:])
 
-def path2id(path):
+def path2key(path):
     """
-    reverse id2path()
+    reverse key2path()
     """
     return ''.join(os.path.split(path))
 
-def list_id(path):
+def list_key(path):
     """
-    get a list of all the bucket ids in the path
+    get a list of all the bucket keys in the path
     """
     # TODO: iterator
-    return [path2id(os.path.join(pfx, sfx))
+    return [path2key(os.path.join(pfx, sfx))
             for pfx in os.listdir(path)
             if os.path.isdir(os.path.join(path, pfx))
             for sfx in os.listdir(os.path.join(path, pfx))
@@ -46,7 +46,7 @@ class bucket(object):
     archive bucket class
     """
     # TODO: commit() model
-    def __init__(self, path, id, cwd=None):
+    def __init__(self, path, key, cwd=None):
         """
         opem/read/crewate an archive bucket
 
@@ -59,13 +59,13 @@ class bucket(object):
             * date : archive date
 
         @param path: base archive folder
-        @param id: unique bucket id
+        @param key: unique bucket key
         @param cwd: working directory used when adding files
         """
         date = time.strftime("%Y/%m/%d %H:%M")
         # bucket path
         path = os.path.abspath(path)
-        self.path = os.path.join(path, id2path(id))
+        self.path = os.path.join(path, key2path(key))
         # create the folder if needed
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
@@ -75,12 +75,12 @@ class bucket(object):
                 and self.cfg.has_key('fileinfo')
                 and self.cfg.has_key('meta')
                 and self.cfg['meta'].has_key('date')
-                and self.cfg['meta'].has_key('id')):
+                and self.cfg['meta'].has_key('key')):
             self.cfg.setdefault('info', {})
             self.cfg.setdefault('fileinfo', {})
             self.cfg.setdefault('meta', {})
             self.cfg['meta'].setdefault('date', date)
-            self.cfg['meta'].setdefault('id', id)
+            self.cfg['meta'].setdefault('key', key)
             self.cfg.save()
         # working directory for add_file()
         self.cwd = cwd
@@ -150,8 +150,8 @@ class item(object):
         """
         self.path = os.path.abspath(path)
         self.name = os.path.basename(path)
-        self.ctime = misc.ctime(path, format="iso")
-        self.mtime = misc.mtime(path, format="iso")
+        #self.ctime = misc.ctime(path, format="iso")
+        #self.mtime = misc.mtime(path, format="iso")
         self.info = info
         if os.path.isdir(path):
             self.is_file = False
@@ -160,7 +160,7 @@ class item(object):
             self.is_file = True
             self.is_dir = False
             if self.name.endswith((".png", ".tif", ".tiff")):
-                self.tn_path = thumbnail(self.path, size=(64,64))
+                self.tn_path = thumbnail(self.path, size=(64, 64))
                 self.tn_name = os.path.basename(self.tn_path)
                 self.has_tn = True
             else:

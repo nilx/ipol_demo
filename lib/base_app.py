@@ -15,7 +15,7 @@ from . import http
 from . import config
 from . import archive
 from .empty_app import empty_app
-from .misc import prod, init_app, mtime
+from .misc import prod, init_app
 from .image import thumbnail, image
 
 class base_app(empty_app):
@@ -63,15 +63,6 @@ class base_app(empty_app):
         # production flag
         kwargs['prod'] = (cherrypy.config['server.environment']
                           == 'production')
-
-        # TODO: no more urld
-        # create urld if it doesn't exist
-        kwargs.setdefault('urld', {})
-        # add urld items
-        kwargs['urld'].update({'xlink_algo' : '/TODO/algo',
-                               'xlink_demo' : '/TODO/demo',
-                               'xlink_archive' : '/TODO/archive',
-                               'xlink_forum' : '/TODO/forum'})
 
         tmpl = self.tmpl_lookup.get_template(tmpl_fname)
         return tmpl.render(**kwargs)
@@ -301,9 +292,7 @@ class base_app(empty_app):
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # TODO archive the results, display the archive link
-        # TODO give the option to not be public
-        #        (and remember it from a cookie)
+        # TODO display the archive link with option to not be public
         return self.tmpl_out("result.html",
                              input=['input_%i.png' % i
                                     for i in range(self.input_nb)],
@@ -319,15 +308,15 @@ class base_app(empty_app):
         lists the archive content
         """
         buckets = []
-        for id in self.get_archive_id_by_date(offset=offset):
-            ar = archive.bucket(self.archive_dir, id)
+        for key in self.get_archive_key_by_date(offset=offset):
+            ar = archive.bucket(self.archive_dir, key)
             files = []
             for fname in os.listdir(ar.path):
                 if (not os.path.isfile(os.path.join(ar.path, fname))
                     or fname.startswith('.')):
                     continue
                 files.append(archive.item(os.path.join(ar.path, fname)))
-            buckets += [{'url' : self.archive_url + archive.id2url(id),
+            buckets += [{'url' : self.archive_url + archive.key2url(key),
                          'files' : files,
                          'meta' : ar.cfg['meta'],
                          'info' : ar.cfg['info']}]

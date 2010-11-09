@@ -46,30 +46,30 @@ def app_expose(function):
 # TIME
 #
 
-def _timeformat(t, format="struct"):
+def _timeformat(t, fmt="struct"):
     """
-    provide alternative time type pormatting:
+    provide alternative time type formatting:
     * default: struct time
     * s : seconds since Epoch
     * iso : iso string
     """
-    if "struct" == format:
+    if "struct" == fmt:
         return time.gmtime(t)
-    elif "s" == format:
+    elif "s" == fmt:
         return  t
-    elif "iso" == format:
+    elif "iso" == fmt:
         return datetime.fromtimestamp(t).isoformat('-')
     else:
         raise AttributeError
 
-def ctime(path, format="struct"):
+def ctime(path, fmt="struct"):
     """
     get the (unix) change time of a file/dir
     """
-    return _timeformat(os.path.getctime(path), format)
+    return _timeformat(os.path.getctime(path), fmt)
 
-def mtime(path, format="struct"):
+def mtime(path, fmt="struct"):
     """
     get the (unix) modification time of a file/dir
     """
-    return _timeformat(os.path.getmtime(path), format)
+    return _timeformat(os.path.getmtime(path), fmt)

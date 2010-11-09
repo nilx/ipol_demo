@@ -250,12 +250,12 @@ class empty_app(object):
         """
         ar = archive.bucket(path=self.archive_dir,
                             cwd=self.work_dir,
-                            id=self.key)
+                            key=self.key)
         date = ar.cfg['meta']['date']
         # add to the index
         db = sqlite3.connect(self.archive_index)
         c = db.cursor()
-        c.execute("""insert into buckets (id, date) values (?, ?)""",
+        c.execute("insert or replace into buckets (key, date) values (?, ?)",
                   (self.key, date))
         db.commit()
         c.close()
@@ -270,30 +270,30 @@ class empty_app(object):
         db = sqlite3.connect(self.archive_index)
         c = db.cursor()
         # (re)create table
-        c.execute("""drop table if exists buckets""")
-        # TODO : check index use
-        c.execute("""drop index if exists buckets_by_date""")
-        c.execute("""create table buckets (id text unique, date text)""")
-        c.execute("""create index buckets_by_date on buckets (date)""")
+        c.execute("drop table if exists buckets")
+        # TODO : check SQL index usage
+        c.execute("drop index if exists buckets_by_date")
+        c.execute("create table buckets (key text unique, date text)")
+        c.execute("create index buckets_by_date on buckets (date)")
         # populate the db
-        for id in archive.list_id(self.archive_dir):
+        for key in archive.list_key(self.archive_dir):
             bucket = archive.bucket(path=self.archive_dir,
-                                    id=id)
+                                    key=key)
             date = bucket.cfg['meta']['date']
-            c.execute("""insert into buckets (id, date) values (?, ?)""",
-                      (id, date))
+            c.execute("""insert into buckets (key, date) values (?, ?)""",
+                      (key, date))
         db.commit()
         c.close()
 
-    def get_archive_id_by_date(self, limit=50, offset=0):
+    def get_archive_key_by_date(self, limit=50, offset=0):
         """
-        get some ids from the index
+        get some keys from the index
         """
         # TODO: use iterators
         db = sqlite3.connect(self.archive_index)
         c = db.cursor()
-        c.execute("select id from buckets order by date desc "
+        c.execute("select key from buckets order by date desc "
                   + "limit ? offset ?",
                   (limit, offset))
-        return [id[0] for id in c]
+        return [key[0] for key in c]
 
