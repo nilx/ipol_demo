@@ -1,5 +1,6 @@
 """
 base IPOL demo web app
+includes interaction and rendering
 """
 # pylint: disable=C0103
 
@@ -11,8 +12,10 @@ import cherrypy
 import os.path
 
 from . import http
+from . import config
+from . import archive
 from .empty_app import empty_app
-from .misc import index_dict, prod, get_check_key
+from .misc import prod, init_app
 from .image import thumbnail, image
 
 class base_app(empty_app):
@@ -36,8 +39,6 @@ class base_app(empty_app):
         """
         # setup the parent class
         empty_app.__init__(self, base_dir)
-        cherrypy.log("new demo",
-                     context='SETUP/%s' % self.id, traceback=False)
         cherrypy.log("base_dir: %s" % self.base_dir,
                      context='SETUP/%s' % self.id, traceback=False)
         # local base_app templates folder
@@ -49,8 +50,6 @@ class base_app(empty_app):
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
  
-        # TODO early attributes validation
-
     #
     # TEMPLATES HANDLER
     #
@@ -65,15 +64,6 @@ class base_app(empty_app):
         kwargs['prod'] = (cherrypy.config['server.environment']
                           == 'production')
 
-        # TODO: no more urld
-        # create urld if it doesn't exist
-        kwargs.setdefault('urld', {})
-        # add urld items
-        kwargs['urld'].update({'xlink_algo' : '/TODO/algo',
-                               'xlink_demo' : '/TODO/demo',
-                               'xlink_archive' : '/TODO/archive',
-                               'xlink_forum' : '/TODO/forum'})
-
         tmpl = self.tmpl_lookup.get_template(tmpl_fname)
         return tmpl.render(**kwargs)
 
@@ -86,7 +76,7 @@ class base_app(empty_app):
         demo presentation and input menu
         """
         # read the input index as a dict
-        inputd = index_dict(self.input_dir)
+        inputd = config.file_dict(self.input_dir)
         tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
         # TODO: build via list-comprehension
         for (input_id, input_info) in inputd.items():
@@ -144,7 +134,7 @@ class base_app(empty_app):
         for i in range(self.input_nb):
             # open the file as an image
             try:
-                im = image(self.key_dir + 'input_%i' % i)
+                im = image(self.work_dir + 'input_%i' % i)
             except IOError:
                 raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
@@ -158,11 +148,11 @@ class base_app(empty_app):
                 msg = """The image has been resized
                       for a reduced computation time."""
             # save a working copy
-            im.save(self.key_dir + 'input_%i' % i + self.input_ext)
+            im.save(self.work_dir + 'input_%i' % i + self.input_ext)
             # save a web viewable copy
-            im.save(self.key_dir + 'input_%i.png' % i)
+            im.save(self.work_dir + 'input_%i.png' % i)
             # delete the original
-            os.unlink(self.key_dir + 'input_%i' % i)
+            os.unlink(self.work_dir + 'input_%i' % i)
         return msg
 
     def clone_input(self):
@@ -171,16 +161,21 @@ class base_app(empty_app):
         """
         self.log("cloning input from %s" % self.key)
         # get a new key
-        old_key_dir = self.key_dir
+        old_work_dir = self.work_dir
+        old_cfg_meta = self.cfg['meta']
         self.new_key()
+        self.init_cfg()
         # copy the input files
         fnames = ['input_%i' % i + self.input_ext
                   for i in range(self.input_nb)]
         fnames += ['input_%i.png' % i
                    for i in range(self.input_nb)]
         for fname in fnames:
-            shutil.copy(old_key_dir + fname,
-                        self.key_dir + fname)
+            shutil.copy(old_work_dir + fname,
+                        self.work_dir + fname)
+        # copy cfg
+        self.cfg['meta'] = old_cfg_meta
+        self.cfg.save()
         return
 
     #
@@ -192,17 +187,21 @@ class base_app(empty_app):
         use the selected available input images
         """
         self.new_key()
+        self.init_cfg()
         # kwargs contains input_id.x and input_id.y
         input_id = kwargs.keys()[0].split('.')[0]
         assert input_id == kwargs.keys()[1].split('.')[0]
         # get the images
-        input_dict = index_dict(self.input_dir)
+        input_dict = config.file_dict(self.input_dir)
         fnames = input_dict[input_id]['files'].split()
         for i in range(len(fnames)):
             shutil.copy(self.input_dir + fnames[i],
-                        self.key_dir + 'input_%i' % i)
+                        self.work_dir + 'input_%i' % i)
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
+        # '' is the empty string, evals to False
+        self.cfg['meta']['original'] = ''
+        self.cfg.save()
         # jump to the params page
         return self.params(msg=msg, key=self.key)
 
@@ -211,9 +210,10 @@ class base_app(empty_app):
         use the uploaded input images
         """
         self.new_key()
+        self.init_cfg()
         for i in range(self.input_nb):
             file_up = kwargs['file_%i' % i]
-            file_save = file(self.key_dir + 'input_%i' % i, 'wb')
+            file_save = file(self.work_dir + 'input_%i' % i, 'wb')
             if '' == file_up.filename:
                 # missing file
                 raise cherrypy.HTTPError(400, # Bad Request
@@ -234,6 +234,8 @@ class base_app(empty_app):
             file_save.close()
         msg = self.process_input()
         self.log("input uploaded")
+        self.cfg['meta']['original'] = True
+        self.cfg.save()
         # jump to the params page
         return self.params(msg=msg, key=self.key)
 
@@ -258,7 +260,7 @@ class base_app(empty_app):
     # PARAMETER HANDLING
     #
 
-    @get_check_key
+    @init_app
     def params(self, newrun=False, msg=None):
         """
         configure the algo execution
@@ -266,14 +268,14 @@ class base_app(empty_app):
         if newrun:
             self.clone_input()
         return self.tmpl_out("params.html", msg=msg,
-                             input = [self.key_url + 'input_%i.png' % i
+                             input = ['input_%i.png' % i
                                       for i in range(self.input_nb)])
 
     #
     # EXECUTION AND RESULTS
     #
 
-    @get_check_key
+    @init_app
     def wait(self, **kwargs):
         """
         params handling and run redirection
@@ -285,10 +287,10 @@ class base_app(empty_app):
         # use http meta refresh (display the page content meanwhile)
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input_%i.png' % i
+                             input=['input_%i.png' % i
                                     for i in range(self.input_nb)])
 
-    @get_check_key
+    @init_app
     def run(self, **kwargs):
         """
         algo execution and redirection to result
@@ -312,16 +314,45 @@ class base_app(empty_app):
         """
         pass
 
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # TODO archive the results, display the archive link
-        # TODO give the option to not be public
-        #        (and remember it from a cookie)
+        # TODO display the archive link with option to not be public
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_%i.png' % i
+                             input=['input_%i.png' % i
                                     for i in range(self.input_nb)],
-                             output=[self.key_url + 'output.png'])
+                             output=['output.png'])
+
+    #
+    # ARCHIVE
+    #
+    
+    @cherrypy.expose
+    def archive(self, offset=0):
+        """
+        lists the archive content
+        """
+        buckets = []
+        for key in self.get_archive_key_by_date(offset=offset):
+            ar = archive.bucket(self.archive_dir, key)
+            files = []
+            for fname in os.listdir(ar.path):
+                if (not os.path.isfile(os.path.join(ar.path, fname))
+                    or fname.startswith('.')):
+                    continue
+                if "index.cfg" == fname:
+                    continue
+                info = ar.cfg['fileinfo'].get(fname, '')
+                files.append(archive.item(os.path.join(ar.path, fname),
+                                          info=info))
+            buckets += [{'url' : self.archive_url + archive.key2url(key),
+                         'files' : files,
+                         'meta' : ar.cfg['meta'],
+                         'info' : ar.cfg['info']}]
+        return self.tmpl_out("archive.html",
+                             bucket_list=buckets)
+
+

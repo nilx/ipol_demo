@@ -3,12 +3,8 @@ mcm_amss ipol demo web app
 """
 # pylint: disable=C0103
 
-from lib import base_app
-from lib import index_dict
-from lib import image
-from lib import build
-from lib import http
-from lib.misc import get_check_key, ctime
+from lib import base_app, image, build, http
+from lib.misc import init_app, ctime
 import os.path
 import time
 import shutil
@@ -115,16 +111,16 @@ class app(base_app):
     #
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def grid(self, step, scaleR, grid_step=0, action=None, x=0, y=0):
         """
         handle the grid drawing and selection
         """
         if action == 'Run':
             # use the whole image
-            img = image(self.key_dir + 'input_0.png')
-            img.save(self.key_dir + 'input' + self.input_ext)
-            img.save(self.key_dir + 'input.png')
+            img = image(self.work_dir + 'input_0.png')
+            img.save(self.work_dir + 'input' + self.input_ext)
+            img.save(self.work_dir + 'input.png')
             # go to the wait page, with the key and scale
             http.redir_303(self.base_url
                            + "wait?key=%s&scaleR=%s&step=%s" 
@@ -134,17 +130,17 @@ class app(base_app):
             # draw the grid
             step = int(step)
             if 0 < step:
-                img = image(self.key_dir + 'input_0.png')
+                img = image(self.work_dir + 'input_0.png')
                 img.draw_grid(step)
-                img.save(self.key_dir + 'input_grid.png')
-                input=[self.key_url + 'input_grid.png'
-                       + '?step=%i' % step]
-                grid=True
+                img.save(self.work_dir + 'input_grid.png')
+                input_img = ['input_grid.png'
+                             + '?step=%i' % step]
+                grid = True
             else:
-                input=[self.key_url + 'input_0.png']
-                grid=False
+                input_img = ['input_0.png']
+                grid = False
             return self.tmpl_out("params.html",
-                                 input=input, step=step, grid=grid)
+                                 input=input_img, step=step, grid=grid)
         else:
             # use a part of the image
             x = int(x)
@@ -153,7 +149,7 @@ class app(base_app):
             step = int(grid_step)
             assert step > 0
             # cut the image section
-            img = image(self.key_dir + 'input_0.png')
+            img = image(self.work_dir + 'input_0.png')
             x0 = (x / step) * step
             y0 = (y / step) * step
             x1 = min(img.size[0], x0 + step)
@@ -161,8 +157,8 @@ class app(base_app):
             img.crop((x0, y0, x1, y1))
             # zoom and save image
             img.resize((400, 400), method="nearest")
-            img.save(self.key_dir + 'input' + self.input_ext)
-            img.save(self.key_dir + 'input.png')
+            img.save(self.work_dir + 'input' + self.input_ext)
+            img.save(self.work_dir + 'input.png')
             # go to the wait page, with the key and scale
             http.redir_303(self.base_url
                            + "wait?key=%s&scaleR=%s&step=%s" 
@@ -174,57 +170,65 @@ class app(base_app):
     #
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self, scaleR, step):
         """
         params handling and run redirection
         """
         # read parameters
         try:
-            params_file = index_dict(self.key_dir)
-            params_file['params'] = {'scale_r' : float(scaleR),
+            self.cfg['param'] = {'scale_r' : float(scaleR),
                                      'grid_step' : int(step),
                                      'zoom_factor' : (400.0 / int(step)
                                                       if int(step) > 0
                                                       else 1.)}
-            params_file.save()
+            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="Wrong input parameters")
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url
-                                    + 'input.png?step=%s' % step])
+                             input=['input.png?step=%s' % step])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self):
         """
         algo execution
         """
         # read the parameters
-        params_file = index_dict(self.key_dir)
-        scale_r = float(params_file['params']['scale_r'])
-        grid_step = int(params_file['params']['grid_step'])
-        zoom_factor = float(params_file['params']['zoom_factor'])
+        scale_r = float(self.cfg['param']['scale_r'])
+        zoom_factor = float(self.cfg['param']['zoom_factor'])
 
         # denormalize the scale
         scale_r *= zoom_factor
 
         # run the algorithm
-        stdout = open(self.key_dir + 'stdout.txt', 'w')
+        stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
             self.run_algo(scale_r, stdout=stdout)
-            params_file['params']['run_time'] = time.time() - run_time
-            params_file.save()
+            self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
             return self.error(errcode='runtime')
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        if self.cfg['meta']['original']:
+            ar = self.make_archive()
+            ar.add_file("input_0.png")
+            ar.add_file("input.png")
+            ar.add_file("output_MCM.png")
+            ar.add_file("output_AMSS.png")
+            ar.add_info({'scale_r' : self.cfg['param']['scale_r'],
+                         'zoom_factor' : self.cfg['param']['zoom_factor']})
+            ar.commit()
+
         return self.tmpl_out("run.html")
 
     def run_algo(self, scale_r, stdout=None, timeout=False):
@@ -233,40 +237,36 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """             
-
+        stdout = stdout
         # process image
         p1 = self.run_proc(['mcm', str(scale_r),
-                            self.key_dir + 'input' + self.input_ext,
-                            self.key_dir + 'output_MCM' + self.input_ext])
+                            self.work_dir + 'input' + self.input_ext,
+                            self.work_dir + 'output_MCM' + self.input_ext])
         p2 = self.run_proc(['amss', str(scale_r),
-                            self.key_dir + 'input' + self.input_ext, 
-                            self.key_dir + 'output_AMSS' + self.input_ext]) 
+                            self.work_dir + 'input' + self.input_ext, 
+                            self.work_dir + 'output_AMSS' + self.input_ext]) 
         self.wait_proc([p1, p2], timeout)
-        im = image(self.key_dir + 'output_MCM' + self.input_ext)
-        im.save(self.key_dir + 'output_MCM.png')
-        im = image(self.key_dir + 'output_AMSS' + self.input_ext)
-        im.save(self.key_dir + 'output_AMSS.png')
+        im = image(self.work_dir + 'output_MCM' + self.input_ext)
+        im.save(self.work_dir + 'output_MCM.png')
+        im = image(self.work_dir + 'output_AMSS' + self.input_ext)
+        im.save(self.work_dir + 'output_AMSS.png')
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
         # read the parameters
-        params_file = index_dict(self.key_dir)
-        scale_r = float(params_file['params']['scale_r'])
-        grid_step = int(params_file['params']['grid_step'])
-        zoom_factor = float(params_file['params']['zoom_factor'])
+        scale_r = float(self.cfg['param']['scale_r'])
+        grid_step = int(self.cfg['param']['grid_step'])
+        zoom_factor = float(self.cfg['param']['zoom_factor'])
 
         return self.tmpl_out("result.html",
-                             input=[self.key_url 
-                                    + 'input.png?step=%s' % grid_step],
-                             output=[self.key_url + 'output_MCM.png',
-                                     self.key_url + 'output_AMSS.png'],
-                             run_time=float(params_file['params']['run_time']),
+                             input=['input.png?step=%s' % grid_step],
+                             output=['output_MCM.png', 'output_AMSS.png'],
                              scaleRnorm="%2.2f" % scale_r,
                              zoomfactor="%2.2f" % zoom_factor, 
-			     sizeY="%i" % image(self.key_dir
+			     sizeY="%i" % image(self.work_dir
                                                 + 'input.png').size[1])

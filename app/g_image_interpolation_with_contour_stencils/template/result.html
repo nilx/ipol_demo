@@ -1,38 +1,62 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter.<br />
-Notice that if the input image dimensions are not divisible by 4, then
-the image has been cropped.
+  The algorithm result is displayed hereafter.<br />
+  Notice that if the input image dimensions are not divisible by 4, then
+  the image has been cropped.
 </p>
 
 <form action="${app.base_url}" method="get">
-<fieldset> 
-<p>
-You can run again this algorithm with new data.
-</p>
-<input type="submit" value="back to : input" />
-</fieldset> 
+  <fieldset> 
+    <p>
+      You can run again this algorithm with new data.
+    </p>
+    <input type="submit" value="back to : input" />
+  </fieldset> 
 </form>
 
 <hr />
 
 <div class="gallery" style="height: ${height}px;">
-<ul class="index">
-<li><a href="#">Original
-    <span><img src="${input[0]}"  /></span></a></li>
-<li><a href="#">Coarsened
-    <span><img src="${output[0]}"/></span></a></li>
-<li><a href="#">Interpolated
-    <span><img src="${output[1]}" /></span></a></li>
-<li><a href="#">Estimated Contour Orientations
-    <span><img src="${output[2]}" /></span></a></li>
-</ul>
+  <ul class="index">
+    <li>
+      <a href="#">
+	Original
+	<span>
+	  <img src="${app.work_url + input[0]}"  />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	Coarsened
+	<span>
+	  <img src="${app.work_url + output[0]}"/>
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	Interpolated
+	<span>
+	  <img src="${app.work_url + output[1]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	Estimated Contour Orientations
+	<span>
+	  <img src="${app.work_url + output[2]}" />
+	</span>
+      </a>
+    </li>
+  </ul>
 </div>
 
 <h2>stdout</h2>
 <pre class="stdio">
-${stdout}
+  ${stdout}
 </pre>
 
 <%include file="footer.html" />

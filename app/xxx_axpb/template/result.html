@@ -1,27 +1,27 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed  hereafter.
+  The algorithm result is displayed  hereafter.
 </p>
 
 <form action="${app.base_url}" method="get">
-<fieldset>
-<p>
-Restart this algorithm with new data.
-</p>
-<input type="submit" value="back to : input" />
-</fieldset>
+  <fieldset>
+    <p>
+      Restart this algorithm with new data.
+    </p>
+    <input type="submit" value="back to : input" />
+  </fieldset>
 </form>
 
 <form action="${app.base_url + 'params'}" method="get">
-<fieldset>
-<p>
-Restart this algorithm with new parameters.
-</p>
-<input type="hidden" name="key" value="${app.key}">
-<input type="hidden" name="newrun" value="1">
-<input type="submit" value="back to : parameters" />
-</fieldset>
+  <fieldset>
+    <p>
+      Restart this algorithm with new parameters.
+    </p>
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="back to : parameters" />
+  </fieldset>
 </form>
 
 <hr />
@@ -29,10 +29,22 @@ Restart this algorithm with new parameters.
 <h2>result</h2>
 
 <div class="gallery" style="height:${height}px">
-<ul class="index">
-<li><a href="#">input<span><img src="${input[0]}" alt="input" /></a></li>
-<li><a href="#">output<span><img src="${output[0]}" alt="output" /></a></li>
-</ul>
+  <ul class="index">
+    <li>
+      <a href="#">input
+	<span>
+	  <img src="${app.work_url + input[0]}" alt="input" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">output
+	<span>
+	  <img src="${app.work_url + output[0]}" alt="output" />
+	</span>
+      </a>
+    </li>
+  </ul>
 </div>
 
 <%include file="footer.html" />

@@ -4,7 +4,7 @@ demo example for the X->aX+b transform
 # pylint: disable=C0103
 
 from lib import base_app, build, http, image
-from lib.misc import get_check_key, app_expose, index_dict, ctime
+from lib.misc import init_app, app_expose, ctime
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -70,35 +70,33 @@ class app(base_app):
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self, a="1.", b="0"):
         """
         params handling and run redirection
         """
         # save and validate the parameters
         try:
-            params_file = index_dict(self.key_dir)
-            params_file['params'] = {'a' : float(a),
-                                     'b' : float(b)}
-            params_file.save()
+            self.cfg['param'] = {'a' : float(a),
+                                  'b' : float(b)}
+            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=[self.key_url + 'input_0.png'])
+                             input=['input_0.png'])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self):
         """
         algo execution
         """
         # read the parameters
-        params_file = index_dict(self.key_dir)
-        a = float(params_file['params']['a'])
-        b = float(params_file['params']['b'])
+        a = float(self.cfg['param']['a'])
+        b = float(self.cfg['param']['b'])
         # run the algorithm
         try:
             self.run_algo(a, b)
@@ -107,6 +105,15 @@ class app(base_app):
         except RuntimeError:
             return self.error(errcode='runtime')
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        if self.cfg['meta']['original']:
+            ar = self.make_archive()
+            ar.add_file("input_0.png", "input.png")
+            ar.add_file("output.png")
+            ar.add_info({"a": a, "b": b})
+            ar.commit()
+
         return self.tmpl_out("run.html")
 
     def run_algo(self, a, b):
@@ -121,12 +128,13 @@ class app(base_app):
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results
         """
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_0.png'],
-                             output=[self.key_url + 'output.png'],
-                             height=image(self.key_dir + 'output.png').size[1])
+                             input=['input_0.png'],
+                             output=['output.png'],
+                             height=image(self.work_dir
+                                          + 'output.png').size[1])

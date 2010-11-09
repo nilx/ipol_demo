@@ -76,3 +76,60 @@ form label {
 #content .gallery .index a:hover span {
     left: 9em;
     z-index: 100; }
+
+/* archive */
+
+.bucket ul {
+    margin:0 0 .5em 0;
+    padding: 0; 
+    list-style-type: none;
+    list-style-image: none;
+}
+.bucket ul li {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    display: inline;
+}
+.bucket ul li a {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important;
+}
+
+.bucket dl {
+    margin:0 0 .5em 0;
+    padding: 0;
+    font-size: 75%;
+}
+.bucket dl dt {
+    background:#A4A4A4;
+    Xcolor:#FFFFFF;
+    float:left;
+    font-weight:bold;
+    margin-right:.2em;
+    padding:0 0 0 .2em;
+    width:6em;
+}
+.bucket dl dd {
+    margin:1px 0;
+    padding:0;
+}
+
+.bucket h3 {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+    font-weight:bold;
+}
+
+.bucket hr.clear {
+    clear: both;
+    margin: 0;
+    padding: 0;
+    visibility: hidden;
+    width: 0;
+    height: 1em;
+}

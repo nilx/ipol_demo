@@ -1,61 +1,79 @@
 <%include file="header.html" />
 
 <p>
-The algorithm result is displayed hereafter.
-It ran in ${"%0.2f" % run_time}s.
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % float(app.cfg['info']['run_time'])}s.
 </p>
 
 <form action="${app.base_url}" method="get">
-<fieldset>
-<p>
-Restart this algorithm with new input data.
-</p>
-<input type="submit" value="back to : input" />
-</fieldset> 
+  <fieldset>
+    <p>
+      Restart this algorithm with new input data.
+    </p>
+    <input type="submit" value="back to : input" />
+  </fieldset> 
 </form>
 
 <form action="${app.base_url + 'run'}" method="get">
-<fieldset>
-<p>
-Restart this algorithm with other parameters.
-</p> 
-<input type="hidden" name="key" value="${app.key}">
-<input type="hidden" name="new_run" value="1">
-<label for="K"> K = </label>
-<select name="K">
-%for k in k_proposed:
-  <option value="${k}"
-%if k == k_used:
-	  selected="selected"
-%endif
-	  >${k}</option>
-%endfor
-</select>
-<label for="lambda"> lambda = </label>
-<select name="lambda">
-%for l in l_proposed:
-  <option value="${l}"
-%if l == l_used:
-	  selected="selected"
-%endif
-	  >${l}</option>
-%endfor
-</select>
-<br />
-<input type="submit" value="next step : run" />
-</fieldset> 
+  <fieldset>
+    <p>
+      Restart this algorithm with other parameters.
+    </p> 
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="new_run" value="1">
+    <label for="K"> K = </label>
+    <select name="K">
+      %for _k in k_proposed:
+      <option value="${_k}"
+	      %if _k == k:
+	      selected="selected"
+	      %endif
+	      >${_k}</option>
+      %endfor
+    </select>
+    <label for="lambda"> lambda = </label>
+    <select name="lambda">
+      %for _l in l_proposed:
+      <option value="${_l}"
+	      %if _l == l:
+	      selected="selected"
+	      %endif
+	      >${_l}</option>
+      %endfor
+    </select>
+    <br />
+    <input type="submit" value="next step : run" />
+  </fieldset> 
 </form>
 
 <h2>result</h2>
 
 <div class="gallery" style="height: ${height}px;">
-<ul class="index">
-<li><a href="#">disparity map, K=${k_used}, lambda=${l_used}
-    <span><img src="${output[0]}" /></span></a></li>
-<li><a href="#">first input image
-    <span><img src="${input[0]}" /></span></a></li>
-<li><a href="#">second input image
-    <span><img src="${input[1]}" /></span></a></li>
-</ul>
+  <ul class="index">
+    <li>
+      <a href="#">
+	disparity map, K=${k}, lambda=${l}
+	<span>
+	  <img src="${app.work_url + output[0]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	first input image
+	<span>
+	  <img src="${app.work_url + input[0]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second input image
+	<span>
+	  <img src="${app.work_url + input[1]}" />
+	</span>
+      </a>
+    </li>
+  </ul>
 
 <%include file="footer.html" />

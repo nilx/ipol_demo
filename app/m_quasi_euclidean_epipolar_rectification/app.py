@@ -4,7 +4,7 @@ Quasi-Euclidean Epipolar Rectification
 # pylint: disable=C0103
 
 from lib import base_app, image, http, build
-from lib.misc import get_check_key, app_expose, ctime, index_dict
+from lib.misc import init_app, app_expose, ctime
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -89,23 +89,23 @@ class app(base_app):
     #
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def params(self, newrun=False, msg=None):
         """
         configure the algo execution
         """
         if newrun:
             self.clone_input()
-        if (image(self.key_dir + 'input_0.png').size
-            != image(self.key_dir + 'input_1.png').size):
+        if (image(self.work_dir + 'input_0.png').size
+            != image(self.work_dir + 'input_1.png').size):
             return self.error('badparams',
                               "The images must have the same size")
         return self.tmpl_out("params.html", msg=msg,
-                             input=[self.key_url + 'input_%i.png' % i
+                             input=['input_%i.png' % i
                                     for i in range(self.input_nb)])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def wait(self, **kwargs):
         """
         params handling and run redirection
@@ -113,13 +113,13 @@ class app(base_app):
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html", 
-                             input=[self.key_url + 'input_0.png',
-                                    self.key_url + 'input_1.png'],
-                             height=image(self.key_dir
+                             input=['input_0.png',
+                                    'input_1.png'],
+                             height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def run(self, **kwargs):
         """
         algorithm execution
@@ -128,23 +128,28 @@ class app(base_app):
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
-            params_file = index_dict(self.key_dir)
-            params_file['params'] = {}
-            params_file['params']['run_time'] = time.time() - run_time
-            params_file.save()
+            self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout')
         except RuntimeError:
             return self.error(errcode='runtime')
 
-        shutil.move(self.key_dir + 'input_0.png_input_1.png_pairs_orsa.txt',
-                    self.key_dir + 'orsa.txt')
-        shutil.move(self.key_dir + 'input_0.png_h.txt',
-                    self.key_dir + 'H_input_0.txt')
-        shutil.move(self.key_dir + 'input_1.png_h.txt',
-                    self.key_dir + 'H_input_1.txt')
-
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
+
+        # archive
+        if self.cfg['meta']['original']:
+            ar = self.make_archive()
+            for i in (0, 1):
+                ar.add_file("input_%i.png" % i)
+                ar.add_file("output_%i.png" % i)
+                ar.add_file("output_%i_annotated.png" % i)
+                f = open(self.work_dir + 'output_%i.txt' % i)
+                ar.add_info({"homography %i" % i : f.readline()})
+                f.close()
+            ar.add_file("orsa.txt", compress=True)
+            ar.commit()
+
         return self.tmpl_out("run.html")
 
     def run_algo(self, timeout=None):
@@ -153,34 +158,40 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-        stdout = open(self.key_dir + 'stdout.txt', 'w')
+        stdout = open(self.work_dir + 'stdout.txt', 'w')
         p = self.run_proc(['Rectify.sh',
-                           self.key_dir + 'input_0.png',
-                           self.key_dir + 'input_1.png'],
+                           self.work_dir + 'input_0.png',
+                           self.work_dir + 'input_1.png'],
                           stdout=stdout, stderr=stdout)
         self.wait_proc(p, timeout)
         stdout.close()
+
+        mv_map = {'input_0.png_input_1.png_pairs_orsa.txt' : 'orsa.txt',
+                  'input_0.png_h.txt' : 'output_0.txt',
+                  'input_1.png_h.txt' : 'output_1.txt',
+                  'H_input_0.png' : 'output_0.png',
+                  'H_input_1.png' : 'output_1.png',
+                  'show_H_input_0.png' : 'output_0_annotated.png',
+                  'show_H_input_1.png' : 'output_1_annotated.png'}
+        for (src, dst) in mv_map.items():
+            shutil.move(self.work_dir + src, self.work_dir + dst)
+
         return
 
     @cherrypy.expose
-    @get_check_key
+    @init_app
     def result(self):
         """
         display the algo results
         """
-        run_time = float(index_dict(self.key_dir)['params']['run_time'])
         return self.tmpl_out("result.html",
-                             input=[self.key_url + 'input_0.png',
-                                    self.key_url + 'input_1.png'],
-                             rect=[self.key_url + 'show_H_input_0.png',
-                                   self.key_url + 'show_H_input_1.png'],
-                             output=[self.key_url + 'H_input_0.png',
-                                     self.key_url + 'H_input_1.png'],
-                             orsa=self.key_url + 'orsa.txt',
-                             homo=[self.key_url + 'H_input_0.txt',
-                                   self.key_url + 'H_input_1.txt'],
-                             run_time=run_time,
-                             height=image(self.key_dir
+                             input=['input_0.png', 'input_1.png'],
+                             rect=['output_0_annotated.png',
+                                   'output_1_annotated.png'],
+                             output=['output_0.png', 'output_1.png'],
+                             orsa='orsa.txt',
+                             homo=['output_0.txt', 'output_1.txt'],
+                             height=image(self.work_dir
                                           + 'input_0.png').size[1],
-                             stdout=open(self.key_dir
+                             stdout=open(self.work_dir
                                          + 'stdout.txt', 'r').read())

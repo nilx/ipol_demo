@@ -1,27 +1,28 @@
 <form action="${app.base_url + 'input_upload'}" method="post"
       enctype="multipart/form-data">
-<fieldset> 
-<legend>Upload Data</legend> 
-<p>
-Upload your own images to use as the algorithm input.
-</p>
-<div class="upload_input">
-%for i in range(app.input_nb):
-  <label for="file_${i}">input image</label>
-  <input type="file" name="file_${i}" id="file_${i}" size="40" /><br />
-%endfor
-</div>
-<input type="submit" value="upload" />
-<p class="note">
-Total upload size is limited to 10M.
-TIFF, JPEG, PNG, GIF, PNM
-(and <a href="http://www.ipol.im/meta/demo_input/">other standard formats</a>)
-are supported.
-The uploaded files may be re-used for further analysis.
-<br />
-Only upload <a href="http://www.ipol.im/meta/demo_input/">suitable images</a>.
-See <a href="http://www.ipol.im/meta/demo_input/">the copyright
-and legal conditions</a> for details.
-</p>
-</fieldset>
+  <fieldset> 
+    <legend>Upload Data</legend> 
+    <p>
+      Upload your own images to use as the algorithm input.
+    </p>
+    <div class="upload_input">
+      %for i in range(app.input_nb):
+      <label for="file_${i}">input image</label>
+      <input type="file" name="file_${i}" id="file_${i}" size="40" /><br />
+      %endfor
+    </div>
+    <input type="submit" value="upload" />
+    <p class="note">
+      Total upload size is limited to 10M.
+      TIFF, JPEG, PNG, GIF, PNM (and 
+      <a href="http://www.ipol.im/meta/demo_input/">other standard formats</a>)
+      are supported.
+      The uploaded files may be re-used for further analysis.
+      <br />
+      Only upload
+      <a href="http://www.ipol.im/meta/demo_input/">suitable images</a>.
+      See <a href="http://www.ipol.im/meta/demo_input/">the copyright
+	and legal conditions</a> for details.
+    </p>
+  </fieldset>
 </form>
