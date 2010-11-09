@@ -4,7 +4,13 @@
   %for bucket in bucket_list:
   <li>
     <div class="bucket">
-      <div style="width: 35%; float: left;">
+      <%
+	 images = filter(lambda i : i.is_file and i.has_tn,
+	                 bucket['files'])
+	 non_images = filter(lambda i : i.is_file and not i.has_tn,
+                             bucket['files'])
+      %>
+      <div style="width: 33%; float: left;">
 	<h3>metadata</h3>
 	<dl class="meta">
 	  <dt>date</dt>
@@ -21,15 +27,20 @@
 	  %endfor
 	</dl>
 	%endif
+	%if non_images:
+	<h3>files</h3>
+	<ul class="files">
+	  %for item in non_images:
+	  <li>
+	    <a href="${bucket['url'] + item.name | h}"
+	       title="${item.info | h}">${item.name}</a>
+	  </li>
+	  %endfor
+	</ul>
+	%endif
       </div>
       
-      <div style="width: 60%; float: right;">
-	<%
-	   images = filter(lambda i : i.is_file and i.has_tn,
-	                   bucket['files'])
-	   non_images = filter(lambda i : i.is_file and not i.has_tn,
-                               bucket['files'])
-	%>
+      <div style="width: 65%; float: right;">
 	%if images:
 	<h3>images</h3>
 	<ul class="thumbnails">
@@ -40,17 +51,6 @@
 		   alt="${item.name | h}"
 		   title="${item.name | h}: ${item.info | h}"/>
 	    </a>
-	  </li>
-	  %endfor
-	</ul>
-	%endif
-	%if non_images:
-	<h3>other files</h3>
-	<ul class="files">
-	  %for item in non_images:
-	  <li>
-	    <a href="${bucket['url'] + item.name | h}"
-	       title="${item.info | h}">${item.name}</a>
 	  </li>
 	  %endfor
 	</ul>

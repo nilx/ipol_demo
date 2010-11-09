@@ -102,6 +102,8 @@ class bucket(object):
         dst = os.path.basename(dst)
         if compress:
             dst += '.gz'
+        # FIXME: file_dict keys are lowercase
+        dst = dst.lower()
         dst_fname = os.path.join(self.path, dst)
         # add to the pending list
         if not compress:
@@ -160,7 +162,7 @@ class item(object):
             self.is_file = True
             self.is_dir = False
             if self.name.endswith((".png", ".tif", ".tiff")):
-                self.tn_path = thumbnail(self.path, size=(64, 64))
+                self.tn_path = thumbnail(self.path, size=(96, 96))
                 self.tn_name = os.path.basename(self.tn_path)
                 self.has_tn = True
             else:

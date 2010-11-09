@@ -317,7 +317,9 @@ class base_app(empty_app):
                     continue
                 if "index.cfg" == fname:
                     continue
-                files.append(archive.item(os.path.join(ar.path, fname)))
+                info = ar.cfg['fileinfo'].get(fname, '')
+                files.append(archive.item(os.path.join(ar.path, fname),
+                                          info=info))
             buckets += [{'url' : self.archive_url + archive.key2url(key),
                          'files' : files,
                          'meta' : ar.cfg['meta'],
