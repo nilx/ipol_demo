@@ -48,8 +48,12 @@
 	  <li>
 	    <a href="${bucket['url'] + item.name | h}">
 	      <img src="${bucket['url'] + item.tn_name | h}"
-		   alt="${item.name | h}"
-		   title="${item.name | h}: ${item.info | h}"/>
+		   <%
+		      if item.info:
+		          item.info = ' : ' + item.info
+		   %>
+		   title="${item.name + item.info | h}"
+		   alt="${item.name | h}" />
 	    </a>
 	  </li>
 	  %endfor
