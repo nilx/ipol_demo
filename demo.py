@@ -79,6 +79,21 @@ def do_clean(demo_dict):
                 shutil.rmtree(clean_dir)
     return
 
+def do_scrub(demo_dict):
+    """
+    cleanup all the temporary and archive folders
+    """
+    for (demo_id, demo_app) in demo_dict.items():
+        demo = demo_app()
+        cherrypy.log("scrubbing", context='SETUP/%s' % demo_id,
+                     traceback=False)
+        for scrub_dir in [demo.tmp_dir, demo.bin_dir,
+                          demo.dl_dir, demo.src_dir,
+                          demo.archive_dir]:
+            if os.path.isdir(scrub_dir):
+                shutil.rmtree(scrub_dir)
+    return
+
 def do_run(demo_dict):
     """
     run the demo app server
@@ -129,24 +144,32 @@ if __name__ == '__main__':
         sys.argv += ["run"]
 
     for arg in sys.argv[1:]:
-        if "clean" == arg:
-            do_clean(demo_dict)
-        elif "build" == arg:
+        if "build" == arg:
             do_build(demo_dict)
         elif "run" == arg:
             do_run(demo_dict)
+        elif "clean" == arg:
+            do_clean(demo_dict)
+        elif "scrub" == arg:
+            ans = raw_input("\nDo you really to delete the archives? ")
+            if ans in ("y", "Y", "yes", "YES"):
+                do_scrub(demo_dict)
+            else:
+                print "Glad I asked!"
         else:
             print """
 usage: %(argv0)s [action]
 
 actions:
-* clean   delete all temporary files
 * build   build/update the compiled programs
 * run     launch the web service
+* clean   delete all temporary files
+* scrub   delete all temporary and archive files
 
 notes:
-Default action is "run".
-Multiple successive actions can be specified. They will be processed
-in the arguments order. Note that the script will hang when the server
-is run.
+* Default action is "run".
+* Multiple successive actions can be specified. They will be processed
+  in the arguments order. Note that the script will hang when the server
+  is run.
+* "scrub" requires interactive confirmation.
 """ % {'argv0' : sys.argv[0]}
