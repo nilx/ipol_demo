@@ -174,6 +174,7 @@ class app(base_app):
                   'input_0.png_h.txt' : 'homo_0.txt',
                   'input_1.png_h.txt' : 'homo_1.txt',
                   'disp1_H_input_0.png.png' : 'disp1_0.png',
+                  'disp2_H_input_0.png.png' : 'disp2_0.png',
                   'disp3_H_input_0.png.png' : 'disp3_0.png',
                   'disp1_H_input_0.png_float.tif' : 'disp1_0.tif',
                   'disp2_H_input_0.png_float.tif' : 'disp2_0.tif',
@@ -195,7 +196,8 @@ class app(base_app):
         """
         return self.tmpl_out("result.html",
                              input=['input_0.png', 'input_1.png'],
-                             disp=['disp1_0.png', 'disp3_0.png'],
+                             disp=['disp1_0.png', 'disp2_0.png',
+                                   'disp3_0.png'],
                              rect=['rect_0.png', 'rect_1.png'],
                              orsa='orsa.txt',
                              homo=['homo_0.txt', 'homo_1.txt'],
