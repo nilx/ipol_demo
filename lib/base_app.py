@@ -315,12 +315,11 @@ class base_app(empty_app):
         pass
 
     @init_app
-    def result(self):
+    def result(self, public=None):
         """
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        # TODO display the archive link with option to not be public
         return self.tmpl_out("result.html",
                              input=['input_%i.png' % i
                                     for i in range(self.input_nb)],
@@ -331,12 +330,19 @@ class base_app(empty_app):
     #
     
     @cherrypy.expose
-    def archive(self, offset=0):
+    def archive(self, page=0):
         """
         lists the archive content
         """
+        # TODO: more database caching
+        page = int(page)
+        count = self.get_archive_count()
+        limit = 50
+        offset = limit * page
+        nbpages = count / limit
+
         buckets = []
-        for key in self.get_archive_key_by_date(offset=offset):
+        for key in self.get_archive_key_by_date(limit=limit, offset=offset):
             ar = archive.bucket(self.archive_dir, key)
             files = []
             for fname in os.listdir(ar.path):
@@ -353,6 +359,8 @@ class base_app(empty_app):
                          'meta' : ar.cfg['meta'],
                          'info' : ar.cfg['info']}]
         return self.tmpl_out("archive.html",
-                             bucket_list=buckets)
+                             bucket_list=buckets,
+                             page=page,
+                             nbpages=nbpages)
 
 

@@ -297,3 +297,12 @@ class empty_app(object):
                   (limit, offset))
         return [key[0] for key in c]
 
+
+    def get_archive_count(self):
+        """
+        get some keys from the index
+        """
+        db = sqlite3.connect(self.archive_index)
+        c = db.cursor()
+        c.execute("select count(*) from buckets")
+        return c.next()[0]
