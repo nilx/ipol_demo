@@ -14,14 +14,14 @@ import time
 class app(base_app):
     """ rgbprocess app """
 
-    title = "RGB process"
+    title = "Image Color Cube Dimensional Filtering and Visualization"
 
     input_nb = 1
     input_max_pixels = 480000 # max size (in pixels) of an input image
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
-    is_test = True
+    is_test = False
 
     def __init__(self):
         """
@@ -74,6 +74,7 @@ class app(base_app):
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
+
 
     #
     # PARAMETER HANDLING
