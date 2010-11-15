@@ -40,6 +40,9 @@ or
   </ul>
 </div>
 
+
+
+
 <h2>RGB views</h2>
 <p>
   Top: original and filtered. Bottom: density.
@@ -58,5 +61,45 @@ or
     %endfor
   </ul> 
 </div> 
+
+<script type="text/javascript">
+function toggle1() {
+	if(document.getElementById("toggleable1").style.display == "none" ) {
+		document.getElementById("toggleable1").style.display = "";
+	}
+	else {
+		document.getElementById("toggleable1").style.display = "none";
+	}
+}
+</script>
+<script type="text/javascript">
+function toggle2() {
+	if(document.getElementById("toggleable2").style.display == "none" ) {
+		document.getElementById("toggleable2").style.display = "";
+	}
+	else {
+		document.getElementById("toggleable2").style.display = "none";
+	}
+}
+</script>
+
+ 
+<p><a href="#" onclick="toggle1();">Additional Info</a></p>
+<div id="toggleable1" style="display:none"> 
+<pre class="stdio">
+  ${stdout}
+</pre>
+</div>
+
+%if useOriginal == True :
+<p><a href="#" onclick="toggle2();">See original input image</a></p>
+<div id="toggleable2" style="display:none"> 
+	<span>
+	  <img src="${app.work_url + original[0]}" />
+	</span>
+</div>
+%endif
+
+
 
 <%include file="footer.html" />

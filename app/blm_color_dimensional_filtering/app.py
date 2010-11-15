@@ -119,10 +119,15 @@ class app(base_app):
                 (y0, y1) = (min(y0, y1), max(y0, y1))
                 assert (x1 - x0) > 0
                 assert (y1 - y0) > 0
+                # draw selected rectangle on the image
+                imgS = image(self.work_dir + 'input_0.png')
+                imgS.draw_line([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)], color="red")
+                imgS.draw_line([(x0+1, y0+1), (x1-1, y0+1), (x1-1, y1-1), (x0+1, y1-1), (x0+1, y0+1)], color="white")
+                imgS.save(self.work_dir + 'input_0S.png')
                 # crop the image
                 img = image(self.work_dir + 'input_0.png')
                 img.crop((x0, y0, x1, y1))
-                # zoom the cropped area
+               # zoom the cropped area
                 (dx, dy) = img.size
                 if (dx < 400) and (dy < 400) :
                     if dx > dy :
@@ -173,8 +178,9 @@ class app(base_app):
             ar = self.make_archive()
             ar.add_file("input_0.png", info="original image")
             ar.add_file("input.png", info="processed image")
-            ar.add_file("output_1.png", info="corrected image")
-            ar.add_file("output_2.png", info="merged image")
+            ar.add_file("output_2.png", info="result image")
+	    if (os.path.isfile(self.work_dir + 'input_0S.png') == True) :
+		ar.add_file("input_0S.png", info="original input image")
             ar.commit()
 
         return self.tmpl_out("run.html")
@@ -190,40 +196,48 @@ class app(base_app):
                            stdout=stdout, stderr=stdout)
         p2 = self.run_proc(['rgbprocess', 'RGBviewsparams',
                             'RGBviewsparams.txt'],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         self.wait_proc([p1, p2], timeout)
 
         p3 = self.run_proc(['rgbprocess', 'filter',
                             'input_1.png', 'output_1.png'],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         wOut = 300
         hOut = 300
         displayDensity = 0
         p4 = self.run_proc(['rgbprocess', 'RGBviews',
                             'input_1.png', 'RGBviewsparams.txt', 'inRGB', 
                             str(wOut), str(hOut), str(displayDensity)],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         self.wait_proc([p3, p4], timeout)
 
         p5 = self.run_proc(['rgbprocess', 'RGBviews',
                             'output_1.png', 'RGBviewsparams.txt', 'outRGB', 
                             str(wOut), str(hOut), str(displayDensity)],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         displayDensity = 1
         p6 = self.run_proc(['rgbprocess', 'RGBviews',
                             'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
                            str(wOut), str(hOut), str(displayDensity)],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         self.wait_proc([p5, p6], timeout)
 
         p7 = self.run_proc(['rgbprocess', 'combineviews',
                             'RGBviewsparams.txt',
                             'inRGB', 'outRGB', 'dstyRGB', 'view'], 
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         p8 = self.run_proc(['rgbprocess', 'mergeimages',
                             'output_1.png', 'input.png', 'output_2.png'],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         self.wait_proc([p7, p8], timeout)
+
+        p9 = self.run_proc(['rgbprocess', 'countcolors',
+                            'output_2.png'],
+                           stdout=stdout, stderr=stdout)
+        p10 = self.run_proc(['rgbprocess', 'computeRMSE',
+                            'input.png', 'output_2.png'],
+                           stdout=stdout, stderr=stdout)
+        self.wait_proc([p9, p10], timeout)
 
 
     @cherrypy.expose
@@ -237,5 +251,13 @@ class app(base_app):
                              output=['output_2.png'],
                              views=['view_%i.png' % i 
                                     for i in range(100, 127)],
+			     original=['input_0S.png'], 
+			     useOriginal=os.path.isfile(self.work_dir + 'input_0S.png'),
                              sizeY="%i" % image(self.work_dir 
-                                                + 'input.png').size[1])
+                                                + 'input.png').size[1],
+                             stdout=open(self.work_dir 
+                                         + 'stdout.txt', 'r').read())
+
+
+
+
