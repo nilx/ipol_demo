@@ -48,14 +48,17 @@ class app(base_app):
         if not os.path.isdir(self.bin_dir):
             os.mkdir(self.bin_dir)
         # store common file path in variables
-        asift_tgz_file = self.dl_dir + "ASIFT_png.tar.gz"
+        #asift_tgz_file = self.dl_dir + "ASIFT_png.tar.gz"
+        #asift_tgz_url = \
+        #    "http://www.ipol.im/pub/algo/my_affine_sift/ASIFT_png.tar.gz"
+        asift_tgz_file = self.dl_dir + "demo_ASIFT_src.tar.gz"
         asift_tgz_url = \
-            "http://www.ipol.im/pub/algo/my_affine_sift/ASIFT_png.tar.gz"
+            "https://edit.ipol.im/pub/algo/my_affine_sift/demo_ASIFT_src.tar.gz"
         asift_prog_file = self.bin_dir + "asift"
         asift_log_file = self.base_dir + "build_asift.log"
         sift_tgz_file = self.dl_dir + "SIFT_png.tar.gz"
         sift_tgz_url = \
-            "http://www.ipol.im/pub/algo/my_affine_sift/SIFT_png.tar.gz"
+            "https://edit.ipol.im/pub/algo/my_affine_sift/SIFT_png.tar.gz"
         sift_prog_file = self.bin_dir + "sift"
         sift_log_file = self.base_dir + "build_sift.log"
         # get the latest source archive
@@ -71,12 +74,19 @@ class app(base_app):
             # extract the archive
             build.extract(asift_tgz_file, self.src_dir)
             # build the program
+            #build.run("make -C %s demo_ASIFT" %
+            #          (self.src_dir + "ASIFT_png")
+            #          + " CC='ccache cc' CXX='ccache c++'"
+            #          + " OMP=1 -j4", stdout=asift_log_file)
             build.run("make -C %s demo_ASIFT" %
-                      (self.src_dir + "ASIFT_png")
+                      (self.src_dir + "demo_ASIFT_src")
                       + " CC='ccache cc' CXX='ccache c++'"
                       + " OMP=1 -j4", stdout=asift_log_file)
             # save into bin dir
-            shutil.copy(self.src_dir + os.path.join("ASIFT_png",
+            #shutil.copy(self.src_dir + os.path.join("ASIFT_png",
+            #                                        "demo_ASIFT"),
+            #            asift_prog_file)
+            shutil.copy(self.src_dir + os.path.join("demo_ASIFT_src",
                                                     "demo_ASIFT"),
                         asift_prog_file)
             # cleanup the source dir
