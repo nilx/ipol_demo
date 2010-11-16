@@ -62,29 +62,21 @@ or
   </ul> 
 </div> 
 
-<script type="text/javascript">
-function toggle1() {
-	if(document.getElementById("toggleable1").style.display == "none" ) {
-		document.getElementById("toggleable1").style.display = "";
-	}
-	else {
-		document.getElementById("toggleable1").style.display = "none";
-	}
-}
-</script>
-<script type="text/javascript">
-function toggle2() {
-	if(document.getElementById("toggleable2").style.display == "none" ) {
-		document.getElementById("toggleable2").style.display = "";
-	}
-	else {
-		document.getElementById("toggleable2").style.display = "none";
-	}
-}
-</script>
 
+<script type="text/javascript">
+function toggle(id) {
+  var element=document.getElementById(id);
+  if(element.style.display == "none" ) {
+    element.style.display = "";
+  }
+  else {
+    element.style.display = "none";
+  }
+  return false;
+}
+</script>
  
-<p><a href="#" onclick="toggle1();">Additional Info</a></p>
+<p><a href="#toggleable1" onclick="toggle('toggleable1');">Additional Info</a></p>
 <div id="toggleable1" style="display:none"> 
 <pre class="stdio">
   ${stdout}
@@ -92,7 +84,7 @@ function toggle2() {
 </div>
 
 %if useOriginal == True :
-<p><a href="#" onclick="toggle2();">See original input image</a></p>
+<p><a href="#toggleable2" onclick="toggle('toggleable2');">See original input image</a></p>
 <div id="toggleable2" style="display:none"> 
 	<span>
 	  <img src="${app.work_url + original[0]}" />
