@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     # now handle the command-line options
 
-    # default behaviour : build, run
+    # default behaviour : run
     if len(sys.argv) == 1:
         sys.argv += ["run"]
 
@@ -151,11 +151,11 @@ if __name__ == '__main__':
         elif "clean" == arg:
             do_clean(demo_dict)
         elif "scrub" == arg:
-            ans = raw_input("\nDo you really to delete the archives? ")
-            if ans in ("y", "Y", "yes", "YES"):
+            ans = raw_input("\nDo you really want to delete the archives? ")
+            if ans in ("y", "Y", "yes", "YES", "1"):
                 do_scrub(demo_dict)
             else:
-                print "Glad I asked!"
+                print "Glad I asked! Nothing deleted."
         else:
             print """
 usage: %(argv0)s [action]
