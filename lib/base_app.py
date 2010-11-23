@@ -343,14 +343,14 @@ class base_app(empty_app):
         nbpages = count / limit
 
         buckets = []
-        for (key, files) in archive.index_read(self.archive_index,
-                                               limit=limit, offset=offset,
-                                               path=self.archive_dir):
-            ar = archive.bucket(self.archive_dir, key)
-            buckets += [{'url' : self.archive_url + archive.key2url(key),
-                         'files' : files,
-                         'meta' : ar.cfg['meta'],
-                         'info' : ar.cfg['info']}]
+        for (key, (files, meta, info)) \
+                in archive.index_read(self.archive_index,
+                                      limit=limit, offset=offset,
+                                      path=self.archive_dir):
+            buckets.append({'url' : self.archive_url + archive.key2url(key),
+                            'files' : files,
+                            'meta' : meta,
+                            'info' : info})
         return self.tmpl_out("archive.html",
                              bucket_list=buckets,
                              page=page,
