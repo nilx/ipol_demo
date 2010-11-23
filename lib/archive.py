@@ -9,6 +9,7 @@ import time
 import shutil
 import gzip
 import sqlite3
+import cherrypy
 
 from . import config
 from .image import thumbnail
@@ -189,43 +190,64 @@ def index_rebuild(indexdb, path):
     c.execute("create index buckets_by_date on buckets (date)")
     # populate the db
     for key in list_key(path):
-        bucket = bucket(path=path, key=key)
-        date = bucket.cfg['meta']['date']
+        b = bucket(path=path, key=key)
+        date = b.cfg['meta']['date']
         c.execute("""insert into buckets (key, date) values (?, ?)""",
                   (key, date))
     db.commit()
     c.close()
 
 
-def index_keys(indexdb, limit=50, offset=0):
+def index_keys(indexdb, limit=50, offset=0, path=None):
     """
     get some keys from the index
     """
     # TODO: use iterators
-    db = sqlite3.connect(indexdb)
-    c = db.cursor()
-    c.execute("select key from buckets order by date desc "
-              + "limit ? offset ?",
-              (limit, offset))
-    return [key[0] for key in c]
+    try:
+        db = sqlite3.connect(indexdb)
+        c = db.cursor()
+        c.execute("select key from buckets order by date desc "
+                  + "limit ? offset ?",
+                  (limit, offset))
+        return [key[0] for key in c]
+    except sqlite3.Error:
+        if path:
+            index_rebuild(indexdb, path)
+            return index_keys(indexdb, limit, offset)
+        else:
+            raise sqlite3.Error
 
 
-def index_count(indexdb):
+def index_count(indexdb, path=None):
     """
     get nb keys in the index
     """
-    db = sqlite3.connect(indexdb)
-    c = db.cursor()
-    c.execute("select count(*) from buckets")
-    return c.next()[0]
+    try:
+        db = sqlite3.connect(indexdb)
+        c = db.cursor()
+        c.execute("select count(*) from buckets")
+        return c.next()[0]
+    except sqlite3.Error:
+        if path:
+            index_rebuild(indexdb, path)
+            return index_count(indexdb)
+        else:
+            raise sqlite3.Error
 
-def index_add(indexdb, key, date):
+def index_add(indexdb, key, date, path=None):
     """
     add an archive bucket to the index
     """
-    db = sqlite3.connect(indexdb)
-    c = db.cursor()
-    c.execute("insert or replace into buckets (key, date) values (?, ?)",
-              (self.key, date))
-    db.commit()
-    c.close()
+    try:
+        db = sqlite3.connect(indexdb)
+        c = db.cursor()
+        c.execute("insert or replace into buckets (key, date) values (?, ?)",
+                  (self.key, date))
+        db.commit()
+        c.close()
+    except sqlite3.Error:
+        if path:
+            index_rebuild(indexdb, path)
+            return index_add(indexdb, key, date)
+        else:
+            raise sqlite3.Error

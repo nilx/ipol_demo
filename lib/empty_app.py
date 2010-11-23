@@ -48,10 +48,6 @@ class empty_app(object):
 
         # TODO : merge with getattr
         self.archive_index = os.path.join(self.archive_dir, "index.db")
-        # initialize the index if needed
-        # TODO: on exception
-        if not os.path.isfile(self.archive_index):
-            archive.index_rebuild(self.archive_index, self.archive_dir)
                 
         # static folders
         # cherrypy.tools.staticdir is a decorator,
@@ -254,5 +250,6 @@ class empty_app(object):
         # add to the index
         archive.index_add(self.archive_index,
                           key=self.key,
-                          date=ar.cfg['meta']['date'])
+                          date=ar.cfg['meta']['date'],
+                          path=self.archive_dir)
         return ar
