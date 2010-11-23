@@ -9,7 +9,7 @@ import time
 import shutil
 import gzip
 import sqlite3
-import pickle
+import cPickle as pickle
 import cherrypy
 
 from . import config
@@ -216,7 +216,7 @@ def index_rebuild(indexdb, path):
     c.close()
 
 
-def index_read(indexdb, limit=50, offset=0, path=None):
+def index_read(indexdb, limit=20, offset=0, path=None):
     """
     get some data from the index
     """

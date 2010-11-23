@@ -338,7 +338,7 @@ class base_app(empty_app):
         page = int(page)
         count = archive.index_count(self.archive_index,
                                     path=self.archive_dir)
-        limit = 50
+        limit = 20
         offset = limit * page
         nbpages = count / limit
 
