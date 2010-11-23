@@ -335,12 +335,17 @@ class base_app(empty_app):
         lists the archive content
         """
 
-        page = int(page)
-        count = archive.index_count(self.archive_index,
-                                    path=self.archive_dir)
-        limit = 20
-        offset = limit * page
-        nbpages = count / limit
+        if key:
+            page = None
+            limit = None
+            offset = None
+            nbpages = None
+        else:
+            page = int(page)
+            limit = 20
+            offset = limit * page
+            nbpages = archive.index_count(self.archive_index,
+                                          path=self.archive_dir) / limit
 
         buckets = [{'url' : self.archive_url + archive.key2url(key),
                     'files' : files, 'meta' : meta, 'info' : info}
