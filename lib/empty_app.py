@@ -249,7 +249,6 @@ class empty_app(object):
                             key=self.key)
         # add to the index
         archive.index_add(self.archive_index,
-                          key=self.key,
-                          date=ar.cfg['meta']['date'],
+                          bucket=ar,
                           path=self.archive_dir)
         return ar

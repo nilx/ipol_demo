@@ -174,6 +174,14 @@ class item(object):
 # DATABASE
 #
 
+def _add_record(cursor, ar):
+    """
+    low-level add an archive bucket record to the index
+    """
+    cursor.execute("insert or replace into buckets (key, date) values (?, ?)",
+                   (ar.cfg['meta']['key'], ar.cfg['meta']['date']))
+    return
+
 def index_rebuild(indexdb, path):
     """
     create an index of the archive buckets
@@ -190,10 +198,7 @@ def index_rebuild(indexdb, path):
     c.execute("create index buckets_by_date on buckets (date)")
     # populate the db
     for key in list_key(path):
-        b = bucket(path=path, key=key)
-        date = b.cfg['meta']['date']
-        c.execute("""insert into buckets (key, date) values (?, ?)""",
-                  (key, date))
+        _add_record(c, bucket(path=path, key=key))
     db.commit()
     c.close()
 
@@ -234,20 +239,19 @@ def index_count(indexdb, path=None):
         else:
             raise sqlite3.Error
 
-def index_add(indexdb, key, date, path=None):
+def index_add(indexdb, bucket, path=None):
     """
     add an archive bucket to the index
     """
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
-        c.execute("insert or replace into buckets (key, date) values (?, ?)",
-                  (self.key, date))
+        _add_record(c, bucket)
         db.commit()
         c.close()
     except sqlite3.Error:
         if path:
             index_rebuild(indexdb, path)
-            return index_add(indexdb, key, date)
+            return index_add(indexdb, bucket)
         else:
             raise sqlite3.Error
