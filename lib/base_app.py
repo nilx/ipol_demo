@@ -343,17 +343,12 @@ class base_app(empty_app):
         nbpages = count / limit
 
         buckets = []
-        for key in archive.index_keys(self.archive_index,
-                                      limit=limit, offset=offset,
-                                      path=self.archive_dir):
+        for (key, listdir) in archive.index_read(self.archive_index,
+                                                 limit=limit, offset=offset,
+                                                 path=self.archive_dir):
             ar = archive.bucket(self.archive_dir, key)
             files = []
-            for fname in os.listdir(ar.path):
-                if (not os.path.isfile(os.path.join(ar.path, fname))
-                    or fname.startswith('.')):
-                    continue
-                if "index.cfg" == fname:
-                    continue
+            for fname in listdir:
                 info = ar.cfg['fileinfo'].get(fname, '')
                 files.append(archive.item(os.path.join(ar.path, fname),
                                           info=info))
@@ -365,5 +360,3 @@ class base_app(empty_app):
                              bucket_list=buckets,
                              page=page,
                              nbpages=nbpages)
-
-

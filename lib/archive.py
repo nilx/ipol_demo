@@ -4,11 +4,12 @@ archive bucket class
 # pylint: disable=C0103
 
 
-import os.path
+import os
 import time
 import shutil
 import gzip
 import sqlite3
+import pickle
 import cherrypy
 
 from . import config
@@ -174,12 +175,17 @@ class item(object):
 # DATABASE
 #
 
+_filter_listdir = lambda fname : (fname != "index.cfg"
+                                  and not fname.startswith('.'))
 def _add_record(cursor, ar):
     """
     low-level add an archive bucket record to the index
     """
-    cursor.execute("insert or replace into buckets (key, date) values (?, ?)",
-                   (ar.cfg['meta']['key'], ar.cfg['meta']['date']))
+    pkl_listdir = pickle.dumps(filter(_filter_listdir, os.listdir(ar.path)))
+    cursor.execute("insert or replace into buckets "
+                   + "(key, date, pkl_listdir) values (?, ?, ?)",
+                   (ar.cfg['meta']['key'], ar.cfg['meta']['date'],
+                    pkl_listdir))
     return
 
 def index_rebuild(indexdb, path):
@@ -194,7 +200,7 @@ def index_rebuild(indexdb, path):
     c.execute("drop table if exists buckets")
     # TODO : check SQL index usage
     c.execute("drop index if exists buckets_by_date")
-    c.execute("create table buckets (key text unique, date text)")
+    c.execute("create table buckets (key text unique, date text, pkl_listdir)")
     c.execute("create index buckets_by_date on buckets (date)")
     # populate the db
     for key in list_key(path):
@@ -203,22 +209,22 @@ def index_rebuild(indexdb, path):
     c.close()
 
 
-def index_keys(indexdb, limit=50, offset=0, path=None):
+def index_read(indexdb, limit=50, offset=0, path=None):
     """
-    get some keys from the index
+    get some data from the index
     """
     # TODO: use iterators
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
-        c.execute("select key from buckets order by date desc "
+        c.execute("select key, pkl_listdir from buckets order by date desc "
                   + "limit ? offset ?",
                   (limit, offset))
-        return [key[0] for key in c]
+        return [(str(row[0]), pickle.loads(str(row[1]))) for row in c]
     except sqlite3.Error:
         if path:
             index_rebuild(indexdb, path)
-            return index_keys(indexdb, limit, offset)
+            return index_read(indexdb, limit, offset)
         else:
             raise sqlite3.Error
 
