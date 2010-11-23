@@ -181,11 +181,14 @@ def _add_record(cursor, ar):
     """
     low-level add an archive bucket record to the index
     """
-    pkl_listdir = pickle.dumps(filter(_filter_listdir, os.listdir(ar.path)))
+    files = [item(path=os.path.join(ar.path, fname),
+                  info=ar.cfg['fileinfo'].get(fname, ''))
+             for fname in filter(_filter_listdir,
+                                 os.listdir(ar.path))]
     cursor.execute("insert or replace into buckets "
-                   + "(key, date, pkl_listdir) values (?, ?, ?)",
+                   + "(key, date, pkl_files) values (?, ?, ?)",
                    (ar.cfg['meta']['key'], ar.cfg['meta']['date'],
-                    pkl_listdir))
+                    pickle.dumps(files)))
     return
 
 def index_rebuild(indexdb, path):
@@ -200,7 +203,7 @@ def index_rebuild(indexdb, path):
     c.execute("drop table if exists buckets")
     # TODO : check SQL index usage
     c.execute("drop index if exists buckets_by_date")
-    c.execute("create table buckets (key text unique, date text, pkl_listdir)")
+    c.execute("create table buckets (key text unique, date text, pkl_files)")
     c.execute("create index buckets_by_date on buckets (date)")
     # populate the db
     for key in list_key(path):
@@ -217,7 +220,7 @@ def index_read(indexdb, limit=50, offset=0, path=None):
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
-        c.execute("select key, pkl_listdir from buckets order by date desc "
+        c.execute("select key, pkl_files from buckets order by date desc "
                   + "limit ? offset ?",
                   (limit, offset))
         return [(str(row[0]), pickle.loads(str(row[1]))) for row in c]

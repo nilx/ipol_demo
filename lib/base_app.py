@@ -343,15 +343,10 @@ class base_app(empty_app):
         nbpages = count / limit
 
         buckets = []
-        for (key, listdir) in archive.index_read(self.archive_index,
-                                                 limit=limit, offset=offset,
-                                                 path=self.archive_dir):
+        for (key, files) in archive.index_read(self.archive_index,
+                                               limit=limit, offset=offset,
+                                               path=self.archive_dir):
             ar = archive.bucket(self.archive_dir, key)
-            files = []
-            for fname in listdir:
-                info = ar.cfg['fileinfo'].get(fname, '')
-                files.append(archive.item(os.path.join(ar.path, fname),
-                                          info=info))
             buckets += [{'url' : self.archive_url + archive.key2url(key),
                          'files' : files,
                          'meta' : ar.cfg['meta'],
