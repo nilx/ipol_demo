@@ -8,6 +8,7 @@ import os.path
 import time
 import shutil
 import gzip
+import sqlite3
 
 from . import config
 from .image import thumbnail
@@ -162,8 +163,69 @@ class item(object):
             self.is_file = True
             self.is_dir = False
             if self.name.endswith((".png", ".tif", ".tiff")):
-                self.tn_path = thumbnail(self.path, size=(96, 96))
+                self.tn_path = thumbnail(self.path, size=(128, 128))
                 self.tn_name = os.path.basename(self.tn_path)
                 self.has_tn = True
             else:
                 self.has_tn = False
+
+#
+# DATABASE
+#
+
+def index_rebuild(indexdb, path):
+    """
+    create an index of the archive buckets
+    """
+    cherrypy.log("(re)building the archive index %s" % indexdb,
+                 context='SETUP', traceback=False)
+    db = sqlite3.connect(indexdb)
+    c = db.cursor()
+    # (re)create table
+    c.execute("drop table if exists buckets")
+    # TODO : check SQL index usage
+    c.execute("drop index if exists buckets_by_date")
+    c.execute("create table buckets (key text unique, date text)")
+    c.execute("create index buckets_by_date on buckets (date)")
+    # populate the db
+    for key in list_key(path):
+        bucket = bucket(path=path, key=key)
+        date = bucket.cfg['meta']['date']
+        c.execute("""insert into buckets (key, date) values (?, ?)""",
+                  (key, date))
+    db.commit()
+    c.close()
+
+
+def index_keys(indexdb, limit=50, offset=0):
+    """
+    get some keys from the index
+    """
+    # TODO: use iterators
+    db = sqlite3.connect(indexdb)
+    c = db.cursor()
+    c.execute("select key from buckets order by date desc "
+              + "limit ? offset ?",
+              (limit, offset))
+    return [key[0] for key in c]
+
+
+def index_count(indexdb):
+    """
+    get nb keys in the index
+    """
+    db = sqlite3.connect(indexdb)
+    c = db.cursor()
+    c.execute("select count(*) from buckets")
+    return c.next()[0]
+
+def index_add(indexdb, key, date):
+    """
+    add an archive bucket to the index
+    """
+    db = sqlite3.connect(indexdb)
+    c = db.cursor()
+    c.execute("insert or replace into buckets (key, date) values (?, ?)",
+              (self.key, date))
+    db.commit()
+    c.close()

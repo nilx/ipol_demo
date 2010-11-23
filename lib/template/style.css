@@ -133,3 +133,18 @@ form label {
     width: 0;
     height: 1em;
 }
+
+.bucket img {
+    width: 96px;
+    height: 96px;
+    margin: 0px;
+    position: relative;
+    z-index: 1;
+}
+
+.bucket img:hover {
+    width: 128px;
+    height: 128px;
+    margin: -16px;
+    z-index: 2;
+}

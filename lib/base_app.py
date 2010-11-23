@@ -336,13 +336,14 @@ class base_app(empty_app):
         """
         # TODO: more database caching
         page = int(page)
-        count = self.get_archive_count()
+        count = archive.index_count(self.archive_index)
         limit = 50
         offset = limit * page
         nbpages = count / limit
 
         buckets = []
-        for key in self.get_archive_key_by_date(limit=limit, offset=offset):
+        for key in archive.index_get_keys(self.archive_index,
+                                          limit=limit, offset=offset):
             ar = archive.bucket(self.archive_dir, key)
             files = []
             for fname in os.listdir(ar.path):
