@@ -4,10 +4,13 @@ archive bucket class
 # pylint: disable=C0103
 
 
-import os.path
+import os
 import time
 import shutil
 import gzip
+import sqlite3
+import cPickle as pickle
+import cherrypy
 
 from . import config
 from .image import thumbnail
@@ -162,8 +165,109 @@ class item(object):
             self.is_file = True
             self.is_dir = False
             if self.name.endswith((".png", ".tif", ".tiff")):
-                self.tn_path = thumbnail(self.path, size=(96, 96))
+                self.tn_path = thumbnail(self.path, size=(128, 128))
                 self.tn_name = os.path.basename(self.tn_path)
                 self.has_tn = True
             else:
                 self.has_tn = False
+
+#
+# DATABASE
+#
+
+_filter_listdir = lambda fname : (fname != "index.cfg"
+                                  and not fname.startswith('.'))
+def _add_record(cursor, ar):
+    """
+    low-level add an archive bucket record to the index
+    """
+    files = [item(path=os.path.join(ar.path, fname),
+                  info=ar.cfg['fileinfo'].get(fname, ''))
+             for fname in filter(_filter_listdir,
+                                 os.listdir(ar.path))]
+    meta = ar.cfg['meta']
+    info = ar.cfg['info']
+
+    cursor.execute("insert or replace into buckets (key, date, pkl_cache) "
+                   + "values (?, ?, ?)",
+                   (ar.cfg['meta']['key'], ar.cfg['meta']['date'],
+                    pickle.dumps((files, meta, info))))
+    return
+
+def index_rebuild(indexdb, path):
+    """
+    create an index of the archive buckets
+    """
+    cherrypy.log("(re)building the archive index %s" % indexdb,
+                 context='SETUP', traceback=False)
+    db = sqlite3.connect(indexdb)
+    c = db.cursor()
+    # (re)create table
+    c.execute("drop table if exists buckets")
+    # TODO : check SQL index usage
+    c.execute("drop index if exists buckets_by_date")
+    c.execute("create table buckets "
+              + "(key text unique, date text, pkl_cache text)")
+    c.execute("create index buckets_index_by_date on buckets (date)")
+    # populate the db
+    for key in list_key(path):
+        _add_record(c, bucket(path=path, key=key))
+    db.commit()
+    c.close()
+
+
+def index_read(indexdb, limit=20, offset=0, key=None, path=None):
+    """
+    get some data from the index
+    """
+    # TODO: use iterators
+    try:
+        db = sqlite3.connect(indexdb)
+        c = db.cursor()
+        if key:
+            c.execute("select key, pkl_cache from buckets "
+                      + "where key=?", (key, ))
+        else:
+            c.execute("select key, pkl_cache from buckets "
+                      + "order by date desc limit ? offset ?", (limit, offset))
+        return [(str(row[0]), pickle.loads(str(row[1]))) for row in c]
+    except sqlite3.Error:
+        if path:
+            index_rebuild(indexdb, path)
+            return index_read(indexdb, limit, offset, key)
+        else:
+            raise sqlite3.Error
+
+
+def index_count(indexdb, path=None):
+    """
+    get nb keys in the index
+    """
+    try:
+        db = sqlite3.connect(indexdb)
+        c = db.cursor()
+        c.execute("select count(*) from buckets")
+        return c.next()[0]
+    except sqlite3.Error:
+        if path:
+            index_rebuild(indexdb, path)
+            return index_count(indexdb)
+        else:
+            raise sqlite3.Error
+
+def index_add(indexdb, bucket, path=None):
+    """
+    add an archive bucket to the index
+    """
+    try:
+        db = sqlite3.connect(indexdb)
+        c = db.cursor()
+        _add_record(c, bucket)
+        db.commit()
+        c.close()
+    except sqlite3.Error:
+        if path:
+            index_rebuild(indexdb, path)
+            return index_add(indexdb, bucket)
+        else:
+            raise sqlite3.Error

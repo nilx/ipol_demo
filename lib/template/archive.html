@@ -1,5 +1,6 @@
 <%include file="header.html" />
 
+%if nbpages:
 <div style="text-align:center; font-size:80%; margin:2em;">
 page: 
 %for p in range(nbpages):
@@ -10,74 +11,74 @@ ${p}
 %endif
 %endfor
 </div>
+%endif
 
-<ul>
+<div>
   %for bucket in bucket_list:
-  <li>
-    <div class="bucket">
-      <%
-	 images = filter(lambda i : i.is_file and i.has_tn,
-	                 bucket['files'])
-	 non_images = filter(lambda i : i.is_file and not i.has_tn,
-                             bucket['files'])
-      %>
-      <div style="width: 33%; float: left;">
-	<h3>metadata</h3>
-	<dl class="meta">
-	  <dt>date</dt>
-	  <dd>${bucket['meta']['date'] | h}</dd>
-	  <dt>key</dt>
-	  <dd>${bucket['meta']['key'] | h}</dd>
-	</dl>
-	%if bucket['info']:
-	<h3>info</h3>
-	<dl class="info">
-	  %for (key, value) in bucket['info'].items():
-	  <dt>${key | h}</dt>
-	  <dd>${value | h}</dd>
-	  %endfor
-	</dl>
-	%endif
-	%if non_images:
-	<h3>files</h3>
-	<ul class="files">
-	  %for item in non_images:
-	  <li>
-	    <a href="${bucket['url'] + item.name | h}"
-	       title="${item.info | h}">${item.name}</a>
-	  </li>
-	  %endfor
-	</ul>
-	%endif
-      </div>
-      
-      <div style="width: 65%; float: right;">
-	%if images:
-	<h3>images</h3>
-	<ul class="thumbnails">
-	  %for item in images:
-	  <li>
-	    <a href="${bucket['url'] + item.name | h}">
-	      <img src="${bucket['url'] + item.tn_name | h}"
-		   <%
-		      if item.info:
-		          item.info = ' : ' + item.info
-		   %>
-		   title="${item.name + item.info | h}"
-		   alt="${item.name | h}" />
-	    </a>
-	  </li>
-	  %endfor
-	</ul>
-	%endif
-      </div>
-      <hr class="clear">
+  <div class="bucket">
+    <%
+       images = filter(lambda i : i.is_file and i.has_tn,
+                       bucket['files'])
+       non_images = filter(lambda i : i.is_file and not i.has_tn,
+                           bucket['files'])
+       %>
+    <div style="width: 33%; float: left;">
+      <h3>metadata</h3>
+      <dl class="meta">
+	<dt>key</dt>
+	<dd><a href="?key=${bucket['meta']['key'] | h}"
+	       title="permalink">${bucket['meta']['key'] | h}</a></dd>
+	<dt>date</dt>
+	<dd>${bucket['meta']['date'] | h}</dd>
+      </dl>
+      %if bucket['info']:
+      <h3>info</h3>
+      <dl class="info">
+	%for (key, value) in bucket['info'].items():
+	<dt>${key | h}</dt>
+	<dd>${value | h}</dd>
+	%endfor
+      </dl>
+      %endif
+      %if non_images:
+      <h3>files</h3>
+      <ul class="files">
+	%for item in non_images:
+	<li>
+	  <a href="${bucket['url'] + item.name | h}"
+	     title="${item.info | h}">${item.name}</a>
+	</li>
+	%endfor
+      </ul>
+      %endif
     </div>
-    
-  </li>
+      
+    <div style="width: 65%; float: right;">
+      %if images:
+      <h3>images</h3>
+      <ul class="thumbnails">
+	%for item in images:
+	<li>
+	  <a href="${bucket['url'] + item.name | h}">
+	    <img src="${bucket['url'] + item.tn_name | h}"
+		 <%
+		    if item.info:
+		        item.info = ' : ' + item.info
+		    %>
+		 title="${item.name + item.info | h}"
+		 alt="${item.name | h}" />
+	  </a>
+	</li>
+	%endfor
+      </ul>
+      %endif
+    </div>
+    <hr class="clear">
+  </div>
   %endfor
-</ul>
+</div>
 
+%if nbpages:
 <div style="text-align:center; font-size:80%; margin:2em;">
 page: 
 %for p in range(nbpages):
@@ -88,6 +89,7 @@ ${p}
 %endif
 %endfor
 </div>
+%endif
 
 <%include file="footer.html" />
 

@@ -15,7 +15,6 @@ from random import random
 import os
 import time
 from subprocess import Popen
-import sqlite3
 
 from cherrypy import TimeoutError
 import cherrypy
@@ -47,11 +46,8 @@ class empty_app(object):
             if not os.path.isdir(static_dir):
                 os.mkdir(static_dir)
 
-        # TODO : metge with getattr
+        # TODO : merge with getattr
         self.archive_index = os.path.join(self.archive_dir, "index.db")
-        # initialize the index if needed
-        if not os.path.isfile(self.archive_index):
-            self.make_archive_index()
                 
         # static folders
         # cherrypy.tools.staticdir is a decorator,
@@ -251,58 +247,8 @@ class empty_app(object):
         ar = archive.bucket(path=self.archive_dir,
                             cwd=self.work_dir,
                             key=self.key)
-        date = ar.cfg['meta']['date']
         # add to the index
-        db = sqlite3.connect(self.archive_index)
-        c = db.cursor()
-        c.execute("insert or replace into buckets (key, date) values (?, ?)",
-                  (self.key, date))
-        db.commit()
-        c.close()
+        archive.index_add(self.archive_index,
+                          bucket=ar,
+                          path=self.archive_dir)
         return ar
-
-    def make_archive_index(self):
-        """
-        create an index of the archive buckets
-        """
-        cherrypy.log("(re)creating the archive index",
-                     context='SETUP/%s' % self.id, traceback=False)
-        db = sqlite3.connect(self.archive_index)
-        c = db.cursor()
-        # (re)create table
-        c.execute("drop table if exists buckets")
-        # TODO : check SQL index usage
-        c.execute("drop index if exists buckets_by_date")
-        c.execute("create table buckets (key text unique, date text)")
-        c.execute("create index buckets_by_date on buckets (date)")
-        # populate the db
-        for key in archive.list_key(self.archive_dir):
-            bucket = archive.bucket(path=self.archive_dir,
-                                    key=key)
-            date = bucket.cfg['meta']['date']
-            c.execute("""insert into buckets (key, date) values (?, ?)""",
-                      (key, date))
-        db.commit()
-        c.close()
-
-    def get_archive_key_by_date(self, limit=50, offset=0):
-        """
-        get some keys from the index
-        """
-        # TODO: use iterators
-        db = sqlite3.connect(self.archive_index)
-        c = db.cursor()
-        c.execute("select key from buckets order by date desc "
-                  + "limit ? offset ?",
-                  (limit, offset))
-        return [key[0] for key in c]
-
-
-    def get_archive_count(self):
-        """
-        get some keys from the index
-        """
-        db = sqlite3.connect(self.archive_index)
-        c = db.cursor()
-        c.execute("select count(*) from buckets")
-        return c.next()[0]
