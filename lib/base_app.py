@@ -342,8 +342,8 @@ class base_app(empty_app):
         nbpages = count / limit
 
         buckets = []
-        for key in archive.index_get_keys(self.archive_index,
-                                          limit=limit, offset=offset):
+        for key in archive.index_keys(self.archive_index,
+                                      limit=limit, offset=offset):
             ar = archive.bucket(self.archive_dir, key)
             files = []
             for fname in os.listdir(ar.path):
