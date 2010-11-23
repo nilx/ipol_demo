@@ -216,7 +216,7 @@ def index_rebuild(indexdb, path):
     c.close()
 
 
-def index_read(indexdb, limit=20, offset=0, path=None):
+def index_read(indexdb, limit=20, offset=0, key=None, path=None):
     """
     get some data from the index
     """
@@ -224,14 +224,17 @@ def index_read(indexdb, limit=20, offset=0, path=None):
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
-        c.execute("select key, pkl_cache from buckets order by date desc "
-                  + "limit ? offset ?",
-                  (limit, offset))
+        if key:
+            c.execute("select key, pkl_cache from buckets "
+                      + "where key=?", (key, ))
+        else:
+            c.execute("select key, pkl_cache from buckets "
+                      + "order by date desc limit ? offset ?", (limit, offset))
         return [(str(row[0]), pickle.loads(str(row[1]))) for row in c]
     except sqlite3.Error:
         if path:
             index_rebuild(indexdb, path)
-            return index_read(indexdb, limit, offset)
+            return index_read(indexdb, limit, offset, key)
         else:
             raise sqlite3.Error
 

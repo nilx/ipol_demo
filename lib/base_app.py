@@ -330,11 +330,11 @@ class base_app(empty_app):
     #
     
     @cherrypy.expose
-    def archive(self, page=0):
+    def archive(self, page=0, key=None):
         """
         lists the archive content
         """
-        # TODO: more database caching
+
         page = int(page)
         count = archive.index_count(self.archive_index,
                                     path=self.archive_dir)
@@ -342,15 +342,13 @@ class base_app(empty_app):
         offset = limit * page
         nbpages = count / limit
 
-        buckets = []
-        for (key, (files, meta, info)) \
-                in archive.index_read(self.archive_index,
-                                      limit=limit, offset=offset,
-                                      path=self.archive_dir):
-            buckets.append({'url' : self.archive_url + archive.key2url(key),
-                            'files' : files,
-                            'meta' : meta,
-                            'info' : info})
+        buckets = [{'url' : self.archive_url + archive.key2url(key),
+                    'files' : files, 'meta' : meta, 'info' : info}
+                   for (key, (files, meta, info))
+                   in archive.index_read(self.archive_index,
+                                         limit=limit, offset=offset, key=key,
+                                         path=self.archive_dir)]
+
         return self.tmpl_out("archive.html",
                              bucket_list=buckets,
                              page=page,
