@@ -57,9 +57,8 @@ class app(base_app):
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s axpb"
-                      % (self.src_dir + "axpb")
-                      + " CC='ccache cc' -j4", stdout=log_file)
+            build.run("make -j4 -C %s axpb" % (self.src_dir + "axpb"),
+                      stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)

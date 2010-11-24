@@ -68,10 +68,9 @@ class app(base_app):
             # extract the archive
             build.extract(mcm_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s mcm"
-                      % (self.src_dir + os.path.join("fds_mcm", "mcm"))
-                      + " CC='ccache cc'"
-                      + " OMP=1 -j4", stdout=mcm_log)
+            build.run("make -j4 -C %s mcm OMP=1"
+                      % (self.src_dir + os.path.join("fds_mcm", "mcm")),
+                      stdout=mcm_log)
             # save into bin dir
             shutil.copy(self.src_dir + os.path.join("fds_mcm", "mcm", "mcm"),
                         mcm_prog_file)
@@ -95,10 +94,9 @@ class app(base_app):
             # extract the archive
             build.extract(amss_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s amss"
-                      % (self.src_dir + os.path.join("fds_amss", "amss"))
-                      + " CC='ccache cc'"
-                      + " OMP=1 -j4", stdout=amss_log)
+            build.run("make -j4 -C %s amss OMP=1"
+                      % (self.src_dir + os.path.join("fds_amss", "amss")),
+                      stdout=amss_log)
             # save into bin dir
             shutil.copy(self.src_dir + os.path.join("fds_amss", "amss", "amss"),
                         amss_prog_file)
