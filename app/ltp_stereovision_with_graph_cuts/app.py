@@ -98,9 +98,10 @@ class app(base_app):
             # extract the archive
             build.extract(match_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s ../bin/match"
-                      % (self.src_dir + os.path.join("match-v3.3.src", "unix"))
-                      + " CCOMP='ccache c++' -j4", stdout=match_log_file)
+            build.run("make -j4 -C %s ../bin/match"
+                      % (self.src_dir + os.path.join("match-v3.3.src",
+                                                     "unix")),
+                      stdout=match_log_file)
             # save into bin dir
             shutil.copy(self.src_dir
                         + os.path.join("match-v3.3.src", "bin", "match"),
@@ -117,9 +118,9 @@ class app(base_app):
             # extract the archive
             build.extract(autok_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s ../bin/autoK"
-                      % (self.src_dir + os.path.join("autoK", "unix"))
-                      + " CCOMP='ccache c++' -j4", stdout=autok_log_file)
+            build.run("make -j4 -C %s ../bin/autoK"
+                      % (self.src_dir + os.path.join("autoK", "unix")),
+                      stdout=autok_log_file)
             # save into bin dir
             shutil.copy(self.src_dir + os.path.join("autoK", "bin", "autoK"),
                         autok_prog_file)

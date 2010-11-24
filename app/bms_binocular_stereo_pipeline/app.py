@@ -71,8 +71,7 @@ class app(base_app):
             # build the program
             os.mkdir(build_dir)
             build.run("cmake -D CMAKE_BUILD_TYPE:string=Release ../src",
-                      stdout=log_file, cwd=build_dir,
-                      env={'CC':'ccache cc', 'CXX':'ccache c++'})
+                      stdout=log_file, cwd=build_dir)
             build.run("make -C %s -j4" % build_dir,
                       stdout=log_file)
             # save into bin dir

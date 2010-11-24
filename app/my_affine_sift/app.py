@@ -71,10 +71,9 @@ class app(base_app):
             # extract the archive
             build.extract(asift_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s demo_ASIFT" %
-                      (self.src_dir + "demo_ASIFT_src")
-                      + " CC='ccache cc' CXX='ccache c++'"
-                      + " OMP=1 -j4", stdout=asift_log_file)
+            build.run("make -j4 -C %s demo_ASIFT OMP=1" %
+                      (self.src_dir + "demo_ASIFT_src"),
+                      stdout=asift_log_file)
             # save into bin dir
             shutil.copy(self.src_dir + os.path.join("demo_ASIFT_src",
                                                     "demo_ASIFT"),
@@ -91,10 +90,9 @@ class app(base_app):
             # extract the archive
             build.extract(sift_tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s demo_SIFT" %
-                      (self.src_dir + "SIFT_png")
-                      + " CC='ccache cc' CXX='ccache c++'"
-                      + " OMP=1 -j4", stdout=sift_log_file)
+            build.run("make -j4 -C %s demo_SIFT OMP=1" %
+                      (self.src_dir + "SIFT_png"),
+                      stdout=sift_log_file)
             # save into bin dir
             shutil.copy(self.src_dir + os.path.join("SIFT_png", "demo_SIFT"),
                         sift_prog_file)
