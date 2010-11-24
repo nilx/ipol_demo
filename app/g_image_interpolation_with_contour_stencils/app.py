@@ -67,10 +67,9 @@ class app(base_app):
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the programs
-            build.run("make -C %s %s"
-                      % (self.src_dir, " ".join(progs))
-                      + " --makefile=makefile.gcc"
-                      + " CXX='ccache c++' -j4", stdout=log_file)
+            build.run("make -j4 -C %s %s --makefile=makefile.gcc"
+                      % (self.src_dir, " ".join(progs)),
+                      stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)

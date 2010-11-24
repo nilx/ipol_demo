@@ -12,11 +12,12 @@ This code requires
 
 To test this service locally,
 * copy `demo.conf.example` to `demo.conf`
-* run the `demo.py` script
-  (must be executable, see options with ./demo.py help)
+* run `./demo.py build` to download and build the compiled components
+  (only needs to be done once)
+* run `./demo.py` to launch the http demo server
 * visit http://127.0.0.1:8080 with a graphical web browser
 
-% Development
+# Development
 
 To create a new demo,
 

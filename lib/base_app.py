@@ -330,37 +330,31 @@ class base_app(empty_app):
     #
     
     @cherrypy.expose
-    def archive(self, page=0):
+    def archive(self, page=0, key=None):
         """
         lists the archive content
         """
-        # TODO: more database caching
-        page = int(page)
-        count = self.get_archive_count()
-        limit = 50
-        offset = limit * page
-        nbpages = count / limit
 
-        buckets = []
-        for key in self.get_archive_key_by_date(limit=limit, offset=offset):
-            ar = archive.bucket(self.archive_dir, key)
-            files = []
-            for fname in os.listdir(ar.path):
-                if (not os.path.isfile(os.path.join(ar.path, fname))
-                    or fname.startswith('.')):
-                    continue
-                if "index.cfg" == fname:
-                    continue
-                info = ar.cfg['fileinfo'].get(fname, '')
-                files.append(archive.item(os.path.join(ar.path, fname),
-                                          info=info))
-            buckets += [{'url' : self.archive_url + archive.key2url(key),
-                         'files' : files,
-                         'meta' : ar.cfg['meta'],
-                         'info' : ar.cfg['info']}]
+        if key:
+            page = None
+            limit = None
+            offset = None
+            nbpages = None
+        else:
+            page = int(page)
+            limit = 20
+            offset = limit * page
+            nbpages = archive.index_count(self.archive_index,
+                                          path=self.archive_dir) / limit
+
+        buckets = [{'url' : self.archive_url + archive.key2url(key),
+                    'files' : files, 'meta' : meta, 'info' : info}
+                   for (key, (files, meta, info))
+                   in archive.index_read(self.archive_index,
+                                         limit=limit, offset=offset, key=key,
+                                         path=self.archive_dir)]
+
         return self.tmpl_out("archive.html",
                              bucket_list=buckets,
                              page=page,
                              nbpages=nbpages)
-
-
