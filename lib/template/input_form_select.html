@@ -1,23 +1,46 @@
 %if inputd:
 <form action="${app.base_url + 'input_select'}" method="get">
-  <fieldset> 
-    <legend>Select Data</legend> 
-    <p>
-      Click on an image to use it as the algorithm input.
-    </p>
-    <div style="max-height:30em; overflow:auto;">
-      %for id in sorted(inputd.keys()):
-      <div class="select_input">
-	%for url in inputd[id]['tn_url']:
-	<input type="image" name="${id | h}"
-	       width="${tn_size}" height="${tn_size}"
-               src="${url}" alt="${inputd[id]['title'] | h}"/>
-	%endfor
-	<span class="label">${inputd[id]['title'] | h}</span>
-      </div>
-      %endfor
-    </div>
-  </fieldset>
-</form>
+<fieldset> 
+<legend>Select Data</legend> 
+<p>
+Click on an image to use it as the algorithm input.
+</p>
+<div style="max-height:30em; overflow:auto;">
+%for id in sorted(inputd.keys()):
+<div class="select_input">
+%for url in inputd[id]['tn_url']:
+  <input type="image" name="${id | h}"
+	 width="${tn_size}" height="${tn_size}"
+         src="${url}" alt="${inputd[id]['title'] | h}"/>
+%endfor
+  <span class="label">${inputd[id]['title'] | h}</span>
+</div>
+%endfor
+</div>
+
+%if any([inputd[id]['title'] for id in inputd]):
+<p style="font-size: 80%">
+  <a class="toggle"
+     href="#credits"
+     onclick="toggle('credits');">
+    credits
+  </a>
+</p>
+<div id="credits"
+     style="display:none; font-size: 80%"> 
+  %for id in sorted(inputd.keys()):
+  %for url in inputd[id]['url']:
+  <a href="${url}">
+    <img height="24"
+	 src="${url}" />
+  </a>
+  %endfor
+  ${inputd[id]['credit'] | h}
+  <br/>
+  %endfor
+</div>
 %endif
 
+</fieldset>
+</form>
+%endif

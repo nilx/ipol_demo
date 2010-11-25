@@ -83,44 +83,17 @@ class base_app(empty_app):
             # convert the files to a list of file names
             # by splitting at blank characters
             # and generate thumbnails and thumbnail urls
-            tn_fname = [thumbnail(self.input_dir + fname,
-                                  (tn_size, tn_size))
-                        for fname in input_info['files'].split()]
-            inputd[input_id]['tn_url'] = [self.input_url
-                                          + os.path.basename(fname)
-                                          for fname in tn_fname]
-
-	"""
-        return self.tmpl_out("input.html",
-                             tn_size=tn_size,
-                             inputd=inputd)
-
-	"""
-	#Jose Luis changes
-	#credits
-	cr_size=24
-        for (input_id, input_info) in inputd.items():
-            # convert the files to a list of file names
-            # by splitting at blank characters
-            # and generate thumbnails and thumbnail urls
-            cr_fname = [thumbnail(self.input_dir + fname,
-                                  (cr_size, cr_size))
-                        for fname in input_info['files'].split()]
-            inputd[input_id]['cr_url'] = [self.input_url
-                                          + os.path.basename(fname)
-                                          for fname in cr_fname]
-            inputd[input_id]['href_url'] = [self.input_url
-                                          + os.path.basename(fname)
-                        		for fname in input_info['files'].split()]
+            fname = input_info['files'].split()
+            tn_fname = [thumbnail(self.input_dir + f, (tn_size, tn_size))
+                        for f in fname]
+            inputd[input_id]['url'] = [self.input_url + os.path.basename(f)
+                                       for f in fname]
+            inputd[input_id]['tn_url'] = [self.input_url + os.path.basename(f)
+                                          for f in tn_fname]
 
         return self.tmpl_out("input.html",
                              tn_size=tn_size,
-			     cr_size=cr_size,
                              inputd=inputd)
-	"""
-	"""
-
-
 
     #
     # INPUT HANDLING TOOLS

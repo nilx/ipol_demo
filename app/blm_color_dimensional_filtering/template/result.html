@@ -63,22 +63,34 @@ or
 </div> 
 
 
-<p><a href="#toggleable1" onclick="toggle('toggleable1');">Additional Info</a></p>
-<div id="toggleable1" style="display:none"> 
-<pre class="stdio">
-  ${stdout}
-</pre>
+<h2>
+  <a class="toggle"
+     href="#stdout"
+     onclick="toggle('stdout');">
+    Additional Info
+  </a>
+</h2>
+<div id="stdout"
+     style="display:none"> 
+  <pre class="stdio">
+    ${stdout}
+  </pre>
 </div>
 
-%if useOriginal == True :
-<p><a href="#toggleable2" onclick="toggle('toggleable2');">See original input image</a></p>
-<div id="toggleable2" style="display:none"> 
-	<span>
-	  <img src="${app.work_url + original[0]}" />
-	</span>
+%if useOriginal:
+<h2>
+  <a class="toggle"
+     href="#orig"
+     onclick="toggle('orig');">
+    Original Input Image
+  </a>
+</h2>
+<div id="orig"
+     style="display:none"> 
+  <span>
+    <img src="${app.work_url + original[0]}" />
+  </span>
 </div>
 %endif
-
-
 
 <%include file="footer.html" />
