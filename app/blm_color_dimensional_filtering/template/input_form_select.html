@@ -21,24 +21,11 @@ Click on an image to use it as the algorithm input.
 </div>
 
 
-
-<script type="text/javascript">
-function toggle() {
-	if(document.getElementById("toggleable").style.display == "none" ) {
-		document.getElementById("toggleable").style.display = "";
-	}
-	else {
-		document.getElementById("toggleable").style.display = "none";
-	}
-}
-</script>
- 
-
 %if cr_size:
 
-<p><small><a href="#" onclick="toggle();">Credits</a></small></p>
+<p><small><a href="#credits" onclick="toggle('credits');">Credits</a></small></p>
 
-<div id="toggleable" style="display:none"> 
+<div id="credits" style="display:none"> 
 
 		<p><small>
 		%for id in sorted(inputd.keys()):
@@ -51,10 +38,6 @@ function toggle() {
 </div>
 
 %endif
-
-
-
-
 
 
 </fieldset>
