@@ -18,7 +18,7 @@ Click on an image to use it as the algorithm input.
 %endfor
 </div>
 
-%if any([inputd[id]['title'] for id in inputd]):
+%if any([inputd[id].has_key('credit') for id in inputd]):
 <p style="font-size: 80%">
   <a class="toggle"
      href="#credits"
