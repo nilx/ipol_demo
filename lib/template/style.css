@@ -5,8 +5,12 @@
     font-size: 70%; }
 
 .note,
-.note a {
+.note a,
+.note input {
     color: #595959; }
+
+.note input {
+    font-size:100%;}
 
 .warning {
     border: #990000 1px solid;

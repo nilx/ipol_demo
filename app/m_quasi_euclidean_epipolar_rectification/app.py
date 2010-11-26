@@ -4,7 +4,8 @@ Quasi-Euclidean Epipolar Rectification
 # pylint: disable=C0103
 
 from lib import base_app, image, http, build
-from lib.misc import init_app, app_expose, ctime
+from lib.misc import app_expose, ctime
+from lib.base_app import init_app
 from cherrypy import TimeoutError
 import os.path
 import time

@@ -15,8 +15,57 @@ from . import http
 from . import config
 from . import archive
 from .empty_app import empty_app
-from .misc import prod, init_app
 from .image import thumbnail, image
+from .misc import prod
+
+#
+# ACTION DECORATOR TO HANDLE GENERIC SETTINGS
+#
+
+def init_app(func):
+    """
+    decorator to reinitialize the app with the current request key
+    """
+    def init_func(self, *args, **kwargs):
+        """
+        original function, modified
+        """
+        # key check
+        key = kwargs.pop('key', None)
+        self.init_key(key)
+        self.init_cfg()
+
+        # public_archive cookie setup
+        # default value
+        if not cherrypy.request.cookie.get('public_archive', '1') == '0':
+            cherrypy.response.cookie['public_archive'] = '1'
+            self.cfg['meta']['public'] = True
+        else:
+            self.cfg['meta']['public'] \
+                = (cherrypy.request.cookie['public_archive'] != '0')
+
+        # user setting
+        if kwargs.has_key('set_public_archive'):
+            if kwargs.pop('set_public_archive') != '0':
+                cherrypy.response.cookie['public_archive'] = '1'
+                self.cfg['meta']['public'] = True
+            else:
+                cherrypy.response.cookie['public_archive'] = '0'
+                self.cfg['meta']['public'] = False
+            # TODO: dirty hack, fixme
+            ar_path = self.archive_dir + archive.key2path(self.key)
+            if os.path.isdir(ar_path):
+                ar = archive.bucket(path=self.archive_dir,
+                                    cwd=self.work_dir,
+                                    key=self.key)
+                ar.cfg['meta']['public'] = self.cfg['meta']['public']
+                ar.cfg.save()
+                archive.index_add(self.archive_index,
+                                  bucket=ar,
+                                  path=self.archive_dir)
+        return func(self, *args, **kwargs)
+    return init_func
+
 
 class base_app(empty_app):
     """ base demo app class with a typical flow """
@@ -302,28 +351,32 @@ class base_app(empty_app):
     #
     
     @cherrypy.expose
-    def archive(self, page=0, key=None):
+    def archive(self, page=0, key=None, public=1):
         """
         lists the archive content
         """
 
         if key:
+            public = None
             page = None
             limit = None
             offset = None
             nbpages = None
         else:
+            public = int(public)
             page = int(page)
             limit = 20
             offset = limit * page
             nbpages = archive.index_count(self.archive_index,
-                                          path=self.archive_dir) / limit
+                                          path=self.archive_dir,
+                                          public=public) / limit
 
         buckets = [{'url' : self.archive_url + archive.key2url(key),
                     'files' : files, 'meta' : meta, 'info' : info}
                    for (key, (files, meta, info))
                    in archive.index_read(self.archive_index,
-                                         limit=limit, offset=offset, key=key,
+                                         limit=limit, offset=offset,
+                                         key=key, public=public,
                                          path=self.archive_dir)]
 
         return self.tmpl_out("archive.html",

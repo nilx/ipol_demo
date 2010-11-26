@@ -142,7 +142,7 @@ class empty_app(object):
                      random()]
             for seed in seeds:
                 keygen.update(str(seed))
-            key = keygen.hexdigest()
+            key = keygen.hexdigest().upper()
         
         self.key = key
 
@@ -247,6 +247,8 @@ class empty_app(object):
         ar = archive.bucket(path=self.archive_dir,
                             cwd=self.work_dir,
                             key=self.key)
+        ar.cfg['meta']['public'] = self.cfg['meta']['public']
+
         def hook_index():
             return archive.index_add(self.archive_index,
                                      bucket=ar,

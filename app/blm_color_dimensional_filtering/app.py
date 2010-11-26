@@ -4,7 +4,8 @@ rgbprocess ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app, build, http, image
-from lib.misc import init_app, ctime
+from lib.misc import ctime
+from lib.base_app import init_app
 import shutil
 import cherrypy
 from cherrypy import TimeoutError
