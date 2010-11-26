@@ -176,10 +176,10 @@ class app(base_app):
         # read parameters
         try:
             self.cfg['param'] = {'scale_r' : float(scaleR),
-                                     'grid_step' : int(step),
-                                     'zoom_factor' : (400.0 / int(step)
-                                                      if int(step) > 0
-                                                      else 1.)}
+                                 'grid_step' : int(step),
+                                 'zoom_factor' : (400.0 / int(step)
+                                                  if int(step) > 0
+                                                  else 1.)}
             self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
@@ -196,8 +196,8 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        scale_r = float(self.cfg['param']['scale_r'])
-        zoom_factor = float(self.cfg['param']['zoom_factor'])
+        scale_r = self.cfg['param']['scale_r']
+        zoom_factor = self.cfg['param']['zoom_factor']
 
         # denormalize the scale
         scale_r *= zoom_factor
@@ -257,9 +257,9 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # read the parameters
-        scale_r = float(self.cfg['param']['scale_r'])
-        grid_step = int(self.cfg['param']['grid_step'])
-        zoom_factor = float(self.cfg['param']['zoom_factor'])
+        scale_r = self.cfg['param']['scale_r']
+        grid_step = self.cfg['param']['grid_step']
+        zoom_factor = self.cfg['param']['zoom_factor']
 
         return self.tmpl_out("result.html",
                              input=['input.png?step=%s' % grid_step],

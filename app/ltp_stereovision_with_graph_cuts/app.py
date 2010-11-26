@@ -31,10 +31,7 @@ def frac2str(q):
     """
     represent a rational number as string
     """
-    if 1 == q[1]:
-        return "%i" % q[0]
-    else:
-        return "%i/%i" % q
+    return "%i/%i" % q
 #
 # INTERACTION
 #

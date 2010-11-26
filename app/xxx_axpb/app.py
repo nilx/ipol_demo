@@ -77,7 +77,7 @@ class app(base_app):
         # save and validate the parameters
         try:
             self.cfg['param'] = {'a' : float(a),
-                                  'b' : float(b)}
+                                 'b' : float(b)}
             self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
@@ -94,8 +94,8 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        a = float(self.cfg['param']['a'])
-        b = float(self.cfg['param']['b'])
+        a = self.cfg['param']['a']
+        b = self.cfg['param']['b']
         # run the algorithm
         try:
             self.run_algo(a, b)

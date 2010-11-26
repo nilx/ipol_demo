@@ -1,5 +1,7 @@
 """
 config dictionary with file backend
+
+This file can save integer, float, boolean and strings as options
 """
 # pylint: disable=C0103
 # designed based on http://code.activestate.com/recipes/576642/,
@@ -14,7 +16,7 @@ class file_dict(dict):
     """
     handle a config file as a dictionary
     """
-    def __init__(self, filename, flag='c', mode=None):
+    def __init__(self, filename, flag='c', mode=None, *args, **kwargs):
         """
         create a dictionary from a config file
 
@@ -37,6 +39,7 @@ class file_dict(dict):
                 self.load(infile)
             finally:
                 infile.close()
+        self.update(*args, **kwargs)
 
     def load(self, infile):
         """
@@ -68,13 +71,7 @@ class file_dict(dict):
 
     def save(self):
         """
-        temporary alias
-        """
-        self.sync()
-
-    def close(self):
-        """
-        sync the config file
+        alias to sync()
         """
         self.sync()
 
@@ -124,7 +121,7 @@ if __name__ == '__main__':
     testcfg['numeric'] = {'a':123, 'b':0, 'c':3.14159}
     testcfg['bool'] = {'ok' : True, 'ko' : False}
     testcfg['str'] = {'a' : "alpha", 'b' : "beta gamma delta"}
-    testcfg.close()
+    testcfg.save()
     f = open('test.cfg', 'rb')
     print (f.read())
     f.close()

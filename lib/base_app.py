@@ -147,7 +147,7 @@ class base_app(empty_app):
             shutil.copy(old_work_dir + fname,
                         self.work_dir + fname)
         # copy cfg
-        self.cfg['meta'] = old_cfg_meta
+        self.cfg['meta'].update(old_cfg_meta)
         self.cfg.save()
         return
 
@@ -172,8 +172,7 @@ class base_app(empty_app):
                         self.work_dir + 'input_%i' % i)
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
-        # '' is the empty string, evals to False
-        self.cfg['meta']['original'] = ''
+        self.cfg['meta']['original'] = False
         self.cfg.save()
         # jump to the params page
         return self.params(msg=msg, key=self.key)
