@@ -140,7 +140,7 @@ class app(base_app):
             ar.add_file("output_ASIFT_V.png", info="ASIFT matches")
             ar.add_file("output_SIFT_V.png", info="SIFT matches")
             ar.add_file("match_ASIFT.txt", compress=True)
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 

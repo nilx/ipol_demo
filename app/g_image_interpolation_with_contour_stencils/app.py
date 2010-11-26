@@ -115,7 +115,7 @@ class app(base_app):
             ar.add_file("coarsened_zoom.png")
             ar.add_file("interpolated.png")
             ar.add_file("contour.png")
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 

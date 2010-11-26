@@ -243,11 +243,13 @@ class empty_app(object):
         """
         create an archive bucket
         """
+        
         ar = archive.bucket(path=self.archive_dir,
                             cwd=self.work_dir,
                             key=self.key)
-        # add to the index
-        archive.index_add(self.archive_index,
-                          bucket=ar,
-                          path=self.archive_dir)
+        def hook_index():
+            return archive.index_add(self.archive_index,
+                                     bucket=ar,
+                                     path=self.archive_dir)
+        ar.hook['post-save'] = hook_index
         return ar

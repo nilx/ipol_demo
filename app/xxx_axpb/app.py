@@ -111,7 +111,7 @@ class app(base_app):
             ar.add_file("input_0.png", "input.png")
             ar.add_file("output.png")
             ar.add_info({"a": a, "b": b})
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 

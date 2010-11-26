@@ -225,7 +225,7 @@ class app(base_app):
             ar.add_file("output_AMSS.png")
             ar.add_info({'scale_r' : self.cfg['param']['scale_r'],
                          'zoom_factor' : self.cfg['param']['zoom_factor']})
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 

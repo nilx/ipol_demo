@@ -44,14 +44,19 @@ def list_key(path):
             for sfx in os.listdir(os.path.join(path, pfx))
             if os.path.isdir(os.path.join(path, pfx, sfx))]
 
+def _dummy_func():
+    """
+    do nothing
+    """
+    pass
+
 class bucket(object):
     """
     archive bucket class
     """
-    # TODO: commit() model
     def __init__(self, path, key, cwd=None):
         """
-        opem/read/crewate an archive bucket
+        open/read/create an archive bucket
 
         an archive bucket is
         * a set of files
@@ -60,6 +65,7 @@ class bucket(object):
           * file : file legends
           * meta : archive meta-information:
             * date : archive date
+            * key : unique key
 
         @param path: base archive folder
         @param key: unique bucket key
@@ -90,6 +96,8 @@ class bucket(object):
         # pending files
         self.pend_files = []
         self.pend_zfiles = []
+        # hooks
+        self.hook = dict()
 
     def add_file(self, src, dst=None, info='', compress=False):
         """
@@ -122,11 +130,12 @@ class bucket(object):
         """
         self.cfg['info'].update(info)
 
-    def commit(self):
+    def save(self):
         """
         copy the files,
         save the config file
         """
+        # TODO: atomic save()
         # save the pending files
         for (src, dst) in self.pend_files:
             shutil.copy(src, dst)
@@ -140,6 +149,9 @@ class bucket(object):
         self.pend_zfiles = []
         # update the config
         self.cfg.save()
+        # post-save hook
+        if self.hook.has_key('post-save'):
+            self.hook['post-save']()
 
 #
 # INDEX ITEMS 

@@ -179,7 +179,7 @@ class app(base_app):
             ar.add_file("output.png")
             ar.add_info({"k" : self.cfg['param']['k'],
                          "lambda" : self.cfg['param']['lambda']})
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 

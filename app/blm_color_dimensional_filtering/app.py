@@ -181,7 +181,7 @@ class app(base_app):
             ar.add_file("output_2.png", info="result image")
 	    if (os.path.isfile(self.work_dir + 'input_0S.png') == True) :
 		ar.add_file("input_0S.png", info="original input image")
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 

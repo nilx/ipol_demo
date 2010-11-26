@@ -149,7 +149,7 @@ class app(base_app):
             ar.add_file("disp1_0.tif")
             ar.add_file("disp2_0.tif")
             ar.add_file("disp3_0.tif")
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 

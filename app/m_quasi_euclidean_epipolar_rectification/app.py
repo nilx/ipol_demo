@@ -147,7 +147,7 @@ class app(base_app):
                 ar.add_info({"homography %i" % i : f.readline()})
                 f.close()
             ar.add_file("orsa.txt", compress=True)
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 
