@@ -217,11 +217,15 @@ class app(base_app):
                             str(wOut), str(hOut), str(displayDensity)],
                            stdout=None, stderr=stdout)
         displayDensity = 1
-        p6 = self.run_proc(['rgbprocess', 'RGBviews',
-                            'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
-                           str(wOut), str(hOut), str(displayDensity)],
+        p6a = self.run_proc(['rgbprocess', 'densityimage',
+                            'output_1.png', 'dstyimage.png'],
                            stdout=None, stderr=stdout)
-        self.wait_proc([p5, p6], timeout)
+        self.wait_proc([p5, p6a], timeout)
+        p6b = self.run_proc(['rgbprocess', 'RGBviews',
+                            'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
+                           str(wOut), str(hOut), str(displayDensity), 'dstyimage.png'],
+                           stdout=None, stderr=stdout)
+        self.wait_proc(p6b, timeout)
 
         p7 = self.run_proc(['rgbprocess', 'combineviews',
                             'RGBviewsparams.txt',
@@ -240,6 +244,19 @@ class app(base_app):
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p9, p10], timeout)
 
+	
+        displayDensity = 0
+        p11 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'input_1.png', 'input_1_RGB.wrl', str(displayDensity)],
+                           stdout=stdout, stderr=stdout)
+	p12 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'output_1.png', 'output_1_RGB.wrl', str(displayDensity)],
+                           stdout=stdout, stderr=stdout)
+        displayDensity = 1
+        p13 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'output_1.png', 'output_1_RGBd.wrl', str(displayDensity), 'dstyimage.png'],
+                           stdout=stdout, stderr=stdout)
+        self.wait_proc([p11, p12, p13], timeout)
 
     @cherrypy.expose
     @init_app
@@ -254,11 +271,11 @@ class app(base_app):
                                     for i in range(100, 127)],
 			     original=['input_0S.png'], 
 			     useOriginal=os.path.isfile(self.work_dir + 'input_0S.png'),
+			     vrmlfiles=['input_1_RGB.wrl', 'output_1_RGB.wrl', 'output_1_RGBd.wrl'],
                              sizeY="%i" % image(self.work_dir 
                                                 + 'input.png').size[1],
                              stdout=open(self.work_dir 
                                          + 'stdout.txt', 'r').read())
-
 
 
 
