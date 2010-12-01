@@ -86,7 +86,7 @@ form label {
 .bucket {
     margin: .5em 0;
     padding: .5em 0;
-    border-bottom: #DDDDDD 1px solid;
+    border-top: #DDDDDD 1px solid;
     font-size: 75%;
 }
 .bucket ul {
@@ -113,7 +113,6 @@ form label {
 }
 
 .bucket dl dt {
-    background:#A4A4A4;
     float:left;
     font-weight:bold;
     margin-right:.2em;

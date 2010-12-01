@@ -30,7 +30,6 @@ ${p}
                            bucket['files'])
        %>
     <div style="width: 33%; float: left;">
-      <h3>metadata</h3>
       <dl class="meta">
 	<dt>key</dt>
 	<dd><a href="?key=${bucket['meta']['key'] | h}"
@@ -39,7 +38,6 @@ ${p}
 	<dd>${bucket['meta']['date'] | h}</dd>
       </dl>
       %if bucket['info']:
-      <h3>info</h3>
       <dl class="info">
 	%for (key, value) in bucket['info'].items():
 	<dt>${key | h}</dt>
@@ -48,7 +46,6 @@ ${p}
       </dl>
       %endif
       %if non_images:
-      <h3>files</h3>
       <ul class="files">
 	%for item in non_images:
 	<li>
@@ -62,7 +59,6 @@ ${p}
       
     <div style="width: 65%; float: right;">
       %if images:
-      <h3>images</h3>
       <ul class="thumbnails">
 	%for item in images:
 	<li>
