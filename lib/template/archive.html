@@ -46,14 +46,19 @@ ${p}
       </dl>
       %endif
       %if non_images:
-      <ul class="files">
-	%for item in non_images:
-	<li>
-	  <a href="${bucket['url'] + item.name | h}"
-	     title="${item.info | h}">${item.name}</a>
-	</li>
-	%endfor
-      </ul>
+      <dl>
+	<dt>files</dt>
+	<dd>
+	  <ul class="files">
+	    %for item in non_images:
+	    <li>
+	      <a href="${bucket['url'] + item.name | h}"
+		 title="${item.info | h}">${item.name}</a>
+	    </li>
+	    %endfor
+	  </ul>
+	</dd>
+      </dl>
       %endif
     </div>
       
