@@ -5,28 +5,24 @@
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with new data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset>
+  <div class="action">
+    Restart this algorithm with new data.
+    <input type="submit" value="new input" />
+  </div>
 </form>
 
 <form action="${app.base_url + 'params'}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with new parameters.
-    </p>
+  <div class="action">
+    Restart this algorithm with new parameters.
     <input type="hidden" name="key" value="${app.key}">
     <input type="hidden" name="newrun" value="1">
-    <input type="submit" value="back to : parameters" />
-  </fieldset>
+    <input type="submit" value="new parameters" />
+  </div>
 </form>
 
 <hr />
 
-<h2>result</h2>
+<h2>Result</h2>
 
 <div class="gallery" style="height:${height}px">
   <ul class="index">

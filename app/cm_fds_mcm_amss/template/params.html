@@ -5,7 +5,7 @@
 </p>
   
 <form action="${app.base_url + 'grid'}" method="get">
-  <fieldset>
+  <div class="action">
     <input type="hidden" name="key" value="${app.key}">
     <ol>
       <li>
@@ -28,7 +28,7 @@
 	<ul>
 	  <li>
 	    on the whole image:
-	    <input type="submit" name="action" value="Run" />
+	    <input type="submit" name="action" value="run" />
 	  </li>
 	  <li>
 	    or select a portion of the image using a grid (such a
@@ -43,7 +43,7 @@
 		  <option value="100">100 (zoom 4x)</option>
 		  <option value="200">200 (zoom 2x)</option>
 		</select>
-		<input type="submit" name="action" value="Redraw" />
+		<input type="submit" name="action" value="redraw" />
 	      </li>
 	      <li>
 		and select the portion of the image by clicking:<br />
@@ -59,7 +59,7 @@
 	</ul>
       </li>
     </ol>
-  </fieldset>
+  </div>
 </form>
 
 <%include file="footer.html" />

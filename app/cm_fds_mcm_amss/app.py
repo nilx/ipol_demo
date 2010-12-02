@@ -115,7 +115,7 @@ class app(base_app):
         """
         handle the grid drawing and selection
         """
-        if action == 'Run':
+        if action == 'run':
             # use the whole image
             img = image(self.work_dir + 'input_0.png')
             img.save(self.work_dir + 'input' + self.input_ext)
@@ -125,7 +125,7 @@ class app(base_app):
                            + "wait?key=%s&scaleR=%s&step=%s" 
                            % (self.key, scaleR, step))
             return
-        elif action == 'Redraw':
+        elif action == 'redraw':
             # draw the grid
             step = int(step)
             if 0 < step:

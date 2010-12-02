@@ -1,14 +1,14 @@
 <%include file="header.html" />
 
 <form action="${app.base_url + 'wait'}" method="get">
-  <fieldset> 
-    <p>
-      You can now run the algorithm.
-    </p>
+  <div class="action"> 
+    You can now run the algorithm.
     <input type="hidden" name="key" value="${app.key}">
     <input type="submit" value="run" />
-  </fieldset> 
+  </div> 
 </form>
+
+<hr />
 
 <ul>
   %for input_url in input:

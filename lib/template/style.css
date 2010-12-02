@@ -41,6 +41,13 @@ form fieldset {
 form label {
     cursor: pointer; }
 
+form input[type="submit"] {
+        background: url(http://www.ipol.im/static/icons/bullet_go.png) no-repeat 0 center;
+        background-color: #EEEEEE;
+        color: black;
+        padding-left: 16px;
+}
+
 /* from Stu Nichol's CSSplay */
 /* see http://www.cssplay.co.uk/menu/photo_simple */
 
