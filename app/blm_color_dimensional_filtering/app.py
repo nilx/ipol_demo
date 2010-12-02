@@ -248,14 +248,14 @@ class app(base_app):
         displayDensity = 0
         p11 = self.run_proc(['rgbprocess', 'RGB2VRML2',
                             'input_1.png', 'input_1_RGB.wrl', str(displayDensity)],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=None)
 	p12 = self.run_proc(['rgbprocess', 'RGB2VRML2',
                             'output_1.png', 'output_1_RGB.wrl', str(displayDensity)],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=None)
         displayDensity = 1
         p13 = self.run_proc(['rgbprocess', 'RGB2VRML2',
                             'output_1.png', 'output_1_RGBd.wrl', str(displayDensity), 'dstyimage.png'],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=None)
         self.wait_proc([p11, p12, p13], timeout)
 
     @cherrypy.expose
