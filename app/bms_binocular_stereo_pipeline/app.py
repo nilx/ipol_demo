@@ -53,7 +53,7 @@ class app(base_app):
                          self.bin_dir + prog)
                         for prog in ["homography", "orsa", "rectify",
                                      "sift", "size", "stereo",
-                                     "convert", "mesh"]])
+                                     "convert", "mesh", "density"]])
         src_bin[self.src_dir
                 + os.path.join("MissStereo",
                                "scripts", "MissStereo.sh")] \
@@ -176,10 +176,12 @@ class app(base_app):
                   'disp1_H_input_0.png.png' : 'disp1_0.png',
                   'disp2_H_input_0.png.png' : 'disp2_0.png',
                   'disp3_H_input_0.png.png' : 'disp3_0.png',
+                  'disp4_H_input_0.png.png' : 'disp4_0.png',
                   'disp1_H_input_0.png_float.tif' : 'disp1_0.tif',
                   'disp2_H_input_0.png_float.tif' : 'disp2_0.tif',
                   'disp3_H_input_0.png_float.tif' : 'disp3_0.tif',
-                  'disp3_H_input_0.png.ply' : 'disp3_0.ply',
+                  'disp4_H_input_0.png_float.tif' : 'disp4_0.tif',
+                  'disp4_H_input_0.png.ply' : 'disp4_0.ply',
                   'H_input_0.png' : 'rect_0.png',
                   'H_input_1.png' : 'rect_1.png'}
         for (src, dst) in mv_map.items():
@@ -197,13 +199,13 @@ class app(base_app):
         return self.tmpl_out("result.html",
                              input=['input_0.png', 'input_1.png'],
                              disp=['disp1_0.png', 'disp2_0.png',
-                                   'disp3_0.png'],
+                                   'disp3_0.png', 'disp4_0.png'],
                              rect=['rect_0.png', 'rect_1.png'],
                              orsa='orsa.txt',
                              homo=['homo_0.txt', 'homo_1.txt'],
                              exact=['disp1_0.tif', 'disp2_0.tif',
-                                    'disp3_0.tif'],
-                             ply='disp3_0.ply',
+                                    'disp3_0.tif', 'disp4_0.tif'],
+                             ply='disp4_0.ply',
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              stdout=open(self.work_dir

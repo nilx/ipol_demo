@@ -14,13 +14,13 @@
 
 <hr />
 
-<h2>Input Images</h2>
+<h2>Result</h2>
 
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
     <li>
       <a href="#">
-	first image
+	original image 1
 	<span>
 	  <img src="${app.work_url + input[0]}" />
 	</span>
@@ -28,22 +28,15 @@
     </li>
     <li>
       <a href="#">
-	second image
+	original image 2
 	<span>
 	  <img src="${app.work_url + input[1]}" />
 	</span>
       </a>
     </li>
-  </ul>
-</div>
-
-<h2>Rectified Images and Disparity Maps</h2>
-
-<div class="gallery" style="height: ${height}px;">
-  <ul class="index">
     <li>
       <a href="#">
-	second image
+	rectified image 2
 	<span>
 	  <img src="${app.work_url + rect[1]}" />
 	</span>
@@ -51,7 +44,7 @@
     </li>
     <li>
       <a href="#">
-	first image
+	rectified image 1
 	<span>
 	  <img src="${app.work_url + rect[0]}" />
 	</span>
@@ -59,7 +52,7 @@
     </li>
     <li>
       <a href="#">
-	disparity map
+	AC pixel disparity
 	<span>
 	  <img src="${app.work_url + disp[0]}" />
 	</span>
@@ -67,7 +60,7 @@
     </li>
     <li>
       <a href="#">
-	subpixel disp. map
+	self-sim. filter disp.
 	<span>
 	  <img src="${app.work_url + disp[1]}" />
 	</span>
@@ -75,9 +68,17 @@
     </li>
     <li>
       <a href="#">
-	denser disp. map
+	sub-pixel disparity
 	<span>
 	  <img src="${app.work_url + disp[2]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	denser disparity
+	<span>
+	  <img src="${app.work_url + disp[3]}" />
 	</span>
       </a>
     </li>
@@ -97,9 +98,10 @@
     <a href="${app.work_url + rect[1]}">second image</a>
   </li>
   <li>exact floating-point maps: 
-    <a href="${app.work_url + exact[0]}">pixel accurate meaningful</a>,
-    <a href="${app.work_url + exact[1]}">subpixel accurate meaningful</a>,
-    <a href="${app.work_url + exact[2]}">final subpixel accurate</a>
+    <a href="${app.work_url + exact[0]}">AC pixel disparity</a>,
+    <a href="${app.work_url + exact[1]}">self-sim. filter disparity</a>,
+    <a href="${app.work_url + exact[2]}">subpixel disparity</a>
+    <a href="${app.work_url + exact[3]}">denser disparity</a>
   </li>
   <li>
     <a href="${app.work_url + ply}">3D mesh</a><br/>
