@@ -6,19 +6,15 @@
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with new input data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset> 
+  <div class="action">
+    Restart this algorithm with new input data.
+    <input type="submit" value="new input" />
+  </div> 
 </form>
 
 <form action="${app.base_url + 'run'}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with other parameters.
-    </p> 
+  <div class="action">
+    Restart this algorithm with other parameters.
     <input type="hidden" name="key" value="${app.key}">
     <input type="hidden" name="new_run" value="1">
     <label for="K"> K = </label>
@@ -41,20 +37,21 @@
 	      >${_l}</option>
       %endfor
     </select>
-    <br />
-    <input type="submit" value="next step : run" />
-  </fieldset> 
+    <input type="submit" value="run" />
+  </div> 
 </form>
 
 <hr />
 
 <h2>result</h2>
-
+<p>
+K=${k}, lambda=${l}
+</p>
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
     <li>
       <a href="#">
-	disparity map, K=${k}, lambda=${l}
+	disparity map
 	<span>
 	  <img src="${app.work_url + output[0]}" />
 	</span>

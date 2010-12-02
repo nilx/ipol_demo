@@ -87,7 +87,7 @@ class app(base_app):
         """
         select a rectangle in the image
         """
-        if action == 'Run':
+        if action == 'run':
             # use the whole image
             img = image(self.work_dir + 'input_0.png')
             img.save(self.work_dir + 'input' + self.input_ext)
