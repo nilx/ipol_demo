@@ -4,7 +4,7 @@ Binocular Stereo Pipeline
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import app_expose, ctime
+from lib.misc import app_expose, ctime, gzip
 from lib.base_app import init_app
 from cherrypy import TimeoutError
 import os.path
@@ -145,11 +145,12 @@ class app(base_app):
                 f = open(self.work_dir + 'homo_%i.txt' % i)
                 ar.add_info({"homography %i" % i : f.readline()})
                 f.close()
-            ar.add_file("orsa.txt", compress=True)
-            ar.add_file("disp3_0.ply", compress=True)
+            ar.add_file("orsa.txt.gz")
+            ar.add_file("disp4_0.ply.gz")
             ar.add_file("disp1_0.tif")
             ar.add_file("disp2_0.tif")
             ar.add_file("disp3_0.tif")
+            ar.add_file("disp4_0.tif")
             ar.save()
 
         return self.tmpl_out("run.html")
@@ -186,6 +187,8 @@ class app(base_app):
                   'H_input_1.png' : 'rect_1.png'}
         for (src, dst) in mv_map.items():
             shutil.move(self.work_dir + src, self.work_dir + dst)
+        gzip(self.work_dir + 'orsa.txt')
+        gzip(self.work_dir + 'disp4_0.ply')
 
         return
 
@@ -201,11 +204,11 @@ class app(base_app):
                              disp=['disp1_0.png', 'disp2_0.png',
                                    'disp3_0.png', 'disp4_0.png'],
                              rect=['rect_0.png', 'rect_1.png'],
-                             orsa='orsa.txt',
+                             orsa='orsa.txt.gz',
                              homo=['homo_0.txt', 'homo_1.txt'],
                              exact=['disp1_0.tif', 'disp2_0.tif',
                                     'disp3_0.tif', 'disp4_0.tif'],
-                             ply='disp4_0.ply',
+                             ply='disp4_0.ply.gz',
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              stdout=open(self.work_dir
