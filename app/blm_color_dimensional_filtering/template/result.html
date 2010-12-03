@@ -5,16 +5,15 @@
   It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.<br />
   You can run again this algorithm with new data.
 </p>
-
-<form action="${app.base_url}" method="get">
-  new input data:
-  <input type="submit" value="back to : input" />
-</form>
-or
-<form action="${app.base_url + 'params'}" method="get">
-  <input type="hidden" name="key" value="${app.key}">
-  <input type="submit" value="Select new subimage" />
-</form>
+<p>
+  <form action="${app.base_url}" method="get">
+    <input type="submit" value="new input" />
+  </form>
+  <form action="${app.base_url + 'params'}" method="get">
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="submit" value="new subimage" />
+  </form>
+</p>
 
 <hr />
 
@@ -63,7 +62,7 @@ or
 </div> 
 
 <h3>
-RGB cubes in VRML 2.0 format: <a href="${app.work_url + vrmlfiles[0]}">Original</a>, 
+RGB cubes in VRML 2.0 format (compressed): <a href="${app.work_url + vrmlfiles[0]}">Original</a>, 
 <a href="${app.work_url + vrmlfiles[1]}">Filtered</a>, 
 <a href="${app.work_url + vrmlfiles[2]}">Density</a>
 </h3>

@@ -1,17 +1,22 @@
 <form action="${app.base_url + 'input_upload'}" method="post"
       enctype="multipart/form-data">
-  <fieldset> 
-    <legend>Upload Data</legend> 
+  <div class="action">
+    <h3>Upload Data</h3>
     <p>
       Upload your own images to use as the algorithm input.
     </p>
     <div class="upload_input">
-      %for i in range(app.input_nb):
+      %for i in range(app.input_nb - 1):
       <label for="file_${i}">input image</label>
       <input type="file" name="file_${i}" id="file_${i}" size="40" /><br />
       %endfor
+      <%
+	 i = app.input_nb - 1
+      %>
+      <label for="file_${i}">input image</label>
+      <input type="file" name="file_${i}" id="file_${i}" size="40" />&nbsp;
+      <input type="submit" value="upload" />
     </div>
-    <input type="submit" value="upload" />
     <p class="note">
       Total upload size is limited to 10M.
       TIFF, JPEG, PNG, GIF, PNM (and 
@@ -24,5 +29,5 @@
       See <a href="http://www.ipol.im/meta/demo_input/">the copyright
 	and legal conditions</a> for details.
     </p>
-  </fieldset>
+  </div>
 </form>

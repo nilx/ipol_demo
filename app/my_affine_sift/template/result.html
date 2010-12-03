@@ -6,12 +6,10 @@
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
+  <div class="action">
       You can run again this algorithm with new data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset>
+      <input type="submit" value="new input" />
+  </div>
 </form>
 
 <hr />
@@ -24,20 +22,28 @@
 
 <h2>output</h2>
 
-<table>
-  <tr style="font-size:120%; font-weight:bold; text-align: center;">
-    <td>ASIFT: ${nbmatch} matches</td>
-    <td>SIFT: ${nbmatch_SIFT} matches</td>
-  </tr>
-  <tr>
-    <td>
-      <img src="${app.work_url + output_v}" />
-    </td>
-    <td>
-      <img src="${app.work_url + output_v_sift}" />
-    </td>
-  </tr>
-</table>
+<div class="gallery" style="height:${height}px; width:100%;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	ASIFT<br />
+	${nbmatch} matches
+	<span>
+	  <img src="${app.work_url + output_v}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	SIFT<br />
+	${nbmatch_SIFT} matches
+	<span>
+	  <img src="${app.work_url + output_v_sift}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
 
 <ul>
   <li>

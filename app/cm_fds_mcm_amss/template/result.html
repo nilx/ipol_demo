@@ -6,23 +6,19 @@
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Run again the numerical schemes with new data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset>
+  <div class="action">
+    Run again the numerical schemes with new data.
+    <input type="submit" value="new input" />
+  </div>
 </form>
 
 <form action="${app.base_url + 'params'}" method="get">
-  <fieldset>
-    <p>
-      Run again the numerical schemes with new parameters.
-    </p>
+  <div class="action">
+    Run again the numerical schemes with new parameters.
     <input type="hidden" name="key" value="${app.key}">
-    <input type="hidden" name="newrun" value=True>
-    <input type="submit" value="back to : parameters selection" />
-  </fieldset>
+    <input type="hidden" name="newrun" value="True">
+    <input type="submit" value="new parameters" />
+  </div>
 </form>
 
 <hr />
