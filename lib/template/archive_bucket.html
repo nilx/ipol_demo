@@ -1,0 +1,60 @@
+<%page args="bucket, tn"/>
+<%
+images = filter(lambda i : i.is_file and i.has_tn, bucket['files'])
+non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
+%>
+<div class="bucket">
+  <dl class="info">
+    <dt>key</dt>
+    <dd><a href="?key=${bucket['meta']['key'] | h}"
+	   title="permalink">${bucket['meta']['key'] | h}</a></dd>
+    <dt>date</dt>
+    <dd>${bucket['meta']['date'] | h}</dd>
+    %if bucket['info']:
+    %for (key, value) in bucket['info'].items():
+    <dt>${key | h}</dt>
+    <dd>${value | h}</dd>
+    %endfor
+    %endif
+    %if non_images:
+    <dt>files</dt>
+    <dd>
+      <ul class="files">
+	%for item in non_images:
+	<li><a href="${bucket['url'] + item.name | h}"
+	       title="${item.info | h}">${item.name}</a></li>
+	%endfor
+      </ul>
+    </dd>
+    %endif
+  </dl>
+
+  %if images:
+  %if tn:
+  <dl class="thumbnails">
+    <dt>images</dt>
+    <dd><ul class="thumbnails">
+	%for item in images:
+	<li><a href="${bucket['url'] + item.name | h}">
+	    <img class="thumbnail"
+		 src="${bucket['url'] + item.tn_name | h}"
+		 title="${item.name + ' ' + item.info | h}"
+		 alt="${item.name | h}" /></a></li>
+	%endfor
+    </ul></dd>
+  </dl>
+  %else:
+  <dl class="images">
+    <dt>images</dt>
+    <dd><ul class="images">
+	%for item in images:
+	<li><img src="${bucket['url'] + item.name | h}" /><br />
+	  ${item.name + ' ' + item.info | h}</li>
+	%endfor
+    </ul></dd>
+  </dl>
+  %endif
+  %endif
+
+  <hr class="clear">
+</div>

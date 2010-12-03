@@ -357,11 +357,14 @@ class base_app(empty_app):
         """
 
         if key:
-            public = None
-            page = None
-            limit = None
-            offset = None
-            nbpages = None
+            buckets = [{'url' : self.archive_url + archive.key2url(key),
+                        'files' : files, 'meta' : meta, 'info' : info}
+                       for (key, (files, meta, info))
+                       in archive.index_read(self.archive_index,
+                                             key=key,
+                                             path=self.archive_dir)]
+            return self.tmpl_out("archive.html",
+                                 bucket_list=buckets)
         else:
             public = int(public)
             page = int(page)
@@ -370,16 +373,14 @@ class base_app(empty_app):
             nbpages = archive.index_count(self.archive_index,
                                           path=self.archive_dir,
                                           public=public) / limit
-
-        buckets = [{'url' : self.archive_url + archive.key2url(key),
-                    'files' : files, 'meta' : meta, 'info' : info}
-                   for (key, (files, meta, info))
-                   in archive.index_read(self.archive_index,
-                                         limit=limit, offset=offset,
-                                         key=key, public=public,
-                                         path=self.archive_dir)]
-
-        return self.tmpl_out("archive.html",
-                             bucket_list=buckets,
-                             page=page,
-                             nbpages=nbpages)
+            buckets = [{'url' : self.archive_url + archive.key2url(key),
+                        'files' : files, 'meta' : meta, 'info' : info}
+                       for (key, (files, meta, info))
+                       in archive.index_read(self.archive_index,
+                                             limit=limit, offset=offset,
+                                             public=public,
+                                             path=self.archive_dir)]
+            return self.tmpl_out("archive.html",
+                                 bucket_list=buckets,
+                                 page=page,
+                                 nbpages=nbpages)

@@ -7,96 +7,16 @@ similar problem, please
 the removal of some images.
 </div>
 
-%if nbpages:
-<div style="text-align:center; font-size:80%; margin:2em;">
-page: 
-%for p in range(nbpages):
-%if p == page:
-${p}
-%else:
-<a href="?page=${p}">${p}</a>
-%endif
+%if len(bucket_list) > 1:
+<%include file="archive_pages.html" />
+%for bucket in bucket_list:
+<%include file="archive_bucket.html"
+	  args="tn=True, bucket=bucket"/>
 %endfor
-</div>
-%endif
-
-<div>
-  %for bucket in bucket_list:
-  <div class="bucket">
-    <%
-       images = filter(lambda i : i.is_file and i.has_tn,
-                       bucket['files'])
-       non_images = filter(lambda i : i.is_file and not i.has_tn,
-                           bucket['files'])
-       %>
-    <div style="width: 33%; float: left;">
-      <dl class="meta">
-	<dt>key</dt>
-	<dd><a href="?key=${bucket['meta']['key'] | h}"
-	       title="permalink">${bucket['meta']['key'] | h}</a></dd>
-	<dt>date</dt>
-	<dd>${bucket['meta']['date'] | h}</dd>
-      </dl>
-      %if bucket['info']:
-      <dl class="info">
-	%for (key, value) in bucket['info'].items():
-	<dt>${key | h}</dt>
-	<dd>${value | h}</dd>
-	%endfor
-      </dl>
-      %endif
-      %if non_images:
-      <dl>
-	<dt>files</dt>
-	<dd>
-	  <ul class="files">
-	    %for item in non_images:
-	    <li>
-	      <a href="${bucket['url'] + item.name | h}"
-		 title="${item.info | h}">${item.name}</a>
-	    </li>
-	    %endfor
-	  </ul>
-	</dd>
-      </dl>
-      %endif
-    </div>
-      
-    <div style="width: 65%; float: right;">
-      %if images:
-      <ul class="thumbnails">
-	%for item in images:
-	<li>
-	  <a href="${bucket['url'] + item.name | h}">
-	    <img src="${bucket['url'] + item.tn_name | h}"
-		 <%
-		    if item.info:
-		        item.info = ' : ' + item.info
-		    %>
-		 title="${item.name + item.info | h}"
-		 alt="${item.name | h}" />
-	  </a>
-	</li>
-	%endfor
-      </ul>
-      %endif
-    </div>
-    <hr class="clear">
-  </div>
-  %endfor
-</div>
-
-%if nbpages:
-<div style="text-align:center; font-size:80%; margin:2em;">
-page: 
-%for p in range(nbpages):
-%if p == page:
-${p}
+<%include file="archive_pages.html" />
 %else:
-<a href="?page=${p}">${p}</a>
-%endif
-%endfor
-</div>
+<%include file="archive_bucket.html"
+	  args="tn=False, bucket=bucket_list[0]"/>
 %endif
 
 <%include file="footer.html" />
