@@ -5,6 +5,7 @@ rgbprocess ipol demo web app
 
 from lib import base_app, build, http, image
 from lib.misc import ctime
+from lib.misc import gzip
 from lib.base_app import init_app
 import shutil
 import cherrypy
@@ -87,7 +88,7 @@ class app(base_app):
         """
         select a rectangle in the image
         """
-        if action == 'Run':
+        if action == 'run':
             # use the whole image
             img = image(self.work_dir + 'input_0.png')
             img.save(self.work_dir + 'input' + self.input_ext)
@@ -258,6 +259,11 @@ class app(base_app):
                            stdout=None, stderr=None)
         self.wait_proc([p11, p12, p13], timeout)
 
+	#compress .wrl files
+        for fname in ["input_1_RGB", "output_1_RGB", "output_1_RGBd"]:
+          gzip(self.work_dir + fname + ".wrl", self.work_dir + fname + ".wrz")
+
+
     @cherrypy.expose
     @init_app
     def result(self):
@@ -271,7 +277,7 @@ class app(base_app):
                                     for i in range(100, 127)],
 			     original=['input_0S.png'], 
 			     useOriginal=os.path.isfile(self.work_dir + 'input_0S.png'),
-			     vrmlfiles=['input_1_RGB.wrl', 'output_1_RGB.wrl', 'output_1_RGBd.wrl'],
+			     vrmlfiles=['input_1_RGB.wrz', 'output_1_RGB.wrz', 'output_1_RGBd.wrz'],
                              sizeY="%i" % image(self.work_dir 
                                                 + 'input.png').size[1],
                              stdout=open(self.work_dir 
