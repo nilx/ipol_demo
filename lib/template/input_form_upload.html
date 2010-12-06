@@ -18,9 +18,14 @@
       <input type="submit" value="upload" />
     </div>
     <p class="note">
-      Images larger than ${app.input_max_pixels} pixels will be
-      resized. Upload size is limited to ${app.input_max_weight / (1024 *
-      1024)}MB per image file and 10MB for the whole upload set.<br />
+      %if app.input_max_pixels:
+      Images larger than ${app.input_max_pixels} pixels will be resized.
+      %endif
+      %if app.input_max_weight:
+      Upload size is limited to ${app.input_max_weight / (1024 *
+      1024)}MB per image file and 10MB for the whole upload set.
+      %endif
+      <br />
       TIFF, JPEG, PNG, GIF, PNM (and 
       <a href="http://www.ipol.im/meta/demo_input/">other standard formats</a>)
       are supported.
