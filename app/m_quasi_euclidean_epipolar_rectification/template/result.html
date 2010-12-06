@@ -1,4 +1,16 @@
-<%include file="header.html" />
+%include file="header.html" />
+
+%if error_nomatch:
+
+<p>
+  The images seem to have no common part.
+  See below for a possible explanation.
+</p>
+<pre class="stdio">
+${stdout}
+</pre>
+
+%else:
 
 <p>
   The algorithm result is displayed hereafter.
@@ -79,7 +91,10 @@
 ${stdout}
 </pre>
 
-</div>
+<hr />
+<%include file="archive_info.html" />
+
+%endif
 
 <hr />
 
