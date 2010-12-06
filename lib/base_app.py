@@ -357,6 +357,7 @@ class base_app(empty_app):
         """
 
         if key:
+            # select one archive
             buckets = [{'url' : self.archive_url + archive.key2url(key),
                         'files' : files, 'meta' : meta, 'info' : info}
                        for (key, (files, meta, info))
@@ -366,6 +367,7 @@ class base_app(empty_app):
             return self.tmpl_out("archive.html",
                                  bucket_list=buckets)
         else:
+            # select a page from the archive index
             public = int(public)
             page = int(page)
             limit = 20

@@ -124,7 +124,7 @@ class app(base_app):
                 imgS = image(self.work_dir + 'input_0.png')
                 imgS.draw_line([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)], color="red")
                 imgS.draw_line([(x0+1, y0+1), (x1-1, y0+1), (x1-1, y1-1), (x0+1, y1-1), (x0+1, y0+1)], color="white")
-                imgS.save(self.work_dir + 'input_0S.png')
+                imgS.save(self.work_dir + 'input_0s.png')
                 # crop the image
                 img = image(self.work_dir + 'input_0.png')
                 img.crop((x0, y0, x1, y1))
@@ -177,11 +177,11 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png", info="original image")
-            ar.add_file("input.png", info="processed image")
-            ar.add_file("output_2.png", info="result image")
-	    if (os.path.isfile(self.work_dir + 'input_0S.png') == True) :
-		ar.add_file("input_0S.png", info="original input image")
+            ar.add_file("input_0.png", info="uploaded image")
+	    if (os.path.isfile(self.work_dir + 'input_0s.png') == True) :
+		ar.add_file("input_0s.png", info="sub-image selection")
+            ar.add_file("input.png", info="input image")
+            ar.add_file("output_2.png", info="output image")
             ar.save()
 
         return self.tmpl_out("run.html")
@@ -252,8 +252,9 @@ class app(base_app):
                              output=['output_2.png'],
                              views=['view_%i.png' % i 
                                     for i in range(100, 127)],
-			     original=['input_0S.png'], 
-			     useOriginal=os.path.isfile(self.work_dir + 'input_0S.png'),
+			     original=['input_0s.png'], 
+			     useOriginal=os.path.isfile(self.work_dir + 'input_0s.png'),
+			     vrmlfiles=['input_1_RGB.wrz', 'output_1_RGB.wrz', 'output_1_RGBd.wrz'],
                              sizeY="%i" % image(self.work_dir 
                                                 + 'input.png').size[1],
                              stdout=open(self.work_dir 

@@ -175,9 +175,9 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png")
-            ar.add_file("input_1.png")
-            ar.add_file("output.png")
+            ar.add_file("input_0.png", info="input #1")
+            ar.add_file("input_1.png", info="input #2")
+            ar.add_file("output.png", info="output")
             ar.add_info({"k" : self.cfg['param']['k'],
                          "lambda" : self.cfg['param']['lambda']})
             ar.save()

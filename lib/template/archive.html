@@ -7,16 +7,16 @@ similar problem, please
 the removal of some images.
 </div>
 
-%if len(bucket_list) > 1:
+%if len(bucket_list) == 1:
+<%include file="archive_bucket.html"
+	  args="tn=False, bucket=bucket_list[0]"/>
+%else:
 <%include file="archive_pages.html" />
 %for bucket in bucket_list:
 <%include file="archive_bucket.html"
 	  args="tn=True, bucket=bucket"/>
 %endfor
 <%include file="archive_pages.html" />
-%else:
-<%include file="archive_bucket.html"
-	  args="tn=False, bucket=bucket_list[0]"/>
 %endif
 
 <%include file="footer.html" />

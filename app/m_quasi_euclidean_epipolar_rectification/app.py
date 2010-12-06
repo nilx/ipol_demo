@@ -140,14 +140,19 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            for i in (0, 1):
-                ar.add_file("input_%i.png" % i)
-                ar.add_file("output_%i.png" % i)
-                ar.add_file("output_%i_annotated.png" % i)
-                f = open(self.work_dir + 'output_%i.txt' % i)
-                ar.add_info({"homography %i" % i : f.readline()})
-                f.close()
+            ar.add_file("input_0.png", info="input #1")
+            ar.add_file("input_1.png", info="input #2")
+            ar.add_file("output_0_annotated.png", info="output #1, annotated")
+            ar.add_file("output_1_annotated.png", info="output #2, annotated")
+            ar.add_file("output_0.png", info="output #1")
+            ar.add_file("output_1.png", info="output #2")
             ar.add_file("orsa.txt", compress=True)
+            f = open(self.work_dir + 'output_0.txt')
+            ar.add_info({"homography #1" : f.readline()})
+            f.close()
+            f = open(self.work_dir + 'output_1.txt')
+            ar.add_info({"homography #2" : f.readline()})
+            f.close()
             ar.save()
 
         return self.tmpl_out("run.html")

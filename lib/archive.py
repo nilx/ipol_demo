@@ -123,6 +123,10 @@ class bucket(object):
             self.pend_zfiles.append((src_fname, dst_fname))
         # add the file info
         self.cfg['fileinfo'][dst] = info
+        # add to the ordered files list
+        files = self.cfg['meta'].get('files', '').split()
+        files.append(dst)
+        self.cfg['meta']['files'] = ' '.join(files)
 
     def add_info(self, info):
         """
@@ -193,10 +197,18 @@ def _add_record(cursor, ar):
     """
     low-level add an archive bucket record to the index
     """
-    files = [item(path=os.path.join(ar.path, fname),
-                  info=ar.cfg['fileinfo'].get(fname, ''))
-             for fname in filter(_filter_listdir,
-                                 os.listdir(ar.path))]
+    # raw unordered files list
+    unordered_files = dict([(fname,
+                             item(path=os.path.join(ar.path, fname),
+                                  info=ar.cfg['fileinfo'].get(fname, '')))
+                            for fname in filter(_filter_listdir,
+                                                os.listdir(ar.path))])
+    # reorder the files
+    files = [unordered_files.pop(fname)
+             for fname in ar.cfg['meta'].get('files', '').split()]
+    # append the remaining files
+    files += unordered_files.values()
+
     meta = ar.cfg['meta']
     info = ar.cfg['info']
 
