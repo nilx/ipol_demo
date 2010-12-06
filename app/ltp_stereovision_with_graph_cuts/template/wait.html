@@ -1,0 +1,35 @@
+<%include file="header.html" />
+
+<center>
+  <img src="http://www.ipol.im/static/demo/running.gif" alt"running..." />
+</center>
+
+<p>
+  The algorithm is running. After 30s or less, your browser should
+  reload this page and display the result.
+</p>
+
+<h2>input images</h2>
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	first image
+	<span>
+	  <img src="${app.work_url + input[0]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second image
+	<span>
+	  <img src="${app.work_url + input[1]}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<%include file="footer.html" />
+

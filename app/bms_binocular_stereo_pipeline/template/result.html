@@ -1,0 +1,124 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <fieldset>
+    <p>
+      Restart with new input.
+    </p>
+    <input type="submit" value="back to : input" />
+  </fieldset> 
+</form>
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<h2>input images</h2>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	first image
+	<span>
+	  <img src="${app.work_url + input[0]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second image
+	<span>
+	  <img src="${app.work_url + input[1]}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<h2>rectified images and disparity maps</h2>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	second image
+	<span>
+	  <img src="${app.work_url + rect[1]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	first image
+	<span>
+	  <img src="${app.work_url + rect[0]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	disparity map
+	<span>
+	  <img src="${app.work_url + disp[0]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	subpixel disp. map
+	<span>
+	  <img src="${app.work_url + disp[1]}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	denser disp. map
+	<span>
+	  <img src="${app.work_url + disp[2]}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<ul>
+  <li>
+    <a href="${app.work_url + orsa}">correspondences</a>
+  </li>
+  <li>homography: 
+    <a href="${app.work_url + homo[0]}">first image</a>,
+    <a href="${app.work_url + homo[1]}">second image</a>
+  </li>
+  <li>rectified images: 
+    <a href="${app.work_url + rect[0]}">first image</a>,
+    <a href="${app.work_url + rect[1]}">second image</a>
+  </li>
+  <li>exact floating-point maps: 
+    <a href="${app.work_url + exact[0]}">pixel accurate meaningful</a>,
+    <a href="${app.work_url + exact[1]}">subpixel accurate meaningful</a>,
+    <a href="${app.work_url + exact[2]}">final subpixel accurate</a>
+  </li>
+  <li>
+    <a href="${app.work_url + ply}">3D mesh</a><br/>
+    This PLY file, containing 3D point cloud reconstruction data,
+    can be visualized with open source softwares
+    <a href="http://meshlab.sourceforge.net/">MeshLab</a> or
+    <a href="http://paraview.org/">ParaView</a>.
+</ul>
+
+<h2>stdout</h2>
+
+<pre class="stdio">
+  ${stdout}
+</pre>
+
+</div>
+
+<%include file="footer.html" />
