@@ -5,6 +5,7 @@ rgbprocess ipol demo web app
 
 from lib import base_app, build, http, image
 from lib.misc import ctime
+from lib.misc import gzip
 from lib.base_app import init_app
 import shutil
 import cherrypy
@@ -217,11 +218,15 @@ class app(base_app):
                             str(wOut), str(hOut), str(displayDensity)],
                            stdout=None, stderr=stdout)
         displayDensity = 1
-        p6 = self.run_proc(['rgbprocess', 'RGBviews',
-                            'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
-                           str(wOut), str(hOut), str(displayDensity)],
+        p6a = self.run_proc(['rgbprocess', 'densityimage',
+                            'output_1.png', 'dstyimage.png'],
                            stdout=None, stderr=stdout)
-        self.wait_proc([p5, p6], timeout)
+        self.wait_proc([p5, p6a], timeout)
+        p6b = self.run_proc(['rgbprocess', 'RGBviews',
+                            'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
+                           str(wOut), str(hOut), str(displayDensity), 'dstyimage.png'],
+                           stdout=None, stderr=stdout)
+        self.wait_proc(p6b, timeout)
 
         p7 = self.run_proc(['rgbprocess', 'combineviews',
                             'RGBviewsparams.txt',
@@ -239,6 +244,24 @@ class app(base_app):
                             'input.png', 'output_2.png'],
                            stdout=stdout, stderr=stdout)
         self.wait_proc([p9, p10], timeout)
+
+	
+        displayDensity = 0
+        p11 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'input_1.png', 'input_1_RGB.wrl', str(displayDensity)],
+                           stdout=None, stderr=None)
+	p12 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'output_1.png', 'output_1_RGB.wrl', str(displayDensity)],
+                           stdout=None, stderr=None)
+        displayDensity = 1
+        p13 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'output_1.png', 'output_1_RGBd.wrl', str(displayDensity), 'dstyimage.png'],
+                           stdout=None, stderr=None)
+        self.wait_proc([p11, p12, p13], timeout)
+
+	#compress .wrl files
+        for fname in ["input_1_RGB", "output_1_RGB", "output_1_RGBd"]:
+          gzip(self.work_dir + fname + ".wrl", self.work_dir + fname + ".wrz")
 
 
     @cherrypy.expose
@@ -259,7 +282,6 @@ class app(base_app):
                                                 + 'input.png').size[1],
                              stdout=open(self.work_dir 
                                          + 'stdout.txt', 'r').read())
-
 
 
 
