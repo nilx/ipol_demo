@@ -48,7 +48,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/edit/algo/" \
+        tgz_url = "http://www.ipol.im/pub/algo/" \
             + "blm_color_dimensional_filtering/rgbprocess.tar.gz"
         tgz_file = self.dl_dir + "rgbprocess.tar.gz"
         prog_file = self.bin_dir + "rgbprocess"
