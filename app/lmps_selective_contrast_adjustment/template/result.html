@@ -7,13 +7,19 @@
 </p>
 
 <form action="${app.base_url}" method="get">
-  new input data:
-  <input type="submit" value="back to : input" />
+  <div class="action">
+    Restart with new input data:
+    <input type="submit" value="new input" />
+  </div>
 </form>
 or
 <form action="${app.base_url + 'params'}" method="get">
-  <input type="hidden" name="key" value="${app.key}">
-  <input type="submit" value="Use different parameters" />
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value="1">
+    Restart with different parameters:
+    <input type="submit" value="different parameters" />
+  </div>
 </form>
 
 <hr />
