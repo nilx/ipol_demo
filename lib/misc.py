@@ -8,8 +8,6 @@ import os
 import time
 from datetime import datetime
 import gzip as _gzip
-import tempfile
-import shutil
 
 #
 # TINY STUFF
@@ -69,18 +67,15 @@ def gzip(fname_in, fname_out=None):
     """
     if not fname_out:
         fname_out = fname_in + ".gz"
-    # use a tempfile to handle in-place compression
-    (fd_tmp, fname_tmp) = tempfile.mkstemp()
-    os.close(fd_tmp)
-    # compress fname_in into fname_tmp
+    assert fname_out != fname_in
+    # compress fname_in into fname_out
     f_in = open(fname_in, 'rb')
-    f_tmp = _gzip.open(fname_tmp, 'wb')
-    f_tmp.writelines(f_in)
-    f_tmp.close()
+    f_out = _gzip.open(fname_out, 'wb')
+    f_out.writelines(f_in)
+    f_out.close()
     f_in.close()
-    # delete fname_in, mode fname_tmp to fname_out
+    # delete fname_in
     os.unlink(fname_in)
-    shutil.move(fname_tmp, fname_out)
     return
 
 def gunzip(fname_in, fname_out=None):
@@ -90,16 +85,13 @@ def gunzip(fname_in, fname_out=None):
     if not fname_out:
         assert fname_in.endswith(".gz")
         fname_out = fname_in[:-3]
-    # use a tempfile to handle in-place decompression
-    (fd_tmp, fname_tmp) = tempfile.mkstemp()
-    os.close(fd_tmp)
-    # decompress fname_in into fname_tmp
+    assert fname_out != fname_in
+    # decompress fname_in into fname_out
     f_in = _gzip.open(fname_in, 'rb')
-    f_tmp = open(fname_tmp, 'wb')
-    f_tmp.writelines(f_in)
-    f_tmp.close()
+    f_out = open(fname_out, 'wb')
+    f_out.writelines(f_in)
+    f_out.close()
     f_in.close()
-    # delete fname_in, mode fname_tmp to fname_out
+    # delete fname_in
     os.unlink(fname_in)
-    shutil.move(fname_tmp, fname_out)
     return
