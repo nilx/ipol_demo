@@ -19,8 +19,8 @@ class app(base_app):
     title = "Image Color Cube Dimensional Filtering and Visualization"
 
     input_nb = 1
-    input_max_pixels = 480000 # max size (in pixels) of an input image
-    input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
+    input_max_pixels = 700 * 700 # max size (in pixels) of an input image
+    input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
@@ -261,7 +261,7 @@ class app(base_app):
 
 	#compress .wrl files
         for fname in ["input_1_RGB", "output_1_RGB", "output_1_RGBd"]:
-          gzip(self.work_dir + fname + ".wrl", self.work_dir + fname + ".wrz")
+          gzip(self.work_dir + fname + ".wrl")
 
 
     @cherrypy.expose
@@ -277,7 +277,7 @@ class app(base_app):
                                     for i in range(100, 127)],
 			     original=['input_0s.png'], 
 			     useOriginal=os.path.isfile(self.work_dir + 'input_0s.png'),
-			     vrmlfiles=['input_1_RGB.wrz', 'output_1_RGB.wrz', 'output_1_RGBd.wrz'],
+			     vrmlfiles=['input_1_RGB.wrl.gz', 'output_1_RGB.wrl.gz', 'output_1_RGBd.wrl.gz'],
                              sizeY="%i" % image(self.work_dir 
                                                 + 'input.png').size[1],
                              stdout=open(self.work_dir 

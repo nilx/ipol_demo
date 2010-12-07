@@ -18,7 +18,7 @@ class app(base_app):
     title = "Selective Contrast Adjustment"
 
     input_nb = 1
-    input_max_pixels = 5000 * 5000 # max size (in pixels) of an input image
+    input_max_pixels = 700 * 700 # max size (in pixels) of an input image
     input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
