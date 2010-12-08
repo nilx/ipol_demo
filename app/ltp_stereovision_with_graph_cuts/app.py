@@ -133,6 +133,7 @@ class app(base_app):
         """
         params handling and run redirection
         """
+        # TODO: handle newrun
         try:
             if 'K' in kwargs:
                 k_ = str2frac(kwargs['K'])
@@ -147,8 +148,6 @@ class app(base_app):
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=['input_0.png',
-                                    'input_1.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -283,12 +282,8 @@ class app(base_app):
         l = str2frac(self.cfg['param']['lambda'])
 
         return self.tmpl_out("result.html",
-                             input=['input_0.png', 'input_1.png'],
-                             output=['output.png'],
                              height=image(self.work_dir 
                                           + 'input_0.png').size[1],
-                             k=self.cfg['param']['k'],
-                             l=self.cfg['param']['lambda'],
                              k_proposed=[frac2str((k[0] * 1, k[1] * 2)),
                                          frac2str((k[0] * 2, k[1] * 3)),
                                          frac2str((k[0] * 1, k[1] * 1)),
