@@ -2,82 +2,83 @@
 
 <p>
   The algorithm result is displayed hereafter.
-  It ran in ${"%0.2f" % float(app.cfg['info']['run_time'])}s.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Restart with new input.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset> 
+  <div class="action">
+    Restart with new input.
+    <input type="submit" value="new input" />
+  </div> 
 </form>
 
-<h2>input images</h2>
+<hr />
+
+<h2>Result</h2>
 
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
     <li>
       <a href="#">
-	first image
+	original image 1
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input_0.png'}" />
 	</span>
       </a>
     </li>
     <li>
       <a href="#">
-	second image
+	original image 2
 	<span>
-	  <img src="${app.work_url + input[1]}" />
-	</span>
-      </a>
-    </li>
-  </ul>
-</div>
-
-<h2>rectified images and disparity maps</h2>
-
-<div class="gallery" style="height: ${height}px;">
-  <ul class="index">
-    <li>
-      <a href="#">
-	second image
-	<span>
-	  <img src="${app.work_url + rect[1]}" />
+	  <img src="${app.work_url + 'input_1.png'}" />
 	</span>
       </a>
     </li>
     <li>
       <a href="#">
-	first image
+	rectified image 2
 	<span>
-	  <img src="${app.work_url + rect[0]}" />
+	  <img src="${app.work_url + 'rect_1.png'}" />
 	</span>
       </a>
     </li>
     <li>
       <a href="#">
-	disparity map
+	rectified image 1
 	<span>
-	  <img src="${app.work_url + disp[0]}" />
+	  <img src="${app.work_url + 'rect_0.png'}" />
 	</span>
       </a>
     </li>
     <li>
       <a href="#">
-	subpixel disp. map
+	AC pixel disparity
 	<span>
-	  <img src="${app.work_url + disp[1]}" />
+	  <img src="${app.work_url + 'disp1_0.png'}" />
 	</span>
       </a>
     </li>
     <li>
       <a href="#">
-	denser disp. map
+	self-sim. filter disp.
 	<span>
-	  <img src="${app.work_url + disp[2]}" />
+	  <img src="${app.work_url + 'disp2_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	sub-pixel disparity
+	<span>
+	  <img src="${app.work_url + 'disp3_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	denser disparity
+	<span>
+	  <img src="${app.work_url + 'disp4_0.png'}" />
 	</span>
       </a>
     </li>
@@ -86,35 +87,36 @@
 
 <ul>
   <li>
-    <a href="${app.work_url + orsa}">correspondences</a>
+    <a href="${app.work_url + 'orsa.txt.gz'}">correspondences</a>
   </li>
   <li>homography: 
-    <a href="${app.work_url + homo[0]}">first image</a>,
-    <a href="${app.work_url + homo[1]}">second image</a>
+    <a href="${app.work_url + 'homo_0.txt'}">first image</a>,
+    <a href="${app.work_url + 'homo_1.txt'}">second image</a>
   </li>
   <li>rectified images: 
-    <a href="${app.work_url + rect[0]}">first image</a>,
-    <a href="${app.work_url + rect[1]}">second image</a>
+    <a href="${app.work_url + 'rect_0.png'}">first image</a>,
+    <a href="${app.work_url + 'rect_1.png'}">second image</a>
   </li>
   <li>exact floating-point maps: 
-    <a href="${app.work_url + exact[0]}">pixel accurate meaningful</a>,
-    <a href="${app.work_url + exact[1]}">subpixel accurate meaningful</a>,
-    <a href="${app.work_url + exact[2]}">final subpixel accurate</a>
+    <a href="${app.work_url + 'disp1_0.tif'}">AC pixel disparity</a>,
+    <a href="${app.work_url + 'disp2_0.tif'}">self-sim. filter disparity</a>,
+    <a href="${app.work_url + 'disp3_0.tif'}">subpixel disparity</a>,
+    <a href="${app.work_url + 'disp4_0.tif'}">denser disparity</a>
   </li>
   <li>
-    <a href="${app.work_url + ply}">3D mesh</a><br/>
+    <a href="${app.work_url + 'disp4_0.ply.gz'}">3D mesh</a><br/>
     This PLY file, containing 3D point cloud reconstruction data,
     can be visualized with open source softwares
     <a href="http://meshlab.sourceforge.net/">MeshLab</a> or
     <a href="http://paraview.org/">ParaView</a>.
 </ul>
 
-<h2>stdout</h2>
+<h2>Program Output</h2>
 
-<pre class="stdio">
-  ${stdout}
-</pre>
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
 
-</div>
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />

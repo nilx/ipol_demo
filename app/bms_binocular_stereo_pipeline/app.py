@@ -4,7 +4,8 @@ Binocular Stereo Pipeline
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import init_app, app_expose, ctime
+from lib.misc import app_expose, ctime, gzip
+from lib.base_app import init_app
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -14,6 +15,9 @@ import shutil
 #
 # INTERACTION
 #
+
+class NoMatchError(RuntimeError):
+    pass
 
 class app(base_app):
     """ template demo app """
@@ -52,7 +56,7 @@ class app(base_app):
                          self.bin_dir + prog)
                         for prog in ["homography", "orsa", "rectify",
                                      "sift", "size", "stereo",
-                                     "convert", "mesh"]])
+                                     "convert", "mesh", "density"]])
         src_bin[self.src_dir
                 + os.path.join("MissStereo",
                                "scripts", "MissStereo.sh")] \
@@ -100,9 +104,7 @@ class app(base_app):
             != image(self.work_dir + 'input_1.png').size):
             return self.error('badparams',
                               "The images must have the same size")
-        return self.tmpl_out("params.html", msg=msg,
-                             input=['input_%i.png' % i
-                                    for i in range(self.input_nb)])
+        return self.tmpl_out("params.html")
 
     @cherrypy.expose
     @init_app
@@ -111,8 +113,7 @@ class app(base_app):
         params handling and run redirection
         """
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html", 
-                             input=['input_0.png', 'input_1.png'],
+        return self.tmpl_out("wait.html",
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -130,26 +131,33 @@ class app(base_app):
         except TimeoutError:
             return self.error(errcode='timeout',
                               errmsg="Try again with simpler images.")
+        except NoMatchError:
+            http.redir_303(self.base_url + 'result?key=%s&error_nomatch=1' % self.key)
         except RuntimeError:
             return self.error(errcode='runtime')
+        else:
+            http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
-        http.redir_303(self.base_url + 'result?key=%s' % self.key)
-
-        # archive
-        if self.cfg['meta']['original']:
-            ar = self.make_archive()
-            for i in (0, 1):
-                ar.add_file("input_%i.png" % i)
-                ar.add_file("rect_%i.png" % i)
-                f = open(self.work_dir + 'homo_%i.txt' % i)
-                ar.add_info({"homography %i" % i : f.readline()})
+            # archive
+            if self.cfg['meta']['original']:
+                ar = self.make_archive()
+                ar.add_file("input_0.png", info="input #1")
+                ar.add_file("input_1.png", info="input #2")
+                ar.add_file("rect_0.png", info="rectified #1")
+                ar.add_file("rect_1.png", info="rectified #1")
+                ar.add_file("disp1_0.png", info="AC pixel disparity")
+                ar.add_file("disp2_0.png", info="self-sim. filter disp.")
+                ar.add_file("disp3_0.png", info="sub-pixel disparity")
+                ar.add_file("disp4_0.png", info="denser disparity")
+                f = open(self.work_dir + 'homo_0.txt')
+                ar.add_info({"homography #1" : f.readline()})
                 f.close()
-            ar.add_file("orsa.txt", compress=True)
-            ar.add_file("disp3_0.ply", compress=True)
-            ar.add_file("disp1_0.tif")
-            ar.add_file("disp2_0.tif")
-            ar.add_file("disp3_0.tif")
-            ar.commit()
+                f = open(self.work_dir + 'homo_1.txt')
+                ar.add_info({"homography #2" : f.readline()})
+                f.close()
+                ar.add_file("orsa.txt.gz")
+                ar.add_file("disp4_0.ply.gz")
+                ar.save()
 
         return self.tmpl_out("run.html")
 
@@ -166,7 +174,14 @@ class app(base_app):
                            self.work_dir + 'input_0.png',
                            self.work_dir + 'input_1.png'],
                           stdout=stdout, stderr=stdout)
-        self.wait_proc(p, timeout)
+        try:
+            self.wait_proc(p, timeout)
+        except RuntimeError:
+            if 0 != p.returncode:
+                stdout.close()
+                raise NoMatchError
+            else:
+                raise
         stdout.close()
 
         mv_map = {'input_0.png_input_1.png_pairs_orsa.txt' : 'orsa.txt',
@@ -175,35 +190,30 @@ class app(base_app):
                   'disp1_H_input_0.png.png' : 'disp1_0.png',
                   'disp2_H_input_0.png.png' : 'disp2_0.png',
                   'disp3_H_input_0.png.png' : 'disp3_0.png',
+                  'disp4_H_input_0.png.png' : 'disp4_0.png',
                   'disp1_H_input_0.png_float.tif' : 'disp1_0.tif',
                   'disp2_H_input_0.png_float.tif' : 'disp2_0.tif',
                   'disp3_H_input_0.png_float.tif' : 'disp3_0.tif',
-                  'disp3_H_input_0.png.ply' : 'disp3_0.ply',
+                  'disp4_H_input_0.png_float.tif' : 'disp4_0.tif',
+                  'disp4_H_input_0.png.ply' : 'disp4_0.ply',
                   'H_input_0.png' : 'rect_0.png',
                   'H_input_1.png' : 'rect_1.png'}
         for (src, dst) in mv_map.items():
             shutil.move(self.work_dir + src, self.work_dir + dst)
+        gzip(self.work_dir + 'orsa.txt')
+        gzip(self.work_dir + 'disp4_0.ply')
 
         return
 
     @cherrypy.expose
     @init_app
-    def result(self):
+    def result(self, error_nomatch=None):
         """
         display the algo results
-        SHOULD be defined in the derived classes, to check the parameters
         """
-        return self.tmpl_out("result.html",
-                             input=['input_0.png', 'input_1.png'],
-                             disp=['disp1_0.png', 'disp2_0.png',
-                                   'disp3_0.png'],
-                             rect=['rect_0.png', 'rect_1.png'],
-                             orsa='orsa.txt',
-                             homo=['homo_0.txt', 'homo_1.txt'],
-                             exact=['disp1_0.tif', 'disp2_0.tif',
-                                    'disp3_0.tif'],
-                             ply='disp3_0.ply',
-                             height=image(self.work_dir
-                                          + 'input_0.png').size[1],
-                             stdout=open(self.work_dir
-                                         + 'stdout.txt', 'r').read())
+        if error_nomatch:
+            return self.tmpl_out("result_nomatch.html")
+        else:
+            return self.tmpl_out("result.html",
+                                 height=image(self.work_dir
+                                              + 'input_0.png').size[1])

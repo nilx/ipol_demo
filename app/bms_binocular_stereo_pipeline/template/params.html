@@ -1,13 +1,11 @@
 <%include file="header.html" />
 
 <form action="${app.base_url + 'wait'}" method="get">
-  <fieldset>
-    <p>
-      You can now run the rectification process.
-    </p>
+  <div class="action">
+    You can now run the rectification process.
     <input type="hidden" name="key" value="${app.key}">
-    <input type="submit" value="next step : run" />
-  </fieldset>
+    <input type="submit" value="run" />
+  </div>
 </form>
 
 <h2>input images</h2>
@@ -17,7 +15,7 @@
       <a href="#">
 	first image
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input_0.png'}" />
 	</span>
       </a>
     </li>
@@ -25,7 +23,7 @@
       <a href="#">
 	second image
 	<span>
-	  <img src="${app.work_url + input[1]}" />
+	  <img src="${app.work_url + 'input_1.png'}" />
 	</span>
       </a>
     </li>
