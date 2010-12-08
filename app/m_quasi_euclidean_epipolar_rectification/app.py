@@ -103,9 +103,7 @@ class app(base_app):
             != image(self.work_dir + 'input_1.png').size):
             return self.error('badparams',
                               "The images must have the same size")
-        return self.tmpl_out("params.html", msg=msg,
-                             input=['input_%i.png' % i
-                                    for i in range(self.input_nb)])
+        return self.tmpl_out("params.html")
 
     @cherrypy.expose
     @init_app
@@ -116,8 +114,6 @@ class app(base_app):
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html", 
-                             input=['input_0.png',
-                                    'input_1.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -202,19 +198,8 @@ class app(base_app):
         display the algo results
         """
         if error_nomatch:
-            return self.tmpl_out("result.html",
-                                 error_nomatch=True,
-                                 stdout=open(self.work_dir
-                                             + 'stdout.txt', 'r').read())
+            return self.tmpl_out("result_nomatch.html")
         else:
             return self.tmpl_out("result.html",
-                                 input=['input_0.png', 'input_1.png'],
-                                 rect=['output_0_annotated.png',
-                                       'output_1_annotated.png'],
-                                 output=['output_0.png', 'output_1.png'],
-                                 orsa='orsa.txt',
-                                 homo=['output_0.txt', 'output_1.txt'],
                                  height=image(self.work_dir
-                                              + 'input_0.png').size[1],
-                                 stdout=open(self.work_dir
-                                             + 'stdout.txt', 'r').read())
+                                              + 'input_0.png').size[1])

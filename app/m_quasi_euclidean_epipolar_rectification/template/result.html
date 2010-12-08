@@ -1,17 +1,5 @@
 <%include file="header.html" />
 
-%if error_nomatch:
-
-<p>
-  The images seem to have no common part.
-  See below for a possible explanation.
-</p>
-<pre class="stdio">
-${stdout}
-</pre>
-
-%else:
-
 <p>
   The algorithm result is displayed hereafter.
   It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
@@ -34,7 +22,7 @@ ${stdout}
       <a href="#">
 	first image
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input_0.png'}" />
         </span>
       </a>
     </li>
@@ -42,7 +30,7 @@ ${stdout}
       <a href="#">
 	second image
 	<span>
-	  <img src="${app.work_url + input[1]}" />
+	  <img src="${app.work_url + 'input_1.png'}" />
 	</span>
       </a>
     </li>
@@ -57,7 +45,7 @@ ${stdout}
       <a href="#">
 	first image
 	<span>
-	  <img src="${app.work_url + rect[0]}" />
+	  <img src="${app.work_url + 'output_0_annotated.png'}" />
         </span>
       </a>
     </li>
@@ -65,7 +53,7 @@ ${stdout}
       <a href="#">
 	second image
 	<span>
-	  <img src="${app.work_url + rect[1]}" />
+	  <img src="${app.work_url + 'output_1_annotated.png'}" />
         </span>
       </a>
     </li>
@@ -74,26 +62,23 @@ ${stdout}
 
 <ul>
   <li>
-    <a href="${app.work_url + orsa}">correspondences</a></li>
+    <a href="${app.work_url + 'orsa.txt'}">correspondences</a></li>
   <li>homography: 
-    <a href="${app.work_url + homo[0]}">first image</a>,
-    <a href="${app.work_url + homo[1]}">second image</a>
+    <a href="${app.work_url + 'output_0.txt'}">first image</a>,
+    <a href="${app.work_url + 'output_1.txt'}">second image</a>
   </li>
   <li>rectified images (without annotations): 
-    <a href="${app.work_url + output[0]}">first image</a>,
-    <a href="${app.work_url + output[1]}">second image</a>
+    <a href="${app.work_url + 'output_0.png'}">first image</a>,
+    <a href="${app.work_url + 'output_1.png'}">second image</a>
   </li>
 </ul>
 
 <h2>Program Output</h2>
 
-<pre class="stdio">
-${stdout}
-</pre>
+<pre class="stdio">open(app.work_dir + 'stdout.txt', 'r').read())</pre>
 
 <hr />
-<%include file="archive_info.html" />
 
-%endif
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />
