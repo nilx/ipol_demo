@@ -15,8 +15,57 @@ from . import http
 from . import config
 from . import archive
 from .empty_app import empty_app
-from .misc import prod, init_app
 from .image import thumbnail, image
+from .misc import prod
+
+#
+# ACTION DECORATOR TO HANDLE GENERIC SETTINGS
+#
+
+def init_app(func):
+    """
+    decorator to reinitialize the app with the current request key
+    """
+    def init_func(self, *args, **kwargs):
+        """
+        original function, modified
+        """
+        # key check
+        key = kwargs.pop('key', None)
+        self.init_key(key)
+        self.init_cfg()
+
+        # public_archive cookie setup
+        # default value
+        if not cherrypy.request.cookie.get('public_archive', '1') == '0':
+            cherrypy.response.cookie['public_archive'] = '1'
+            self.cfg['meta']['public'] = True
+        else:
+            self.cfg['meta']['public'] \
+                = (cherrypy.request.cookie['public_archive'] != '0')
+
+        # user setting
+        if kwargs.has_key('set_public_archive'):
+            if kwargs.pop('set_public_archive') != '0':
+                cherrypy.response.cookie['public_archive'] = '1'
+                self.cfg['meta']['public'] = True
+            else:
+                cherrypy.response.cookie['public_archive'] = '0'
+                self.cfg['meta']['public'] = False
+            # TODO: dirty hack, fixme
+            ar_path = self.archive_dir + archive.key2path(self.key)
+            if os.path.isdir(ar_path):
+                ar = archive.bucket(path=self.archive_dir,
+                                    cwd=self.work_dir,
+                                    key=self.key)
+                ar.cfg['meta']['public'] = self.cfg['meta']['public']
+                ar.cfg.save()
+                archive.index_add(self.archive_index,
+                                  bucket=ar,
+                                  path=self.archive_dir)
+        return func(self, *args, **kwargs)
+    return init_func
+
 
 class base_app(empty_app):
     """ base demo app class with a typical flow """
@@ -83,44 +132,17 @@ class base_app(empty_app):
             # convert the files to a list of file names
             # by splitting at blank characters
             # and generate thumbnails and thumbnail urls
-            tn_fname = [thumbnail(self.input_dir + fname,
-                                  (tn_size, tn_size))
-                        for fname in input_info['files'].split()]
-            inputd[input_id]['tn_url'] = [self.input_url
-                                          + os.path.basename(fname)
-                                          for fname in tn_fname]
-
-	"""
-        return self.tmpl_out("input.html",
-                             tn_size=tn_size,
-                             inputd=inputd)
-
-	"""
-	#Jose Luis changes
-	#credits
-	cr_size=24
-        for (input_id, input_info) in inputd.items():
-            # convert the files to a list of file names
-            # by splitting at blank characters
-            # and generate thumbnails and thumbnail urls
-            cr_fname = [thumbnail(self.input_dir + fname,
-                                  (cr_size, cr_size))
-                        for fname in input_info['files'].split()]
-            inputd[input_id]['cr_url'] = [self.input_url
-                                          + os.path.basename(fname)
-                                          for fname in cr_fname]
-            inputd[input_id]['href_url'] = [self.input_url
-                                          + os.path.basename(fname)
-                        		for fname in input_info['files'].split()]
+            fname = input_info['files'].split()
+            tn_fname = [thumbnail(self.input_dir + f, (tn_size, tn_size))
+                        for f in fname]
+            inputd[input_id]['url'] = [self.input_url + os.path.basename(f)
+                                       for f in fname]
+            inputd[input_id]['tn_url'] = [self.input_url + os.path.basename(f)
+                                          for f in tn_fname]
 
         return self.tmpl_out("input.html",
                              tn_size=tn_size,
-			     cr_size=cr_size,
                              inputd=inputd)
-	"""
-	"""
-
-
 
     #
     # INPUT HANDLING TOOLS
@@ -174,7 +196,7 @@ class base_app(empty_app):
             shutil.copy(old_work_dir + fname,
                         self.work_dir + fname)
         # copy cfg
-        self.cfg['meta'] = old_cfg_meta
+        self.cfg['meta'].update(old_cfg_meta)
         self.cfg.save()
         return
 
@@ -199,8 +221,7 @@ class base_app(empty_app):
                         self.work_dir + 'input_%i' % i)
         msg = self.process_input()
         self.log("input selected : %s" % input_id)
-        # '' is the empty string, evals to False
-        self.cfg['meta']['original'] = ''
+        self.cfg['meta']['original'] = False
         self.cfg.save()
         # jump to the params page
         return self.params(msg=msg, key=self.key)
@@ -330,31 +351,38 @@ class base_app(empty_app):
     #
     
     @cherrypy.expose
-    def archive(self, page=0, key=None):
+    def archive(self, page=0, key=None, public=1):
         """
         lists the archive content
         """
 
         if key:
-            page = None
-            limit = None
-            offset = None
-            nbpages = None
+            # select one archive
+            buckets = [{'url' : self.archive_url + archive.key2url(key),
+                        'files' : files, 'meta' : meta, 'info' : info}
+                       for (key, (files, meta, info))
+                       in archive.index_read(self.archive_index,
+                                             key=key,
+                                             path=self.archive_dir)]
+            return self.tmpl_out("archive.html",
+                                 bucket_list=buckets)
         else:
+            # select a page from the archive index
+            public = int(public)
             page = int(page)
             limit = 20
             offset = limit * page
             nbpages = archive.index_count(self.archive_index,
-                                          path=self.archive_dir) / limit
-
-        buckets = [{'url' : self.archive_url + archive.key2url(key),
-                    'files' : files, 'meta' : meta, 'info' : info}
-                   for (key, (files, meta, info))
-                   in archive.index_read(self.archive_index,
-                                         limit=limit, offset=offset, key=key,
-                                         path=self.archive_dir)]
-
-        return self.tmpl_out("archive.html",
-                             bucket_list=buckets,
-                             page=page,
-                             nbpages=nbpages)
+                                          path=self.archive_dir,
+                                          public=public) / limit
+            buckets = [{'url' : self.archive_url + archive.key2url(key),
+                        'files' : files, 'meta' : meta, 'info' : info}
+                       for (key, (files, meta, info))
+                       in archive.index_read(self.archive_index,
+                                             limit=limit, offset=offset,
+                                             public=public,
+                                             path=self.archive_dir)]
+            return self.tmpl_out("archive.html",
+                                 bucket_list=buckets,
+                                 page=page,
+                                 nbpages=nbpages)

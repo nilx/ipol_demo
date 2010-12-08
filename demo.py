@@ -4,6 +4,8 @@ base cherrypy launcher for the IPOL demo app
 """
 # pylint: disable=C0103
 
+#TODO: blacklist from config file
+
 import cherrypy
 from mako.lookup import TemplateLookup
 
@@ -61,7 +63,12 @@ def do_build(demo_dict):
         demo = demo_app()
         cherrypy.log("building", context='SETUP/%s' % demo_id,
                      traceback=False)
-        demo.build()
+        try:
+            demo.build()
+        except Exception:
+            cherrypy.log("build failed (see the build log)",
+                         context='SETUP/%s' % demo_id,
+                         traceback=False)
     return
 
 def do_clean(demo_dict):

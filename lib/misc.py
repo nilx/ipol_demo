@@ -4,33 +4,16 @@ various help tools for the IPOL demo environment
 # pylint: disable=C0103
 
 
-import os.path
+import os
 import time
 from datetime import datetime
+import gzip as _gzip
 
 #
 # TINY STUFF
 #
 
 prod = lambda l : reduce(lambda a, b : a * b, l, 1)
-
-#
-# ACTION DECORATOR TO HANDLE DEMO KEY
-#
-
-def init_app(func):
-    """
-    decorator to reinitialize the app with the current request key
-    """
-    def init_func(self, *args, **kwargs):
-        """
-        original function with a preliminary key check
-        """
-        key = kwargs.pop('key', None)
-        self.init_key(key)
-        self.init_cfg()
-        return func(self, *args, **kwargs)
-    return init_func
 
 #
 # BASE_APP REUSE
@@ -73,3 +56,42 @@ def mtime(path, fmt="struct"):
     get the (unix) modification time of a file/dir
     """
     return _timeformat(os.path.getmtime(path), fmt)
+
+#
+# GZIP
+#
+
+def gzip(fname_in, fname_out=None):
+    """
+    compress a file with gzip, like the command-line utility
+    """
+    if not fname_out:
+        fname_out = fname_in + ".gz"
+    assert fname_out != fname_in
+    # compress fname_in into fname_out
+    f_in = open(fname_in, 'rb')
+    f_out = _gzip.open(fname_out, 'wb')
+    f_out.writelines(f_in)
+    f_out.close()
+    f_in.close()
+    # delete fname_in
+    os.unlink(fname_in)
+    return
+
+def gunzip(fname_in, fname_out=None):
+    """
+    uncompress a file with gzip, like the command-line utility
+    """
+    if not fname_out:
+        assert fname_in.endswith(".gz")
+        fname_out = fname_in[:-3]
+    assert fname_out != fname_in
+    # decompress fname_in into fname_out
+    f_in = _gzip.open(fname_in, 'rb')
+    f_out = open(fname_out, 'wb')
+    f_out.writelines(f_in)
+    f_out.close()
+    f_in.close()
+    # delete fname_in
+    os.unlink(fname_in)
+    return

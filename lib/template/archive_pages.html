@@ -1,0 +1,12 @@
+%if nbpages > 1:
+<div style="text-align:center; font-size:80%; margin:2em;">
+page: 
+%for p in range(nbpages):
+%if p == page:
+${p}
+%else:
+<a style="font-weight:bold" href="?page=${p}">${p}</a>
+%endif
+%endfor
+</div>
+%endif

@@ -39,7 +39,7 @@ class empty_app(object):
         self.id = os.path.basename(base_dir)
         # TODO: better key initialization
         self.key = ''
-        self.cfg = {}
+        self.cfg = dict()
 
         # create the missing subfolders
         for static_dir in [self.input_dir, self.tmp_dir, self.archive_dir]:
@@ -106,10 +106,9 @@ class empty_app(object):
         """
         reinitialize the config dictionary between 2 page calls
         """
-        # delete cfg
-        self.cfg = {}
         # read the config dict
-        self.cfg = config.file_dict(self.work_dir)
+        self.cfg = config.cfg_open(self.work_dir)
+        # default three sections
         self.cfg.setdefault('param', {})
         self.cfg.setdefault('info', {})
         self.cfg.setdefault('meta', {})
@@ -143,7 +142,7 @@ class empty_app(object):
                      random()]
             for seed in seeds:
                 keygen.update(str(seed))
-            key = keygen.hexdigest()
+            key = keygen.hexdigest().upper()
         
         self.key = key
 
@@ -244,11 +243,15 @@ class empty_app(object):
         """
         create an archive bucket
         """
+        
         ar = archive.bucket(path=self.archive_dir,
                             cwd=self.work_dir,
                             key=self.key)
-        # add to the index
-        archive.index_add(self.archive_index,
-                          bucket=ar,
-                          path=self.archive_dir)
+        ar.cfg['meta']['public'] = self.cfg['meta']['public']
+
+        def hook_index():
+            return archive.index_add(self.archive_index,
+                                     bucket=ar,
+                                     path=self.archive_dir)
+        ar.hook['post-save'] = hook_index
         return ar

@@ -1,19 +1,12 @@
 <%include file="header.html" />
 
-<center>
-  <img src="http://www.ipol.im/static/demo/running.gif" alt"running..." />
-</center>
+<%include file="wait_info.html" />
 
-<p>
-  The algorithm is running. After 30s or less, your browser should
-  reload this page and display the result.
-</p>
-
-<br />
+<hr />
 
 <div>
-  %for input_url in input:
-  <img src="${app.work_url + input_url}" alt="" />
+  %for fname in input:
+  <img src="${app.work_url + fname}" alt="" />
   %endfor
 </div>
 

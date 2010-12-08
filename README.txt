@@ -4,9 +4,11 @@
 
 This code requires
 * python plus some modules, included in the following Debian/Ubuntu
-  packages: python python-cherrypy3 python-mako python-imaging. 
+  packages:
+  python python-cherrypy3 python-mako python-imaging python-sqlite
 * compilation tools and libraries, included in the following
-  Debian/Ubuntu packages: wget gcc g++ make libtiff-dev libpng-dev
+  Debian/Ubuntu packages:
+  gcc g++ make cmake libtiff-dev libpng-dev libfftw3-dev
 
 # Usage
 

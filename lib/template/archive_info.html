@@ -1,0 +1,29 @@
+%if app.cfg['meta']['original']:
+<div>
+  <form action="" method="get">
+    <p>
+      This result is archived
+      (<a href="${app.base_url + 'archive?key=%s' % app.key | h }"
+	  title="permalink">link</a>).
+      <input type="hidden" name="key" value="${app.key}" />
+      %if app.cfg['meta']['public']:
+      This archive is public and will appear in
+      <a href="${app.base_url + 'archive' | h }">the archive index</a>.
+      <br />
+      <!-- TODO: use radio controls -->
+      You can switch to private mode:
+      <input type="hidden" name="set_public_archive" value="0" />
+      <input type="submit" value="private" />.
+      %else:
+      This archive is not public and will not appear in
+      <a href="${app.base_url + 'archive' | h }">the archive index</a>.
+      <br />
+      You can switch to public mode:
+      <input type="hidden" name="set_public_archive" value="1" />
+      <input type="submit" value="public" />.
+      %endif
+      This setting will be remembered until you close your browser.
+    </p>
+  </form>
+</div>
+%endif

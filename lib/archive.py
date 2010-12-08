@@ -44,14 +44,19 @@ def list_key(path):
             for sfx in os.listdir(os.path.join(path, pfx))
             if os.path.isdir(os.path.join(path, pfx, sfx))]
 
+def _dummy_func():
+    """
+    do nothing
+    """
+    pass
+
 class bucket(object):
     """
     archive bucket class
     """
-    # TODO: commit() model
     def __init__(self, path, key, cwd=None):
         """
-        opem/read/crewate an archive bucket
+        open/read/create an archive bucket
 
         an archive bucket is
         * a set of files
@@ -60,6 +65,7 @@ class bucket(object):
           * file : file legends
           * meta : archive meta-information:
             * date : archive date
+            * key : unique key
 
         @param path: base archive folder
         @param key: unique bucket key
@@ -90,6 +96,8 @@ class bucket(object):
         # pending files
         self.pend_files = []
         self.pend_zfiles = []
+        # hooks
+        self.hook = dict()
 
     def add_file(self, src, dst=None, info='', compress=False):
         """
@@ -115,6 +123,10 @@ class bucket(object):
             self.pend_zfiles.append((src_fname, dst_fname))
         # add the file info
         self.cfg['fileinfo'][dst] = info
+        # add to the ordered files list
+        files = self.cfg['meta'].get('files', '').split()
+        files.append(dst)
+        self.cfg['meta']['files'] = ' '.join(files)
 
     def add_info(self, info):
         """
@@ -122,11 +134,12 @@ class bucket(object):
         """
         self.cfg['info'].update(info)
 
-    def commit(self):
+    def save(self):
         """
         copy the files,
         save the config file
         """
+        # TODO: atomic save()
         # save the pending files
         for (src, dst) in self.pend_files:
             shutil.copy(src, dst)
@@ -140,6 +153,9 @@ class bucket(object):
         self.pend_zfiles = []
         # update the config
         self.cfg.save()
+        # post-save hook
+        if self.hook.has_key('post-save'):
+            self.hook['post-save']()
 
 #
 # INDEX ITEMS 
@@ -181,16 +197,26 @@ def _add_record(cursor, ar):
     """
     low-level add an archive bucket record to the index
     """
-    files = [item(path=os.path.join(ar.path, fname),
-                  info=ar.cfg['fileinfo'].get(fname, ''))
-             for fname in filter(_filter_listdir,
-                                 os.listdir(ar.path))]
+    # raw unordered files list
+    unordered_files = dict([(fname,
+                             item(path=os.path.join(ar.path, fname),
+                                  info=ar.cfg['fileinfo'].get(fname, '')))
+                            for fname in filter(_filter_listdir,
+                                                os.listdir(ar.path))])
+    # reorder the files
+    files = [unordered_files.pop(fname)
+             for fname in ar.cfg['meta'].get('files', '').split()]
+    # append the remaining files
+    files += unordered_files.values()
+
     meta = ar.cfg['meta']
     info = ar.cfg['info']
 
-    cursor.execute("insert or replace into buckets (key, date, pkl_cache) "
-                   + "values (?, ?, ?)",
+    cursor.execute("insert or replace into buckets "
+                   + "(key, date, public, pkl_cache) "
+                   + "values (?, ?, ?, ?)",
                    (ar.cfg['meta']['key'], ar.cfg['meta']['date'],
+                    int(ar.cfg['meta'].get('public', True)),
                     pickle.dumps((files, meta, info))))
     return
 
@@ -207,8 +233,10 @@ def index_rebuild(indexdb, path):
     # TODO : check SQL index usage
     c.execute("drop index if exists buckets_by_date")
     c.execute("create table buckets "
-              + "(key text unique, date text, pkl_cache text)")
-    c.execute("create index buckets_index_by_date on buckets (date)")
+              + "(key text unique, date text, "
+              + "public integer default 0, pkl_cache text)")
+    c.execute("create index buckets_index_by_date_public "
+              + "on buckets (date, public)")
     # populate the db
     for key in list_key(path):
         _add_record(c, bucket(path=path, key=key))
@@ -216,7 +244,7 @@ def index_rebuild(indexdb, path):
     c.close()
 
 
-def index_read(indexdb, limit=20, offset=0, key=None, path=None):
+def index_read(indexdb, limit=20, offset=0, key=None, public=1, path=None):
     """
     get some data from the index
     """
@@ -228,32 +256,35 @@ def index_read(indexdb, limit=20, offset=0, key=None, path=None):
             c.execute("select key, pkl_cache from buckets "
                       + "where key=?", (key, ))
         else:
-            c.execute("select key, pkl_cache from buckets "
-                      + "order by date desc limit ? offset ?", (limit, offset))
+            c.execute("select key, pkl_cache from buckets where public=? "
+                      + "order by date desc limit ? offset ?",
+                      (public, limit, offset))
         return [(str(row[0]), pickle.loads(str(row[1]))) for row in c]
     except sqlite3.Error:
         if path:
             index_rebuild(indexdb, path)
             return index_read(indexdb, limit, offset, key)
         else:
-            raise sqlite3.Error
+            raise
 
 
-def index_count(indexdb, path=None):
+def index_count(indexdb, public=1, path=None):
     """
     get nb keys in the index
     """
+
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
-        c.execute("select count(*) from buckets")
+        c.execute("select count(*) from buckets where public=?",
+                  (public, ))
         return c.next()[0]
     except sqlite3.Error:
         if path:
             index_rebuild(indexdb, path)
             return index_count(indexdb)
         else:
-            raise sqlite3.Error
+            raise
 
 def index_add(indexdb, bucket, path=None):
     """
@@ -270,4 +301,4 @@ def index_add(indexdb, bucket, path=None):
             index_rebuild(indexdb, path)
             return index_add(indexdb, bucket)
         else:
-            raise sqlite3.Error
+            raise
