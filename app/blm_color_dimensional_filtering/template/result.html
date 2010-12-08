@@ -25,7 +25,7 @@
       <a href="#">
 	Original
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input.png'}" />
 	</span>
       </a>
     </li>
@@ -33,7 +33,7 @@
       <a href="#">
 	Filtered
 	<span>
-	  <img src="${app.work_url + output[0]}" />
+	  <img src="${app.work_url + 'output_2.png'}" />
 	</span>
       </a>
     </li>
@@ -49,52 +49,44 @@
 </p>
 <div class="gallery" style="height:600px; width:100%; font-size:small;">
   <ul class="index">
-    %for i in range(21):
+    %for i in range(100, 121):
     <li>
       <a href="#">
-	VIEW ${i + 1}
+	VIEW ${i - 99}
 	<span>
-	  <img src="${app.work_url + views[i]}" />
+	  <img src="${app.work_url + 'view_%i.png' % i}" />
 	</span>
       </a>
     </li>
     %endfor
   </ul> 
-</div> 
+</div>
 
 <h3>
-RGB cubes in VRML 2.0 format (compressed): <a href="${app.work_url + vrmlfiles[0]}">Original</a>, 
-<a href="${app.work_url + vrmlfiles[1]}">Filtered</a>, 
-<a href="${app.work_url + vrmlfiles[2]}">Density</a>
+RGB cubes in VRML 2.0 format (compressed):
+<a href="${app.work_url + 'input_1_RGB.wrl.gz'}">Original</a>, 
+<a href="${app.work_url + 'output_1_RGB.wrl.gz'}">Filtered</a>, 
+<a href="${app.work_url + 'output_1_RGBd.wrl.gz'}">Density</a>
 </h3>
 
-
 <h2>
-  <a class="toggle"
-     href="#stdout"
-     onclick="toggle('stdout');">
+  <a class="toggle" href="#stdout" onclick="toggle('stdout');">
     Additional Info
   </a>
 </h2>
-<div id="stdout"
-     style="display:none"> 
-  <pre class="stdio">
-    ${stdout}
-  </pre>
+<div id="stdout" style="display:none"> 
+  <pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
 </div>
 
 %if useOriginal:
 <h2>
-  <a class="toggle"
-     href="#orig"
-     onclick="toggle('orig');">
+  <a class="toggle" href="#orig" onclick="toggle('orig');">
     Original Input Image
   </a>
 </h2>
-<div id="orig"
-     style="display:none"> 
+<div id="orig" style="display:none"> 
   <span>
-    <img src="${app.work_url + original[0]}" />
+    <img src="${app.work_url + 'input_0s.png'}" />
   </span>
 </div>
 %endif

@@ -107,9 +107,7 @@ class app(base_app):
                 img.draw_cross((x, y), size=4, color="white")
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
-                return self.tmpl_out("params.html",
-                                     input=['input.png?xy=%i,%i' % (x, y)],
-                                     x0=x, y0=y)
+                return self.tmpl_out("params.html", x0=x, y0=y)
             else:
                 # second corner selection
                 x0 = int(x0)
@@ -153,8 +151,7 @@ class app(base_app):
         """
         # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",
-                             input=['input.png'])
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
@@ -271,17 +268,5 @@ class app(base_app):
         display the algo results
         """
         return self.tmpl_out("result.html",
-                             input=['input.png'],
-                             output=['output_2.png'],
-                             views=['view_%i.png' % i 
-                                    for i in range(100, 127)],
-			     original=['input_0s.png'], 
 			     useOriginal=os.path.isfile(self.work_dir + 'input_0s.png'),
-			     vrmlfiles=['input_1_RGB.wrl.gz', 'output_1_RGB.wrl.gz', 'output_1_RGBd.wrl.gz'],
-                             sizeY="%i" % image(self.work_dir 
-                                                + 'input.png').size[1],
-                             stdout=open(self.work_dir 
-                                         + 'stdout.txt', 'r').read())
-
-
-
+                             sizeY="%i" % image(self.work_dir + 'input.png').size[1])

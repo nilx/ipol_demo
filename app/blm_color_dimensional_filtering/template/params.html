@@ -15,8 +15,12 @@
     %if x0 and y0:
     <input type="hidden" name="x0" value="${x0}">
     <input type="hidden" name="y0" value="${y0}">
+    <input type="image" style="cursor:crosshair;" name=""
+	   src="${app.work_url + 'input.png?xy=%i,%i' % (x0, y0)}" />
+    %else:
+    <input type="image" style="cursor:crosshair;" name=""
+	   src="${app.work_url + 'input_0.png'}" />
     %endif
-    <input type="image" name="" src="${app.work_url + input[0]}" />
   </div>
 </form>
 
