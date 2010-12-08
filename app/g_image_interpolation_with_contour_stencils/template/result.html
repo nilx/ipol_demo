@@ -7,12 +7,10 @@
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset> 
-    <p>
-      You can run again this algorithm with new data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset> 
+  <div class="action"> 
+    You can run again this algorithm with new data.
+    <input type="submit" value="new input" />
+  </div> 
 </form>
 
 <hr />
@@ -23,7 +21,7 @@
       <a href="#">
 	Original
 	<span>
-	  <img src="${app.work_url + input[0]}"  />
+	  <img src="${app.work_url + 'input_0.png'}"  />
 	</span>
       </a>
     </li>
@@ -31,7 +29,7 @@
       <a href="#">
 	Coarsened
 	<span>
-	  <img src="${app.work_url + output[0]}"/>
+	  <img src="${app.work_url + 'coarsened_zoom.png'}"/>
 	</span>
       </a>
     </li>
@@ -39,7 +37,7 @@
       <a href="#">
 	Interpolated
 	<span>
-	  <img src="${app.work_url + output[1]}" />
+	  <img src="${app.work_url + 'interpolated.png'}" />
 	</span>
       </a>
     </li>
@@ -47,16 +45,18 @@
       <a href="#">
 	Estimated Contour Orientations
 	<span>
-	  <img src="${app.work_url + output[2]}" />
+	  <img src="${app.work_url + 'contour.png'}" />
 	</span>
       </a>
     </li>
   </ul>
 </div>
 
-<h2>stdout</h2>
-<pre class="stdio">
-  ${stdout}
-</pre>
+<h2>Program Output</h2>
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />
