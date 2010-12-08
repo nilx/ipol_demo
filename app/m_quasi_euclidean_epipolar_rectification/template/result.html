@@ -2,19 +2,19 @@
 
 <p>
   The algorithm result is displayed hereafter.
-  It ran in ${"%0.2f" % float(app.cfg['info']['run_time'])}s.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Restart with new input.
-    </p> 
-    <input type="submit" value="back to : input" />
-  </fieldset> 
+  <div class="action">
+    Restart with new input.
+    <input type="submit" value="new input" />
+  </div>
 </form>
 
-<h2>input images</h2>
+<hr />
+
+<h2>Input Images</h2>
 
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
@@ -22,7 +22,7 @@
       <a href="#">
 	first image
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input_0.png'}" />
         </span>
       </a>
     </li>
@@ -30,14 +30,14 @@
       <a href="#">
 	second image
 	<span>
-	  <img src="${app.work_url + input[1]}" />
+	  <img src="${app.work_url + 'input_1.png'}" />
 	</span>
       </a>
     </li>
   </ul>
 </div>
 
-<h2>output rectified images</h2>
+<h2>Output Rectified Images</h2>
 
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
@@ -45,7 +45,7 @@
       <a href="#">
 	first image
 	<span>
-	  <img src="${app.work_url + rect[0]}" />
+	  <img src="${app.work_url + 'output_0_annotated.png'}" />
         </span>
       </a>
     </li>
@@ -53,7 +53,7 @@
       <a href="#">
 	second image
 	<span>
-	  <img src="${app.work_url + rect[1]}" />
+	  <img src="${app.work_url + 'output_1_annotated.png'}" />
         </span>
       </a>
     </li>
@@ -62,23 +62,23 @@
 
 <ul>
   <li>
-    <a href="${app.work_url + orsa}">correspondences</a></li>
+    <a href="${app.work_url + 'orsa.txt'}">correspondences</a></li>
   <li>homography: 
-    <a href="${app.work_url + homo[0]}">first image</a>,
-    <a href="${app.work_url + homo[1]}">second image</a>
+    <a href="${app.work_url + 'output_0.txt'}">first image</a>,
+    <a href="${app.work_url + 'output_1.txt'}">second image</a>
   </li>
   <li>rectified images (without annotations): 
-    <a href="${app.work_url + output[0]}">first image</a>,
-    <a href="${app.work_url + output[1]}">second image</a>
+    <a href="${app.work_url + 'output_0.png'}">first image</a>,
+    <a href="${app.work_url + 'output_1.png'}">second image</a>
   </li>
 </ul>
 
-<h2>stdout</h2>
+<h2>Program Output</h2>
 
-<pre class="stdio">
-${stdout}
-</pre>
+<pre class="stdio">open(app.work_dir + 'stdout.txt', 'r').read())</pre>
 
-</div>
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />

@@ -4,7 +4,8 @@ Quasi-Euclidean Epipolar Rectification
 # pylint: disable=C0103
 
 from lib import base_app, image, http, build
-from lib.misc import init_app, app_expose, ctime
+from lib.misc import app_expose, ctime
+from lib.base_app import init_app
 from cherrypy import TimeoutError
 import os.path
 import time
@@ -14,6 +15,9 @@ import shutil
 #
 # INTERACTION
 #
+
+class NoMatchError(RuntimeError):
+    pass
 
 class app(base_app):
     """ template demo app """
@@ -99,9 +103,7 @@ class app(base_app):
             != image(self.work_dir + 'input_1.png').size):
             return self.error('badparams',
                               "The images must have the same size")
-        return self.tmpl_out("params.html", msg=msg,
-                             input=['input_%i.png' % i
-                                    for i in range(self.input_nb)])
+        return self.tmpl_out("params.html")
 
     @cherrypy.expose
     @init_app
@@ -112,8 +114,6 @@ class app(base_app):
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html", 
-                             input=['input_0.png',
-                                    'input_1.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -131,23 +131,30 @@ class app(base_app):
             self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout')
+        except NoMatchError:
+            http.redir_303(self.base_url + 'result?key=%s&error_nomatch=1' % self.key)
         except RuntimeError:
             return self.error(errcode='runtime')
+        else:
+            http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
-        http.redir_303(self.base_url + 'result?key=%s' % self.key)
-
-        # archive
-        if self.cfg['meta']['original']:
-            ar = self.make_archive()
-            for i in (0, 1):
-                ar.add_file("input_%i.png" % i)
-                ar.add_file("output_%i.png" % i)
-                ar.add_file("output_%i_annotated.png" % i)
-                f = open(self.work_dir + 'output_%i.txt' % i)
-                ar.add_info({"homography %i" % i : f.readline()})
+            # archive
+            if self.cfg['meta']['original']:
+                ar = self.make_archive()
+                ar.add_file("input_0.png", info="input #1")
+                ar.add_file("input_1.png", info="input #2")
+                ar.add_file("output_0_annotated.png", info="output #1, annotated")
+                ar.add_file("output_1_annotated.png", info="output #2, annotated")
+                ar.add_file("output_0.png", info="output #1")
+                ar.add_file("output_1.png", info="output #2")
+                ar.add_file("orsa.txt", compress=True)
+                f = open(self.work_dir + 'output_0.txt')
+                ar.add_info({"homography #1" : f.readline()})
                 f.close()
-            ar.add_file("orsa.txt", compress=True)
-            ar.commit()
+                f = open(self.work_dir + 'output_1.txt')
+                ar.add_info({"homography #2" : f.readline()})
+                f.close()
+                ar.save()
 
         return self.tmpl_out("run.html")
 
@@ -162,7 +169,14 @@ class app(base_app):
                            self.work_dir + 'input_0.png',
                            self.work_dir + 'input_1.png'],
                           stdout=stdout, stderr=stdout)
-        self.wait_proc(p, timeout)
+        try:
+            self.wait_proc(p, timeout)
+        except RuntimeError:
+            if 0 != p.returncode:
+                stdout.close()
+                raise NoMatchError
+            else:
+                raise
         stdout.close()
 
         mv_map = {'input_0.png_input_1.png_pairs_orsa.txt' : 'orsa.txt',
@@ -179,18 +193,13 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def result(self):
+    def result(self, error_nomatch=None):
         """
         display the algo results
         """
-        return self.tmpl_out("result.html",
-                             input=['input_0.png', 'input_1.png'],
-                             rect=['output_0_annotated.png',
-                                   'output_1_annotated.png'],
-                             output=['output_0.png', 'output_1.png'],
-                             orsa='orsa.txt',
-                             homo=['output_0.txt', 'output_1.txt'],
-                             height=image(self.work_dir
-                                          + 'input_0.png').size[1],
-                             stdout=open(self.work_dir
-                                         + 'stdout.txt', 'r').read())
+        if error_nomatch:
+            return self.tmpl_out("result_nomatch.html")
+        else:
+            return self.tmpl_out("result.html",
+                                 height=image(self.work_dir
+                                              + 'input_0.png').size[1])
