@@ -2,40 +2,38 @@
 
 <p>
   The results of the algorithm are displayed hereafter.
-  The CPU time required was ${"%0.2f" % float(app.cfg['info']['run_time'])}s.
+  The CPU time required was ${"%0.2f" % app.cfg['info']['run_time']}s.
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Run again the numerical schemes with new data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset>
+  <div class="action">
+    Run again the numerical schemes with new data.
+    <input type="submit" value="new input" />
+  </div>
 </form>
 
 <form action="${app.base_url + 'params'}" method="get">
-  <fieldset>
-    <p>
-      Run again the numerical schemes with new parameters.
-    </p>
+  <div class="action">
+    Run again the numerical schemes with new parameters.
     <input type="hidden" name="key" value="${app.key}">
-    <input type="hidden" name="newrun" value=True>
-    <input type="submit" value="back to : parameters selection" />
-  </fieldset>
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="new parameters" />
+  </div>
 </form>
 
 <hr />
 
-<h2>result</h2>
-normalized scale R=${scaleRnorm}, zooming factor=${zoomfactor}
+<h2>Result</h2>
+<p>
+normalized scale R=${"%2.2f" % scale_r}, zooming factor=${"%2.2f" % zoom_factor}
+</p>
 <div class="gallery" style="height:${sizeY}px;">
   <ul class="index">
     <li>
       <a href="#">
 	Original
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input.png?step=%s' % step}" />
 	</span>
       </a>
     </li>
@@ -43,7 +41,7 @@ normalized scale R=${scaleRnorm}, zooming factor=${zoomfactor}
       <a href="#">
 	MCM result
 	<span>
-	  <img src="${app.work_url + output[0]}" />
+	  <img src="${app.work_url + 'output_MCM.png'}" />
 	</span>
       </a>
     </li>
@@ -51,11 +49,15 @@ normalized scale R=${scaleRnorm}, zooming factor=${zoomfactor}
       <a href="#">
 	AMSS result
 	<span>
-	  <img src="${app.work_url + output[1]}" />
+	  <img src="${app.work_url + 'output_AMSS.png'}" />
 	</span>
       </a>
     </li>
   </ul>
 </div>
+
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />

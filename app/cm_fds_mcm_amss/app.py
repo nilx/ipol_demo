@@ -4,7 +4,8 @@ mcm_amss ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import init_app, ctime
+from lib.misc import ctime
+from lib.base_app import init_app
 import os.path
 import time
 import shutil
@@ -114,7 +115,7 @@ class app(base_app):
         """
         handle the grid drawing and selection
         """
-        if action == 'Run':
+        if action == 'run':
             # use the whole image
             img = image(self.work_dir + 'input_0.png')
             img.save(self.work_dir + 'input' + self.input_ext)
@@ -124,21 +125,17 @@ class app(base_app):
                            + "wait?key=%s&scaleR=%s&step=%s" 
                            % (self.key, scaleR, step))
             return
-        elif action == 'Redraw':
+        elif action == 'redraw':
             # draw the grid
             step = int(step)
             if 0 < step:
                 img = image(self.work_dir + 'input_0.png')
                 img.draw_grid(step)
                 img.save(self.work_dir + 'input_grid.png')
-                input_img = ['input_grid.png'
-                             + '?step=%i' % step]
                 grid = True
             else:
-                input_img = ['input_0.png']
                 grid = False
-            return self.tmpl_out("params.html",
-                                 input=input_img, step=step, grid=grid)
+            return self.tmpl_out("params.html", step=step, grid=grid)
         else:
             # use a part of the image
             x = int(x)
@@ -176,10 +173,10 @@ class app(base_app):
         # read parameters
         try:
             self.cfg['param'] = {'scale_r' : float(scaleR),
-                                     'grid_step' : int(step),
-                                     'zoom_factor' : (400.0 / int(step)
-                                                      if int(step) > 0
-                                                      else 1.)}
+                                 'grid_step' : int(step),
+                                 'zoom_factor' : (400.0 / int(step)
+                                                  if int(step) > 0
+                                                  else 1.)}
             self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
@@ -196,8 +193,8 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        scale_r = float(self.cfg['param']['scale_r'])
-        zoom_factor = float(self.cfg['param']['zoom_factor'])
+        scale_r = self.cfg['param']['scale_r']
+        zoom_factor = self.cfg['param']['zoom_factor']
 
         # denormalize the scale
         scale_r *= zoom_factor
@@ -219,13 +216,13 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png")
-            ar.add_file("input.png")
-            ar.add_file("output_MCM.png")
-            ar.add_file("output_AMSS.png")
+            ar.add_file("input_0.png", info="uploaded")
+            ar.add_file("input.png", info="input")
+            ar.add_file("output_MCM.png", info="output MCM")
+            ar.add_file("output_AMSS.png", info="output AMSS")
             ar.add_info({'scale_r' : self.cfg['param']['scale_r'],
                          'zoom_factor' : self.cfg['param']['zoom_factor']})
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 
@@ -257,14 +254,11 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         # read the parameters
-        scale_r = float(self.cfg['param']['scale_r'])
-        grid_step = int(self.cfg['param']['grid_step'])
-        zoom_factor = float(self.cfg['param']['zoom_factor'])
+        scale_r = self.cfg['param']['scale_r']
+        grid_step = self.cfg['param']['grid_step']
+        zoom_factor = self.cfg['param']['zoom_factor']
 
-        return self.tmpl_out("result.html",
-                             input=['input.png?step=%s' % grid_step],
-                             output=['output_MCM.png', 'output_AMSS.png'],
-                             scaleRnorm="%2.2f" % scale_r,
-                             zoomfactor="%2.2f" % zoom_factor, 
+        return self.tmpl_out("result.html", step=grid_step,
+                             scale_r=scale_r, zoom_factor=zoom_factor, 
 			     sizeY="%i" % image(self.work_dir
                                                 + 'input.png').size[1])
