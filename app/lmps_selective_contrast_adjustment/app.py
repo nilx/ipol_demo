@@ -104,8 +104,7 @@ class app(base_app):
                               errmsg="The parameters must be numeric.")
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",
-                             input=['input_0.png'])
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
@@ -163,11 +162,9 @@ class app(base_app):
         # read the parameters
         T = self.cfg['param']['t']
         a = self.cfg['param']['a']
-        return self.tmpl_out("result.html",
-                             input=['input_0.png'],
-                             output=['output_1.png', 'output_2.png'],
+        return self.tmpl_out("result.html", T=T, a=a,
                              sizeY="%i" % image(self.work_dir 
-                                                + 'input_0.png').size[1], T=T, a=a)
+                                                + 'input_0.png').size[1])
 
 
 
