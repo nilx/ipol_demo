@@ -48,7 +48,7 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_file = self.dl_dir + "MissStereo.tar.gz"
-        tgz_url = "https://edit.ipol.im/edit/algo/" + \
+        tgz_url = "http://www.ipol.im/pub/algo/" + \
             "m_quasi_euclidean_epipolar_rectification/MissStereo.tar.gz"
         build_dir = (self.src_dir + os.path.join("MissStereo", "build")
                      + os.path.sep)
