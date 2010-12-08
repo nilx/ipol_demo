@@ -89,10 +89,7 @@ class app(base_app):
         as a special case, we have no parameter to check and pass
         """
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",
-                             input=['input_%i.png' % i
-                                    for i in range(self.input_nb)])
-
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
@@ -168,11 +165,5 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         return self.tmpl_out("result.html", 
-                             input=['input_0.png'],
-                             output=['coarsened_zoom.png',
-                                     'interpolated.png',
-                                     'contour.png'],
                              height=image(self.work_dir
-                                          + 'input_0.png').size[1],
-                             stdout=open(self.work_dir 
-                                         + 'stdout.txt', 'r').read())
+                                          + 'input_0.png').size[1])

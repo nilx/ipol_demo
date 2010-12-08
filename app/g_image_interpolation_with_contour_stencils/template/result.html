@@ -21,7 +21,7 @@
       <a href="#">
 	Original
 	<span>
-	  <img src="${app.work_url + input[0]}"  />
+	  <img src="${app.work_url + 'input_0.png'}"  />
 	</span>
       </a>
     </li>
@@ -29,7 +29,7 @@
       <a href="#">
 	Coarsened
 	<span>
-	  <img src="${app.work_url + output[0]}"/>
+	  <img src="${app.work_url + 'coarsened_zoom.png'}"/>
 	</span>
       </a>
     </li>
@@ -37,7 +37,7 @@
       <a href="#">
 	Interpolated
 	<span>
-	  <img src="${app.work_url + output[1]}" />
+	  <img src="${app.work_url + 'interpolated.png'}" />
 	</span>
       </a>
     </li>
@@ -45,17 +45,15 @@
       <a href="#">
 	Estimated Contour Orientations
 	<span>
-	  <img src="${app.work_url + output[2]}" />
+	  <img src="${app.work_url + 'contour.png'}" />
 	</span>
       </a>
     </li>
   </ul>
 </div>
 
-<h2>stdout</h2>
-<pre class="stdio">
-  ${stdout}
-</pre>
+<h2>Program Output</h2>
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
 
 <hr />
 
