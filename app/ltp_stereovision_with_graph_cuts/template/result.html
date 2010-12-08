@@ -2,30 +2,26 @@
 
 <p>
   The algorithm result is displayed hereafter.
-  It ran in ${"%0.2f" % float(app.cfg['info']['run_time'])}s.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with new input data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset> 
+  <div class="action">
+    Restart this algorithm with new input data.
+    <input type="submit" value="new input" />
+  </div> 
 </form>
 
-<form action="${app.base_url + 'run'}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with other parameters.
-    </p> 
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    Restart this algorithm with other parameters.
     <input type="hidden" name="key" value="${app.key}">
-    <input type="hidden" name="new_run" value="1">
+    <input type="hidden" name="newrun" value="1">
     <label for="K"> K = </label>
     <select name="K">
       %for _k in k_proposed:
       <option value="${_k}"
-	      %if _k == k:
+	      %if _k == app.cfg['param']['k']:
 	      selected="selected"
 	      %endif
 	      >${_k}</option>
@@ -35,26 +31,28 @@
     <select name="lambda">
       %for _l in l_proposed:
       <option value="${_l}"
-	      %if _l == l:
+	      %if _l == app.cfg['param']['lambda']:
 	      selected="selected"
 	      %endif
 	      >${_l}</option>
       %endfor
     </select>
-    <br />
-    <input type="submit" value="next step : run" />
-  </fieldset> 
+    <input type="submit" value="run" />
+  </div> 
 </form>
 
-<h2>result</h2>
+<h2>Result</h2>
+<p>
+K=${app.cfg['param']['k']}, lambda=${app.cfg['param']['lambda']}
+</p>
 
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
     <li>
       <a href="#">
-	disparity map, K=${k}, lambda=${l}
+	disparity map
 	<span>
-	  <img src="${app.work_url + output[0]}" />
+	  <img src="${app.work_url + 'output.png'}" />
 	</span>
       </a>
     </li>
@@ -62,7 +60,7 @@
       <a href="#">
 	first input image
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input_0.png'}" />
 	</span>
       </a>
     </li>
@@ -70,10 +68,15 @@
       <a href="#">
 	second input image
 	<span>
-	  <img src="${app.work_url + input[1]}" />
+	  <img src="${app.work_url + 'input_1.png'}" />
 	</span>
       </a>
     </li>
   </ul>
+</div>
+
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />

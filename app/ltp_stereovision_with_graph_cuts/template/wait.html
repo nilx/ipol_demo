@@ -1,22 +1,15 @@
 <%include file="header.html" />
 
-<center>
-  <img src="http://www.ipol.im/static/demo/running.gif" alt"running..." />
-</center>
+<%include file="wait_info.html" />
 
-<p>
-  The algorithm is running. After 30s or less, your browser should
-  reload this page and display the result.
-</p>
-
-<h2>input images</h2>
+<h2>Input Images</h2>
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
     <li>
       <a href="#">
 	first image
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input_0.png'}" />
 	</span>
       </a>
     </li>
@@ -24,7 +17,7 @@
       <a href="#">
 	second image
 	<span>
-	  <img src="${app.work_url + input[1]}" />
+	  <img src="${app.work_url + 'input_1.png'}" />
 	</span>
       </a>
     </li>
@@ -32,4 +25,3 @@
 </div>
 
 <%include file="footer.html" />
-

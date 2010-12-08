@@ -5,7 +5,8 @@ interaction script
 # pylint: disable=C0103
 
 from lib import base_app, build, image, http
-from lib.misc import init_app, app_expose, ctime
+from lib.misc import app_expose, ctime
+from lib.base_app import init_app
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -31,10 +32,7 @@ def frac2str(q):
     """
     represent a rational number as string
     """
-    if 1 == q[1]:
-        return "%i" % q[0]
-    else:
-        return "%i/%i" % q
+    return "%i/%i" % q
 #
 # INTERACTION
 #
@@ -135,6 +133,7 @@ class app(base_app):
         """
         params handling and run redirection
         """
+        # TODO: handle newrun
         try:
             if 'K' in kwargs:
                 k_ = str2frac(kwargs['K'])
@@ -149,8 +148,6 @@ class app(base_app):
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
-                             input=['input_0.png',
-                                    'input_1.png'],
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -177,12 +174,12 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png")
-            ar.add_file("input_1.png")
-            ar.add_file("output.png")
+            ar.add_file("input_0.png", info="input #1")
+            ar.add_file("input_1.png", info="input #2")
+            ar.add_file("output.png", info="output")
             ar.add_info({"k" : self.cfg['param']['k'],
                          "lambda" : self.cfg['param']['lambda']})
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 
@@ -285,12 +282,8 @@ class app(base_app):
         l = str2frac(self.cfg['param']['lambda'])
 
         return self.tmpl_out("result.html",
-                             input=['input_0.png', 'input_1.png'],
-                             output=['output.png'],
                              height=image(self.work_dir 
                                           + 'input_0.png').size[1],
-                             k=self.cfg['param']['k'],
-                             l=self.cfg['param']['lambda'],
                              k_proposed=[frac2str((k[0] * 1, k[1] * 2)),
                                          frac2str((k[0] * 2, k[1] * 3)),
                                          frac2str((k[0] * 1, k[1] * 1)),
