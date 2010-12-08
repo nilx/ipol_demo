@@ -1,0 +1,21 @@
+<%include file="header.html" />
+
+
+<h2>Algorithm Parameters</h2>
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+    <label for="T"><i>T</i>(range: [0, 255])=</label>
+    <input type="text" name="T" value="50" size="5" /><br />
+    <label for="a"><i>a</i>(range: [0.0, 5.0])=</label>
+    <input type="text" name="a" value="2.5" size="5" /><br />
+    <input type="submit" value="run" />
+  </div>
+</form>
+
+<h2>Input Image</h2>
+
+<img src="${app.work_url + 'input_0.png'}" alt="" /> 
+
+<%include file="footer.html" />
