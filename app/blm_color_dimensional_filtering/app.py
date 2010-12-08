@@ -4,7 +4,9 @@ rgbprocess ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app, build, http, image
-from lib.misc import init_app, ctime
+from lib.misc import ctime
+from lib.misc import gzip
+from lib.base_app import init_app
 import shutil
 import cherrypy
 from cherrypy import TimeoutError
@@ -17,8 +19,8 @@ class app(base_app):
     title = "Image Color Cube Dimensional Filtering and Visualization"
 
     input_nb = 1
-    input_max_pixels = 480000 # max size (in pixels) of an input image
-    input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
+    input_max_pixels = 700 * 700 # max size (in pixels) of an input image
+    input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
@@ -46,7 +48,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/edit/algo/" \
+        tgz_url = "http://www.ipol.im/pub/algo/" \
             + "blm_color_dimensional_filtering/rgbprocess.tar.gz"
         tgz_file = self.dl_dir + "rgbprocess.tar.gz"
         prog_file = self.bin_dir + "rgbprocess"
@@ -86,7 +88,7 @@ class app(base_app):
         """
         select a rectangle in the image
         """
-        if action == 'Run':
+        if action == 'run':
             # use the whole image
             img = image(self.work_dir + 'input_0.png')
             img.save(self.work_dir + 'input' + self.input_ext)
@@ -105,9 +107,7 @@ class app(base_app):
                 img.draw_cross((x, y), size=4, color="white")
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
-                return self.tmpl_out("params.html",
-                                     input=['input.png?xy=%i,%i' % (x, y)],
-                                     x0=x, y0=y)
+                return self.tmpl_out("params.html", x0=x, y0=y)
             else:
                 # second corner selection
                 x0 = int(x0)
@@ -119,10 +119,15 @@ class app(base_app):
                 (y0, y1) = (min(y0, y1), max(y0, y1))
                 assert (x1 - x0) > 0
                 assert (y1 - y0) > 0
+                # draw selected rectangle on the image
+                imgS = image(self.work_dir + 'input_0.png')
+                imgS.draw_line([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)], color="red")
+                imgS.draw_line([(x0+1, y0+1), (x1-1, y0+1), (x1-1, y1-1), (x0+1, y1-1), (x0+1, y0+1)], color="white")
+                imgS.save(self.work_dir + 'input_0s.png')
                 # crop the image
                 img = image(self.work_dir + 'input_0.png')
                 img.crop((x0, y0, x1, y1))
-                # zoom the cropped area
+               # zoom the cropped area
                 (dx, dy) = img.size
                 if (dx < 400) and (dy < 400) :
                     if dx > dy :
@@ -146,8 +151,7 @@ class app(base_app):
         """
         # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",
-                             input=['input.png'])
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
@@ -171,11 +175,12 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png", info="original image")
-            ar.add_file("input.png", info="processed image")
-            ar.add_file("output_1.png", info="corrected image")
-            ar.add_file("output_2.png", info="merged image")
-            ar.commit()
+            ar.add_file("input_0.png", info="uploaded image")
+	    if (os.path.isfile(self.work_dir + 'input_0s.png') == True) :
+		ar.add_file("input_0s.png", info="sub-image selection")
+            ar.add_file("input.png", info="input image")
+            ar.add_file("output_2.png", info="output image")
+            ar.save()
 
         return self.tmpl_out("run.html")
 
@@ -190,40 +195,70 @@ class app(base_app):
                            stdout=stdout, stderr=stdout)
         p2 = self.run_proc(['rgbprocess', 'RGBviewsparams',
                             'RGBviewsparams.txt'],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         self.wait_proc([p1, p2], timeout)
 
         p3 = self.run_proc(['rgbprocess', 'filter',
                             'input_1.png', 'output_1.png'],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         wOut = 300
         hOut = 300
         displayDensity = 0
         p4 = self.run_proc(['rgbprocess', 'RGBviews',
                             'input_1.png', 'RGBviewsparams.txt', 'inRGB', 
                             str(wOut), str(hOut), str(displayDensity)],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         self.wait_proc([p3, p4], timeout)
 
         p5 = self.run_proc(['rgbprocess', 'RGBviews',
                             'output_1.png', 'RGBviewsparams.txt', 'outRGB', 
                             str(wOut), str(hOut), str(displayDensity)],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         displayDensity = 1
-        p6 = self.run_proc(['rgbprocess', 'RGBviews',
+        p6a = self.run_proc(['rgbprocess', 'densityimage',
+                            'output_1.png', 'dstyimage.png'],
+                           stdout=None, stderr=stdout)
+        self.wait_proc([p5, p6a], timeout)
+        p6b = self.run_proc(['rgbprocess', 'RGBviews',
                             'output_1.png', 'RGBviewsparams.txt', 'dstyRGB', 
-                           str(wOut), str(hOut), str(displayDensity)],
-                           stdout=stdout, stderr=stdout)
-        self.wait_proc([p5, p6], timeout)
+                           str(wOut), str(hOut), str(displayDensity), 'dstyimage.png'],
+                           stdout=None, stderr=stdout)
+        self.wait_proc(p6b, timeout)
 
         p7 = self.run_proc(['rgbprocess', 'combineviews',
                             'RGBviewsparams.txt',
                             'inRGB', 'outRGB', 'dstyRGB', 'view'], 
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         p8 = self.run_proc(['rgbprocess', 'mergeimages',
                             'output_1.png', 'input.png', 'output_2.png'],
-                           stdout=stdout, stderr=stdout)
+                           stdout=None, stderr=stdout)
         self.wait_proc([p7, p8], timeout)
+
+        p9 = self.run_proc(['rgbprocess', 'countcolors',
+                            'output_2.png'],
+                           stdout=stdout, stderr=stdout)
+        p10 = self.run_proc(['rgbprocess', 'computeRMSE',
+                            'input.png', 'output_2.png'],
+                           stdout=stdout, stderr=stdout)
+        self.wait_proc([p9, p10], timeout)
+
+	
+        displayDensity = 0
+        p11 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'input_1.png', 'input_1_RGB.wrl', str(displayDensity)],
+                           stdout=None, stderr=None)
+	p12 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'output_1.png', 'output_1_RGB.wrl', str(displayDensity)],
+                           stdout=None, stderr=None)
+        displayDensity = 1
+        p13 = self.run_proc(['rgbprocess', 'RGB2VRML2',
+                            'output_1.png', 'output_1_RGBd.wrl', str(displayDensity), 'dstyimage.png'],
+                           stdout=None, stderr=None)
+        self.wait_proc([p11, p12, p13], timeout)
+
+	#compress .wrl files
+        for fname in ["input_1_RGB", "output_1_RGB", "output_1_RGBd"]:
+          gzip(self.work_dir + fname + ".wrl")
 
 
     @cherrypy.expose
@@ -233,9 +268,5 @@ class app(base_app):
         display the algo results
         """
         return self.tmpl_out("result.html",
-                             input=['input.png'],
-                             output=['output_2.png'],
-                             views=['view_%i.png' % i 
-                                    for i in range(100, 127)],
-                             sizeY="%i" % image(self.work_dir 
-                                                + 'input.png').size[1])
+			     useOriginal=os.path.isfile(self.work_dir + 'input_0s.png'),
+                             sizeY="%i" % image(self.work_dir + 'input.png').size[1])
