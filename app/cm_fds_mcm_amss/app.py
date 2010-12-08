@@ -132,14 +132,10 @@ class app(base_app):
                 img = image(self.work_dir + 'input_0.png')
                 img.draw_grid(step)
                 img.save(self.work_dir + 'input_grid.png')
-                input_img = ['input_grid.png'
-                             + '?step=%i' % step]
                 grid = True
             else:
-                input_img = ['input_0.png']
                 grid = False
-            return self.tmpl_out("params.html",
-                                 input=input_img, step=step, grid=grid)
+            return self.tmpl_out("params.html", step=step, grid=grid)
         else:
             # use a part of the image
             x = int(x)
@@ -262,10 +258,7 @@ class app(base_app):
         grid_step = self.cfg['param']['grid_step']
         zoom_factor = self.cfg['param']['zoom_factor']
 
-        return self.tmpl_out("result.html",
-                             input=['input.png?step=%s' % grid_step],
-                             output=['output_MCM.png', 'output_AMSS.png'],
-                             scaleRnorm="%2.2f" % scale_r,
-                             zoomfactor="%2.2f" % zoom_factor, 
+        return self.tmpl_out("result.html", step=grid_step,
+                             scale_r=scale_r, zoom_factor=zoom_factor, 
 			     sizeY="%i" % image(self.work_dir
                                                 + 'input.png').size[1])

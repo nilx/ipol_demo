@@ -3,7 +3,7 @@
 <p>
   You can now choose the parameters, and run the numerical schemes.
 </p>
-  
+
 <form action="${app.base_url + 'grid'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
@@ -49,9 +49,10 @@
 		and select the portion of the image by clicking:<br />
 		%if grid:
 		<input type="hidden" name="grid_step" value="${step}">
-		<input type="image" name="" src="${app.work_url + input[0]}" />
+		<input type="image" name=""
+		       src="${app.work_url + 'input_grid.png?step=%i' % step}" />
 		%else:
-		<img src="${app.work_url + input[0]}" />
+		<img src="${app.work_url + 'input_0.png'}" />
 		%endif
 	      </li>
 	    </ol>
