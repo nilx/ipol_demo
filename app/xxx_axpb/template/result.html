@@ -5,46 +5,46 @@
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with new data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset>
+  <div class="action">
+    Restart this algorithm with new data.
+    <input type="submit" value="new input" />
+  </div>
 </form>
 
 <form action="${app.base_url + 'params'}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with new parameters.
-    </p>
+  <div class="action">
+    Restart this algorithm with new parameters.
     <input type="hidden" name="key" value="${app.key}">
     <input type="hidden" name="newrun" value="1">
-    <input type="submit" value="back to : parameters" />
-  </fieldset>
+    <input type="submit" value="new parameters" />
+  </div>
 </form>
 
 <hr />
 
-<h2>result</h2>
+<h2>Result</h2>
 
 <div class="gallery" style="height:${height}px">
   <ul class="index">
     <li>
       <a href="#">input
 	<span>
-	  <img src="${app.work_url + input[0]}" alt="input" />
+	  <img src="${app.work_url + 'input_0.png'}" alt="input" />
 	</span>
       </a>
     </li>
     <li>
       <a href="#">output
 	<span>
-	  <img src="${app.work_url + output[0]}" alt="output" />
+	  <img src="${app.work_url + 'output.png'}" alt="output" />
 	</span>
       </a>
     </li>
   </ul>
 </div>
+
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />

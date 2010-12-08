@@ -4,7 +4,8 @@ demo example for the X->aX+b transform
 # pylint: disable=C0103
 
 from lib import base_app, build, http, image
-from lib.misc import init_app, app_expose, ctime
+from lib.misc import app_expose, ctime
+from lib.base_app import init_app
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -77,15 +78,14 @@ class app(base_app):
         # save and validate the parameters
         try:
             self.cfg['param'] = {'a' : float(a),
-                                  'b' : float(b)}
+                                 'b' : float(b)}
             self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",
-                             input=['input_0.png'])
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
@@ -94,8 +94,8 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-        a = float(self.cfg['param']['a'])
-        b = float(self.cfg['param']['b'])
+        a = self.cfg['param']['a']
+        b = self.cfg['param']['b']
         # run the algorithm
         try:
             self.run_algo(a, b)
@@ -108,10 +108,10 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png", "input.png")
-            ar.add_file("output.png")
+            ar.add_file("input_0.png", "input.png", info="input")
+            ar.add_file("output.png", info="output")
             ar.add_info({"a": a, "b": b})
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 
@@ -133,7 +133,5 @@ class app(base_app):
         display the algo results
         """
         return self.tmpl_out("result.html",
-                             input=['input_0.png'],
-                             output=['output.png'],
                              height=image(self.work_dir
                                           + 'output.png').size[1])

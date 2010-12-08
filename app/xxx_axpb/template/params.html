@@ -8,25 +8,21 @@
 </p>
 
 <form action="${app.base_url + 'wait'}" method="get">
-  <fieldset>
-    <p>
-      Algorithm Parameters
-    </p>
+  <div class="action">
+    Set the algorithm parameters and run the algorithm.
     <input type="hidden" name="key" value="${app.key}">
-    <label for="a">value for <i>a</i>:</label>
-    <input type="text" name="a" value="1." size="5" /><br />
-    <label for="b">value for <i>b</i>:</label>
-    <input type="text" name="b" value="0." size="5" /><br />
-    <input type="submit" value="next step : run" />
-  </fieldset>
+    <label for="a"><i>a</i>:</label>
+    <input type="text" name="a" value="1." size="4" />
+    <label for="b"><i>b</i>:</label>
+    <input type="text" name="b" value="0." size="4" />
+    <input type="submit" value="run" />
+  </div>
 </form>
 
 <hr />
 
 <div>
-  % for input_url in input:
-  <img src="${app.work_url + input_url}" alt="" /> 
-  % endfor
+  <img src="${app.work_url + 'input_0.png'}" alt="" /> 
 </div>
 
 <%include file="footer.html" />
