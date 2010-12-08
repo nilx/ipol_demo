@@ -4,7 +4,8 @@ ASIFT demo interaction script
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import init_app, app_expose, ctime
+from lib.misc import app_expose, ctime
+from lib.base_app import init_app
 from cherrypy import TimeoutError
 import cherrypy
 import os.path
@@ -108,9 +109,7 @@ class app(base_app):
         """
         # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",
-                             input=['input_0.png',
-                                    'input_1.png'])
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
@@ -137,10 +136,10 @@ class app(base_app):
             ar = self.make_archive()
             ar.add_file("input_0.png", info="first input image")
             ar.add_file("input_1.png", info="second input image")
-            ar.add_file("output_ASIFT_V.png", info="ASIFT matches")
             ar.add_file("output_SIFT_V.png", info="SIFT matches")
+            ar.add_file("output_ASIFT_V.png", info="ASIFT matches")
             ar.add_file("match_ASIFT.txt", compress=True)
-            ar.commit()
+            ar.save()
 
         return self.tmpl_out("run.html")
 
@@ -169,17 +168,6 @@ class app(base_app):
         """
         display the algo results
         """
-        match_ASIFT = open(self.work_dir + 'match_ASIFT.txt')
-        match_SIFT = open(self.work_dir + 'match_SIFT.txt')
-
         return self.tmpl_out("result.html",
-                             input=['input_0.png', 'input_1.png'],
-                             output_h='output_ASIFT_H.png',
-                             output_v='output_ASIFT_V.png',
-                             output_v_sift='output_SIFT_V.png',
-                             match='match_ASIFT.txt',
-                             keys=['keys_0_ASIFT.txt', 'keys_1_ASIFT.txt'],
-                             nbmatch=int(match_ASIFT.readline().split()[0]),
-                             nbmatch_SIFT=int(match_SIFT.readline().split()[0]),
-                             stdout=open(self.work_dir
-                                         + 'stdout.txt', 'r').read())
+                             height=image(self.work_dir 
+                                          + 'output_ASIFT_V.png').size[1])

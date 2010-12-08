@@ -1,21 +1,18 @@
 <%include file="header.html" />
 
 <form action="${app.base_url + 'wait'}" method="get">
-  <fieldset>
-    <p>
-      You can now run the ASIFT algorithm on these 2 images.
-    </p>
+  <div class="action">
+    The demo will show the results of ASIFT and SIFT.
     <input type="hidden" name="key" value="${app.key}">
-    <input type="submit" value="next step : run" />
-  </fieldset>
+    <input type="submit" value="run SIFT and ASIFT" />
+  </div>
 </form>
 
 <hr />
 
 <div>
-  %for input_url in input:
-  <img src="${app.work_url + input_url}" alt="" /> 
-  %endfor
+  <img src="${app.work_url + 'input_0.png'}" alt="" /> 
+  <img src="${app.work_url + 'input_1.png'}" alt="" /> 
 </div>
 
 <%include file="footer.html" />

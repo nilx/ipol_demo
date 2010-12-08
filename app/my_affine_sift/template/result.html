@@ -2,61 +2,70 @@
 
 <p>
   The algorithm result is displayed hereafter.
-  It ran in ${"%0.2f" % float(app.cfg['info']['run_time'])}s.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
+  <div class="action">
       You can run again this algorithm with new data.
-    </p>
-    <input type="submit" value="back to : input" />
-  </fieldset>
+      <input type="submit" value="new input" />
+  </div>
 </form>
 
 <hr />
 
-<h2>stdout</h2>
+<h2>Program Output</h2>
 
-<pre class="stdio">
-  ${stdout}
-</pre>
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
 
-<h2>output</h2>
+<h2>Output</h2>
 
-<table>
-  <tr style="font-size:120%; font-weight:bold; text-align: center;">
-    <td>ASIFT: ${nbmatch} matches</td>
-    <td>SIFT: ${nbmatch_SIFT} matches</td>
-  </tr>
-  <tr>
-    <td>
-      <img src="${app.work_url + output_v}" />
-    </td>
-    <td>
-      <img src="${app.work_url + output_v_sift}" />
-    </td>
-  </tr>
-</table>
+<div class="gallery" style="height:${height}px; width:100%;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	ASIFT<br />
+	${int(open(app.work_dir + 'match_ASIFT.txt').readline().split()[0])}
+	matches
+	<span>
+	  <img src="${app.work_url + 'output_ASIFT_V.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	SIFT<br />
+	${int(open(app.work_dir + 'match_SIFT.txt').readline().split()[0])}
+	matches
+	<span>
+	  <img src="${app.work_url + 'output_SIFT_V.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
 
 <ul>
   <li>
-    <a href="${app.work_url + output_h}"/>ASIFT output image
+    <a href="${app.work_url + 'output_ASIFT_H.png'}"/>ASIFT output image
     (horizontal layout)</a>
   </li>
   <li>
-    <a href="${app.work_url + match}">coordinates of ASIFT match
+    <a href="${app.work_url + 'match_ASIFT.txt'}">coordinates of ASIFT match
     points</a>
   </li>
   <li>ASIFT keypoints in
-    the <a href="${app.work_url + keys[0]}">first</a>
-    and <a href="${app.work_url + keys[1]}">second</a> image</li>
+    the <a href="${app.work_url + 'keys_0_ASIFT.txt'}">first</a>
+    and <a href="${app.work_url + 'keys_1_ASIFT.txt'}">second</a> image</li>
 </ul>
 
-<h2>input</h2>
+<h2>Input</h2>
 
-% for input_url in input:
-<img src="${app.work_url + input_url}" alt="" /> <br/>
-% endfor
+<img src="${app.work_url + 'input_0.png'}" alt="" />
+<img src="${app.work_url + 'input_1.png'}" alt="" />
+
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />
