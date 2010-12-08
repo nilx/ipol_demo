@@ -109,9 +109,7 @@ class app(base_app):
         """
         # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",
-                             input=['input_0.png',
-                                    'input_1.png'])
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
@@ -170,19 +168,6 @@ class app(base_app):
         """
         display the algo results
         """
-        match_ASIFT = open(self.work_dir + 'match_ASIFT.txt')
-        match_SIFT = open(self.work_dir + 'match_SIFT.txt')
-        output_img = image(self.work_dir + 'output_ASIFT_V.png')
-
         return self.tmpl_out("result.html",
-                             input=['input_0.png', 'input_1.png'],
-                             output_h='output_ASIFT_H.png',
-                             output_v='output_ASIFT_V.png',
-                             output_v_sift='output_SIFT_V.png',
-                             match='match_ASIFT.txt',
-                             height=output_img.size[1],
-                             keys=['keys_0_ASIFT.txt', 'keys_1_ASIFT.txt'],
-                             nbmatch=int(match_ASIFT.readline().split()[0]),
-                             nbmatch_SIFT=int(match_SIFT.readline().split()[0]),
-                             stdout=open(self.work_dir
-                                         + 'stdout.txt', 'r').read())
+                             height=image(self.work_dir 
+                                          + 'output_ASIFT_V.png').size[1])

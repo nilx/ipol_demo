@@ -14,31 +14,31 @@
 
 <hr />
 
-<h2>stdout</h2>
+<h2>Program Output</h2>
 
-<pre class="stdio">
-  ${stdout}
-</pre>
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
 
-<h2>output</h2>
+<h2>Output</h2>
 
 <div class="gallery" style="height:${height}px; width:100%;">
   <ul class="index">
     <li>
       <a href="#">
 	ASIFT<br />
-	${nbmatch} matches
+	${int(open(app.work_dir + 'match_ASIFT.txt').readline().split()[0])}
+	matches
 	<span>
-	  <img src="${app.work_url + output_v}" />
+	  <img src="${app.work_url + 'output_ASIFT_V.png'}" />
 	</span>
       </a>
     </li>
     <li>
       <a href="#">
 	SIFT<br />
-	${nbmatch_SIFT} matches
+	${int(open(app.work_dir + 'match_SIFT.txt').readline().split()[0])}
+	matches
 	<span>
-	  <img src="${app.work_url + output_v_sift}" />
+	  <img src="${app.work_url + 'output_SIFT_V.png'}" />
 	</span>
       </a>
     </li>
@@ -47,23 +47,22 @@
 
 <ul>
   <li>
-    <a href="${app.work_url + output_h}"/>ASIFT output image
+    <a href="${app.work_url + 'output_ASIFT_H.png'}"/>ASIFT output image
     (horizontal layout)</a>
   </li>
   <li>
-    <a href="${app.work_url + match}">coordinates of ASIFT match
+    <a href="${app.work_url + 'match_ASIFT.txt'}">coordinates of ASIFT match
     points</a>
   </li>
   <li>ASIFT keypoints in
-    the <a href="${app.work_url + keys[0]}">first</a>
-    and <a href="${app.work_url + keys[1]}">second</a> image</li>
+    the <a href="${app.work_url + 'keys_0_ASIFT.txt'}">first</a>
+    and <a href="${app.work_url + 'keys_1_ASIFT.txt'}">second</a> image</li>
 </ul>
 
-<h2>input</h2>
+<h2>Input</h2>
 
-% for input_url in input:
-<img src="${app.work_url + input_url}" alt="" /> <br/>
-% endfor
+<img src="${app.work_url + 'input_0.png'}" alt="" />
+<img src="${app.work_url + 'input_1.png'}" alt="" />
 
 <hr />
 
