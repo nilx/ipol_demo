@@ -104,9 +104,7 @@ class app(base_app):
             != image(self.work_dir + 'input_1.png').size):
             return self.error('badparams',
                               "The images must have the same size")
-        return self.tmpl_out("params.html", msg=msg,
-                             input=['input_%i.png' % i
-                                    for i in range(self.input_nb)])
+        return self.tmpl_out("params.html")
 
     @cherrypy.expose
     @init_app
@@ -115,8 +113,7 @@ class app(base_app):
         params handling and run redirection
         """
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html", 
-                             input=['input_0.png', 'input_1.png'],
+        return self.tmpl_out("wait.html",
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -215,22 +212,8 @@ class app(base_app):
         display the algo results
         """
         if error_nomatch:
-            return self.tmpl_out("result.html",
-                                 error_nomatch=True,
-                                 stdout=open(self.work_dir
-                                             + 'stdout.txt', 'r').read())
+            return self.tmpl_out("result_nomatch.html")
         else:
             return self.tmpl_out("result.html",
-                                 input=['input_0.png', 'input_1.png'],
-                                 disp=['disp1_0.png', 'disp2_0.png',
-                                       'disp3_0.png', 'disp4_0.png'],
-                                 rect=['rect_0.png', 'rect_1.png'],
-                                 orsa='orsa.txt',
-                                 homo=['homo_0.txt', 'homo_1.txt'],
-                                 exact=['disp1_0.tif', 'disp2_0.tif',
-                                        'disp3_0.tif', 'disp4_0.tif'],
-                                 ply='disp3_0.ply',
                                  height=image(self.work_dir
-                                              + 'input_0.png').size[1],
-                                 stdout=open(self.work_dir
-                                             + 'stdout.txt', 'r').read())
+                                              + 'input_0.png').size[1])

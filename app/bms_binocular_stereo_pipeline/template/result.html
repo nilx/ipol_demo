@@ -1,17 +1,5 @@
 <%include file="header.html" />
 
-%if error_nomatch:
-
-<p>
-  The images seem to have no common part.
-  See below for a possible explanation.
-</p>
-<pre class="stdio">
-${stdout}
-</pre>
-
-%else:
-
 <p>
   The algorithm result is displayed hereafter.
   It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
@@ -34,7 +22,7 @@ ${stdout}
       <a href="#">
 	original image 1
 	<span>
-	  <img src="${app.work_url + input[0]}" />
+	  <img src="${app.work_url + 'input_0.png'}" />
 	</span>
       </a>
     </li>
@@ -42,7 +30,7 @@ ${stdout}
       <a href="#">
 	original image 2
 	<span>
-	  <img src="${app.work_url + input[1]}" />
+	  <img src="${app.work_url + 'input_1.png'}" />
 	</span>
       </a>
     </li>
@@ -50,7 +38,7 @@ ${stdout}
       <a href="#">
 	rectified image 2
 	<span>
-	  <img src="${app.work_url + rect[1]}" />
+	  <img src="${app.work_url + 'rect_1.png'}" />
 	</span>
       </a>
     </li>
@@ -58,7 +46,7 @@ ${stdout}
       <a href="#">
 	rectified image 1
 	<span>
-	  <img src="${app.work_url + rect[0]}" />
+	  <img src="${app.work_url + 'rect_0.png'}" />
 	</span>
       </a>
     </li>
@@ -66,7 +54,7 @@ ${stdout}
       <a href="#">
 	AC pixel disparity
 	<span>
-	  <img src="${app.work_url + disp[0]}" />
+	  <img src="${app.work_url + 'disp1_0.png'}" />
 	</span>
       </a>
     </li>
@@ -74,7 +62,7 @@ ${stdout}
       <a href="#">
 	self-sim. filter disp.
 	<span>
-	  <img src="${app.work_url + disp[1]}" />
+	  <img src="${app.work_url + 'disp2_0.png'}" />
 	</span>
       </a>
     </li>
@@ -82,7 +70,7 @@ ${stdout}
       <a href="#">
 	sub-pixel disparity
 	<span>
-	  <img src="${app.work_url + disp[2]}" />
+	  <img src="${app.work_url + 'disp3_0.png'}" />
 	</span>
       </a>
     </li>
@@ -90,7 +78,7 @@ ${stdout}
       <a href="#">
 	denser disparity
 	<span>
-	  <img src="${app.work_url + disp[3]}" />
+	  <img src="${app.work_url + 'disp4_0.png'}" />
 	</span>
       </a>
     </li>
@@ -99,24 +87,24 @@ ${stdout}
 
 <ul>
   <li>
-    <a href="${app.work_url + orsa}">correspondences</a>
+    <a href="${app.work_url + 'orsa.txt.gz'}">correspondences</a>
   </li>
   <li>homography: 
-    <a href="${app.work_url + homo[0]}">first image</a>,
-    <a href="${app.work_url + homo[1]}">second image</a>
+    <a href="${app.work_url + 'homo_0.txt'}">first image</a>,
+    <a href="${app.work_url + 'homo_1.txt'}">second image</a>
   </li>
   <li>rectified images: 
-    <a href="${app.work_url + rect[0]}">first image</a>,
-    <a href="${app.work_url + rect[1]}">second image</a>
+    <a href="${app.work_url + 'rect_0.png'}">first image</a>,
+    <a href="${app.work_url + 'rect_1.png'}">second image</a>
   </li>
   <li>exact floating-point maps: 
-    <a href="${app.work_url + exact[0]}">AC pixel disparity</a>,
-    <a href="${app.work_url + exact[1]}">self-sim. filter disparity</a>,
-    <a href="${app.work_url + exact[2]}">subpixel disparity</a>
-    <a href="${app.work_url + exact[3]}">denser disparity</a>
+    <a href="${app.work_url + 'disp1_0.tif'}">AC pixel disparity</a>,
+    <a href="${app.work_url + 'disp2_0.tif'}">self-sim. filter disparity</a>,
+    <a href="${app.work_url + 'disp3_0.tif'}">subpixel disparity</a>,
+    <a href="${app.work_url + 'disp4_0.tif'}">denser disparity</a>
   </li>
   <li>
-    <a href="${app.work_url + ply}">3D mesh</a><br/>
+    <a href="${app.work_url + 'disp4_0.ply.gz'}">3D mesh</a><br/>
     This PLY file, containing 3D point cloud reconstruction data,
     can be visualized with open source softwares
     <a href="http://meshlab.sourceforge.net/">MeshLab</a> or
@@ -125,12 +113,10 @@ ${stdout}
 
 <h2>Program Output</h2>
 
-<pre class="stdio">${stdout}</pre>
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
 
 <hr />
 
 <%include file="archive_info.html" />
-
-%endif
 
 <%include file="footer.html" />
