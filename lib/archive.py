@@ -244,8 +244,8 @@ def index_rebuild(indexdb, path):
         try:
             _add_record(c, bucket(path=path, key=key))
         except Exception:
-            cherrypy.log("indexing failed : %s %s", (path, key),
-                         context="SETUP", traceback=False)
+            cherrypy.log("indexing failed : %s %s" % (path, key),
+                         context="ERROR", traceback=False)
     db.commit()
     c.close()
 
