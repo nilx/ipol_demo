@@ -224,6 +224,8 @@ def index_rebuild(indexdb, path):
     """
     create an index of the archive buckets
     """
+    # TODO: atomic rebuild
+    # (build into another file,and display "rebuilding...")
     cherrypy.log("(re)building the archive index %s" % indexdb,
                  context='SETUP', traceback=False)
     db = sqlite3.connect(indexdb)
@@ -243,7 +245,7 @@ def index_rebuild(indexdb, path):
             _add_record(c, bucket(path=path, key=key))
         except Exception:
             cherrypy.log("indexing failed : %s %s", (path, key),
-                         context="ERROR", Traceback=False)
+                         context="ERROR", traceback=False)
     db.commit()
     c.close()
 
