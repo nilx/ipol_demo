@@ -27,7 +27,11 @@
     <li>
       <a href="#">output
 	<span>
+	  %if with_png:
 	  <img src="${app.work_url + "output.png"}" alt="output" />
+	  %else:
+	  The png output is missing, see the server logs for details.
+	  %endif
 	</span>
       </a>
     </li>

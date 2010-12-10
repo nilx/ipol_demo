@@ -101,19 +101,22 @@ class app(base_app):
         if self.cfg['meta']['original']:
             ar = self.make_archive()
             ar.add_file("input_0.png","input.png")
-            ar.add_file("output.txt")
-            ar.add_file("output.eps")
-            ar.add_file("output.svg")
+            ar.add_file("output.txt", compress=True)
+            ar.add_file("output.eps", compress=True)
+            ar.add_file("output.svg", compress=True)
             ar.add_file("output.png")
-            version_file = open(self.work_dir + "version.txt", "w")
-            p = self.run_proc(["lsd", "--version"], stdout=version_file)
-            self.wait_proc(p)
-            version_file.close()
-            version_file = open(self.work_dir + "version.txt", "r")
-            version_info = version_file.readline()
-            version_file.close()
+            try:
+                version_file = open(self.work_dir + "version.txt", "w")
+                p = self.run_proc(["lsd", "--version"], stdout=version_file)
+                self.wait_proc(p)
+                version_file.close()
+                version_file = open(self.work_dir + "version.txt", "r")
+                version_info = version_file.readline()
+                version_file.close()
+            except Exception:
+                version_info = "unknown"
             ar.add_info({"code version" : version_info})
-            ar.commit()
+            ar.save()
         return self.tmpl_out("run.html")
 
     def run_algo(self):
@@ -125,11 +128,15 @@ class app(base_app):
         p = self.run_proc(['lsd','-P','output.eps','-S','output.svg',
                            'input_0.pgm','output.txt']) 
         self.wait_proc(p)
-        p = self.run_proc(['/usr/bin/gs','-dNOPAUSE','-dBATCH',
-                           '-sDEVICE=pnggray','-dGraphicsAlphaBits=4',
-                           '-r72','-dEPSCrop','-sOutputFile=output.png',
-                           'output.eps'])
-        self.wait_proc(p)
+        try:
+            p = self.run_proc(['/usr/bin/gs','-dNOPAUSE','-dBATCH',
+                               '-sDEVICE=pnggray','-dGraphicsAlphaBits=4',
+                               '-r72','-dEPSCrop','-sOutputFile=output.png',
+                               'output.eps'])
+            self.wait_proc(p)
+        except OSError:
+            self.log("eps->png conversion failed,"
+                     + " gs is probably missing on this system")
         return
 
     @cherrypy.expose
@@ -139,5 +146,7 @@ class app(base_app):
         display the algo results
         """
         return self.tmpl_out("result.html",
+                             with_png=os.path.isfile(self.work_dir 
+                                                     + 'output.png'),
                              height=image(self.work_dir
-                                          + 'output.png').size[1])
+                                          + 'input_0.png').size[1])
