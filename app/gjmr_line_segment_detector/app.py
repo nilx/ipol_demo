@@ -14,7 +14,7 @@ import shutil
 class app(base_app):
     """ template demo app """
     
-    title = "LSD"
+    title = "LSD: a Line Segment Detector"
     input_nb = 1 # number of input images
     input_max_pixels = 1000000 # max size (in pixels) of an input image
     input_max_weight = 3 * input_max_pixels # max size (in bytes) of an input file
