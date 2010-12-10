@@ -5,13 +5,13 @@
 </p>
 
 <form action="${app.base_url}" method="get">
-  <fieldset>
-    <p>
-      Restart this algorithm with new data.
-      <input type="submit" value="back to : input" />
-    </p>
-  </fieldset>
+  <div class="action">
+    Restart this algorithm with new data.
+    <input type="submit" value="new input" />
+  </div>
 </form>
+
+<hr />
 
 <h2>Result</h2>
 
@@ -44,5 +44,9 @@
     </li>
   </ul>
 </div>
+
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />

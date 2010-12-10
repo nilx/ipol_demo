@@ -5,11 +5,13 @@
 </p>
 
 <form action="${app.base_url + 'wait'}" method="get">
-  <fieldset>
+  <div class="action">
     <input type="hidden" name="key" value="${app.key}">
-    <input type="submit" value="next step : run" />
-  </fieldset>
+    <input type="submit" value="run" />
+  </div>
 </form>
+
+<hr />
 
 <div>
   <img src="${app.work_url + "input_0.png"}" alt="" /> 
