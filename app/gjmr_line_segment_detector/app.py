@@ -80,7 +80,7 @@ class app(base_app):
         params handling and run redirection
         """
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",input=['input_0.png'])
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
