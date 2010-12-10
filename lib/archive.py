@@ -239,7 +239,11 @@ def index_rebuild(indexdb, path):
               + "on buckets (date, public)")
     # populate the db
     for key in list_key(path):
-        _add_record(c, bucket(path=path, key=key))
+        try:
+            _add_record(c, bucket(path=path, key=key))
+        except Exception:
+            cherrypy.log("indexing failed : %s %s", (path, key),
+                         context="ERROR", Traceback=False)
     db.commit()
     c.close()
 
