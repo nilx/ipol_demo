@@ -17,7 +17,8 @@ class app(base_app):
     title = "LSD: a Line Segment Detector"
     input_nb = 1 # number of input images
     input_max_pixels = 1000000 # max size (in pixels) of an input image
-    input_max_weight = 3 * input_max_pixels # max size (in bytes) of an input file
+    input_max_weight = 3 * input_max_pixels # max size (in bytes)
+                                            # of an input file 
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.pgm'   # input image expected extension (ie file format)
     is_test = True       # switch to False for deployment
@@ -48,7 +49,8 @@ class app(base_app):
         prog_file = self.bin_dir + "lsd"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/algo/gjmr_line_segment_detector/lsd-1.5.zip", tgz_file)
+        build.download("http://www.ipol.im/pub/algo/"
+                       + "gjmr_line_segment_detector/lsd-1.5.zip", tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
             and ctime(tgz_file) < ctime(prog_file)):
@@ -65,7 +67,8 @@ class app(base_app):
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir + os.path.join("lsd-1.5","lsd"), prog_file)
+            shutil.copy(self.src_dir + os.path.join("lsd-1.5","lsd"),
+                        prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
