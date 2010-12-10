@@ -1,0 +1,44 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <fieldset>
+    <p>
+      Restart this algorithm with new data.
+      <input type="submit" value="back to : input" />
+    </p>
+  </fieldset>
+</form>
+
+<h2>Result</h2>
+
+<p>
+  You can download the line segments 
+  <a href="${app.work_url + "output.txt"}">coordinates</a>,
+  in <a href="${app.work_url + "output.eps"}">EPS format</a>,
+  or in <a href="${app.work_url + "output.svg"}">SVG format</a>.
+</p>
+
+<div class="gallery" style="height:${height}px">
+  <ul class="index">
+    <li>
+      <a href="#">output
+	<span>
+	  <img src="${app.work_url + "output.png"}" alt="output" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">input
+	<span>
+	  <img src="${app.work_url + "input_0.png"}" alt="input" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<%include file="footer.html" />
