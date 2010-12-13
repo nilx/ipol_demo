@@ -11,6 +11,7 @@ from .misc import ctime
 
 import os.path
 import PIL.Image
+import PIL.ImageOps
 import PIL.ImageDraw
 
 def _deinterlace_png(path):
@@ -295,4 +296,12 @@ class image(object):
         self.draw_line(((x, y - size), (x, y + size)), color=color)
         # horizontal
         self.draw_line(((x - size, y), (x + size, y)), color=color)
+        return self
+
+    def invert(self):
+        """
+        invert the image colors
+        @return: the inverted image object
+        """
+        self.im = PIL.ImageOps.invert(self.im)
         return self
