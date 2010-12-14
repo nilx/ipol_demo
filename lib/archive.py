@@ -1,5 +1,5 @@
 """
-archive bucket class
+archive bucket class and index tools
 """
 # pylint: disable=C0103
 
@@ -104,6 +104,7 @@ class bucket(object):
         save a file in the archive bucket
         the file is copied from self.cwd to self.path
         """
+        # TODO add_file() and add_image()
         # source filename
         src = os.path.basename(src)
         src_fname = os.path.join(self.cwd, src)
@@ -204,8 +205,13 @@ def _add_record(cursor, ar):
                             for fname in filter(_filter_listdir,
                                                 os.listdir(ar.path))])
     # reorder the files
-    files = [unordered_files.pop(fname)
-             for fname in ar.cfg['meta'].get('files', '').split()]
+    try:
+        files = [unordered_files.pop(fname)
+                 for fname in ar.cfg['meta'].get('files', '').split()]
+    except KeyError:
+        cherrypy.log("missing archive file in %s" % (ar.path),
+                     context='DEBUG', traceback=False)
+        
     # append the remaining files
     files += unordered_files.values()
 

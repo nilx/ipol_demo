@@ -23,7 +23,11 @@
       %endif
       %if app.input_max_weight:
       Upload size is limited to ${app.input_max_weight / (1024 *
-      1024)}MB per image file and 10MB for the whole upload set.
+      1024)}MB per image file
+      %if (app.input_max_weight * app.input_nb) > (10 * 1024 * 1024):
+      and 10MB for the whole upload set
+      %endif
+      .
       %endif
       <br />
       TIFF, JPEG, PNG, GIF, PNM (and 

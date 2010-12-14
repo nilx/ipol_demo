@@ -107,7 +107,18 @@ def extract(fname, target):
     os.mkdir(target)
 
     # extract into the target dir
-    ar.extractall(target)
+    try:
+        ar.extractall(target)
+    except AttributeError:
+        # zipfile module < 2.6
+        for member in content:
+            if member.endswith(os.path.sep):
+                os.mkdir(os.path.join(target, member))
+            else:
+                f = open(os.path.join(target, member), 'wb')
+                f.write(ar.read(member))
+                f.close()
+
     cherrypy.log("extracted: %s" % fname, context='BUILD',
                  traceback=False)
 
