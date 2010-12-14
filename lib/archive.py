@@ -181,7 +181,8 @@ class item(object):
         if os.path.isfile(path): 
             self.is_file = True
             self.is_dir = False
-            if self.name.endswith((".png", ".tif", ".tiff")):
+            # thumbnails
+            if self.name.endswith((".png", ".jpg", ".jpeg")):
                 self.tn_path = thumbnail(self.path, size=(128, 128))
                 self.tn_name = os.path.basename(self.tn_path)
                 self.has_tn = True
