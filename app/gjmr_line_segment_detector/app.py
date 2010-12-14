@@ -18,8 +18,8 @@ class app(base_app):
     title = "LSD: a Line Segment Detector"
     input_nb = 1 # number of input images
     input_max_pixels = 100000000 # max size (in pixels) of an input image
-    input_max_weight = 3 * input_max_pixels # max size (in bytes)
-                                            # of an input file 
+    input_max_weight = 10 * 1024 * 1024 # max size (in bytes)
+                                        # of an input file 
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.pgm'   # input image expected extension (ie file format)
     is_test = True       # switch to False for deployment
