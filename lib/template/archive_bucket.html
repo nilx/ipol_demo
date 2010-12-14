@@ -4,55 +4,65 @@ images = filter(lambda i : i.is_file and i.has_tn, bucket['files'])
 non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
 %>
 <div class="bucket">
-  <dl class="info">
-    <dt>key</dt>
-    <dd><a href="?key=${bucket['meta']['key'] | h}"
-	   title="permalink">${bucket['meta']['key'] | h}</a></dd>
-    <dt>date</dt>
-    <dd>${bucket['meta']['date'] | h}</dd>
+  <table class="info">
+    <tr>
+      <th>key</th>
+      <td><a href="?key=${bucket['meta']['key'] | h}"
+	     title="permalink">${bucket['meta']['key'] | h}</a></td>
+    </tr>
+    <tr>
+      <th>date</th>
+      <td>${bucket['meta']['date'] | h}</td>
+    </tr>
     %if bucket['info']:
     %for (key, value) in bucket['info'].items():
-    <dt>${key | h}</dt>
-    <dd>${value | h}</dd>
+    <tr>
+      <th>${key | h}</th>
+      <td>${value | h}</td>
+    </tr>
     %endfor
     %endif
     %if non_images:
-    <dt>files</dt>
-    <dd>
-      <ul class="files">
+    <tr>
+      <th>files</th>
+      <td>
 	%for item in non_images:
-	<li><a href="${bucket['url'] + item.name | h}"
-	       title="${item.info | h}">${item.name}</a></li>
+	<a href="${bucket['url'] + item.name | h}"
+	   title="${item.info | h}">${item.name}</a>
 	%endfor
-      </ul>
-    </dd>
+      </td>
+    </tr>
     %endif
-  </dl>
+  </table>
 
   %if images:
   %if tn:
-  <dl class="thumbnails">
-    <dt>images</dt>
-    <dd><ul class="thumbnails">
+  <table class="thumbnails">
+    <tr>
+      <th>images</th>
+      <td>
 	%for item in images:
-	<li><a href="${bucket['url'] + item.name | h}">
-	    <img class="thumbnail"
-		 src="${bucket['url'] + item.tn_name | h}"
-		 title="${item.name + ' ' + item.info | h}"
-		 alt="${item.name | h}" /></a></li>
+	<a href="${bucket['url'] + item.name | h}">
+	  <img class="thumbnail"
+	       src="${bucket['url'] + item.tn_name | h}"
+	       title="${item.name + ' ' + item.info | h}"
+	       alt="${item.name | h}" /></a>
 	%endfor
-    </ul></dd>
-  </dl>
+      </td>
+    </tr>
+  </table>
   %else:
-  <dl class="images">
-    <dt>images</dt>
-    <dd><ul class="images">
+  <table class="images">
+    <tr>
+      <th>images</th>
+      <td>
 	%for item in images:
-	<li><img src="${bucket['url'] + item.name | h}" /><br />
-	  ${item.name + ' ' + item.info | h}</li>
+	<div><img src="${bucket['url'] + item.name | h}" /><br />
+	  ${item.name + ' ' + item.info | h}</div>
 	%endfor
-    </ul></dd>
-  </dl>
+      </td>
+    </tr>
+  </table>
   %endif
   %endif
 
