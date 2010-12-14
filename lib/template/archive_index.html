@@ -1,4 +1,15 @@
-<%page args="bucket, tn"/>
+<%include file="header_fullwidth.html" />
+
+<div class="note">
+This archive is not moderated; in case of copyright infringement or
+similar problem, please
+<a href="http://www.ipol.im/meta/contact/">contact us</a> to request
+the removal of some images.
+</div>
+
+<%include file="archive_pages.html" />
+
+%for bucket in bucket_list:
 <%
 images = filter(lambda i : i.is_file and i.has_tn, bucket['files'])
 non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
@@ -14,15 +25,12 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
       <th>date</th>
       <td>${bucket['meta']['date'] | h}</td>
     </tr>
-    %if bucket['info']:
     %for (key, value) in bucket['info'].items():
     <tr>
       <th>${key | h}</th>
       <td>${value | h}</td>
     </tr>
     %endfor
-    %endif
-    %if non_images:
     <tr>
       <th>files</th>
       <td>
@@ -32,11 +40,8 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
 	%endfor
       </td>
     </tr>
-    %endif
   </table>
 
-  %if images:
-  %if tn:
   <table class="thumbnails">
     <tr>
       <th>images</th>
@@ -51,20 +56,11 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
       </td>
     </tr>
   </table>
-  %else:
-  <table class="images">
-    <tr>
-      <th>images</th>
-      <td>
-	%for item in images:
-	<div><img src="${bucket['url'] + item.name | h}" /><br />
-	  ${item.name + ' ' + item.info | h}</div>
-	%endfor
-      </td>
-    </tr>
-  </table>
-  %endif
-  %endif
-
-  <hr class="clear">
 </div>
+
+<hr class="clear">
+%endfor
+
+<%include file="archive_pages.html" />
+
+<%include file="footer.html" />

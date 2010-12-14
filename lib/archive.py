@@ -3,6 +3,7 @@ archive bucket class and index tools
 """
 # pylint: disable=C0103
 
+# TODO: split images/files
 
 import os
 import time

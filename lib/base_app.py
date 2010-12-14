@@ -355,7 +355,6 @@ class base_app(empty_app):
         """
         lists the archive content
         """
-
         if key:
             # select one archive
             buckets = [{'url' : self.archive_url + archive.key2url(key),
@@ -364,8 +363,8 @@ class base_app(empty_app):
                        in archive.index_read(self.archive_index,
                                              key=key,
                                              path=self.archive_dir)]
-            return self.tmpl_out("archive.html",
-                                 bucket_list=buckets)
+            return self.tmpl_out("archive_details.html",
+                                 bucket=buckets[0])
         else:
             # select a page from the archive index
             public = int(public)
@@ -382,7 +381,7 @@ class base_app(empty_app):
                                              limit=limit, offset=offset,
                                              public=public,
                                              path=self.archive_dir)]
-            return self.tmpl_out("archive.html",
+            return self.tmpl_out("archive_index.html",
                                  bucket_list=buckets,
                                  page=page,
                                  nbpages=nbpages)
