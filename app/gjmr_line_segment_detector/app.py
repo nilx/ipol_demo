@@ -10,13 +10,14 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import shutil
+import time
 
 class app(base_app):
     """ template demo app """
     
     title = "LSD: a Line Segment Detector"
     input_nb = 1 # number of input images
-    input_max_pixels = 1000000 # max size (in pixels) of an input image
+    input_max_pixels = 100000000 # max size (in pixels) of an input image
     input_max_weight = 3 * input_max_pixels # max size (in bytes)
                                             # of an input file 
     input_dtype = '1x8i' # input image expected data type
@@ -90,11 +91,17 @@ class app(base_app):
         """
         # run the algorithm
         try:
-            self.run_algo()
+           run_time = time.time()
+           self.run_algo()
+           # save the run time in the config dict
+           self.cfg['info']['run_time'] = time.time() - run_time
+           self.cfg.save()
         except TimeoutError:
-            return self.error(errcode='timeout') 
+           return self.error(errcode='timeout',
+                             errmsg="Try again with simpler images.")
         except RuntimeError:
-            return self.error(errcode='runtime')
+           return self.error(errcode='runtime',
+                             errmsg="Something went wrong with the program.")
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
@@ -116,6 +123,7 @@ class app(base_app):
             except Exception:
                 version_info = "unknown"
             ar.add_info({"code version" : version_info})
+            ar.add_info({"run time" : self.cfg['info']['run_time']})
             ar.save()
         return self.tmpl_out("run.html")
 
@@ -137,6 +145,9 @@ class app(base_app):
         except OSError:
             self.log("eps->png conversion failed,"
                      + " gs is probably missing on this system")
+        im = image(self.work_dir + "output.png")
+        im.invert()
+        im.save(self.work_dir + "output.png")
         return
 
     @cherrypy.expose
