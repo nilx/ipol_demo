@@ -170,6 +170,8 @@ class app(base_app):
         except RuntimeError:
             return self.error(errcode='runtime')
 
+	stdout.close();
+
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
@@ -190,6 +192,13 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
+		
+	#print number of pixels of the input image to stdout
+        img = image(self.work_dir + 'input.png')
+        (dx, dy) = img.size
+	stdout.write("Number of pixels of input image: %i" %(dx*dy))
+	stdout.flush()
+
         p1 = self.run_proc(['rgbprocess', 'rmisolated',
                             'input.png', 'input_1.png'],
                            stdout=stdout, stderr=stdout)
