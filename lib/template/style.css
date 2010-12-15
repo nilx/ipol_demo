@@ -98,55 +98,40 @@ form input[type="submit"] {
 .bucket dl {
     margin:0 0 .5em 0;
     padding: 0; }
-.bucket dl.info {
-    width: 33%;
-    float: left; }
-.bucket dl.thumbnails {
-    width: 65%;
-    float: right; }
-.bucket dl.images {
-    width: 100%;
+#content .bucket table {
+    margin: none;
+    background: none;
+    border-spacing: 0; }
+#content .bucket table.info {
     float: left;
-    clear: left; }
-.bucket dl dt {
-    float:left;
-    font-weight:bold;
-    margin-right:.2em;
-    padding:0 0 0 .2em;
-    width:6em; }
-.bucket dl dd {
-    margin:1px 0;
-    padding:0; }
+    width: 25%; }
+#content .bucket table.thumbnails {
+    float: right;
+    width: 72%; }
+#content .bucket table.images {
+    float: left;
+    clear: left;
+    width: 100%; }
+#content .bucket table th {
+    text-align: left;
+    font-style: normal;
+    font-weight: bold;
+    background: none;
+    vertical-align: top;
+    margin: 0;
+    padding: 0; }
 
-.bucket ul.files,
-.bucket ul.thumbnails,
-.bucket ul.images {
-    margin:0 0 .5em 0;
-    padding: 0; 
-    list-style-type: none;
-    list-style-image: none; }
-.bucket ul.files li,
-.bucket ul.thumbnails li {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: none !important;
-    display: inline; }
-.bucket ul.images {
-    display: block;
-    float: left; }
-.bucket ul.images li {
-    margin: .5em;
-    padding: 0 !important;
-    background: none !important;
-    display: block;
-    border: #DDDDDD 1px solid;
-    float: left;
-    text-align: center;}
-.bucket ul.files li a,
-.bucket ul.thumbnails li a {
-    padding: 0 !important;
-    margin: 0 !important;
-    background: none !important; }
+#content .bucket table.thumbnails img {
+    width: 96px;
+    height: 96px;
+    margin: 0px;
+    position: relative;
+    z-index: 1; }
+#content .bucket table.thumbnails img:hover {
+    width: 128px;
+    height: 128px;
+    margin: -16px;
+    z-index: 2; }
 
 .bucket hr.clear {
     clear: both;
@@ -154,16 +139,5 @@ form input[type="submit"] {
     padding: 0;
     visibility: hidden;
     width: 0;
-    height: 1em; }
+    height: .5em; }
 
-.bucket dl.thumbnails img {
-    width: 96px;
-    height: 96px;
-    margin: 0px;
-    position: relative;
-    z-index: 1; }
-.bucket dl.thumbnails img:hover {
-    width: 128px;
-    height: 128px;
-    margin: -16px;
-    z-index: 2; }
