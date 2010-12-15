@@ -373,7 +373,7 @@ class base_app(empty_app):
             offset = limit * page
             nbpages = archive.index_count(self.archive_index,
                                           path=self.archive_dir,
-                                          public=public) / limit
+                                          public=public) / limit + 1
             buckets = [{'url' : self.archive_url + archive.key2url(key),
                         'files' : files, 'meta' : meta, 'info' : info}
                        for (key, (files, meta, info))
