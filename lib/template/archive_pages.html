@@ -1,12 +1,25 @@
-%if nbpages > 1:
-<div style="text-align:center; font-size:80%; margin:2em;">
-page: 
-%for p in range(nbpages):
-%if p == page:
-${p}
+%if nbpage > 1:
+page&nbsp;&nbsp;
+%if page != 0:
+<a style="font-weight:bold" href="?page=0" title="first">&lt;&lt;</a>
+<a style="font-weight:bold" href="?page=${page - 1}" title="previous">&lt;</a>
 %else:
-<a style="font-weight:bold" href="?page=${p}">${p}</a>
+&lt;&lt;
+&lt;
+%endif
+%if page != nbpage - 1:
+<a style="font-weight:bold" href="?page=${page + 1}" title="next">&gt;</a>
+<a style="font-weight:bold" href="?page=${nbpage - 1}" title="last">&gt;&gt;</a>
+%else:
+&gt;
+&gt;&gt;
+%endif
+<br />
+%for p in range(nbpage):
+%if p == page:
+${p + 1}
+%else:
+<a style="font-weight:bold" href="?page=${p}">${p + 1}</a>
 %endif
 %endfor
-</div>
 %endif
