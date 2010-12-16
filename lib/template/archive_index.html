@@ -1,13 +1,20 @@
 <%include file="header_fullwidth.html" />
 
 <div class="note">
+<p>
+${nbpublic} public archives out of ${nbtotal} online experiments with
+original images since ${firstdate}.<br />
 This archive is not moderated; in case of copyright infringement or
 similar problem, please
 <a href="http://www.ipol.im/meta/contact/">contact us</a> to request
 the removal of some images.
+</p>
+<p>
+<%include file="archive_pages.html" />
+</p>
 </div>
 
-<%include file="archive_pages.html" />
+<hr class="clear">
 
 %for bucket in bucket_list:
 <%
@@ -61,6 +68,10 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
 <hr class="clear">
 %endfor
 
+<div class="note">
+<p>
 <%include file="archive_pages.html" />
+</p>
+</div>
 
 <%include file="footer.html" />

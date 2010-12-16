@@ -258,7 +258,7 @@ def index_rebuild(indexdb, path):
     c.close()
 
 
-def index_read(indexdb, limit=20, offset=0, key=None, public=1, path=None):
+def index_read(indexdb, limit=20, offset=0, key=None, public=True, path=None):
     """
     get some data from the index
     """
@@ -270,9 +270,14 @@ def index_read(indexdb, limit=20, offset=0, key=None, public=1, path=None):
             c.execute("select key, pkl_cache from buckets "
                       + "where key=?", (key, ))
         else:
-            c.execute("select key, pkl_cache from buckets where public=? "
-                      + "order by date desc limit ? offset ?",
-                      (public, limit, offset))
+            if public:
+                c.execute("select key, pkl_cache from buckets where public=1 "
+                          + "order by date asc limit ? offset ?",
+                          (limit, offset))
+            else:
+                c.execute("select key, pkl_cache from buckets where public=0 "
+                          + "order by date asc limit ? offset ?",
+                          (limit, offset))
         return [(str(row[0]), pickle.loads(str(row[1]))) for row in c]
     except sqlite3.Error:
         if path:
@@ -282,7 +287,7 @@ def index_read(indexdb, limit=20, offset=0, key=None, public=1, path=None):
             raise
 
 
-def index_count(indexdb, public=1, path=None):
+def index_count(indexdb, path=None, public=True):
     """
     get nb keys in the index
     """
@@ -290,8 +295,27 @@ def index_count(indexdb, public=1, path=None):
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
-        c.execute("select count(*) from buckets where public=?",
-                  (public, ))
+        if public:
+            c.execute("select count(*) from buckets where public=1")
+        else:
+            c.execute("select count(*) from buckets where public=0")
+        return c.next()[0]
+    except sqlite3.Error:
+        if path:
+            index_rebuild(indexdb, path)
+            return index_count(indexdb)
+        else:
+            raise
+
+def index_first_date(indexdb, path=None):
+    """
+    get first archive date
+    """
+
+    try:
+        db = sqlite3.connect(indexdb)
+        c = db.cursor()
+        c.execute("select date from buckets order by date asc limit 1")
         return c.next()[0]
     except sqlite3.Error:
         if path:

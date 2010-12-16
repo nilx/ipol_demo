@@ -351,7 +351,7 @@ class base_app(empty_app):
     #
     
     @cherrypy.expose
-    def archive(self, page=0, key=None, public=1):
+    def archive(self, page=-1, key=None, public=1):
         """
         lists the archive content
         """
@@ -367,13 +367,28 @@ class base_app(empty_app):
                                  bucket=buckets[0])
         else:
             # select a page from the archive index
-            public = int(public)
-            page = int(page)
+            nbpublic = archive.index_count(self.archive_index,
+                                           path=self.archive_dir,
+                                           public=True)
+            nbtotal = nbpublic
+            nbtotal += archive.index_count(self.archive_index,
+                                           path=self.archive_dir,
+                                           public=False)
+            if nbtotal:
+                firstdate = archive.index_first_date(self.archive_index,
+                                                     path=self.archive_dir)
+            else:
+                firstdate = 'never'
             limit = 20
+            nbpage = archive.index_count(self.archive_index,
+                                         path=self.archive_dir,
+                                         public=public) / limit + 1
+            page = int(page)
+            if page == -1:
+                page = nbpage - 1
             offset = limit * page
-            nbpages = archive.index_count(self.archive_index,
-                                          path=self.archive_dir,
-                                          public=public) / limit + 1
+            public = bool(int(public))
+
             buckets = [{'url' : self.archive_url + archive.key2url(key),
                         'files' : files, 'meta' : meta, 'info' : info}
                        for (key, (files, meta, info))
@@ -383,5 +398,6 @@ class base_app(empty_app):
                                              path=self.archive_dir)]
             return self.tmpl_out("archive_index.html",
                                  bucket_list=buckets,
-                                 page=page,
-                                 nbpages=nbpages)
+                                 page=page, nbpage=nbpage,
+                                 nbpublic=nbpublic, nbtotal=nbtotal,
+                                 firstdate=firstdate)
