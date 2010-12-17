@@ -127,23 +127,21 @@ class app(base_app):
                 imgS.save(self.work_dir + 'input_0s.png')
                 # crop the image
 		# try cropping from the original input image (if different from input_0)
-		im0 = image(self.work_dir + 'input_0')
+		im0 = image(self.work_dir + 'input_0.orig.png')
 		(dx0, dy0) = im0.size
                 img = image(self.work_dir + 'input_0.png')
                 (dx, dy) = img.size
 		if (dx != dx0) :
-		  print "select from original"
-		  z=float(dx0)/float(dx)
-		  im0.crop((int(x0*z), int(y0*z), int(x1*z), int(y1*z)))
-		  #resize if cropped image is too big
-            	  if self.input_max_pixels and prod(im0.size) > (self.input_max_pixels):
-                    im0.resize(self.input_max_pixels, method="antialias")
-		    print "zoom out cropped image"
-		  img=im0
-		  #im0.save(self.work_dir + 'input.png')
-		  #img = image(self.work_dir + 'input.png')
+                    z=float(dx0)/float(dx)
+                    im0.crop((int(x0*z), int(y0*z), int(x1*z), int(y1*z)))
+                    # resize if cropped image is too big
+                    if self.input_max_pixels and prod(im0.size) > (self.input_max_pixels):
+                        im0.resize(self.input_max_pixels, method="antialias")
+                    img=im0
+                    # im0.save(self.work_dir + 'input.png')
+                    # img = image(self.work_dir + 'input.png')
 		else :
-                 img.crop((x0, y0, x1, y1))
+                    img.crop((x0, y0, x1, y1))
                 # zoom the cropped area
                 (dx, dy) = img.size
                 if (dx < 400) and (dy < 400) :
@@ -154,7 +152,6 @@ class app(base_app):
                         dx = int(float(dx) / float(dy) * 400)
                         dy = 400
                     img.resize((dx, dy), method="bilinear")
-		    print "zoom in cropped image"
                 img.save(self.work_dir + 'input' + self.input_ext)
                 img.save(self.work_dir + 'input.png')
                 # go to the wait page, with the key
