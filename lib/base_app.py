@@ -165,7 +165,7 @@ class base_app(empty_app):
             # check max size
             if self.input_max_pixels \
                     and prod(im.size) > (self.input_max_pixels):
-                im.resize(self.input_max_pixels)
+                im.resize(self.input_max_pixels, method="antialias")
                 self.log("input resized")
                 msg = """The image has been resized
                       for a reduced computation time."""
@@ -174,7 +174,7 @@ class base_app(empty_app):
             # save a web viewable copy
             im.save(self.work_dir + 'input_%i.png' % i)
             # delete the original
-            os.unlink(self.work_dir + 'input_%i' % i)
+            #os.unlink(self.work_dir + 'input_%i' % i)
         return msg
 
     def clone_input(self):
@@ -191,6 +191,8 @@ class base_app(empty_app):
         fnames = ['input_%i' % i + self.input_ext
                   for i in range(self.input_nb)]
         fnames += ['input_%i.png' % i
+                   for i in range(self.input_nb)]
+        fnames += ['input_%i' %i
                    for i in range(self.input_nb)]
         for fname in fnames:
             shutil.copy(old_work_dir + fname,
