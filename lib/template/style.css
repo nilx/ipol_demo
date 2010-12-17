@@ -99,21 +99,21 @@ form input[type="submit"] {
     margin:0 0 .5em 0;
     padding: 0; }
 #content .bucket table {
+    text-align: left;
     margin: none;
     background: none;
     border-spacing: 0; }
 #content .bucket table.info {
     float: left;
-    width: 25%; }
+    width: 32%; }
 #content .bucket table.thumbnails {
     float: right;
-    width: 72%; }
+    width: 65%; }
 #content .bucket table.images {
     float: left;
     clear: left;
     width: 100%; }
 #content .bucket table th {
-    text-align: left;
     font-style: normal;
     font-weight: bold;
     background: none;
