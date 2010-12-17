@@ -134,7 +134,7 @@ class image(object):
         @param size: target size, given as an integer number of pixels,
         a float scale ratio, or a pair (width, height)
         @param method: interpolation method, can be "nearest",
-                       "bilinear" or "bicubic"
+                       "bilinear", "bicubic" or "antialias"
         """
         if isinstance(size, int):
             # size is a number of pixels -> convert to a float scale
