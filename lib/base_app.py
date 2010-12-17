@@ -389,7 +389,7 @@ class base_app(empty_app):
                 nbpage = nbpublic 
             else:
                 nbpage = nbtotal - nbpublic
-            nbpage = math.ceil(nbpage / float(limit))
+            nbpage = int(math.ceil(nbpage / float(limit)))
             page = int(page)
             if page == -1:
                 page = nbpage - 1
