@@ -6,6 +6,7 @@ rgbprocess ipol demo web app
 from lib import base_app, build, http, image
 from lib.misc import ctime
 from lib.misc import gzip
+from lib.misc import prod
 from lib.base_app import init_app
 import shutil
 import cherrypy
@@ -125,9 +126,23 @@ class app(base_app):
                 imgS.draw_line([(x0+1, y0+1), (x1-1, y0+1), (x1-1, y1-1), (x0+1, y1-1), (x0+1, y0+1)], color="white")
                 imgS.save(self.work_dir + 'input_0s.png')
                 # crop the image
+		# try cropping from the original input image (if different from input_0)
+		im0 = image(self.work_dir + 'input_0.orig.png')
+		(dx0, dy0) = im0.size
                 img = image(self.work_dir + 'input_0.png')
-                img.crop((x0, y0, x1, y1))
-               # zoom the cropped area
+                (dx, dy) = img.size
+		if (dx != dx0) :
+                    z=float(dx0)/float(dx)
+                    im0.crop((int(x0*z), int(y0*z), int(x1*z), int(y1*z)))
+                    # resize if cropped image is too big
+                    if self.input_max_pixels and prod(im0.size) > (self.input_max_pixels):
+                        im0.resize(self.input_max_pixels, method="antialias")
+                    img=im0
+                    # im0.save(self.work_dir + 'input.png')
+                    # img = image(self.work_dir + 'input.png')
+		else :
+                    img.crop((x0, y0, x1, y1))
+                # zoom the cropped area
                 (dx, dy) = img.size
                 if (dx < 400) and (dy < 400) :
                     if dx > dy :
@@ -170,12 +185,15 @@ class app(base_app):
         except RuntimeError:
             return self.error(errcode='runtime')
 
+	stdout.close();
+
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png", info="uploaded image")
+            ar.add_file("input_0.orig.png", info="uploaded image")
+            ar.add_file("input_0.png", info="full-size")
 	    if (os.path.isfile(self.work_dir + 'input_0s.png') == True) :
 		ar.add_file("input_0s.png", info="sub-image selection")
             ar.add_file("input.png", info="input image")
@@ -190,6 +208,13 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
+		
+	#print number of pixels of the input image to stdout
+        img = image(self.work_dir + 'input.png')
+        (dx, dy) = img.size
+	stdout.write("Number of pixels of input image: %i" %(dx*dy))
+	stdout.flush()
+
         p1 = self.run_proc(['rgbprocess', 'rmisolated',
                             'input.png', 'input_1.png'],
                            stdout=stdout, stderr=stdout)

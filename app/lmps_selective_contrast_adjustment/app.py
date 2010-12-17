@@ -132,6 +132,7 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
+            ar.add_file("input_0.orig.png", info="uploaded image")
             ar.add_file("input_0.png", info="original image")
             ar.add_file("output_1.png", info="normalized image")
             ar.add_file("output_2.png", info="result image")

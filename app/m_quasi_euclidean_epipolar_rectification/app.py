@@ -141,6 +141,8 @@ class app(base_app):
             # archive
             if self.cfg['meta']['original']:
                 ar = self.make_archive()
+                ar.add_file("input_0.orig.png", info="uploaded #1")
+                ar.add_file("input_1.orig.png", info="uploaded #2")
                 ar.add_file("input_0.png", info="input #1")
                 ar.add_file("input_1.png", info="input #2")
                 ar.add_file("output_0_annotated.png", info="output #1, annotated")

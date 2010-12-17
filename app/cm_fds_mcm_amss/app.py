@@ -216,7 +216,7 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png", info="uploaded")
+            ar.add_file("input_0.orig.png", info="uploaded")
             ar.add_file("input.png", info="input")
             ar.add_file("output_MCM.png", info="output MCM")
             ar.add_file("output_AMSS.png", info="output AMSS")
