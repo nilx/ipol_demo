@@ -109,6 +109,7 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
+            ar.add_file("input_0.orig.png", "original.png", info="uploaded")
             ar.add_file("input_0.png", "input.png", info="input")
             ar.add_file("coarsened_zoom.png", info="coarsened")
             ar.add_file("interpolated.png", info="output")

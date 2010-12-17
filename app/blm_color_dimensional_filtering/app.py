@@ -192,7 +192,8 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png", info="uploaded image")
+            ar.add_file("input_0.orig.png", info="uploaded image")
+            ar.add_file("input_0.png", info="full-size")
 	    if (os.path.isfile(self.work_dir + 'input_0s.png') == True) :
 		ar.add_file("input_0s.png", info="sub-image selection")
             ar.add_file("input.png", info="input image")
