@@ -160,6 +160,8 @@ class base_app(empty_app):
             except IOError:
                 raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
+            # save the original file as png
+            im.save(self.work_dir + 'input_%i.orig.png' % i)
             # convert to the expected input format
             im.convert(self.input_dtype)
             # check max size
@@ -191,6 +193,8 @@ class base_app(empty_app):
         fnames = ['input_%i' % i + self.input_ext
                   for i in range(self.input_nb)]
         fnames += ['input_%i.png' % i
+                   for i in range(self.input_nb)]
+        fnames += ['input_%i.orig.png' %i
                    for i in range(self.input_nb)]
         for fname in fnames:
             shutil.copy(old_work_dir + fname,

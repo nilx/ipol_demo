@@ -134,7 +134,7 @@ class image(object):
         @param size: target size, given as an integer number of pixels,
         a float scale ratio, or a pair (width, height)
         @param method: interpolation method, can be "nearest",
-                       "bilinear" or "bicubic"
+                       "bilinear", "bicubic" or "antialias"
         """
         if isinstance(size, int):
             # size is a number of pixels -> convert to a float scale
@@ -148,9 +148,10 @@ class image(object):
         try:
             method_kw = {"nearest" : PIL.Image.NEAREST,
 			 "bilinear" : PIL.Image.BILINEAR,
-                         "bicubic" : PIL.Image.BICUBIC}[method]
+                         "bicubic" : PIL.Image.BICUBIC,
+			 "antialias" : PIL.Image.ANTIALIAS}[method]
         except KeyError:
-            raise KeyError('method must be "nearest", "bilinear" or "bicubic"')
+            raise KeyError('method must be "nearest", "bilinear", "bicubic" or "antialias"')
 
         self.im = self.im.resize(size, method_kw)
         return self
