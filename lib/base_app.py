@@ -10,6 +10,7 @@ import shutil
 from mako.lookup import TemplateLookup
 import cherrypy
 import os.path
+import math
 
 from . import http
 from . import config
@@ -384,9 +385,11 @@ class base_app(empty_app):
             else:
                 firstdate = 'never'
             limit = 20
-            nbpage = archive.index_count(self.archive_index,
-                                         path=self.archive_dir,
-                                         public=public) / limit + 1
+            if public:
+                nbpage = nbpublic 
+            else:
+                nbpage = nbtotal - nbpublic
+            nbpage = math.ceil(nbpage / float(limit))
             page = int(page)
             if page == -1:
                 page = nbpage - 1
