@@ -207,6 +207,7 @@ def _add_record(cursor, ar):
                             for fname in filter(_filter_listdir,
                                                 os.listdir(ar.path))])
     # reorder the files
+    files = []
     try:
         files = [unordered_files.pop(fname)
                  for fname in ar.cfg['meta'].get('files', '').split()]
