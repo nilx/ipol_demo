@@ -3,17 +3,45 @@
 
 <h2>Algorithm Parameters</h2>
 
-<form action="${app.base_url + 'wait'}" method="get">
+<form action="${app.base_url + 'rectangle'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
     <label for="r"><i>r</i>(range: [0, 100])=</label>
-    <input type="text" name="r" value="40" size="5" /><br />
-    <input type="submit" value="run" />
+    %if r:
+      <input type="text" name="r" value="${r}" size="5" /><br />
+    %else:
+      <input type="text" name="r" value="40" size="5" /><br />
+    %endif
+    %if x0 and y0 and x1 and y1:
+      <input type="hidden" name="x0" value="${x0}">
+      <input type="hidden" name="y0" value="${y0}">
+      <input type="hidden" name="x" value="${x1}">
+      <input type="hidden" name="y" value="${y1}">
+      <p>
+        <input type="submit" name="action" value="run" />
+      <p/>
+      <img src="${app.work_url + 'input_0.sel.png'}" />
+    %else:
+      <p>
+        You can now run the algorithm on the whole image:
+        <input type="submit" name="action" value="run" />
+      </p>
+      <p>
+        You can also select a part of this image to be used with the
+        algorithm by clicking on two opposite corners of the sub-image.
+      </p>
+      %if x0 and y0:
+        <input type="hidden" name="x0" value="${x0}">
+        <input type="hidden" name="y0" value="${y0}">
+        <input type="image" style="cursor:crosshair;" name=""
+	       src="${app.work_url + 'input.png?xy=%i,%i' % (x0, y0)}" />
+      %else:
+        <input type="image" style="cursor:crosshair;" name=""
+	       src="${app.work_url + 'input_0.png'}" />
+      %endif
+    %endif
   </div>
 </form>
 
-<h2>Input Image</h2>
-
-<img src="${app.work_url + 'input_0.png'}" alt="" /> 
 
 <%include file="footer.html" />
