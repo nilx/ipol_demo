@@ -124,7 +124,7 @@ class app(base_app):
         """
         p = self.run_proc(['axpb', str(a), 'input_0.png', str(b), 
                            'output.png'])
-        self.wait_proc(p)
+        self.wait_proc(p, timeout=self.timeout)
         return
 
     @cherrypy.expose

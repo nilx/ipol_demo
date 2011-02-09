@@ -200,7 +200,7 @@ class app(base_app):
         stdout = open(self.work_dir +'stdout.txt', 'w')
         p = self.run_proc(['autoK', 'autok.conf'],
                           stdout=stdout, stderr=stdout)
-        self.wait_proc(p)
+        self.wait_proc(p, timeout=self.timeout)
         stdout.close()
         
         # get k from stdout

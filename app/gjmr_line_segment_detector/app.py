@@ -92,7 +92,7 @@ class app(base_app):
         # run the algorithm
         try:
            run_time = time.time()
-           self.run_algo()
+           self.run_algo(timeout=self.timeout)
            # save the run time in the config dict
            self.cfg['info']['run_time'] = time.time() - run_time
            self.cfg.save()
@@ -128,7 +128,7 @@ class app(base_app):
             ar.save()
         return self.tmpl_out("run.html")
 
-    def run_algo(self):
+    def run_algo(self, timeout):
         """
         the core algo runner
         could also be called by a batch processor
@@ -136,13 +136,13 @@ class app(base_app):
         """
         p = self.run_proc(['lsd','-P','output.eps','-S','output.svg',
                            'input_0.pgm','output.txt']) 
-        self.wait_proc(p)
+        self.wait_proc(p, timeout/2)
         try:
             p = self.run_proc(['/usr/bin/gs','-dNOPAUSE','-dBATCH',
                                '-sDEVICE=pnggray','-dGraphicsAlphaBits=4',
                                '-r72','-dEPSCrop','-sOutputFile=output.png',
                                'output.eps'])
-            self.wait_proc(p)
+            self.wait_proc(p, timeout/2)
         except OSError:
             self.log("eps->png conversion failed,"
                      + " gs is probably missing on this system")
