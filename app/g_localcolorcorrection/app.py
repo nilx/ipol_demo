@@ -269,14 +269,13 @@ class app(base_app):
 	option=1
         p1 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 'output_1.png', str(r), str(option)],
                            stdout=None, stderr=None)
-        self.wait_proc(p1, timeout)
 
 	print "Start process 2"
 	#color correction of intensity channel
 	option=2
         p2 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 'output_2.png', str(r), str(option)],
                            stdout=None, stderr=None)
-        self.wait_proc(p2, timeout)
+        self.wait_proc([p1, p2], timeout)
 
 	print "End of processing"
 

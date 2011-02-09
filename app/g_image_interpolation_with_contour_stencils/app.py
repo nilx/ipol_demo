@@ -98,7 +98,8 @@ class app(base_app):
         algorithm execution
         """
         try:
-            self.run_algo(stdout=open(self.work_dir + 'stdout.txt', 'w'))
+            self.run_algo(stdout=open(self.work_dir + 'stdout.txt', 'w'),
+                          timeout=self.timeout)
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -139,18 +140,18 @@ class app(base_app):
         p = self.run_proc(['imcoarsen', str(a), str(b),
                            'input_0.png', 'coarsened.png'],
                           stdout=stdout, stderr=stdout)
-        self.wait_proc(p, timeout)
+        self.wait_proc(p, timeout / 6)
 
         p2 = self.run_proc(['cwinterp', 'coarsened.png', 'interpolated.png'],
                           stdout=stdout, stderr=stdout)
         p4 = self.run_proc(['cwinterp', '-s', 'coarsened.png',
                             'contour.png'],
                            stdout=stdout, stderr=stdout)
-        self.wait_proc(p2, timeout)
+        self.wait_proc(p2, timeout * 4 / 6)
 
         p3 = self.run_proc(['imdiff', 'input_0.png', 'interpolated.png'],
                           stdout=stdout, stderr=stdout)
-        self.wait_proc([p3, p4], timeout)
+        self.wait_proc([p3, p4], timeout / 6)
 
         img1 = image(self.work_dir + 'coarsened.png')
         img1.resize((sizeX, sizeY), method="nearest")
