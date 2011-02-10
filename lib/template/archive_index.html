@@ -1,6 +1,5 @@
 <%include file="header_fullwidth.html" />
 
-<div class="note">
 <p>
 ${nbpublic} public archives out of ${nbtotal} online experiments with
 original images since ${firstdate}.<br />
@@ -12,7 +11,6 @@ the removal of some images.
 <p>
 <%include file="archive_pages.html" />
 </p>
-</div>
 
 <hr class="clear">
 
@@ -68,10 +66,8 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
 <hr class="clear">
 %endfor
 
-<div class="note">
 <p>
 <%include file="archive_pages.html" />
 </p>
-</div>
 
 <%include file="footer.html" />

@@ -93,8 +93,7 @@ form input[type="submit"] {
 .bucket {
     margin: .5em 0;
     padding: .5em 0;
-    border-top: #DDDDDD 1px solid;
-    font-size: 75%; }
+    border-top: #DDDDDD 1px solid; }
 .bucket dl {
     margin:0 0 .5em 0;
     padding: 0; }
