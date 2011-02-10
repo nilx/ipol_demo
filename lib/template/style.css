@@ -121,15 +121,15 @@ form input[type="submit"] {
     padding: 0; }
 
 #content .bucket table.thumbnails img {
-    width: 96px;
-    height: 96px;
+    width: 128px;
+    height: 128px;
     margin: 0px;
     position: relative;
     z-index: 1; }
 #content .bucket table.thumbnails img:hover {
-    width: 128px;
-    height: 128px;
-    margin: -16px;
+    width: 192px;
+    height: 192px;
+    margin: -32px;
     z-index: 2; }
 
 .bucket hr.clear {
