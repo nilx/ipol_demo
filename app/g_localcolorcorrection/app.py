@@ -132,9 +132,9 @@ class app(base_app):
         params handling 
         """
         # save and validate the parameters
-	if (int(r) < 0) or (int(r) > 100) :
+	if (int(r) < 0) or (int(r) > 1000) :
 	  return self.error(errcode='badparams',
-                              errmsg="r must be an integer value between 0 and 100")
+                              errmsg="r must be an integer value between 0 and 1000")
 
         """
         select a rectangle in the image
