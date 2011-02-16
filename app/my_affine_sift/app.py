@@ -15,7 +15,7 @@ import shutil
 class app(base_app):
     """ demo app """
     
-    title = "ASIFT: A New Framework for Fully Affine Invariant Comparison"
+    title = "ASIFT: An Algorithm for Fully Affine Invariant Comparison"
 
     input_nb = 2
     input_max_pixels = None
