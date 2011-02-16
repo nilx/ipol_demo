@@ -55,7 +55,7 @@ def closest_prime(primes=None, number=1):
 class app(base_app):
     """ Retinex Poisson equation app """
 
-    title = "Retinex Poisson Equation"
+    title = "Retinex Poisson Equation: a Model for Color Perception"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image

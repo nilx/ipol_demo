@@ -55,7 +55,8 @@ class app(base_app):
         src_bin = dict([(build_dir + os.path.join("bin", prog),
                          self.bin_dir + prog)
                         for prog in ["homography", "orsa", "rectify",
-                                     "sift", "size", "stereo",
+                                     "sift", "size", "stereoAC",
+                                     "selfSimilar", "subPixel", "medianFill",
                                      "convert", "mesh", "density"]])
         src_bin[self.src_dir
                 + os.path.join("MissStereo",
