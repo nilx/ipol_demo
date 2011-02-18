@@ -35,6 +35,12 @@ form .select_input .label {
     display: block;
     text-align: center; }
 
+form .select_input input[type="image"] {
+    width: 3cm;
+    height: 3cm;
+    background: white;
+    border: 1px solid #DDDDDD; }
+
 form fieldset {
     border: #ccccff 1px solid; }
 

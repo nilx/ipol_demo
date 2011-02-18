@@ -10,7 +10,6 @@ Click on an image to use it as the algorithm input.
 <div class="select_input">
 %for url in inputd[id]['tn_url']:
   <input type="image" name="${id | h}"
-	 width="${tn_size}" height="${tn_size}"
          src="${url}" alt="${inputd[id]['title'] | h}"/>
 %endfor
   <span class="label">${inputd[id]['title'] | h}</span>
