@@ -90,6 +90,9 @@ form input[type="submit"] {
 
 /* archive */
 
+.archive_index {
+    font-size: 75%; }
+
 .bucket {
     margin: .5em 0;
     padding: .5em 0;

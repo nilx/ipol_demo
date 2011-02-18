@@ -7,7 +7,7 @@ image tools
 # IMAGE THUMBNAILER
 #
 
-from .misc import ctime
+from misc import ctime
 
 import os.path
 import PIL.Image
@@ -33,7 +33,7 @@ def _deinterlace_png(path):
             # try once again, in case there is another problem
             im.getpixel((0, 0))
     return
-    
+
 
 def thumbnail(path, size=(128, 128), ext=".png"):
     """
@@ -47,7 +47,6 @@ def thumbnail(path, size=(128, 128), ext=".png"):
     """
     # parse the file name
     path = os.path.abspath(path)
-    _deinterlace_png(path)
     (folder, fname) = os.path.split(path)
     basename = os.path.splitext(fname)[0]
 
@@ -56,6 +55,8 @@ def thumbnail(path, size=(128, 128), ext=".png"):
     if not (os.path.isfile(tn_path)
             and ctime(path) < ctime(tn_path)):
         # no thumbnail, create it
+        #TODO: no more deinterlacing
+        _deinterlace_png(path)
         im = PIL.Image.open(path)
         tn = PIL.Image.new('RGBA', size, (0, 0, 0, 0))
         im.thumbnail(size, resample=True)
