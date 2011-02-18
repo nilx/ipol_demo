@@ -127,7 +127,7 @@ class base_app(empty_app):
         """
         # read the input index as a dict
         inputd = config.file_dict(self.input_dir)
-        tn_size = int(cherrypy.config.get('input.thumbnail.size', '128'))
+        tn_size = int(cherrypy.config.get('input.thumbnail.size', '192'))
         # TODO: build via list-comprehension
         for (input_id, input_info) in inputd.items():
             # convert the files to a list of file names
@@ -142,7 +142,6 @@ class base_app(empty_app):
                                           for f in tn_fname]
 
         return self.tmpl_out("input.html",
-                             tn_size=tn_size,
                              inputd=inputd)
 
     #
