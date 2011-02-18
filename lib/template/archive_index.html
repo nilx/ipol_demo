@@ -52,6 +52,8 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
   <table class="thumbnails">
     <tr>
       <th>images</th>
+    </tr>
+    <tr>
       <td>
 	%for item in images:
 	<a href="${bucket['url'] + item.name | h}">
