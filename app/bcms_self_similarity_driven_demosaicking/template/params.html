@@ -1,0 +1,98 @@
+<%include file="header.html" />
+
+
+A Bayer pattern mosaic has been extracted from your image
+using the following mosaic pattern: 
+  %if ${pattern} == "RGGB":
+    RGGB:<img src="bayer_RGGB.png" />
+  %endif
+  %if ${pattern} == "GRBG":
+    GRBG:<img src="bayer_GRBG.png" />
+  %endif
+  %if ${pattern} == "GBRG":
+    GBRG:<img src="bayer_GBRG.png" />
+  %endif
+  %if ${pattern} == "BGGR":
+    BGGR:<img src="bayer_BGGR.png" />
+  %endif
+
+You can run the demosaicking algorithm on this image or 
+on an image created with a different mosaic pattern.
+
+You can select a subimage or run the algorithm on the whole image.
+
+
+<form action="${app.base_url + 'rectangle'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+
+    Mosaic pattern (
+    RGGB:<img src="bayer_RGGB.png" />
+    GRBG:<img src="bayer_GRBG.png" />
+    GBRG:<img src="bayer_GBRG.png" />
+    BGGR:<img src="bayer_BGGR.png" />
+    ).
+    <select name="pattern">
+      %if pattern:	
+        %if ${pattern} == "RGGB":	 
+  	  <option value="RGGB" selected>RGGB</option>
+	%else:
+  	  <option value="RGGB">RGGB</option>
+	%endif
+        %if ${pattern} == "GRBG":	 
+  	  <option value="GRBG" selected>GRBG</option>
+	%else:
+  	  <option value="GRBG">GRBG</option>
+	%endif
+        %if ${pattern} == "GBRG":	 
+  	  <option value="GBRG" selected>GBRG</option>
+	%else:
+  	  <option value="GBRG">GBRG</option>
+	%endif
+        %if ${pattern} == "BGGR":	 
+  	  <option value="BGGR" selected>BGGR</option>
+	%else:
+  	  <option value="BGGR">BGGR</option>
+	%endif
+      %else:
+  	  <option value="RGGB" selected>RGGB</option>
+  	  <option value="GRBG">GRBG</option>
+  	  <option value="GBRG">GBRG</option>
+  	  <option value="BGGR">BGGR</option>
+      %endif
+    </select>
+    <input type="submit" name="action" value="run" />
+
+    %if x0 and y0 and x1 and y1:
+      <input type="hidden" name="x0" value="${x0}">
+      <input type="hidden" name="y0" value="${y0}">
+      <input type="hidden" name="x" value="${x1}">
+      <input type="hidden" name="y" value="${y1}">
+      <p>
+        <input type="submit" name="action" value="run" />
+      <p/>
+      <img src="${app.work_url + 'input_1.sel.png'}" />
+    %else:
+      <p>
+        You can now run the algorithm on the whole image with the selected pattern:
+        <input type="submit" name="action" value="run" />
+      </p>
+      <p>
+        You can also select a part of this image to be used with the
+        algorithm by clicking on two opposite corners of the sub-image.
+      </p>
+      %if x0 and y0:
+        <input type="hidden" name="x0" value="${x0}">
+        <input type="hidden" name="y0" value="${y0}">
+        <input type="image" style="cursor:crosshair;" name=""
+	       src="${app.work_url + 'input.png?xy=%i,%i' % (x0, y0)}" />
+      %else:
+        <input type="image" style="cursor:crosshair;" name=""
+	       src="${app.work_url + 'input_1.png'}" />
+      %endif
+    %endif
+  </div>
+</form>
+
+
+<%include file="footer.html" />
