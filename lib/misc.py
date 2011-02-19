@@ -48,6 +48,7 @@ def _timeformat(t, fmt="struct"):
 def ctime(path, fmt="struct"):
     """
     get the (unix) change time of a file/dir
+    note: ctime is impacted by metadata, ownership, hard links
     """
     return _timeformat(os.path.getctime(path), fmt)
 

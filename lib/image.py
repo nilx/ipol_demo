@@ -53,7 +53,7 @@ def thumbnail(path, size=(128, 128), ext=".png"):
     tn_path = os.path.join(folder, ".__%ix%i__" % size
                            + basename + ext)
     if not (os.path.isfile(tn_path)
-            and ctime(path) < ctime(tn_path)):
+            and mtime(path) < mtime(tn_path)):
         # no thumbnail, create it
         #TODO: no more deinterlacing
         _deinterlace_png(path)
