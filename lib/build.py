@@ -9,7 +9,7 @@ import tarfile, zipfile
 from subprocess import Popen
 import cherrypy
 
-from .misc import mtime
+from .misc import ctime
 
 TIME_FMT = "%a, %d %b %Y %H:%M:%S %Z"
 
@@ -59,13 +59,13 @@ def download(url, fname):
                      traceback=False)
     else:
         # only retrieve if a newer version is available
-        url_mtime = time.strptime(url_handle.info()['last-modified'],
+        url_ctime = time.strptime(url_handle.info()['last-modified'],
                                   TIME_FMT)
         url_size = int(url_handle.info()['content-length'])
-        file_mtime = mtime(fname)
+        file_ctime = ctime(fname)
         file_size = os.path.getsize(fname)
         if (url_size != file_size
-            or url_mtime > file_mtime):
+            or url_ctime > file_ctime):
             # download
             file_handle = open(fname, 'w')
             file_handle.write(url_handle.read())
