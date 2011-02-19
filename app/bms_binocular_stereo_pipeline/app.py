@@ -4,7 +4,7 @@ Binocular Stereo Pipeline
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import app_expose, mtime, gzip
+from lib.misc import app_expose, ctime, gzip
 from lib.base_app import init_app
 from cherrypy import TimeoutError
 import os.path
@@ -66,7 +66,7 @@ class app(base_app):
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if any of the dest files is missing, or too old
-        if all([(os.path.isfile(bin_file) and mtime(tgz_file) < mtime(bin_file))
+        if all([(os.path.isfile(bin_file) and ctime(tgz_file) < ctime(bin_file))
                 for bin_file in src_bin.values()]):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
