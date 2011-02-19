@@ -7,7 +7,7 @@ image tools
 # IMAGE THUMBNAILER
 #
 
-from misc import ctime
+from misc import mtime
 
 import os.path
 import PIL.Image
@@ -52,8 +52,7 @@ def thumbnail(path, size=(128, 128), ext=".png"):
 
     tn_path = os.path.join(folder, ".__%ix%i__" % size
                            + basename + ext)
-    if not (os.path.isfile(tn_path)
-            and ctime(path) < ctime(tn_path)):
+    if not os.path.isfile(tn_path):
         # no thumbnail, create it
         #TODO: no more deinterlacing
         _deinterlace_png(path)
