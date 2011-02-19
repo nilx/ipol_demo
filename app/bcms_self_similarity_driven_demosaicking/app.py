@@ -93,15 +93,15 @@ class app(base_app):
 	cut subimage from original image
 	"""
         # draw selected rectangle on the image
-        imgS = image(self.work_dir + 'input_1.png')
+        imgS = image(self.work_dir + 'input_0.png')
         imgS.draw_line([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)], color="red")
         imgS.draw_line([(x0+1, y0+1), (x1-1, y0+1), (x1-1, y1-1), (x0+1, y1-1), (x0+1, y0+1)], color="white")
-        imgS.save(self.work_dir + 'input_1s.png')
+        imgS.save(self.work_dir + 'input_0s.png')
         # crop the image
 	# try cropping from the original input image (if different from input_1)
-	im0 = image(self.work_dir + 'input_1.orig.png')
+	im0 = image(self.work_dir + 'input_0.orig.png')
 	(dx0, dy0) = im0.size
-        img = image(self.work_dir + 'input_1.png')
+        img = image(self.work_dir + 'input_0.png')
         (dx, dy) = img.size
 	if (dx != dx0) :
            z=float(dx0)/float(dx)
@@ -113,36 +113,8 @@ class app(base_app):
 	else :
            img.crop((x0, y0, x1, y1))
 	# save result
-        img.save(self.work_dir + 'input_1.sel.png')
+        img.save(self.work_dir + 'input_0.sel.png')
 	return
-
-
-    def get_mosaic_image(self, pattern):
-
-	#convert original image to TIFF format
-	im0 = image(self.work_dir + 'input_0.orig.png')
-        im0.save(self.work_dir + 'input_0.orig.tiff')
-
-	#convert resized original image to TIFF format
-	im = image(self.work_dir + 'input_0.png')
-        im.save(self.work_dir + 'input_0.tiff')
-
-        p1 = self.run_proc(['mosaic', 'input_0.orig.tiff', 'input_1.orig.tiff', pattern],
-                           stdout=None, stderr=None)
-
-        p2 = self.run_proc(['mosaic', 'input_0.tiff', 'input_1.tiff', pattern],
-                           stdout=None, stderr=None)
-
-        self.wait_proc([p1, p2], False)
-
-	#convert mosaicked original image to PNG format
-	im0 = image(self.work_dir + 'input_1.orig.tiff')
-        im0.save(self.work_dir + 'input_1.orig.png')
-
-	#convert mosaicked resized original image to PNG format
-	im = image(self.work_dir + 'input_1.tiff')
-        im.save(self.work_dir + 'input_1.png')
-    	return
 
 
     @cherrypy.expose
@@ -153,13 +125,6 @@ class app(base_app):
         """
         if newrun:
             self.clone_input()
-
-	"""
-	get mosaic image
-	"""
-	if pattern == None:
-	  pattern="RGGB"
-	self.get_mosaic_image(pattern);
 
 	if x0:
 	  self.select_subimage(int(x0), int(y0), int(x1), int(y1))
@@ -201,10 +166,10 @@ class app(base_app):
 	
             # use the whole image if no subimage is available
             try:
-                img = image(self.work_dir + 'input_1.sel.png')
+                img = image(self.work_dir + 'input_0.sel.png')
             except IOError:
-                img = image(self.work_dir + 'input_1.png')
-                img.save(self.work_dir + 'input_1.sel.png')
+                img = image(self.work_dir + 'input_0.png')
+                img.save(self.work_dir + 'input_0.sel.png')
 
             # go to the wait page, with the key
             http.redir_303(self.base_url + "wait?key=%s" % self.key)
@@ -216,7 +181,7 @@ class app(base_app):
                 x = int(x)
                 y = int(y)
                 # draw a cross at the first corner
-                img = image(self.work_dir + 'input_1.png')
+                img = image(self.work_dir + 'input_0.png')
                 img.draw_cross((x, y), size=4, color="white")
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
@@ -285,7 +250,8 @@ class app(base_app):
         if self.cfg['meta']['original']:
             ar = self.make_archive()
             ar.add_file("input_0.orig.png", info="uploaded image")
-            ar.add_file("input_1.sel.png", info="selected mosaicked image")
+            ar.add_file("input_0.sel.png", info="selected subimage")
+            ar.add_file("input_1.png", info="mosaicked image")
             ar.add_file("output_1.png", info="demosaicked image")
             ar.add_file("output_2.png", info="difference image")
             ar.add_info({"pattern": pattern})
@@ -301,21 +267,28 @@ class app(base_app):
         """
 
 	#convert image to TIFF format
-	im = image(self.work_dir + 'input_1.sel.png')
-        im.save(self.work_dir + 'input_1.sel.tiff')
+	im = image(self.work_dir + 'input_0.sel.png')
+        im.save(self.work_dir + 'input_0.sel.tiff')
+
+	#mosaic image
+        p = self.run_proc(['mosaic', 'input_0.sel.tiff', 'input_1.tiff', pattern],
+                           stdout=None, stderr=None)
+        self.wait_proc(p, timeout*0.2)
 
 	#demosaic image
-        p1 = self.run_proc(['demosaic', 'input_1.sel.tiff', 'output_1.tiff', pattern],
+        p1 = self.run_proc(['demosaic', 'input_1.tiff', 'output_1.tiff', pattern],
                            stdout=None, stderr=None)
-        self.wait_proc(p1, timeout*0.9)
+        self.wait_proc(p1, timeout*0.7)
 
 	#compute image differences
 	D=20
-        p2 = self.run_proc(['imgdiff', 'input_1.sel.tiff', 'output_1.tiff', str(D), 'output_2.tiff'],
+        p2 = self.run_proc(['imgdiff', 'input_0.sel.tiff', 'output_1.tiff', str(D), 'output_2.tiff'],
                            stdout=None, stderr=None)
         self.wait_proc(p2, timeout*0.1)
 
 	#convert results to PNG format
+	im = image(self.work_dir + 'input_1.tiff')
+        im.save(self.work_dir + 'input_1.png')
 	im = image(self.work_dir + 'output_1.tiff')
         im.save(self.work_dir + 'output_1.png')
 	im = image(self.work_dir + 'output_2.tiff')
@@ -351,7 +324,7 @@ class app(base_app):
 
         return self.tmpl_out("result.html", pattern=pattern, x0=x0, y0=y0, x1=x1, y1=y1,
                              sizeY="%i" % image(self.work_dir 
-                                                + 'input_1.sel.png').size[1])
+                                                + 'input_0.sel.png').size[1])
 
 
 

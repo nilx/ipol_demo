@@ -1,39 +1,27 @@
 <%include file="header.html" />
 
-
-A Bayer pattern mosaic has been extracted from your image
-using the following mosaic pattern: 
-  %if pattern == 'RGGB':
-    RGGB <img src="${app.input_url + 'bayer_RGGB.png'}" />
-  %endif
-  %if pattern == 'GRBG':
-    GRBG <img src="${app.input_url + 'bayer_GRBG.png'}" />
-  %endif
-  %if pattern == 'GBRG':
-    GBRG <img src="${app.input_url + 'bayer_GBRG.png'}" />
-  %endif
-  %if pattern == 'BGGR':
-    BGGR <img src="${app.input_url + 'bayer_BGGR.png'}" />
-  %endif
-
 <p>
-You can run the demosaicking algorithm on this image or 
-on an image created with a different mosaic pattern.
+The algorithm is run in 2 steps:
 </p>
 <p>
-You can select a subimage or run the algorithm on the whole image.
+1) A Bayer pattern mosaic is extracted from the input image.
 </p>
+<p>
+2) The demosaicking algorithm is used to reconstruct the original image.
+</p>
+
+
+<br>
 
 <form action="${app.base_url + 'rectangle'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
-
-    Mosaic pattern (
-    RGGB: <img src="${app.input_url + 'bayer_RGGB.png'}" />,
-    GRBG: <img src="${app.input_url + 'bayer_GRBG.png'}" />,
-    GBRG: <img src="${app.input_url + 'bayer_GBRG.png'}" />,
-    BGGR: <img src="${app.input_url + 'bayer_BGGR.png'}" />
-    ).
+First you have to choose one of the following mosaic patterns: 
+    RGGB <img src="${app.input_url + 'bayer_RGGB.png'}" />,
+    GRBG <img src="${app.input_url + 'bayer_GRBG.png'}" />,
+    GBRG <img src="${app.input_url + 'bayer_GBRG.png'}" />,
+    BGGR <img src="${app.input_url + 'bayer_BGGR.png'}" />
+   
     <select name="pattern">
       %if pattern:	
         %if pattern == 'RGGB':	 
@@ -72,15 +60,15 @@ You can select a subimage or run the algorithm on the whole image.
       <p>
         <input type="submit" name="action" value="run" />
       <p/>
-      <img src="${app.work_url + 'input_1.sel.png'}" />
+      <img src="${app.work_url + 'input_0.sel.png'}" />
     %else:
       <p>
-        You can now run the algorithm on the whole image with the selected pattern:
+        Now you can run the algorithm on the whole image:
         <input type="submit" name="action" value="run" />
       </p>
       <p>
-        You can also select a part of this image to be used with the
-        algorithm by clicking on two opposite corners of the sub-image.
+        Or you can run it after selecting a subimage, 
+by clicking on two opposite corners of the sub-image.
       </p>
       %if x0 and y0:
         <input type="hidden" name="x0" value="${x0}">
@@ -89,7 +77,7 @@ You can select a subimage or run the algorithm on the whole image.
 	       src="${app.work_url + 'input.png?xy=%i,%i' % (x0, y0)}" />
       %else:
         <input type="image" style="cursor:crosshair;" name=""
-	       src="${app.work_url + 'input_1.png'}" />
+	       src="${app.work_url + 'input_0.png'}" />
       %endif
     %endif
   </div>
