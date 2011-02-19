@@ -47,17 +47,17 @@
 <h2>
 Results 
 (Mosaic pattern: 
-  %if ${pattern} == "RGGB":
-    RGGB:<img src="bayer_RGGB.png" />
+  %if pattern == 'RGGB':
+    RGGB <img src="${app.input_url + 'bayer_RGGB.png'}" />
   %endif
-  %if ${pattern} == "GRBG":
-    GRBG:<img src="bayer_GRBG.png" />
+  %if pattern == 'GRBG':
+    GRBG <img src="${app.input_url + 'bayer_GRBG.png'}" />
   %endif
-  %if ${pattern} == "GBRG":
-    GBRG:<img src="bayer_GBRG.png" />
+  %if pattern == 'GBRG':
+    GBRG <img src="${app.input_url + 'bayer_GBRG.png'}" />
   %endif
-  %if ${pattern} == "BGGR":
-    BGGR:<img src="bayer_BGGR.png" />
+  %if pattern == 'BGGR':
+    BGGR <img src="${app.input_url + 'bayer_BGGR.png'}" />
   %endif
 ) 
 </h2>

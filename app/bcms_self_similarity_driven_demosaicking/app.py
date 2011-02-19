@@ -133,7 +133,7 @@ class app(base_app):
         p2 = self.run_proc(['mosaic', 'input_0.tiff', 'input_1.tiff', pattern],
                            stdout=None, stderr=None)
 
-        self.wait_proc([p1, p2], timeout)
+        self.wait_proc([p1, p2], False)
 
 	#convert mosaicked original image to PNG format
 	im0 = image(self.work_dir + 'input_1.orig.tiff')
@@ -220,7 +220,7 @@ class app(base_app):
                 img.draw_cross((x, y), size=4, color="white")
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
-                return self.tmpl_out("params.html", r=r, x0=x, y0=y)
+                return self.tmpl_out("params.html", pattern=pattern, x0=x, y0=y)
             else:
                 # second corner selection
                 x0 = int(x0)
@@ -270,7 +270,7 @@ class app(base_app):
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(r, stdout=stdout)
+            self.run_algo(pattern, stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
