@@ -4,7 +4,7 @@ ASIFT demo interaction script
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import app_expose, ctime
+from lib.misc import app_expose, mtime
 from lib.base_app import init_app
 from cherrypy import TimeoutError
 import cherrypy
@@ -64,7 +64,7 @@ class app(base_app):
         # ASIFT
         # test if the dest file is missing, or too old
         if (os.path.isfile(asift_prog_file)
-            and ctime(asift_tgz_file) < ctime(asift_prog_file)):
+            and mtime(asift_tgz_file) < mtime(asift_prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
@@ -83,7 +83,7 @@ class app(base_app):
         # SIFT
         # test if the dest file is missing, or too old
         if (os.path.isfile(sift_prog_file)
-            and ctime(sift_tgz_file) < ctime(sift_prog_file)):
+            and mtime(sift_tgz_file) < mtime(sift_prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:

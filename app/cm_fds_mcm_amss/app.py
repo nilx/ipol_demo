@@ -4,7 +4,7 @@ mcm_amss ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app, image, build, http
-from lib.misc import ctime
+from lib.misc import mtime
 from lib.base_app import init_app
 import os.path
 import time
@@ -62,7 +62,7 @@ class app(base_app):
         build.download(mcm_tgz_url, mcm_tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(mcm_prog_file)
-            and ctime(mcm_tgz_file) < ctime(mcm_prog_file)):
+            and mtime(mcm_tgz_file) < mtime(mcm_prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
@@ -88,7 +88,7 @@ class app(base_app):
         build.download(amss_tgz_url, amss_tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(amss_prog_file)
-            and ctime(amss_tgz_file) < ctime(amss_prog_file)):
+            and mtime(amss_tgz_file) < mtime(amss_prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:

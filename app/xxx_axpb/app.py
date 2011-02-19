@@ -4,7 +4,7 @@ demo example for the X->aX+b transform
 # pylint: disable=C0103
 
 from lib import base_app, build, http, image
-from lib.misc import app_expose, ctime
+from lib.misc import app_expose, mtime
 from lib.base_app import init_app
 import cherrypy
 from cherrypy import TimeoutError
@@ -51,7 +51,7 @@ class app(base_app):
         build.download("https://edit.ipol.im/meta/dev/axpb.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
-            and ctime(tgz_file) < ctime(prog_file)):
+            and mtime(tgz_file) < mtime(prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:

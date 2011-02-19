@@ -4,7 +4,7 @@ cwinterp ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app, build, http
-from lib.misc import ctime
+from lib.misc import mtime
 from lib.base_app import init_app
 import shutil
 import cherrypy
@@ -60,7 +60,7 @@ class app(base_app):
         build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
         if all([(os.path.isfile(bin_file)
-                 and ctime(tgz_file) < ctime(bin_file))
+                 and mtime(tgz_file) < mtime(bin_file))
                 for bin_file in src_bin.values()]):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)

@@ -5,7 +5,7 @@ interaction script
 # pylint: disable=C0103
 
 from lib import base_app, build, image, http
-from lib.misc import app_expose, ctime
+from lib.misc import app_expose, mtime
 from lib.base_app import init_app
 import cherrypy
 from cherrypy import TimeoutError
@@ -89,7 +89,7 @@ class app(base_app):
         # MATCH
         # test if the dest file is missing, or too old
         if (os.path.isfile(match_prog_file)
-            and ctime(match_tgz_file) < ctime(match_prog_file)):
+            and mtime(match_tgz_file) < mtime(match_prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
@@ -109,7 +109,7 @@ class app(base_app):
         # AUTOK
         # test if the dest file is missing, or too old
         if (os.path.isfile(autok_prog_file)
-            and ctime(autok_tgz_file) < ctime(autok_prog_file)):
+            and mtime(autok_tgz_file) < mtime(autok_prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:

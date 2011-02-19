@@ -4,7 +4,7 @@ rgbprocess ipol demo web app
 # pylint: disable=C0103
 
 from lib import base_app, build, http, image
-from lib.misc import ctime
+from lib.misc import mtime
 from lib.misc import gzip
 from lib.misc import prod
 from lib.base_app import init_app
@@ -58,7 +58,7 @@ class app(base_app):
         build.download(tgz_url, tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
-            and ctime(tgz_file) < ctime(prog_file)):
+            and mtime(tgz_file) < mtime(prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
