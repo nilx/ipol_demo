@@ -184,8 +184,7 @@ class item(object):
             self.is_dir = False
             # thumbnails
             if self.name.endswith((".png", ".jpg", ".jpeg")):
-                #TODO: change to 256 pixels (5cm @ 50 pixels/cm)
-                self.tn_path = thumbnail(self.path, size=(128, 128))
+                self.tn_path = thumbnail(self.path, size=(256, 256))
                 self.tn_name = os.path.basename(self.tn_path)
                 self.has_tn = True
             else:
