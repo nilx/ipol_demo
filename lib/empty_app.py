@@ -2,7 +2,6 @@
 empty IPOL demo web app
 this class handles all the backend : paths, archives, indexes, ...
 """
-# pylint: disable=C0103
 
 #
 # EMPTY APP

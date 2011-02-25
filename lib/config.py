@@ -3,7 +3,6 @@ config dictionary with file backend
 
 This file can save integer, float, boolean and strings as options
 """
-# pylint: disable=C0103
 # designed based on http://code.activestate.com/recipes/576642/,
 # (C) Raymond Hettinger, MIT licence
 

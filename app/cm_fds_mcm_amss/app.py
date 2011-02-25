@@ -1,7 +1,6 @@
 """
 mcm_amss ipol demo web app
 """
-# pylint: disable=C0103
 
 from lib import base_app, image, build, http
 from lib.misc import ctime

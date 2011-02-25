@@ -1,7 +1,6 @@
 """
 HTTP tools
 """
-# pylint: disable=C0103
 
 import cherrypy
 

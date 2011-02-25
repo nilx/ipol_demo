@@ -1,7 +1,6 @@
 """
 build tools
 """
-# pylint: disable=C0103
 
 import os, shutil
 import urllib2, time

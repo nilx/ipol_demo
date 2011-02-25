@@ -2,7 +2,6 @@
 """
 base cherrypy launcher for the IPOL demo app
 """
-# pylint: disable=C0103
 
 #TODO: blacklist from config file
 

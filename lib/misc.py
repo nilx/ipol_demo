@@ -1,8 +1,6 @@
 """
 various help tools for the IPOL demo environment
 """
-# pylint: disable=C0103
-
 
 import os
 import time

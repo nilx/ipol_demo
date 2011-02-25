@@ -1,7 +1,6 @@
 """
 cwinterp ipol demo web app
 """
-# pylint: disable=C0103
 
 from lib import base_app, build, http
 from lib.misc import ctime

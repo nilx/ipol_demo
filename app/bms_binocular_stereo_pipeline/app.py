@@ -1,7 +1,6 @@
 """
 Binocular Stereo Pipeline
 """
-# pylint: disable=C0103
 
 from lib import base_app, image, build, http
 from lib.misc import app_expose, ctime, gzip
