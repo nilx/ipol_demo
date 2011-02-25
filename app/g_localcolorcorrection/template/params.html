@@ -6,12 +6,17 @@
 <form action="${app.base_url + 'rectangle'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
-    <label for="r"><i>r</i>(range: [0, 1000])=</label>
+    <label for="r"><i>r</i>(range: [0, ${rmax}])=</label>
     %if r:
       <input type="text" name="r" value="${r}" size="5" /><br />
     %else:
       <input type="text" name="r" value="40" size="5" /><br />
     %endif
+    <p>
+    Remark: If you choose a radius larger than half the size of the image, 
+a global gamma-correction will be performed. If you process the whole image,
+the radius for global gamma-correction is ${rmax}.
+    </p>
     %if x0 and y0 and x1 and y1:
       <input type="hidden" name="x0" value="${x0}">
       <input type="hidden" name="y0" value="${y0}">

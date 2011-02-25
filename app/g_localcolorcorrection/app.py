@@ -121,7 +121,14 @@ class app(base_app):
             self.clone_input()
 	if x0:
 	  self.select_subimage(int(x0), int(y0), int(x1), int(y1))
-        return self.tmpl_out("params.html", msg=msg, x0=x0, y0=y0, x1=x1, y1=y1)
+
+	sizeX=image(self.work_dir + 'input_0.png').size[0];
+	sizeY=image(self.work_dir + 'input_0.png').size[1];
+	if sizeX > sizeY:
+	  rmax=sizeY/2+1;
+	else:
+	  rmax=sizeX/2+1;
+        return self.tmpl_out("params.html", msg=msg, x0=x0, y0=y0, x1=x1, y1=y1, rmax=rmax)
 
 
     @cherrypy.expose
@@ -181,7 +188,15 @@ class app(base_app):
                 img.draw_cross((x, y), size=4, color="white")
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
-                return self.tmpl_out("params.html", r=r, x0=x, y0=y)
+
+		sizeX=image(self.work_dir + 'input_0.png').size[0];
+		sizeY=image(self.work_dir + 'input_0.png').size[1];
+		if sizeX > sizeY:
+	  	  rmax=sizeY/2+1;
+		else:
+	  	  rmax=sizeX/2+1;
+
+                return self.tmpl_out("params.html", r=r, x0=x, y0=y, rmax=rmax)
             else:
                 # second corner selection
                 x0 = int(x0)
