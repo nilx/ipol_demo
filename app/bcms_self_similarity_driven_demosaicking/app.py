@@ -48,9 +48,9 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "bcms_self_similarity_driven_demosaicking/src.tgz"
-        tgz_file = self.dl_dir + "src.tgz"
-        progs = ["mosaic", "demosaic", "imgdiff"]
+            + "bcms_self_similarity_driven_demosaicking/src.tar.gz"
+        tgz_file = self.dl_dir + "src.tar.gz"
+        progs = ["mosaic", "demosaickingIpol", "imgdiff"]
         src_bin = dict([(self.src_dir + os.path.join("src", prog),
                          self.bin_dir + prog)
                         for prog in progs])
@@ -243,6 +243,8 @@ class app(base_app):
 	    print "Run time error"
             return self.error(errcode='runtime')
 
+ 	stdout.close();
+
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
@@ -275,14 +277,14 @@ class app(base_app):
         self.wait_proc(p, timeout*0.2)
 
 	#demosaic image
-        p1 = self.run_proc(['demosaic', 'input_1.tiff', 'output_1.tiff', pattern],
+        p1 = self.run_proc(['demosaickingIpol', 'input_1.tiff', 'output_1.tiff', pattern],
                            stdout=None, stderr=None)
         self.wait_proc(p1, timeout*0.7)
 
 	#compute image differences
 	D=20
         p2 = self.run_proc(['imgdiff', 'input_0.sel.tiff', 'output_1.tiff', str(D), 'output_2.tiff'],
-                           stdout=None, stderr=None)
+                           stdout=stdout, stderr=stdout)
         self.wait_proc(p2, timeout*0.1)
 
 	#convert results to PNG format
