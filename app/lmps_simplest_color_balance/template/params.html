@@ -2,12 +2,41 @@
 
 
 <h2>Algorithm Parameters</h2>
-
+<p>
+Choose the percentage of saturated pixels (if you choose 3%, then the 1.5% darker pixels in each channel will be saturated to 0, and the 1.5% brightest pixels in each channel to 255. If the color balance is applied to the grey level, the same rule applies to the grey level only, and the color channels are changed proportionnally).
+</p>
 <form action="${app.base_url + 'wait'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
-    <label for="s"><i>s</i>(range: [0.0, 100.0])=</label>
-    <input type="text" name="s" value="3.0" size="5" /><br />
+
+    <select name="s">
+  	  <option value="0">0%</option>
+  	  <option value="1">1%</option>
+  	  <option value="2">2%</option>
+  	  <option value="3"selected>3%</option>
+  	  <option value="4">4%</option>
+  	  <option value="5">5%</option>
+  	  <option value="6">6%</option>
+  	  <option value="7">7%</option>
+  	  <option value="8">8%</option>
+  	  <option value="9">9%</option>
+  	  <option value="10">10%</option>
+  	  <option value="11">11%</option>
+  	  <option value="12">12%</option>
+  	  <option value="13">13%</option>
+  	  <option value="14">14%</option>
+  	  <option value="15">15%</option>
+  	  <option value="16">16%</option>
+  	  <option value="17">17%</option>
+  	  <option value="18">18%</option>
+  	  <option value="19">19%</option>
+  	  <option value="20">20%</option>
+    </select>
+
+
+    <!-- <label for="s"><i>s</i>(range: [0.0, 100.0])=</label>
+    <input type="text" name="s" value="3.0" size="5" /><br /> -->
+
     <input type="submit" value="run" />
   </div>
 </form>
