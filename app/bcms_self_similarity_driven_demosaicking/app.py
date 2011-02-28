@@ -340,12 +340,12 @@ class app(base_app):
 
 	(sizeX, sizeY)=image(self.work_dir + 'input_0.sel.png').size
 	# Resize for visualization (new size of the smallest dimension = 200)
-	use_zoomed=None
+	zoom_factor=None
 	if (sizeX < 200) or (sizeY < 200):
 	  if sizeX > sizeY:
-	    zoom_factor=ceil(200.0/sizeY);
+	    zoom_factor=int(ceil(200.0/sizeY));
 	  else:
-	    zoom_factor=ceil(200.0/sizeX);
+	    zoom_factor=int(ceil(200.0/sizeX));
 
 	  self.pixel_duplicate(sizeX, sizeY, zoom_factor, 
 			       self.work_dir + 'input_0.sel.png', self.work_dir + 'input_0_zoom.sel.png')
@@ -362,11 +362,9 @@ class app(base_app):
 	  sizeX=sizeX*zoom_factor
 	  sizeY=sizeY*zoom_factor
 
-	  use_zoomed=True
-
 
         return self.tmpl_out("result.html", pattern=pattern, x0=x0, y0=y0, x1=x1, y1=y1,
-                             sizeY=sizeY, use_zoomed=use_zoomed)
+                             sizeY=sizeY, zoom_factor=zoom_factor)
 
 
 

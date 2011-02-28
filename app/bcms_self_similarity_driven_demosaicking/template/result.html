@@ -62,10 +62,10 @@ Results
 ) 
 </h2>
 
-%if use_zoomed:
+%if zoom_factor:
 
 <p>
-Remark: the images haven been rescaled (pixel duplication) for visualization .
+Remark: for visualization the images are displayed with ${zoom_factor}x pixel duplication.
 You can download the original images:  
   <a href="${app.work_url + 'input_1.png'}">mosaic</a>, 
   <a href="${app.work_url + 'output_1.png'}">demosaic</a>,
