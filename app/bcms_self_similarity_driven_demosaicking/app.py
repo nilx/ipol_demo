@@ -11,6 +11,8 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import time
+from math import ceil
+from PIL import Image
 
 class app(base_app):
     """ self-similarity driven demosaicking app """
@@ -296,6 +298,19 @@ class app(base_app):
         im.save(self.work_dir + 'output_2.png')
 
 
+    def pixel_duplicate(self, sizeX, sizeY, zoom_factor, namein, nameout):
+	im=Image.open(namein)
+	pix=im.load()
+	imout = Image.new('RGB', (sizeX*zoom_factor, sizeY*zoom_factor))
+	pixout = imout.load();
+	for y in range(0, sizeY):
+	  for x in range(0, sizeX):
+	    for xx in range(0, zoom_factor):
+	      for yy in range(0, zoom_factor):
+		pixout[zoom_factor*x+xx, zoom_factor*y+yy]=pix[x, y]
+	imout.save(nameout)
+
+	
     @cherrypy.expose
     @init_app
     def result(self):
@@ -328,27 +343,24 @@ class app(base_app):
 	use_zoomed=None
 	if (sizeX < 200) or (sizeY < 200):
 	  if sizeX > sizeY:
-	    sizeX=int(float(sizeX)/float(sizeY)*200)
-	    sizeY=200
+	    zoom_factor=ceil(200.0/sizeY);
 	  else:
-	    sizeY=int(float(sizeY)/float(sizeX)*200)
-	    sizeX=200
+	    zoom_factor=ceil(200.0/sizeX);
 
-	  im = image(self.work_dir + 'input_0.sel.png')
-	  im.resize((sizeX, sizeY), method="nearest")
-	  im.save(self.work_dir + 'input_0_zoom.sel.png')
+	  self.pixel_duplicate(sizeX, sizeY, zoom_factor, 
+			       self.work_dir + 'input_0.sel.png', self.work_dir + 'input_0_zoom.sel.png')
 
-	  im = image(self.work_dir + 'input_1.png')
-	  im.resize((sizeX, sizeY), method="nearest")
-	  im.save(self.work_dir + 'input_1_zoom.png')
+	  self.pixel_duplicate(sizeX, sizeY, zoom_factor, 
+			       self.work_dir + 'input_1.png', self.work_dir + 'input_1_zoom.png')
 
-	  im = image(self.work_dir + 'output_1.png')
-	  im.resize((sizeX, sizeY), method="nearest")
-	  im.save(self.work_dir + 'output_1_zoom.png')
+	  self.pixel_duplicate(sizeX, sizeY, zoom_factor, 
+			       self.work_dir + 'output_1.png', self.work_dir + 'output_1_zoom.png')
 
-	  im = image(self.work_dir + 'output_2.png')
-	  im.resize((sizeX, sizeY), method="nearest")
-	  im.save(self.work_dir + 'output_2_zoom.png')
+	  self.pixel_duplicate(sizeX, sizeY, zoom_factor, 
+			       self.work_dir + 'output_2.png', self.work_dir + 'output_2_zoom.png')
+
+	  sizeX=sizeX*zoom_factor
+	  sizeY=sizeY*zoom_factor
 
 	  use_zoomed=True
 
