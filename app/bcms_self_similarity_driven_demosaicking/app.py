@@ -323,9 +323,38 @@ class app(base_app):
         except KeyError:
 	  y1=None
 
+	(sizeX, sizeY)=image(self.work_dir + 'input_0.sel.png').size
+	# Resize for visualization (new size of the smallest dimension = 200)
+	use_zoomed=None
+	if (sizeX < 200) or (sizeY < 200):
+	  if sizeX > sizeY:
+	    sizeX=int(float(sizeX)/float(sizeY)*200)
+	    sizeY=200
+	  else:
+	    sizeY=int(float(sizeY)/float(sizeX)*200)
+	    sizeX=200
+
+	  im = image(self.work_dir + 'input_0.sel.png')
+	  im.resize((sizeX, sizeY), method="nearest")
+	  im.save(self.work_dir + 'input_0_zoom.sel.png')
+
+	  im = image(self.work_dir + 'input_1.png')
+	  im.resize((sizeX, sizeY), method="nearest")
+	  im.save(self.work_dir + 'input_1_zoom.png')
+
+	  im = image(self.work_dir + 'output_1.png')
+	  im.resize((sizeX, sizeY), method="nearest")
+	  im.save(self.work_dir + 'output_1_zoom.png')
+
+	  im = image(self.work_dir + 'output_2.png')
+	  im.resize((sizeX, sizeY), method="nearest")
+	  im.save(self.work_dir + 'output_2_zoom.png')
+
+	  use_zoomed=True
+
+
         return self.tmpl_out("result.html", pattern=pattern, x0=x0, y0=y0, x1=x1, y1=y1,
-                             sizeY="%i" % image(self.work_dir 
-                                                + 'input_0.sel.png').size[1])
+                             sizeY=sizeY, use_zoomed=use_zoomed)
 
 
 

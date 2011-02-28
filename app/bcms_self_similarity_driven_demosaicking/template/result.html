@@ -62,51 +62,115 @@ Results
 ) 
 </h2>
 
-<div class="gallery" style="height:${sizeY}px;">
-  <ul class="index">
-    <li>
-      <a href="#">
-	Mosaic
-	<span>
-	  <img src="${app.work_url + 'input_1.png'}" />
-	</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	Demosaic
-	<span>
-	  <img src="${app.work_url + 'output_1.png'}" />
-	</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	Original
-	<span>
-	  <img src="${app.work_url + 'input_0.sel.png'}" />
-	</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	Difference
-	<span>
-	  <img src="${app.work_url + 'output_2.png'}" />
-	</span>
-      </a>
-    </li>
-  </ul>
-</div>
+%if use_zoomed:
+
+<p>
+Remark: the images haven been rescaled (pixel duplication) for visualization .
+You can download the original images:  
+  <a href="${app.work_url + 'input_1.png'}">mosaic</a>, 
+  <a href="${app.work_url + 'output_1.png'}">demosaic</a>,
+  <a href="${app.work_url + 'input_0.sel.png'}">original</a>,
+  <a href="${app.work_url + 'output_2.png'}">difference</a>.
+</p>
+
+  <div class="gallery" style="height:${sizeY}px;">
+    <ul class="index">
+      <li>
+        <a href="#">
+	  Mosaic
+	  <span>
+	    <img src="${app.work_url + 'input_1_zoom.png'}" />
+	  </span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+	  Demosaic
+	  <span>
+	    <img src="${app.work_url + 'output_1_zoom.png'}" />
+	  </span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+	  Original
+	  <span>
+	    <img src="${app.work_url + 'input_0_zoom.sel.png'}" />
+	  </span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+	  Difference
+	  <span>
+	    <img src="${app.work_url + 'output_2_zoom.png'}" />
+	  </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+%else:
+
+  <div class="gallery" style="height:${sizeY}px;">
+    <ul class="index">
+      <li>
+        <a href="#">
+	  Mosaic
+	  <span>
+	    <img src="${app.work_url + 'input_1.png'}" />
+	  </span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+	  Demosaic
+	  <span>
+	    <img src="${app.work_url + 'output_1.png'}" />
+	  </span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+	  Original
+	  <span>
+	    <img src="${app.work_url + 'input_0.sel.png'}" />
+	  </span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+	  Difference
+	  <span>
+	    <img src="${app.work_url + 'output_2.png'}" />
+	  </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+%endif
+
 
 <br>
 
 
 <p>
 The error range [-20,20] is linearly transformed to [0,255] for
-visualization purposes. Errors outside this rang are saturated to 0
+visualization purposes. Errors outside this range are saturated to 0
 and 255 respectively.
+
+  <a class="toggle" href="#formula" onclick="toggle('formula');">
+    Formula
+  </a>
 </p>
+<div id="formula" style="display:none"> 
+  <p>
+  <img src="${app.input_url + 'formulaerrordisplay.png'}" />
+  </p>
+</div>
+
+
 
 <h2>
     Additional Info
