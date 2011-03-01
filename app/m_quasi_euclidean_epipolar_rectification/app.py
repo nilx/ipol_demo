@@ -1,7 +1,6 @@
 """
 Quasi-Euclidean Epipolar Rectification
 """
-# pylint: disable=C0103
 
 from lib import base_app, image, http, build
 from lib.misc import app_expose, ctime

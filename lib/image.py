@@ -1,18 +1,17 @@
 """
 image tools
 """
-# pylint: disable=C0103
 
 #
 # IMAGE THUMBNAILER
 #
 
-from misc import mtime
-
 import os.path
 import PIL.Image
 import PIL.ImageOps
 import PIL.ImageDraw
+
+import subprocess
 
 def _deinterlace_png(path):
     """
@@ -34,29 +33,68 @@ def _deinterlace_png(path):
             im.getpixel((0, 0))
     return
 
+# This function is kept here for information but not used; we prefer
+# to run the optimizations on all the files (thumbnails and full-size)
+# via cron
+def _optimize_png(fname):
+    """
+    Try to compress a png image with optipng.
 
-def thumbnail(path, size=(128, 128), ext=".png"):
+    The returned compress can be ignored to let the optimization run
+    in background. If optipng is not on the system, this will fail
+    without touching the file and will not disturb the program
+    execution.
+    """
+
+    # We use a temporary outfile because optipng (version 0.6.5) is
+    # not atomic. UNIX mv is atomic, so this file strategy ensures we
+    # always have a valid file.
+    # This implies a shell and "&&" because we don't want to wait for
+    # the end of the process. If optipng is not on the machine, the
+    # shell fails but sends no exception.
+    #
+    # With an atomic optipng (feature request sent 2011-02-25), we
+    # could do:
+    # try:
+    #     p = subprocess.Popen(["optipng", "-q", "-o2",
+    #                           os.path.basename(fname)],
+    #                          cwd=os.path.dirname(fname),
+    #                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # except OSError:
+    #     p = None
+    # return p
+
+    cmdline = ("optipng -o 2 -out %(tmpfile)s %(infile)s"
+               + " && mv -f %(tmpfile)s %(infile)s") \
+               % {'infile': os.path.basename(fname),
+                  'tmpfile': os.path.basename(fname) + ".tmp"}
+    p = subprocess.Popen(cmdline, shell=True,
+                         cwd=os.path.dirname(fname),
+                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return p
+
+def thumbnail(fname, size=(128, 128), ext=".png"):
     """
     image thumbnailing function
 
-    @param path: full-size file name
+    @param fname: full-size file name
     @param size: thumbnail size, default 128x128
     @param ext: thumbnail file extension (and format), default ".png"
 
     @return: thumbnail file name
     """
-    # parse the file name
-    path = os.path.abspath(path)
-    (folder, fname) = os.path.split(path)
-    basename = os.path.splitext(fname)[0]
+    fname = os.path.abspath(fname)
+    # split dirname and basename
+    (fname_dir, fname_base) = os.path.split(fname)
+    fname_noext = os.path.splitext(fname_base)[0]
 
-    tn_path = os.path.join(folder, ".__%ix%i__" % size
-                           + basename + ext)
-    if not os.path.isfile(tn_path):
+    tn_fname = os.path.join(fname_dir, ".__%ix%i__" % size
+                           + fname_noext + ext)
+    if not os.path.isfile(tn_fname):
         # no thumbnail, create it
         #TODO: no more deinterlacing
-        _deinterlace_png(path)
-        im = PIL.Image.open(path)
+        _deinterlace_png(fname)
+        im = PIL.Image.open(fname)
         tn = PIL.Image.new('RGBA', size, (0, 0, 0, 0))
         im.thumbnail(size, resample=True)
         offset = ((size[0] - im.size[0]) / 2,
@@ -64,9 +102,9 @@ def thumbnail(path, size=(128, 128), ext=".png"):
         box = offset + (im.size[0] + offset[0],
                         im.size[1] + offset[1])
         tn.paste(im, box)
-        tn.save(tn_path)
+        tn.save(tn_fname)
 
-    return tn_path
+    return tn_fname
     
 #
 # IMAGE CLASS
@@ -151,7 +189,8 @@ class image(object):
                          "bicubic" : PIL.Image.BICUBIC,
 			 "antialias" : PIL.Image.ANTIALIAS}[method]
         except KeyError:
-            raise KeyError('method must be "nearest", "bilinear", "bicubic" or "antialias"')
+            raise KeyError("method must be 'nearest', 'bilinear',"
+                           + " 'bicubic' or 'antialias'")
 
         self.im = self.im.resize(size, method_kw)
         return self

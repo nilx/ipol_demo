@@ -1,7 +1,6 @@
 """
 demo example for the X->aX+b transform
 """
-# pylint: disable=C0103
 
 from lib import base_app, build, http, image
 from lib.misc import app_expose, ctime

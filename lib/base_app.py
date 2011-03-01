@@ -2,7 +2,6 @@
 base IPOL demo web app
 includes interaction and rendering
 """
-# pylint: disable=C0103
 
 # TODO add steps (cf amazon cart)
 
