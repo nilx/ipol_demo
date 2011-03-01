@@ -48,16 +48,16 @@
 Results 
 (Mosaic pattern: 
   %if pattern == 'RGGB':
-    RGGB <img src="${app.input_url + 'bayer_RGGB.png'}" />
+    RGGB <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_RGGB.png" />,
   %endif
   %if pattern == 'GRBG':
-    GRBG <img src="${app.input_url + 'bayer_GRBG.png'}" />
+    GRBG <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_GRBG.png" />,
   %endif
   %if pattern == 'GBRG':
-    GBRG <img src="${app.input_url + 'bayer_GBRG.png'}" />
+    GBRG <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_GBRG.png" />,
   %endif
   %if pattern == 'BGGR':
-    BGGR <img src="${app.input_url + 'bayer_BGGR.png'}" />
+    BGGR <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_BGGR.png" />
   %endif
 ) 
 </h2>
@@ -161,12 +161,18 @@ visualization purposes. Errors outside this range are saturated to 0
 and 255 respectively.
 
   <a class="toggle" href="#formula" onclick="toggle('formula');">
-    Formula
+    Details
   </a>
 </p>
 <div id="formula" style="display:none"> 
   <p>
-  <img src="${app.input_url + 'formulaerrordisplay.png'}" />
+  <!-- <img src="${app.input_url + 'formulaerrordisplay.png'}" /> -->
+  The displayed error is:
+  <ul>
+    <li> 0 if the error is under -20</li>
+    <li> 128 + 128/20 * error if the error is between -20 and 20 </li>
+    <li> 255 if the error is over 20 </li>
+  </ul>
   </p>
 </div>
 
