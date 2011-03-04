@@ -369,3 +369,68 @@ class image(object):
         """
         self.im = PIL.ImageOps.invert(self.im)
         return self
+
+    def histogram(self, option="all"):
+	"""
+	creates an image displaying the histogram of image values,
+	only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
+
+	@param option: "R" histogram of R values, "G" histogram of G values,
+		       "B" histogram of B values, "I" histogram of I values,
+		       "all" histograms of R, G, B and I values
+	"""
+	
+	#constant values
+	sizeX=256
+	sizeY=128
+	margin=10
+	offset={"R":0, "G":256, "B":512}
+
+	#check image mode
+        if self.im.mode not in ("L", "RGB"):
+            raise ValueError("Unsuported image mode for histogram computation")
+
+	if self.im.mode == "RGB":
+	    #create a black output image
+	    if option == "all":
+		size=(sizeX, 4*sizeY+3*margin)
+	    else:
+		size=(sizeX, sizeY)
+            imout = PIL.Image.new('RGB', size)
+	    #compute histograms of R,G and B values
+            h = self.im.histogram()
+	    #draw histograms of R, G and B values
+
+	"""
+	work in progress ...
+
+	    pixout=imout.load()
+	    if option != "I":
+		if option != "all":
+		    off=offset[option]
+		    maxH=max(h[off:off+256])
+		    for x in range(0, 256):
+			for y in range(0, h[off+x]*sizeY/maxH)
+			    pixout[x, sizeY-1-y]=255
+		else:
+		   maxH=max(h)
+		    for x in range(0, 256):
+			for i in range (0:3):
+			    for y in range(0, h[256*i+x]*sizeY/maxH)
+			        pixout[x, (i+1)*sizeY+i*margin-1-y]=255
+
+	"""
+
+	"""
+
+	    if (option == "I") or (option == "all"):
+		#compute grey level image: I=(R+G+B)/3
+
+
+	else:
+
+
+
+	"""
+
+

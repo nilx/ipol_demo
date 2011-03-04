@@ -153,6 +153,20 @@ class app(base_app):
         self.wait_proc(p, timeout)
 
 
+	"""
+	Compute histograms of images
+	"""
+	im=image(self.work_dir + 'input_0.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'input_0_hist.png')
+	im=image(self.work_dir + 'output_1.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'output_1_hist.png')
+	im=image(self.work_dir + 'output_2.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'output_2_hist.png')
+	
+
     @cherrypy.expose
     @init_app
     def result(self):
