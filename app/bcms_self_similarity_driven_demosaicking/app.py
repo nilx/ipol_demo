@@ -338,19 +338,19 @@ class app(base_app):
 	  sizeY=sizeY*zoom_factor
 
 	  im=image(self.work_dir + 'input_0.sel.png');
-	  im.resize((sizeX, sizeY), method="nearest")
+	  im.resize((sizeX, sizeY), method="pixeldup")
 	  im.save(self.work_dir + 'input_0_zoom.sel.png')
 
 	  im=image(self.work_dir + 'input_1.png');
-	  im.resize((sizeX, sizeY), method="nearest")
+	  im.resize((sizeX, sizeY), method="pixeldup")
 	  im.save(self.work_dir + 'input_1_zoom.png')
 
 	  im=image(self.work_dir + 'output_1.png');
-	  im.resize((sizeX, sizeY), method="nearest")
+	  im.resize((sizeX, sizeY), method="pixeldup")
 	  im.save(self.work_dir + 'output_1_zoom.png')
 
 	  im=image(self.work_dir + 'output_2.png');
-	  im.resize((sizeX, sizeY), method="nearest")
+	  im.resize((sizeX, sizeY), method="pixeldup")
 	  im.save(self.work_dir + 'output_2_zoom.png')
 
         return self.tmpl_out("result.html", pattern=pattern, x0=x0, y0=y0, x1=x1, y1=y1,

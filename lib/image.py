@@ -172,7 +172,7 @@ class image(object):
         @param size: target size, given as an integer number of pixels,
         a float scale ratio, or a pair (width, height)
         @param method: interpolation method, can be "nearest",
-                       "bilinear", "bicubic" or "antialias"
+                       "bilinear", "bicubic", "antialias" or "pixeldup"
         """
         if isinstance(size, int):
             # size is a number of pixels -> convert to a float scale
@@ -187,12 +187,36 @@ class image(object):
             method_kw = {"nearest" : PIL.Image.NEAREST,
 			 "bilinear" : PIL.Image.BILINEAR,
                          "bicubic" : PIL.Image.BICUBIC,
-			 "antialias" : PIL.Image.ANTIALIAS}[method]
+			 "antialias" : PIL.Image.ANTIALIAS,
+			 "pixeldup" : None}[method]
         except KeyError:
             raise KeyError("method must be 'nearest', 'bilinear',"
-                           + " 'bicubic' or 'antialias'")
+                           + " 'bicubic', 'antialias' or 'pixeldup'")
 
-        self.im = self.im.resize(size, method_kw)
+	if method_kw != None:
+	    #use resize function from PIL.Image class
+            self.im = self.im.resize(size, method_kw)
+	else:
+	    # rescaling by pixel duplication
+	    # check integer scaling factor
+	    rX = float(size[0])/float(self.im.size[0])
+	    rY = float(size[1])/float(self.im.size[1])
+            try:
+                assert (int(rX) == rX) and (int(rY) == rY) and (rX >= 1) and (rY >= 1)
+            except AssertionError:
+                raise ValueError('the scale factor must be a positive integer number')
+
+	    rX=int(rX)
+	    rY=int(rY)
+            imout = PIL.Image.new('RGB', size)
+            pix = self.im.load()
+            pixout = imout.load()
+	    for y in range(0, size[1]):
+    	      for x in range(0, size[0]):
+		pixout[x, y]=pix[x//rX, y//rY]
+
+	    self.im=imout
+
         return self
 
     def convert(self, mode):
