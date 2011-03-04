@@ -384,53 +384,66 @@ class image(object):
 	sizeX=256
 	sizeY=128
 	margin=10
-	offset={"R":0, "G":256, "B":512}
+	offset={"R":0, "G":256, "B":512, "I":768}
 
 	#check image mode
         if self.im.mode not in ("L", "RGB"):
             raise ValueError("Unsuported image mode for histogram computation")
 
 	if self.im.mode == "RGB":
+	    pix=self.im.load()
+	    #compute grey level image: I=(R+G+B)/3
+	    if (option == "I") or (option == "all"):
+            	imgray = PIL.Image.new('L', self.im.size)
+		pixgray=imgray.load()
+		for y in range(0, self.im.size[1]):
+		    for x in range(0, self.im.size[0]):
+			pixgray[x, y]=(pix[x, y][0]+pix[x, y][1]+pix[x, y][2])/3
+	    #compute histograms of R,G and B values
+            h = self.im.histogram()
+	    #compute histograms of I values
+	    if (option == "I") or (option == "all"):
+		hgray=imgray.histogram()
+		#concatenate I histogram to RGB histograms	
+		h=h+hgray   
 	    #create a black output image
 	    if option == "all":
 		size=(sizeX, 4*sizeY+3*margin)
 	    else:
 		size=(sizeX, sizeY)
             imout = PIL.Image.new('RGB', size)
-	    #compute histograms of R,G and B values
-            h = self.im.histogram()
-	    #draw histograms of R, G and B values
-
-	"""
-	work in progress ...
-
+	    #draw histograms of R, G, B and I values
 	    pixout=imout.load()
-	    if option != "I":
-		if option != "all":
-		    off=offset[option]
-		    maxH=max(h[off:off+256])
-		    for x in range(0, 256):
-			for y in range(0, h[off+x]*sizeY/maxH)
-			    pixout[x, sizeY-1-y]=255
-		else:
-		   maxH=max(h)
-		    for x in range(0, 256):
-			for i in range (0:3):
-			    for y in range(0, h[256*i+x]*sizeY/maxH)
-			        pixout[x, (i+1)*sizeY+i*margin-1-y]=255
-
-	"""
-
-	"""
-
-	    if (option == "I") or (option == "all"):
-		#compute grey level image: I=(R+G+B)/3
-
+	    if option != "all":
+		off=offset[option]
+		maxH=max(h[off:off+256])
+		for x in range(0, 256):
+		    for y in range(0, int(h[off+x]*sizeY/maxH)):
+			pixout[x, sizeY-1-y]=255
+	    else:
+		maxH=max(h)
+		for x in range(0, 256):
+		    for i in range (0, 4):
+			for y in range(0, int(h[256*i+x]*sizeY/maxH)):
+			    pixout[x, (i+1)*sizeY+i*margin-1-y]=255
 
 	else:
+	    #compute histogram of I values
+            h = self.im.histogram()
+	    #create a black output image
+	    size=(sizeX, sizeY)
+            imout = PIL.Image.new('L', size)
+	    #draw histogram of I values
+	    pixout=imout.load()
+	    maxH=max(h[0:256])
+	    for x in range(0, 256):
+		for y in range(0, int(h[x]*sizeY/maxH)):
+		    pixout[x, sizeY-1-y]=255
 
 
+	self.im = imout
+	return self
 
-	"""
+
 
 
