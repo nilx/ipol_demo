@@ -170,9 +170,9 @@ class image(object):
         resize the image, in-place
 
         @param size: target size, given as an integer number of pixels,
-        a float scale ratio, or a pair (width, height)
+               a float scale ratio, or a pair (width, height)
         @param method: interpolation method, can be "nearest",
-                       "bilinear", "bicubic", "antialias" or "pixeldup"
+               "bilinear", "bicubic", "antialias" or "pixeldup"
         """
         if isinstance(size, int):
             # size is a number of pixels -> convert to a float scale
@@ -185,37 +185,42 @@ class image(object):
 
         try:
             method_kw = {"nearest" : PIL.Image.NEAREST,
-			 "bilinear" : PIL.Image.BILINEAR,
+                         "bilinear" : PIL.Image.BILINEAR,
                          "bicubic" : PIL.Image.BICUBIC,
-			 "antialias" : PIL.Image.ANTIALIAS,
-			 "pixeldup" : None}[method]
+                         "antialias" : PIL.Image.ANTIALIAS,
+                         "pixeldup" : None}[method]
         except KeyError:
             raise KeyError("method must be 'nearest', 'bilinear',"
                            + " 'bicubic', 'antialias' or 'pixeldup'")
 
-	if method_kw != None:
-	    #use resize function from PIL.Image class
+        if method == "pixeldup":
+            # rescaling by pixel duplication
+            if size == self.im.size:
+                # no resize needed
+                pass
+            else:
+                # scaling ratio
+                if not (size[0] >= self.im.size[0] and 
+                        size[0] % self.im.size[0] == 0 and
+                        size[1] >= self.im.size[1] and 
+                        size[1] % self.im.size[1] == 0):
+                    raise ValueError('the scale factor must be'
+                                     + ' a positive integer number')
+                # scaling ratio
+                rX = size[0] // self.im.size[0]
+                rY = size[1] // self.im.size[1]
+                # create a new image
+                imout = PIL.Image.new(self.im.type, size)
+                pix = self.im.load()
+                pixout = imout.load()
+                # duplicate the pixels
+                for y in range(0, size[1]):
+                    for x in range(0, size[0]):
+                        pixout[x, y] = pix[x//rX, y//rY]
+                self.im = imout
+        else:
+            # use resize function from PIL.Image class
             self.im = self.im.resize(size, method_kw)
-	else:
-	    # rescaling by pixel duplication
-	    # check integer scaling factor
-	    rX = float(size[0])/float(self.im.size[0])
-	    rY = float(size[1])/float(self.im.size[1])
-            try:
-                assert (int(rX) == rX) and (int(rY) == rY) and (rX >= 1) and (rY >= 1)
-            except AssertionError:
-                raise ValueError('the scale factor must be a positive integer number')
-
-	    rX=int(rX)
-	    rY=int(rY)
-            imout = PIL.Image.new('RGB', size)
-            pix = self.im.load()
-            pixout = imout.load()
-	    for y in range(0, size[1]):
-    	      for x in range(0, size[0]):
-		pixout[x, y]=pix[x//rX, y//rY]
-
-	    self.im=imout
 
         return self
 
@@ -371,78 +376,78 @@ class image(object):
         return self
 
     def histogram(self, option="all"):
-	"""
-	creates an image displaying the histogram of image values,
-	only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
+        """
+        creates an image displaying the histogram of image values,
+        only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
 
-	@param option: "R" histogram of R values, "G" histogram of G values,
-		       "B" histogram of B values, "I" histogram of I values,
-		       "all" histograms of R, G, B and I values
-	"""
-	
-	#constant values
-	sizeX=256
-	sizeY=128
-	margin=10
-	offset={"R":0, "G":256, "B":512, "I":768}
+        @param option: "R" histogram of R values, "G" histogram of G values,
+                       "B" histogram of B values, "I" histogram of I values,
+                       "all" histograms of R, G, B and I values
+        """
+        
+        #constant values
+        sizeX=256
+        sizeY=128
+        margin=10
+        offset={"R":0, "G":256, "B":512, "I":768}
 
-	#check image mode
+        #check image mode
         if self.im.mode not in ("L", "RGB"):
             raise ValueError("Unsuported image mode for histogram computation")
 
-	if self.im.mode == "RGB":
-	    pix=self.im.load()
-	    #compute grey level image: I=(R+G+B)/3
-	    if (option == "I") or (option == "all"):
-            	imgray = PIL.Image.new('L', self.im.size)
-		pixgray=imgray.load()
-		for y in range(0, self.im.size[1]):
-		    for x in range(0, self.im.size[0]):
-			pixgray[x, y]=(pix[x, y][0]+pix[x, y][1]+pix[x, y][2])/3
-	    #compute histograms of R,G and B values
+        if self.im.mode == "RGB":
+            pix=self.im.load()
+            #compute grey level image: I=(R+G+B)/3
+            if (option == "I") or (option == "all"):
+                imgray = PIL.Image.new('L', self.im.size)
+                pixgray=imgray.load()
+                for y in range(0, self.im.size[1]):
+                    for x in range(0, self.im.size[0]):
+                        pixgray[x, y]=(pix[x, y][0]+pix[x, y][1]+pix[x, y][2])/3
+            #compute histograms of R,G and B values
             h = self.im.histogram()
-	    #compute histograms of I values
-	    if (option == "I") or (option == "all"):
-		hgray=imgray.histogram()
-		#concatenate I histogram to RGB histograms	
-		h=h+hgray   
-	    #create a black output image
-	    if option == "all":
-		size=(sizeX, 4*sizeY+3*margin)
-	    else:
-		size=(sizeX, sizeY)
+            #compute histograms of I values
+            if (option == "I") or (option == "all"):
+                hgray=imgray.histogram()
+                #concatenate I histogram to RGB histograms      
+                h=h+hgray   
+            #create a black output image
+            if option == "all":
+                size=(sizeX, 4*sizeY+3*margin)
+            else:
+                size=(sizeX, sizeY)
             imout = PIL.Image.new('RGB', size)
-	    #draw histograms of R, G, B and I values
-	    pixout=imout.load()
-	    if option != "all":
-		off=offset[option]
-		maxH=max(h[off:off+256])
-		for x in range(0, 256):
-		    for y in range(0, int(h[off+x]*sizeY/maxH)):
-			pixout[x, sizeY-1-y]=255
-	    else:
-		maxH=max(h)
-		for x in range(0, 256):
-		    for i in range (0, 4):
-			for y in range(0, int(h[256*i+x]*sizeY/maxH)):
-			    pixout[x, (i+1)*sizeY+i*margin-1-y]=255
+            #draw histograms of R, G, B and I values
+            pixout=imout.load()
+            if option != "all":
+                off=offset[option]
+                maxH=max(h[off:off+256])
+                for x in range(0, 256):
+                    for y in range(0, int(h[off+x]*sizeY/maxH)):
+                        pixout[x, sizeY-1-y]=255
+            else:
+                maxH=max(h)
+                for x in range(0, 256):
+                    for i in range (0, 4):
+                        for y in range(0, int(h[256*i+x]*sizeY/maxH)):
+                            pixout[x, (i+1)*sizeY+i*margin-1-y]=255
 
-	else:
-	    #compute histogram of I values
+        else:
+            #compute histogram of I values
             h = self.im.histogram()
-	    #create a black output image
-	    size=(sizeX, sizeY)
+            #create a black output image
+            size=(sizeX, sizeY)
             imout = PIL.Image.new('L', size)
-	    #draw histogram of I values
-	    pixout=imout.load()
-	    maxH=max(h[0:256])
-	    for x in range(0, 256):
-		for y in range(0, int(h[x]*sizeY/maxH)):
-		    pixout[x, sizeY-1-y]=255
+            #draw histogram of I values
+            pixout=imout.load()
+            maxH=max(h[0:256])
+            for x in range(0, 256):
+                for y in range(0, int(h[x]*sizeY/maxH)):
+                    pixout[x, sizeY-1-y]=255
 
 
-	self.im = imout
-	return self
+        self.im = imout
+        return self
 
 
 
