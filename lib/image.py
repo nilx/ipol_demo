@@ -376,22 +376,24 @@ class image(object):
         return self
 
     def histogram(self, option="all"):
-        """
-        creates an image displaying the histogram of image values,
-        only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
+	"""
+	creates an image displaying the histogram of image values,
+	only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
 
-        @param option: "R" histogram of R values, "G" histogram of G values,
-                       "B" histogram of B values, "I" histogram of I values,
-                       "all" histograms of R, G, B and I values
-        """
-        
-        #constant values
-        sizeX=256
-        sizeY=128
-        margin=10
-        offset={"R":0, "G":256, "B":512, "I":768}
+	@param option: "R" histogram of R values, "G" histogram of G values,
+		       "B" histogram of B values, "I" histogram of I values,
+		       "all" histograms of R, G, B and I values
+	"""
+	
+	#constant values
+	sizeX=256
+	sizeY=128
+	margin=10
+	offset={"R":0, "G":256, "B":512, "I":768}
+	color={"R":(255, 0, 0), "G":(0, 255, 0), "B":(0, 0, 255), "I":(255, 255, 255)}
+	colorAll={0:(255, 0, 0), 1:(0, 255, 0), 2:(0, 0, 255), 3:(255, 255, 255)}
 
-        #check image mode
+	#check image mode
         if self.im.mode not in ("L", "RGB"):
             raise ValueError("Unsuported image mode for histogram computation")
 
@@ -417,23 +419,23 @@ class image(object):
             else:
                 size=(sizeX, sizeY)
             imout = PIL.Image.new('RGB', size)
-            #draw histograms of R, G, B and I values
-            pixout=imout.load()
-            if option != "all":
-                off=offset[option]
-                maxH=max(h[off:off+256])
-                for x in range(0, 256):
-                    for y in range(0, int(h[off+x]*sizeY/maxH)):
-                        pixout[x, sizeY-1-y]=255
-            else:
-                maxH=max(h)
-                for x in range(0, 256):
-                    for i in range (0, 4):
-                        for y in range(0, int(h[256*i+x]*sizeY/maxH)):
-                            pixout[x, (i+1)*sizeY+i*margin-1-y]=255
+	    #draw histograms of R, G, B and I values
+	    pixout=imout.load()
+	    if option != "all":
+		off=offset[option]
+		maxH=max(h[off:off+256])
+		for x in range(0, 256):
+		    for y in range(0, int(h[off+x]*sizeY/maxH)):
+			pixout[x, sizeY-1-y]=color[option]
+	    else:
+		maxH=max(h)
+		for x in range(0, 256):
+		    for i in range (0, 4):
+			for y in range(0, int(h[256*i+x]*sizeY/maxH)):
+			    pixout[x, (i+1)*sizeY+i*margin-1-y]=colorAll[i]
 
-        else:
-            #compute histogram of I values
+	else:
+	    #compute histogram of I values
             h = self.im.histogram()
             #create a black output image
             size=(sizeX, sizeY)
