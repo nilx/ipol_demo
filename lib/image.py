@@ -385,6 +385,8 @@ class image(object):
 	sizeY=128
 	margin=10
 	offset={"R":0, "G":256, "B":512, "I":768}
+	color={"R":(255, 0, 0), "G":(0, 255, 0), "B":(0, 0, 255), "I":(255, 255, 255)}
+	colorAll={0:(255, 0, 0), 1:(0, 255, 0), 2:(0, 0, 255), 3:(255, 255, 255)}
 
 	#check image mode
         if self.im.mode not in ("L", "RGB"):
@@ -419,13 +421,13 @@ class image(object):
 		maxH=max(h[off:off+256])
 		for x in range(0, 256):
 		    for y in range(0, int(h[off+x]*sizeY/maxH)):
-			pixout[x, sizeY-1-y]=255
+			pixout[x, sizeY-1-y]=color[option]
 	    else:
 		maxH=max(h)
 		for x in range(0, 256):
 		    for i in range (0, 4):
 			for y in range(0, int(h[256*i+x]*sizeY/maxH)):
-			    pixout[x, (i+1)*sizeY+i*margin-1-y]=255
+			    pixout[x, (i+1)*sizeY+i*margin-1-y]=colorAll[i]
 
 	else:
 	    #compute histogram of I values
