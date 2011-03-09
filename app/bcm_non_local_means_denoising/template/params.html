@@ -2,11 +2,10 @@
 
 
 <p> 
-The algorithm is run in 3 steps:
+The algorithm is run in 2 steps:
 <ol>
 <li> a Gaussian noise is added to the input image;</li>
-<li> the noise of the resulting image is estimated;</li>
-<li> the NLmeans algorithm is used to denoise the image, based on the previous estimation.</li> 
+<li> the NLmeans algorithm is used to denoise the image.</li> 
 </ol>
 </p> 
 
@@ -19,10 +18,10 @@ The algorithm is run in 3 steps:
 First you have to select a level (standard deviation) of additive Gaussian noise: 
     <select name="sigma">
       %if sigma:	
-        %if sigma == '0':	 
-  	  <option value="0" selected>0</option>
+        %if sigma == '2':	 
+  	  <option value="2" selected>2</option>
 	%else:
-  	  <option value="0">0</option>
+  	  <option value="2">2</option>
 	%endif
         %if sigma == '5':	 
   	  <option value="5" selected>5</option>
@@ -45,7 +44,7 @@ First you have to select a level (standard deviation) of additive Gaussian noise
   	  <option value="20">20</option>
 	%endif
       %else:
-  	  <option value="0">0</option>
+  	  <option value="2">2</option>
   	  <option value="5">5</option>
   	  <option value="10" selected>10</option>
   	  <option value="15">15</option>

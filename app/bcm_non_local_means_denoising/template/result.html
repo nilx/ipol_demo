@@ -21,14 +21,14 @@
       <input type="hidden" name="y0" value="${y0}">
       <input type="hidden" name="x1" value="${x1}">
       <input type="hidden" name="y1" value="${y1}">
-      <input type="hidden" name="pattern" value="${pattern}">
+      <input type="hidden" name="sigma" value="${sigma}">
       <input type="submit" value="different parameter" />
     </form>
     <form style="display:inline;"
 	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
-      <input type="hidden" name="pattern" value="${pattern}">
+      <input type="hidden" name="sigma" value="${sigma}">
       <input type="submit" value="different subimage" />
     </form>
   %else:
@@ -36,7 +36,7 @@
 	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
-      <input type="hidden" name="pattern" value="${pattern}">
+      <input type="hidden" name="sigma" value="${sigma}">
       <input type="submit" value="different parameter or subimage" />
     </form>
   %endif
@@ -46,20 +46,7 @@
 
 <h2>
 Results 
-(Mosaic pattern: 
-  %if pattern == 'RGGB':
-    RGGB <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_RGGB.png" />,
-  %endif
-  %if pattern == 'GRBG':
-    GRBG <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_GRBG.png" />,
-  %endif
-  %if pattern == 'GBRG':
-    GBRG <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_GBRG.png" />,
-  %endif
-  %if pattern == 'BGGR':
-    BGGR <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_BGGR.png" />
-  %endif
-) 
+(sigma: ${sigma})
 </h2>
 
 %if zoom_factor:
@@ -67,8 +54,8 @@ Results
 <p>
 Remark: for visualization the images are displayed with ${zoom_factor}x pixel duplication.
 You can download the original images:  
-  <a href="${app.work_url + 'input_1.png'}">mosaic</a>, 
-  <a href="${app.work_url + 'output_1.png'}">demosaic</a>,
+  <a href="${app.work_url + 'input_1.png'}">noisy</a>, 
+  <a href="${app.work_url + 'output_1.png'}">denoised</a>,
   <a href="${app.work_url + 'input_0.sel.png'}">original</a>,
   <a href="${app.work_url + 'output_2.png'}">difference</a>.
 </p>
@@ -77,7 +64,7 @@ You can download the original images:
     <ul class="index">
       <li>
         <a href="#">
-	  Mosaic
+	  Noisy
 	  <span>
 	    <img src="${app.work_url + 'input_1_zoom.png'}" />
 	  </span>
@@ -85,7 +72,7 @@ You can download the original images:
       </li>
       <li>
         <a href="#">
-	  Demosaic
+	  Denoised
 	  <span>
 	    <img src="${app.work_url + 'output_1_zoom.png'}" />
 	  </span>
@@ -116,7 +103,7 @@ You can download the original images:
     <ul class="index">
       <li>
         <a href="#">
-	  Mosaic
+	  Noisy
 	  <span>
 	    <img src="${app.work_url + 'input_1.png'}" />
 	  </span>
@@ -124,7 +111,7 @@ You can download the original images:
       </li>
       <li>
         <a href="#">
-	  Demosaic
+	  Denoised
 	  <span>
 	    <img src="${app.work_url + 'output_1.png'}" />
 	  </span>
@@ -155,32 +142,15 @@ You can download the original images:
 <br>
 
 
-<p>
-The error range [-20,20] is linearly transformed to [0,255] for
-visualization purposes. Errors outside this range are saturated to 0
-and 255 respectively.
-
-  <a class="toggle" href="#formula" onclick="toggle('formula');">
-    Details
-  </a>
-</p>
-<div id="formula" style="display:none"> 
-  <p>
-  <!-- <img src="${app.input_url + 'formulaerrordisplay.png'}" /> -->
-  The displayed error is:
-  <ul>
-    <li> 0 if the error is under -20</li>
-    <li> 128 + 128/20 * error if the error is between -20 and 20 </li>
-    <li> 255 if the error is over 20 </li>
-  </ul>
-  </p>
-</div>
 
 
 
 <h2>
     Additional Info
 </h2>
+
+<p>Estimated noise standard deviation (per channel)</p>
+
   <pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
 
 

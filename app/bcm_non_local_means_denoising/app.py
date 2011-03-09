@@ -15,9 +15,9 @@ from math import ceil
 from PIL import Image
 
 class app(base_app):
-    """ non-local-means denoising app """
+    """ non-local means denoising app """
 
-    title = "Non-Local-Means Denoising"
+    title = "Non-Local Means Denoising"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -274,21 +274,34 @@ class app(base_app):
 	im = image(self.work_dir + 'input_0.sel.png')
         im.save(self.work_dir + 'input_0.sel.tiff')
 
-	#mosaic image
-        p = self.run_proc(['mosaic', 'input_0.sel.tiff', 'input_1.tiff', sigma],
+	#noisy image
+        p = self.run_proc(['addnoise', 'input_0.sel.tiff', 'input_1.tiff', str(sigma)],
                            stdout=None, stderr=None)
-        self.wait_proc(p, timeout*0.2)
+        self.wait_proc(p, timeout*0.1)
 
-	#demosaic image
-        p1 = self.run_proc(['demosaickingIpol', 'input_1.tiff', 'output_1.tiff', sigma],
-                           stdout=None, stderr=None)
-        self.wait_proc(p1, timeout*0.7)
+	#estimate noise
+        p1 = self.run_proc(['estnoise', 'input_1.tiff'],
+                           stdout=stdout, stderr=None)
+
+	#denoise image
+	if im.im.mode == 'RGB':
+            p2 = self.run_proc(['denoise', 'input_1.tiff', 'output_1.tiff', str(sigma), str(sigma), str(sigma)],
+                                 stdout=None, stderr=None)
+	else:
+            p2 = self.run_proc(['denoise', 'input_1.tiff', 'output_1.tiff', str(sigma)],
+                                 stdout=None, stderr=None)
+
+        self.wait_proc([p1, p2], timeout*0.8)
 
 	#compute image differences
-	D=20
-        p2 = self.run_proc(['imgdiff', 'input_0.sel.tiff', 'output_1.tiff', str(D), 'output_2.tiff'],
-                           stdout=stdout, stderr=stdout)
-        self.wait_proc(p2, timeout*0.1)
+	if im.im.mode == 'RGB':
+            p3 = self.run_proc(['diffnoise', 'input_0.sel.tiff', 'output_1.tiff', 'output_2.tiff', str(sigma), str(sigma), str(sigma)],
+                               stdout=stdout, stderr=stdout)
+	else:
+            p3 = self.run_proc(['diffnoise', 'input_0.sel.tiff', 'output_1.tiff', 'output_2.tiff', str(sigma)],
+                               stdout=stdout, stderr=stdout)
+
+        self.wait_proc(p3, timeout*0.1)
 
 	#convert results to PNG format
 	im = image(self.work_dir + 'input_1.tiff')
