@@ -1,5 +1,5 @@
 """
-local color correction ipol demo web app
+non-local-means denoising ipol demo web app
 """
 
 from lib import base_app, build, http, image
@@ -11,11 +11,13 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import time
+from math import ceil
+from PIL import Image
 
 class app(base_app):
-    """ local color correction app """
+    """ non-local-means denoising app """
 
-    title = "Local Color Correction"
+    title = "Non-Local-Means Denoising"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -46,32 +48,38 @@ class app(base_app):
         """
         program build/update
         """
+
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/edit/algo/" \
-            + "g_localcolorcorrection/LCC.tar.gz"
-        tgz_file = self.dl_dir + "LCC.tar.gz"
-        prog_file = self.bin_dir + "localcolorcorrection"
+        tgz_url = "http://www.ipol.im/pub/algo/" \
+            + "bcm_non_local_means_denoising/src.tgz"
+        tgz_file = self.dl_dir + "src.tgz"
+        progs = ["addnoise", "estnoise", "denoise", "diffnoise"]
+        src_bin = dict([(self.src_dir + os.path.join("src", prog),
+                         self.bin_dir + prog)
+                        for prog in progs])
         log_file = self.base_dir + "build.log"
+
         # get the latest source archive
         build.download(tgz_url, tgz_file)
-        # test if the dest file is missing, or too old
-        if (os.path.isfile(prog_file)
-            and ctime(tgz_file) < ctime(prog_file)):
+        # test if any dest file is missing, or too old
+        if all([(os.path.isfile(bin_file)
+                 and ctime(tgz_file) < ctime(bin_file))
+                for bin_file in src_bin.values()]):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
             # extract the archive
             build.extract(tgz_file, self.src_dir)
-            # build the program
-            build.run("make -j4 -C %s localcolorcorrection"
-                      % (self.src_dir + "LCC"),
+            # build the programs
+            build.run("make -j4 -C %s %s"
+                      % (self.src_dir + "src", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir 
-                        + os.path.join("LCC", "localcolorcorrection"), prog_file)
+            for (src, dst) in src_bin.items():
+                shutil.copy(src, dst)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
@@ -92,7 +100,7 @@ class app(base_app):
         imgS.draw_line([(x0+1, y0+1), (x1-1, y0+1), (x1-1, y1-1), (x0+1, y1-1), (x0+1, y0+1)], color="white")
         imgS.save(self.work_dir + 'input_0s.png')
         # crop the image
-	# try cropping from the original input image (if different from input_0)
+	# try cropping from the original input image (if different from input_1)
 	im0 = image(self.work_dir + 'input_0.orig.png')
 	(dx0, dy0) = im0.size
         img = image(self.work_dir + 'input_0.png')
@@ -113,35 +121,26 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def params(self, newrun=False, msg=None, x0=None, y0=None, x1=None, y1=None):
+    def params(self, newrun=False, msg=None, x0=None, y0=None, x1=None, y1=None, sigma=None):
         """
         configure the algo execution
         """
         if newrun:
             self.clone_input()
+
 	if x0:
 	  self.select_subimage(int(x0), int(y0), int(x1), int(y1))
 
-	sizeX=image(self.work_dir + 'input_0.png').size[0];
-	sizeY=image(self.work_dir + 'input_0.png').size[1];
-	if sizeX > sizeY:
-	  rmax=sizeY/2+1;
-	else:
-	  rmax=sizeX/2+1;
-        return self.tmpl_out("params.html", msg=msg, x0=x0, y0=y0, x1=x1, y1=y1, rmax=rmax)
+        return self.tmpl_out("params.html", msg=msg, x0=x0, y0=y0, x1=x1, y1=y1, sigma=sigma)
 
 
     @cherrypy.expose
     @init_app
-    def rectangle(self, action=None, r=None, x=None, y=None, x0=None, y0=None):
+    def rectangle(self, action=None, sigma=None, x=None, y=None, x0=None, y0=None):
         """
         params handling 
         """
-        # save and validate the parameters
-	if (int(r) < 0) or (int(r) > 1000) :
-	  return self.error(errcode='badparams',
-                              errmsg="r must be an integer value between 0 and 1000")
-
+ 
         """
         select a rectangle in the image
         """
@@ -149,15 +148,15 @@ class app(base_app):
 	    if x == None:
 	        #save parameter
                 try:
-                  self.cfg['param'] = {'r' : int(r)}
+                  self.cfg['param'] = {'sigma' : sigma}
                   self.cfg.save()
                 except ValueError:
                   return self.error(errcode='badparams',
-                                    errmsg="The parameters must be numeric.")
+                                    errmsg="Incorrect standard deviation value.")
 	    else:
 		#save parameters
         	try:
-            	  self.cfg['param'] = {'r' : int(r), 
+            	  self.cfg['param'] = {'sigma' : sigma, 
 				       'x0' : int(x0),
 				       'y0' : int(y0),
 				       'x1' : int(x),
@@ -165,7 +164,7 @@ class app(base_app):
             	  self.cfg.save()
         	except ValueError:
             	  return self.error(errcode='badparams',
-                                    errmsg="The parameters must be numeric.")
+                                    errmsg="Incorrect parameters.")
 	
             # use the whole image if no subimage is available
             try:
@@ -188,15 +187,7 @@ class app(base_app):
                 img.draw_cross((x, y), size=4, color="white")
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
-
-		sizeX=image(self.work_dir + 'input_0.png').size[0];
-		sizeY=image(self.work_dir + 'input_0.png').size[1];
-		if sizeX > sizeY:
-	  	  rmax=sizeY/2+1;
-		else:
-	  	  rmax=sizeX/2+1;
-
-                return self.tmpl_out("params.html", r=r, x0=x, y0=y, rmax=rmax)
+                return self.tmpl_out("params.html", sigma=sigma, x0=x, y0=y)
             else:
                 # second corner selection
                 x0 = int(x0)
@@ -210,7 +201,7 @@ class app(base_app):
                 assert (y1 - y0) > 0
 		#save parameters
         	try:
-            	  self.cfg['param'] = {'r' : int(r), 
+            	  self.cfg['param'] = {'sigma' : sigma, 
 				       'x0' : x0,
 				       'y0' : y0,
 				       'x1' : x1,
@@ -218,7 +209,7 @@ class app(base_app):
             	  self.cfg.save()
         	except ValueError:
             	  return self.error(errcode='badparams',
-                                    errmsg="The parameters must be numeric.")
+                                    errmsg="Incorrect parameters.")
  		#select subimage
 		self.select_subimage(x0, y0, x1, y1)
                 # go to the wait page, with the key
@@ -241,12 +232,12 @@ class app(base_app):
         algorithm execution
         """
         # read the parameters
-        r = self.cfg['param']['r']
+        sigma = self.cfg['param']['sigma']
         # run the algorithm
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(r, stdout=stdout)
+            self.run_algo(sigma, stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
@@ -255,50 +246,69 @@ class app(base_app):
 	    print "Run time error"
             return self.error(errcode='runtime')
 
+ 	stdout.close();
+
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
             ar.add_file("input_0.orig.png", info="uploaded image")
- 	    if (os.path.isfile(self.work_dir + 'input_0s.png') == True) :
-		ar.add_file("input_0s.png", info="sub-image selection")
-            ar.add_file("input_0.sel.png", info="processed image")
-            ar.add_file("output_1.png", info="result image 1 (RGB)")
-            ar.add_file("output_2.png", info="result image 2 (I)")
-            ar.add_info({"r": r})
+            ar.add_file("input_0.sel.png", info="selected subimage")
+            ar.add_file("input_1.png", info="mosaicked image")
+            ar.add_file("output_1.png", info="demosaicked image")
+            ar.add_file("output_2.png", info="difference image")
+            ar.add_info({"sigma": sigma})
             ar.save()
 
         return self.tmpl_out("run.html")
 
-    def run_algo(self, r, stdout=None, timeout=False):
+    def run_algo(self, sigma, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
 
-	#color correction of R, G and B channels
-	option=1
-        p1 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 'output_1.png', str(r), str(option)],
+	#convert image to TIFF format
+	im = image(self.work_dir + 'input_0.sel.png')
+        im.save(self.work_dir + 'input_0.sel.tiff')
+
+	#mosaic image
+        p = self.run_proc(['mosaic', 'input_0.sel.tiff', 'input_1.tiff', sigma],
                            stdout=None, stderr=None)
+        self.wait_proc(p, timeout*0.2)
 
-	#color correction of intensity channel
-	option=2
-        p2 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 'output_2.png', str(r), str(option)],
+	#demosaic image
+        p1 = self.run_proc(['demosaickingIpol', 'input_1.tiff', 'output_1.tiff', sigma],
                            stdout=None, stderr=None)
-        self.wait_proc([p1, p2], timeout)
+        self.wait_proc(p1, timeout*0.7)
 
+	#compute image differences
+	D=20
+        p2 = self.run_proc(['imgdiff', 'input_0.sel.tiff', 'output_1.tiff', str(D), 'output_2.tiff'],
+                           stdout=stdout, stderr=stdout)
+        self.wait_proc(p2, timeout*0.1)
 
+	#convert results to PNG format
+	im = image(self.work_dir + 'input_1.tiff')
+        im.save(self.work_dir + 'input_1.png')
+	im = image(self.work_dir + 'output_1.tiff')
+        im.save(self.work_dir + 'output_1.png')
+	im = image(self.work_dir + 'output_2.tiff')
+        im.save(self.work_dir + 'output_2.png')
+
+	
     @cherrypy.expose
     @init_app
     def result(self):
         """
         display the algo results
         """
+	print "Display results"
 
         # read the parameters
-        r = self.cfg['param']['r']
+        sigma = self.cfg['param']['sigma']
         try:
           x0 = self.cfg['param']['x0']
         except KeyError:
@@ -316,9 +326,36 @@ class app(base_app):
         except KeyError:
 	  y1=None
 
-        return self.tmpl_out("result.html", r=r, x0=x0, y0=y0, x1=x1, y1=y1,
-                             sizeY="%i" % image(self.work_dir 
-                                                + 'input_0.sel.png').size[1])
+	(sizeX, sizeY)=image(self.work_dir + 'input_0.sel.png').size
+	# Resize for visualization (new size of the smallest dimension = 200)
+	zoom_factor=None
+	if (sizeX < 200) or (sizeY < 200):
+	  if sizeX > sizeY:
+	    zoom_factor=int(ceil(200.0/sizeY));
+	  else:
+	    zoom_factor=int(ceil(200.0/sizeX));
+
+	  sizeX=sizeX*zoom_factor
+	  sizeY=sizeY*zoom_factor
+
+	  im=image(self.work_dir + 'input_0.sel.png');
+	  im.resize((sizeX, sizeY), method="pixeldup")
+	  im.save(self.work_dir + 'input_0_zoom.sel.png')
+
+	  im=image(self.work_dir + 'input_1.png');
+	  im.resize((sizeX, sizeY), method="pixeldup")
+	  im.save(self.work_dir + 'input_1_zoom.png')
+
+	  im=image(self.work_dir + 'output_1.png');
+	  im.resize((sizeX, sizeY), method="pixeldup")
+	  im.save(self.work_dir + 'output_1_zoom.png')
+
+	  im=image(self.work_dir + 'output_2.png');
+	  im.resize((sizeX, sizeY), method="pixeldup")
+	  im.save(self.work_dir + 'output_2_zoom.png')
+
+        return self.tmpl_out("result.html", sigma=sigma, x0=x0, y0=y0, x1=x1, y1=y1,
+                             sizeY=sizeY, zoom_factor=zoom_factor)
 
 
 

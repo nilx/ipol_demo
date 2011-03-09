@@ -211,7 +211,7 @@ class image(object):
                 rX = size[0] // self.im.size[0]
                 rY = size[1] // self.im.size[1]
                 # create a new image
-                imout = PIL.Image.new(self.im.type, size)
+                imout = PIL.Image.new(self.im.mode, size)
                 pix = self.im.load()
                 pixout = imout.load()
                 # duplicate the pixels
