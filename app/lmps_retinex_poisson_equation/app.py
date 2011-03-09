@@ -87,8 +87,8 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "https://edit.ipol.im/pub/algo/" \
-            + "lmps_retinex_poisson_equation/retinex_pdeB.tar.gz"
-        tgz_file = self.dl_dir + "retinex_pdeB.tar.gz"
+            + "lmps_retinex_poisson_equation/retinex_pde.tar.gz"
+        tgz_file = self.dl_dir + "retinex_pde.tar.gz"
         prog_file = self.bin_dir + "retinex_pde"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
@@ -103,14 +103,14 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the program
             build.run("make -j4 -C %s retinex_pde"
-                      % (self.src_dir + "retinex_pdeB"),
+                      % (self.src_dir + "retinex_pde"),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
             shutil.copy(self.src_dir 
-                        + os.path.join("retinex_pdeB", "retinex_pde"), prog_file)
+                        + os.path.join("retinex_pde", "retinex_pde"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
