@@ -1,17 +1,51 @@
 <%include file="header.html" />
 
-<p>
-  The algorithm result is displayed hereafter.<br />
-  Notice that if the input image dimensions are not divisible by 4, then
-  the image has been cropped.
-</p>
+%if app.cfg['param']['alg_action'] == 'Interpolate image':
+<p>Notice that if the interpolated image dimensions were to exceed 800&times;800, then the image has been cropped.</p>
+%endif
 
-<form action="${app.base_url}" method="get">
-  <div class="action"> 
-    You can run again this algorithm with new data.
-    <input type="submit" value="new input" />
-  </div> 
-</form>
+<div class="action" style="padding-bottom:3ex">    
+    <form style="float:left" action="${app.base_url}" method="get">
+        <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
+    </form>    
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="scalefactor" value="${app.cfg['param']['scalefactor']}" />
+        <input type="hidden" name="psfsigma" value="${app.cfg['param']['psfsigma']}" />
+        %if app.cfg['param']['cropped'] and app.cfg['param']['cropped'] != 'false':
+        <input type="hidden" name="cropped" value="true" />
+        %endif
+        <input type="submit" value="different parameters" /></p>
+    </form>
+    %if app.cfg['param']['cropped'] and app.cfg['param']['cropped'] != 'false':
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="scalefactor" value="${app.cfg['param']['scalefactor']}" />
+        <input type="hidden" name="psfsigma" value="${app.cfg['param']['psfsigma']}" />
+        <input type="submit" value="different subimage" /></p>
+    </form>
+    %endif
+</div>
+
+<p style="clear:both">Download: 
+%if app.cfg['param']['alg_action'] == 'Interpolate image':
+    <a href="${app.work_url + 'input_0_sel.png'}?${app.timestamp}">input</a>&nbsp;
+%else:
+    <a href="${app.work_url + 'coarsened.png'}?${app.timestamp}">coarsened</a>&nbsp;
+%endif
+<a href="${app.work_url + 'interpolated.png'}?${app.timestamp}">interpolation</a>&nbsp;
+%if app.cfg['param']['alg_action'] != 'Interpolate image':
+    <a href="${app.work_url + 'input_0_sel.png'}?${app.timestamp}">exact</a>&nbsp;
+%endif
+%if float(app.cfg['param']['scalefactor']) >= 3:
+    <a href="${app.work_url + 'contour.png'}?${app.timestamp}">contours</a>&nbsp;
+%endif
+%if app.cfg['param']['alg_action'] != 'Interpolate image':
+    <a href="${app.work_url + 'difference.png'}?${app.timestamp}">difference</a>
+%endif
+</p>
 
 <hr />
 
@@ -19,44 +53,57 @@
   <ul class="index">
     <li>
       <a href="#">
-	Original
-	<span>
-	  <img src="${app.work_url + 'input_0.png'}"  />
-	</span>
+        %if app.cfg['param']['alg_action'] == 'Interpolate image':
+            Input
+            <span><img src="${app.work_url + 'input_0_zoom.png'}?${app.timestamp}" alt="" /></span>
+        %else:
+            Coarsened
+            <span><img src="${app.work_url + 'coarsened_zoom.png'}?${app.timestamp}" alt=""  /></span>
+        %endif    
       </a>
     </li>
     <li>
       <a href="#">
-	Coarsened
-	<span>
-	  <img src="${app.work_url + 'coarsened_zoom.png'}"/>
-	</span>
+        Interpolated ${app.cfg['param']['scalefactor']}&times;
+    <span><img src="${app.work_url + 'interpolated.png'}?${app.timestamp}"  alt="" /></span>
       </a>
     </li>
-    <li>
-      <a href="#">
-	Interpolated
-	<span>
-	  <img src="${app.work_url + 'interpolated.png'}" />
-	</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	Estimated Contour Orientations
-	<span>
-	  <img src="${app.work_url + 'contour.png'}" />
-	</span>
-      </a>
-    </li>
+    %if app.cfg['param']['alg_action'] != 'Interpolate image':
+        <li>
+            <a href="#">
+            Exact
+            <span>
+            <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+            </span>
+            </a>
+        </li>
+    %endif
+    %if float(app.cfg['param']['scalefactor']) >= 3:
+        <li>
+            <a href="#">
+            Estimated Contour Orientations
+            <span>
+            <img src="${app.work_url + 'contour.png'}?${app.timestamp}" alt="" />
+            </span>
+            </a>
+        </li>
+    %endif
+    %if app.cfg['param']['alg_action'] != 'Interpolate image':
+        <li>
+            <a href="#">
+            Difference
+            <span>
+            <img src="${app.work_url + 'difference.png'}?${app.timestamp}" alt="" />
+            </span>
+            </a>
+        </li>
+    %endif
   </ul>
 </div>
 
-<h2>Program Output</h2>
-<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
-
-<hr />
-
-<%include file="archive_info.html" />
+<h2>stdout</h2>
+<pre class="stdio">
+  ${stdout}
+</pre>
 
 <%include file="footer.html" />
