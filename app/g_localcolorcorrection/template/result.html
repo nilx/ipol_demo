@@ -14,7 +14,7 @@
   </form>
   %if x0 and y0 and x1 and y1:
     <form style="display:inline;"
-	  action="${app.base_url + 'params'}" method="get">
+	  action="${app.base_url + 'params2'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
       <input type="hidden" name="x0" value="${x0}">
@@ -24,14 +24,14 @@
       <input type="submit" value="different parameter" />
     </form>
     <form style="display:inline;"
-	  action="${app.base_url + 'params'}" method="get">
+	  action="${app.base_url + 'params1'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
       <input type="submit" value="different subimage" />
     </form>
   %else:
     <form style="display:inline;"
-	  action="${app.base_url + 'params'}" method="get">
+	  action="${app.base_url + 'params1'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
       <input type="submit" value="different parameter or subimage" />
@@ -41,10 +41,15 @@
 
 <hr />
 
-<h2>Results (r=${r})</h2>
+%if r:
+  <h2>Results (local correction r=${r})</h2>
+%else:
+  <h2>Results (global correction)</h2>
+
+%endif
 <p>
-Result 1: Local Color Correction on each color channel <br />
-Result 2: Local Color Correction on Intensity channel  <br />
+Result 1: Color Correction on each color channel <br />
+Result 2: Color Correction on Intensity channel  <br />
 </p>
 <div class="gallery" style="height:${sizeY}px;">
   <ul class="index">

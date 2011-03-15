@@ -113,70 +113,68 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def params(self, newrun=False, msg=None, x0=None, y0=None, x1=None, y1=None):
+    def params(self, newrun=False, msg=None):
         """
         configure the algo execution
         """
         if newrun:
             self.clone_input()
-	if x0:
-	  self.select_subimage(int(x0), int(y0), int(x1), int(y1))
 
-	sizeX=image(self.work_dir + 'input_0.png').size[0];
-	sizeY=image(self.work_dir + 'input_0.png').size[1];
+        return self.tmpl_out("params1.html", msg=msg)
+
+    @cherrypy.expose
+    @init_app
+    def params2(self, newrun=False, msg=None, x0=None, y0=None, x1=None, y1=None):
+        """
+        configure the algo execution
+        """
+	if not(x0) or not(y0) or not(x1) or not(y1):
+            return self.error(errcode='badparams',
+                                    errmsg="invalid corners for subwindows selection")
+
+        if newrun:
+            self.clone_input()
+
+	#save subimage corners
+        try:
+          self.cfg['param'] = {'x0' : x0,
+			       'y0' : y0,
+			       'x1' : x1,
+			       'y1' : y1}
+          self.cfg.save()
+        except ValueError:
+          return self.error(errcode='badparams',
+                            errmsg="The parameters must be numeric.")
+
+	#go to parameter page
+	self.select_subimage(int(x0), int(y0), int(x1), int(y1))
+	sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
+	sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
 	if sizeX > sizeY:
-	  rmax=sizeY/2+1;
+	  rmax=sizeY/2;
 	else:
-	  rmax=sizeX/2+1;
-        return self.tmpl_out("params.html", msg=msg, x0=x0, y0=y0, x1=x1, y1=y1, rmax=rmax)
+	  rmax=sizeX/2;
+        return self.tmpl_out("params2.html", msg=msg, rmax=rmax)
+
 
 
     @cherrypy.expose
     @init_app
     def rectangle(self, action=None, r=None, x=None, y=None, x0=None, y0=None):
         """
-        params handling 
-        """
-        # save and validate the parameters
-	if (int(r) < 0) or (int(r) > 1000) :
-	  return self.error(errcode='badparams',
-                              errmsg="r must be an integer value between 0 and 1000")
-
-        """
         select a rectangle in the image
         """
-        if action == 'run':
-	    if x == None:
-	        #save parameter
-                try:
-                  self.cfg['param'] = {'r' : int(r)}
-                  self.cfg.save()
-                except ValueError:
-                  return self.error(errcode='badparams',
-                                    errmsg="The parameters must be numeric.")
+        if action == 'continue':
+	    #use whole image, go to the parameter page
+            img = image(self.work_dir + 'input_0.png')
+            img.save(self.work_dir + 'input_0.sel.png')
+	    sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
+	    sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
+	    if sizeX > sizeY:
+	      rmax=sizeY/2;
 	    else:
-		#save parameters
-        	try:
-            	  self.cfg['param'] = {'r' : int(r), 
-				       'x0' : int(x0),
-				       'y0' : int(y0),
-				       'x1' : int(x),
-				       'y1' : int(y)}
-            	  self.cfg.save()
-        	except ValueError:
-            	  return self.error(errcode='badparams',
-                                    errmsg="The parameters must be numeric.")
-	
-            # use the whole image if no subimage is available
-            try:
-                img = image(self.work_dir + 'input_0.sel.png')
-            except IOError:
-                img = image(self.work_dir + 'input_0.png')
-                img.save(self.work_dir + 'input_0.sel.png')
-
-            # go to the wait page, with the key
-            http.redir_303(self.base_url + "wait?key=%s" % self.key)
-            return
+	      rmax=sizeX/2;
+            return self.tmpl_out("params2.html", rmax=rmax)
         else:
             # use a part of the image
             if x0 == None:
@@ -189,14 +187,7 @@ class app(base_app):
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
 
-		sizeX=image(self.work_dir + 'input_0.png').size[0];
-		sizeY=image(self.work_dir + 'input_0.png').size[1];
-		if sizeX > sizeY:
-	  	  rmax=sizeY/2+1;
-		else:
-	  	  rmax=sizeX/2+1;
-
-                return self.tmpl_out("params.html", r=r, x0=x, y0=y, rmax=rmax)
+                return self.tmpl_out("params1.html", x0=x, y0=y)
             else:
                 # second corner selection
                 x0 = int(x0)
@@ -208,10 +199,9 @@ class app(base_app):
                 (y0, y1) = (min(y0, y1), max(y0, y1))
                 assert (x1 - x0) > 0
                 assert (y1 - y0) > 0
-		#save parameters
+		#save subimage corners
         	try:
-            	  self.cfg['param'] = {'r' : int(r), 
-				       'x0' : x0,
+            	  self.cfg['param'] = {'x0' : x0,
 				       'y0' : y0,
 				       'x1' : x1,
 				       'y1' : y1}
@@ -219,15 +209,35 @@ class app(base_app):
         	except ValueError:
             	  return self.error(errcode='badparams',
                                     errmsg="The parameters must be numeric.")
- 		#select subimage
-		self.select_subimage(x0, y0, x1, y1)
-                # go to the wait page, with the key
-                http.redir_303(self.base_url + "wait?key=%s" % self.key)
+		#go to parameter page
+	  	self.select_subimage(x0, y0, x1, y1)
+		sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
+		sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
+		if sizeX > sizeY:
+	  	  rmax=sizeY/2;
+		else:
+	  	  rmax=sizeX/2;
+        	return self.tmpl_out("params2.html", rmax=rmax)
             return
 
     @cherrypy.expose
     @init_app
-    def wait(self):
+    def wait(self, action=None, r=None, rmax=None):
+        """
+        params handling 
+        """
+        if action == 'global':
+	  #work in progress
+	  print "Work in progress"
+
+ 	#save parameter
+        try:
+           self.cfg['param'] = {'r' : int(r)}
+           self.cfg.save()
+        except ValueError:
+           return self.error(errcode='badparams',
+                             errmsg="The parameters must be numeric.")
+
         """
         run redirection
         """
