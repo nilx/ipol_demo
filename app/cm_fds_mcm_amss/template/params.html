@@ -1,5 +1,60 @@
 <%include file="header.html" />
 
+
+<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" 
+    rel="stylesheet" type="text/css" />
+<script type="text/javascript" 
+    src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script type="text/javascript" 
+    src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script type="text/javascript">
+<!--
+// Create a JQueryUI slider linked with a text input 
+//
+// inputId      the ID of the text input element
+// sliderId     the ID of the DIV element to turn into a slider
+// sliderMin    minimum value of the slider
+// sliderMax    maximum value of the slider
+// sliderStep   resolution of the slider
+// numDigits    (optional) number of digits to display
+function createLinkedSlider(inputId, sliderId, 
+    sliderMin, sliderMax, sliderStep, numDigits)
+{
+    var inputObj = $(inputId);
+    // Create JQueryUI slider
+    var sliderObj = $(sliderId).slider({
+        value: inputObj.attr('value'),  // Initial value
+        min: sliderMin,                 // Minimum value
+        max: sliderMax,                 // Maximum value
+        step: sliderStep,               // Resolution
+        animate: 'fast'});              // Animation speed
+
+    // If numDigits was not specified, infer from sliderStep.
+    numDigits = numDigits || 
+        Math.max(0, Math.ceil(-Math.log(sliderStep) / Math.log(10)));
+
+    // Update slider when input changes
+    inputObj.blur(function()
+        {
+            var value = inputObj.attr('value');
+            var valueClamped = Math.min(Math.max(value, 
+                sliderObj.slider('option', 'min')), 
+                sliderObj.slider('option', 'max'));
+            sliderObj.slider('value', valueClamped);
+
+            if(value != valueClamped)
+                inputObj.val(valueClamped.toFixed(numDigits));
+        });
+
+    // Update input when slider changes
+    sliderObj.slider('option', 'slide',
+        function(event, ui) { inputObj.val(ui.value.toFixed(numDigits)); });
+}
+// -->
+</script>
+<!-- end of code for slider -->
+
 <p>
   You can now choose the parameters, and run the numerical schemes.
 </p>
@@ -11,17 +66,21 @@
       <li>
 	Select the normalized scale (at normalized scale R a disk of radius R
 	disappears): 
-	<select name="scaleR">
-	  <option value="0.2">0.2</option>
-	  <option value="0.4">0.4</option>
-	  <option value="0.5">0.5</option>
-	  <option value="0.75">0.75</option>
-	  <option value="1.0" selected>1.0</option>
-	  <option value="1.25">1.25</option>
-	  <option value="1.5">1.5</option>
-	  <option value="1.75">1.75</option>
-	  <option value="2.0">2.0</option>
-	</select>
+<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
+<p>
+<div style="float:left;padding-right:25px">
+    Scale: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="scale" name="scaleR" value="1.0" />
+</div>
+<div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#scale', '#slider', 0.1, 10, 0.1); });
+</script>
+<div style="clear:both"> </div>
+</p>
+<!-- end of code for slider -->
       </li>
       <li>
 	Run the algorithm...
