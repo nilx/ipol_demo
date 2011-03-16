@@ -68,9 +68,15 @@ function createLinkedSlider(inputId, sliderId,
 	disappears): 
 <!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
 <p>
-<div style="float:left;padding-right:25px">
+%if scale_r:
+  <div style="float:left;padding-right:25px">
+    Scale: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="scale" name="scaleR" value="${scale_r}" />
+%else:
+  <div style="float:left;padding-right:25px">
     Scale: <input type="text" style="font-family:monospace;text-align:right"
     size="7" id="scale" name="scaleR" value="1.0" />
+%endif
 </div>
 <div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
 <script type="text/javascript">
