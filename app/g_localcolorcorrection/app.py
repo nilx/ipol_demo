@@ -128,6 +128,7 @@ class app(base_app):
         """
         configure the algo execution
         """
+
 	if not(x0) or not(y0) or not(x1) or not(y1):
             return self.error(errcode='badparams',
                                     errmsg="invalid corners for subwindows selection")
@@ -135,12 +136,13 @@ class app(base_app):
         if newrun:
             self.clone_input()
 
+
 	#save subimage corners
         try:
-          self.cfg['param'] = {'x0' : x0,
-			       'y0' : y0,
-			       'x1' : x1,
-			       'y1' : y1}
+          self.cfg['subimage'] = {'x0' : x0,
+			          'y0' : y0,
+			          'x1' : x1,
+			          'y1' : y1}
           self.cfg.save()
         except ValueError:
           return self.error(errcode='badparams',
@@ -150,10 +152,11 @@ class app(base_app):
 	self.select_subimage(int(x0), int(y0), int(x1), int(y1))
 	sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
 	sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
+
 	if sizeX > sizeY:
-	  rmax=sizeY/2;
+	  rmax=sizeY//2-1;
 	else:
-	  rmax=sizeX/2;
+	  rmax=sizeX//2-1;
         return self.tmpl_out("params2.html", msg=msg, rmax=rmax)
 
 
@@ -171,9 +174,9 @@ class app(base_app):
 	    sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
 	    sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
 	    if sizeX > sizeY:
-	      rmax=sizeY/2;
+	      rmax=sizeY//2-1;
 	    else:
-	      rmax=sizeX/2;
+	      rmax=sizeX//2-1;
             return self.tmpl_out("params2.html", rmax=rmax)
         else:
             # use a part of the image
@@ -201,10 +204,10 @@ class app(base_app):
                 assert (y1 - y0) > 0
 		#save subimage corners
         	try:
-            	  self.cfg['param'] = {'x0' : x0,
-				       'y0' : y0,
-				       'x1' : x1,
-				       'y1' : y1}
+            	  self.cfg['subimage'] = {'x0' : x0,
+				          'y0' : y0,
+				          'x1' : x1,
+				          'y1' : y1}
             	  self.cfg.save()
         	except ValueError:
             	  return self.error(errcode='badparams',
@@ -214,9 +217,9 @@ class app(base_app):
 		sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
 		sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
 		if sizeX > sizeY:
-	  	  rmax=sizeY/2;
+	  	  rmax=sizeY//2-1;
 		else:
-	  	  rmax=sizeX/2;
+	  	  rmax=sizeX//2-1;
         	return self.tmpl_out("params2.html", rmax=rmax)
             return
 
@@ -226,13 +229,14 @@ class app(base_app):
         """
         params handling 
         """
-        if action == 'global':
-	  #work in progress
-	  print "Work in progress"
+        if action == 'run global':
+	  #set parameter r to compute global color correction
+	  r=2*int(rmax)
 
- 	#save parameter
+ 	#save parameters
         try:
-           self.cfg['param'] = {'r' : int(r)}
+           self.cfg['param'] = {'r' : int(r),
+				'rmax' : int(rmax)}
            self.cfg.save()
         except ValueError:
            return self.error(errcode='badparams',
@@ -252,6 +256,7 @@ class app(base_app):
         """
         # read the parameters
         r = self.cfg['param']['r']
+        rmax = self.cfg['param']['rmax']
         # run the algorithm
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
@@ -277,6 +282,7 @@ class app(base_app):
             ar.add_file("output_1.png", info="result image 1 (RGB)")
             ar.add_file("output_2.png", info="result image 2 (I)")
             ar.add_info({"r": r})
+            ar.add_info({"rmax": rmax})
             ar.save()
 
         return self.tmpl_out("run.html")
@@ -309,24 +315,30 @@ class app(base_app):
 
         # read the parameters
         r = self.cfg['param']['r']
+        rmax = self.cfg['param']['rmax']
         try:
-          x0 = self.cfg['param']['x0']
+          x0 = self.cfg['subimage']['x0']
         except KeyError:
 	  x0=None
         try:
-          y0 = self.cfg['param']['y0']
+          y0 = self.cfg['subimage']['y0']
         except KeyError:
 	  y0=None
         try:
-          x1 = self.cfg['param']['x1']
+          x1 = self.cfg['subimage']['x1']
         except KeyError:
 	  x1=None
         try:
-          y1 = self.cfg['param']['y1']
+          y1 = self.cfg['subimage']['y1']
         except KeyError:
 	  y1=None
 
-        return self.tmpl_out("result.html", r=r, x0=x0, y0=y0, x1=x1, y1=y1,
+	if (r <= rmax):
+          return self.tmpl_out("result.html", r=r, x0=x0, y0=y0, x1=x1, y1=y1,
+                             sizeY="%i" % image(self.work_dir 
+                                                + 'input_0.sel.png').size[1])
+	else:
+          return self.tmpl_out("result.html", r=None, x0=x0, y0=y0, x1=x1, y1=y1,
                              sizeY="%i" % image(self.work_dir 
                                                 + 'input_0.sel.png').size[1])
 

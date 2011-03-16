@@ -24,14 +24,14 @@
       <input type="submit" value="different parameter" />
     </form>
     <form style="display:inline;"
-	  action="${app.base_url + 'params1'}" method="get">
+	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
       <input type="submit" value="different subimage" />
     </form>
   %else:
     <form style="display:inline;"
-	  action="${app.base_url + 'params1'}" method="get">
+	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
       <input type="submit" value="different parameter or subimage" />

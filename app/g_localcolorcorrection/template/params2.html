@@ -1,0 +1,29 @@
+<%include file="header.html" />
+
+
+<h2>Algorithm Parameters</h2>
+
+The algorithm performs a local color correction.
+The "locality" of the method depends upon a radius parameter r,
+that you can select:
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="rmax" value="${rmax}">
+    <label for="r"><i>r</i>(range: [0, ${rmax}])=</label>
+    %if r:
+      <input type="text" name="r" value="${r}" size="5" />
+    %else:
+      <input type="text" name="r" value="40" size="5" />
+    %endif
+      <input type="submit" name="action"  value="run local" />
+    <p>
+    You can also perform a global color correction by clicking here: 
+        <input type="submit" name="action"  value="run global" />
+    </p>
+      <img src="${app.work_url + 'input_0.sel.png'}" />
+  </div>
+</form>
+
+
+<%include file="footer.html" />
