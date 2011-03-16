@@ -177,7 +177,8 @@ class app(base_app):
         s = self.cfg['param']['s']
 	sizeY=image(self.work_dir + 'input_0.png').size[1]
 	sizeYhist=image(self.work_dir + 'input_0_hist.png').size[1]
-	sizeYmax=max(sizeY, sizeYhist)
+	#add 20 pixels to the histogram size to take margin into account
+	sizeYmax=max(sizeY, sizeYhist+20)
 
         return self.tmpl_out("result.html", s=s,
                              sizeY="%i" % sizeYmax)
