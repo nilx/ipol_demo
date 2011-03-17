@@ -21,7 +21,7 @@
       <input type="hidden" name="y0" value="${y0}">
       <input type="hidden" name="x1" value="${x1}">
       <input type="hidden" name="y1" value="${y1}">
-      %if r:
+      %if (r != None):
         <input type="hidden" name="r" value="${r}">
       %endif
       <input type="submit" value="different parameter" />
@@ -30,7 +30,7 @@
 	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
-      %if r:
+      %if (r != None):
         <input type="hidden" name="r" value="${r}">
       %endif
       <input type="submit" value="different subimage" />
@@ -40,7 +40,7 @@
 	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
-      %if r:
+      %if (r != None):
         <input type="hidden" name="r" value="${r}">
       %endif
       <input type="submit" value="different parameter or subimage" />
@@ -50,7 +50,7 @@
 
 <hr />
 
-%if r:
+%if (r != None):
   <h2>Results (local correction r=${r})</h2>
 %else:
   <h2>Results (global correction)</h2>
