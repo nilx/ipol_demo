@@ -158,10 +158,10 @@ class app(base_app):
 	else:
 	  rmax=sizeX//2-1;
 
-	if not(r):
-	  r=min(int(0.2*rmax), 40)
-	else:
+	if (r != None):
 	  r=min(int(r), rmax)
+	else:
+	  r=min(int(0.2*rmax), 40)
 
         return self.tmpl_out("params2.html", msg=msg, rmax=rmax, r=r)
 
@@ -175,7 +175,7 @@ class app(base_app):
         """
         if action == 'continue':
 	    #use whole image, go to the parameter page with the key
-	    if r:
+	    if (r != None):
               http.redir_303(self.base_url + "params2?key=%s&r=%s" % (self.key, r))
 	    else:
               http.redir_303(self.base_url + "params2?key=%s" % (self.key))
@@ -205,7 +205,7 @@ class app(base_app):
                 assert (x1 - x0) > 0
                 assert (y1 - y0) > 0
                 # go to the parameter page, with the key and the subimage corners
-		if r:
+		if (r != None):
                   http.redir_303(self.base_url + "params2?key=%s&x0=%s&y0=%s&x1=%s&y1=%s&r=%s" % (self.key, x0, y0, x1, y1, r))
 		else:
                   http.redir_303(self.base_url + "params2?key=%s&x0=%s&y0=%s&x1=%s&y1=%s" % (self.key, x0, y0, x1, y1))
