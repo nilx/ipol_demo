@@ -129,30 +129,30 @@ class app(base_app):
         configure the algo execution
         """
 
-	if not(x0) or not(y0) or not(x1) or not(y1):
-            return self.error(errcode='badparams',
-                                    errmsg="invalid corners for subwindows selection")
-
         if newrun:
             self.clone_input()
 
-
-	#save subimage corners
-        try:
-          self.cfg['subimage'] = {'x0' : x0,
+	if not(x0) or not(y0) or not(x1) or not(y1):
+	    #use whole image, go to the parameter page
+            img = image(self.work_dir + 'input_0.png')
+            img.save(self.work_dir + 'input_0.sel.png')
+	else:
+	    #save subimage corners
+            try:
+              self.cfg['subimage'] = {'x0' : x0,
 			          'y0' : y0,
 			          'x1' : x1,
 			          'y1' : y1}
-          self.cfg.save()
-        except ValueError:
-          return self.error(errcode='badparams',
+              self.cfg.save()
+            except ValueError:
+              return self.error(errcode='badparams',
                             errmsg="The parameters must be numeric.")
 
+	    self.select_subimage(int(x0), int(y0), int(x1), int(y1))
+
 	#go to parameter page
-	self.select_subimage(int(x0), int(y0), int(x1), int(y1))
 	sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
 	sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
-
 	if sizeX > sizeY:
 	  rmax=sizeY//2-1;
 	else:
@@ -168,16 +168,9 @@ class app(base_app):
         select a rectangle in the image
         """
         if action == 'continue':
-	    #use whole image, go to the parameter page
-            img = image(self.work_dir + 'input_0.png')
-            img.save(self.work_dir + 'input_0.sel.png')
-	    sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
-	    sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
-	    if sizeX > sizeY:
-	      rmax=sizeY//2-1;
-	    else:
-	      rmax=sizeX//2-1;
-            return self.tmpl_out("params2.html", rmax=rmax)
+	    #use whole image, go to the parameter page with the key
+            http.redir_303(self.base_url + "params2?key=%s" % (self.key))
+
         else:
             # use a part of the image
             if x0 == None:
@@ -202,25 +195,8 @@ class app(base_app):
                 (y0, y1) = (min(y0, y1), max(y0, y1))
                 assert (x1 - x0) > 0
                 assert (y1 - y0) > 0
-		#save subimage corners
-        	try:
-            	  self.cfg['subimage'] = {'x0' : x0,
-				          'y0' : y0,
-				          'x1' : x1,
-				          'y1' : y1}
-            	  self.cfg.save()
-        	except ValueError:
-            	  return self.error(errcode='badparams',
-                                    errmsg="The parameters must be numeric.")
-		#go to parameter page
-	  	self.select_subimage(x0, y0, x1, y1)
-		sizeX=image(self.work_dir + 'input_0.sel.png').size[0];
-		sizeY=image(self.work_dir + 'input_0.sel.png').size[1];
-		if sizeX > sizeY:
-	  	  rmax=sizeY//2-1;
-		else:
-	  	  rmax=sizeX//2-1;
-        	return self.tmpl_out("params2.html", rmax=rmax)
+                # go to the parameter page, with the key and the subimage corners
+                http.redir_303(self.base_url + "params2?key=%s&x0=%s&y0=%s&x1=%s&y1=%s" % (self.key, x0, y0, x1, y1))
             return
 
     @cherrypy.expose
