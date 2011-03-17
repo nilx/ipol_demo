@@ -293,6 +293,20 @@ class app(base_app):
                            stdout=None, stderr=None)
         self.wait_proc([p1, p2], timeout)
 
+	"""
+	Compute histograms of images
+	"""
+	im=image(self.work_dir + 'input_0.sel.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'input_0_hist.png')
+	im=image(self.work_dir + 'output_1.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'output_1_hist.png')
+	im=image(self.work_dir + 'output_2.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'output_2_hist.png')
+
+
 
     @cherrypy.expose
     @init_app
@@ -321,14 +335,17 @@ class app(base_app):
         except KeyError:
 	  y1=None
 
+	sizeY=image(self.work_dir + 'input_0.sel.png').size[1]
+	sizeYhist=image(self.work_dir + 'input_0_hist.png').size[1]
+	#add 20 pixels to the histogram size to take margin into account
+	sizeYmax=max(sizeY, sizeYhist+20)
+
 	if (r <= rmax):
           return self.tmpl_out("result.html", r=r, x0=x0, y0=y0, x1=x1, y1=y1,
-                             sizeY="%i" % image(self.work_dir 
-                                                + 'input_0.sel.png').size[1])
+                             sizeY="%i" % sizeYmax)
 	else:
           return self.tmpl_out("result.html", r=None, x0=x0, y0=y0, x1=x1, y1=y1,
-                             sizeY="%i" % image(self.work_dir 
-                                                + 'input_0.sel.png').size[1])
+                             sizeY="%i" % sizeYmax)
 
 
 
