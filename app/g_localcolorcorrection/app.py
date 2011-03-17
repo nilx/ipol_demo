@@ -113,18 +113,18 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def params(self, newrun=False, msg=None):
+    def params(self, newrun=False, msg=None, r=None):
         """
         configure the algo execution
         """
         if newrun:
             self.clone_input()
 
-        return self.tmpl_out("params1.html", msg=msg)
+        return self.tmpl_out("params1.html", msg=msg, r=r)
 
     @cherrypy.expose
     @init_app
-    def params2(self, newrun=False, msg=None, x0=None, y0=None, x1=None, y1=None):
+    def params2(self, newrun=False, msg=None, x0=None, y0=None, x1=None, y1=None, r=None):
         """
         configure the algo execution
         """
@@ -157,7 +157,13 @@ class app(base_app):
 	  rmax=sizeY//2-1;
 	else:
 	  rmax=sizeX//2-1;
-        return self.tmpl_out("params2.html", msg=msg, rmax=rmax)
+
+	if not(r):
+	  r=min(int(0.2*rmax), 40)
+	else:
+	  r=min(int(r), rmax)
+
+        return self.tmpl_out("params2.html", msg=msg, rmax=rmax, r=r)
 
 
 
@@ -169,7 +175,10 @@ class app(base_app):
         """
         if action == 'continue':
 	    #use whole image, go to the parameter page with the key
-            http.redir_303(self.base_url + "params2?key=%s" % (self.key))
+	    if r:
+              http.redir_303(self.base_url + "params2?key=%s&r=%s" % (self.key, r))
+	    else:
+              http.redir_303(self.base_url + "params2?key=%s" % (self.key))
 
         else:
             # use a part of the image
@@ -183,7 +192,7 @@ class app(base_app):
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
 
-                return self.tmpl_out("params1.html", x0=x, y0=y)
+                return self.tmpl_out("params1.html", x0=x, y0=y, r=r)
             else:
                 # second corner selection
                 x0 = int(x0)
@@ -196,16 +205,19 @@ class app(base_app):
                 assert (x1 - x0) > 0
                 assert (y1 - y0) > 0
                 # go to the parameter page, with the key and the subimage corners
-                http.redir_303(self.base_url + "params2?key=%s&x0=%s&y0=%s&x1=%s&y1=%s" % (self.key, x0, y0, x1, y1))
+		if r:
+                  http.redir_303(self.base_url + "params2?key=%s&x0=%s&y0=%s&x1=%s&y1=%s&r=%s" % (self.key, x0, y0, x1, y1, r))
+		else:
+                  http.redir_303(self.base_url + "params2?key=%s&x0=%s&y0=%s&x1=%s&y1=%s" % (self.key, x0, y0, x1, y1))
             return
 
     @cherrypy.expose
     @init_app
-    def wait(self, action=None, r=None, rmax=None):
+    def wait(self, process=None, r=None, rmax=None):
         """
         params handling 
         """
-        if action == 'run global':
+        if process == 'run global':
 	  #set parameter r to compute global color correction
 	  r=2*int(rmax)
 

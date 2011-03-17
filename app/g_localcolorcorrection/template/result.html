@@ -21,12 +21,18 @@
       <input type="hidden" name="y0" value="${y0}">
       <input type="hidden" name="x1" value="${x1}">
       <input type="hidden" name="y1" value="${y1}">
+      %if r:
+        <input type="hidden" name="r" value="${r}">
+      %endif
       <input type="submit" value="different parameter" />
     </form>
     <form style="display:inline;"
 	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
+      %if r:
+        <input type="hidden" name="r" value="${r}">
+      %endif
       <input type="submit" value="different subimage" />
     </form>
   %else:
@@ -34,6 +40,9 @@
 	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
+      %if r:
+        <input type="hidden" name="r" value="${r}">
+      %endif
       <input type="submit" value="different parameter or subimage" />
     </form>
   %endif

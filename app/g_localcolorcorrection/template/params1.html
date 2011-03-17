@@ -5,6 +5,9 @@
 
 <form action="${app.base_url + 'rectangle'}" method="get">
   <div class="action">
+    %if r:
+       <input type="hidden" name="r" value="${r}">
+    %endif
     <input type="hidden" name="key" value="${app.key}">
       <p>
         If you want to run the algorithm on the whole image click here:
