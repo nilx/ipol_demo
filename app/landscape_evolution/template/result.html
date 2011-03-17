@@ -1,0 +1,96 @@
+<%include file="header.html" />
+
+<p>
+  The results of the algorithm are displayed hereafter.
+  The CPU time required was ${"%0.2f" % app.cfg['info']['run_time']}s.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Run again the numerical schemes with new data.
+    <input type="submit" value="new input" />
+  </div>
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    Run again the numerical schemes with new parameters.
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="new parameters" />
+  </div>
+</form>
+
+<hr />
+
+<h2>Result</h2>
+<p>
+GLOBAL PARAMETERS <br>
+time step=${"%2.2f" % time_step} <br>
+<br>
+WATER EVOLUTION PARAMETER <br>
+Rain=${"%2.4f" % rain}<br>
+<br>
+EROSION PARAMETERS <br>
+erosion exponent m=${"%2.2f" % expm} <br>
+erosion coefficient e=${"%2.2f" % erosione} <br>
+creep=${"%2.2f" %erosioncreep} <br>
+<br>
+EROSION PARAMETER <br>
+sedimentation parameter=${"%2.2f" % erosions}<br>
+<br>
+iteration water=${"%2.0f" % iterationw}, iteration=${"%2.0f" % iteration},waterlandcst=${"%1.7f" % waterlandcst},
+
+<br>
+
+
+
+
+
+</p>
+  <ul class="index">
+    <li>
+      <a href="#">
+	Original Landscape <br>
+	<span>
+	  <img src="${app.work_url + 'result_orig.png?step=%s' % step}" />
+	</span>
+      </a>
+    </li>
+	<br>
+    <li>
+      <a href="#">
+	  After water evolution<br></a>
+	  Is varation lower than threshold?
+	  ${open(app.work_dir + 'is_variation_water_only_small_enough.txt', 'r').readline()}<br>
+          Number of iterations performed:	  ${float(open(app.work_dir +'nb_iter_water_only.txt').readline().split()[0])}<br>
+	  Mean level of water:
+	  ${float(open(app.work_dir +'mean_level_water_only.txt').readline().split()[0])}<br>
+Maximum level of water:
+ ${float(open(app.work_dir + 'max_level_water_only.txt').readline().split()[0])}<br>
+	<span>
+	  <img src="${app.work_url + 'result_orig.png'}" />
+	  <img src="${app.work_url + 'result_w_only.png'}" />
+	  <img src="${app.work_url + 'result_c'}" />
+	</span>
+      </a>
+    </li>
+<br>
+    <li>
+      <a href="#">
+	  After water, erosion and sediment evolution <br>
+	<span>
+	  <img src="${app.work_url + 'result_l.png'}" />
+	  <img src="${app.work_url + 'result_w.png'}" />
+	  <img src="${app.work_url + 'result_c.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
