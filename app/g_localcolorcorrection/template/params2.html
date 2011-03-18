@@ -1,6 +1,5 @@
 <%include file="header.html" />
 
-
 <!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
 <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" 
     rel="stylesheet" type="text/css" />
@@ -55,77 +54,55 @@ function createLinkedSlider(inputId, sliderId,
 </script>
 <!-- end of code for slider -->
 
-<p>
-  You can now choose the parameters, and run the numerical schemes.
-</p>
+<h2>Algorithm Parameters</h2>
 
-<form action="${app.base_url + 'grid'}" method="get">
+The algorithm performs a local color correction.
+The "locality" of the method depends upon a radius parameter r,
+that you can select:
+<form action="${app.base_url + 'wait'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
-    <ol>
-      <li>
-	Select the normalized scale (at normalized scale R a disk of radius R
-	disappears): 
+    <input type="hidden" name="rmax" value="${rmax}">
+
 <!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
 <p>
-%if scale_r:
+%if (r != None):
   <div style="float:left;padding-right:25px">
-    Scale: <input type="text" style="font-family:monospace;text-align:right"
-    size="7" id="scale" name="scaleR" value="${scale_r}" />
+    r: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="r_selector" name="r" value="${r}" />
 %else:
   <div style="float:left;padding-right:25px">
-    Scale: <input type="text" style="font-family:monospace;text-align:right"
-    size="7" id="scale" name="scaleR" value="1.0" />
+    r: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="r_selector" name="r" value="40" />
 %endif
 </div>
 <div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
 <script type="text/javascript">
 // Turn DIV slider into a slider linked to scale
 $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 10, 0.1); });
+    { createLinkedSlider('#r_selector', '#slider', 0, ${rmax}, 1); });
 </script>
 <div style="clear:both"> </div>
 </p>
 <!-- end of code for slider -->
-      </li>
-      <li>
-	Run the algorithm...
-	<ul>
-	  <li>
-	    on the whole image:
-	    <input type="submit" name="action" value="run" />
-	  </li>
-	  <li>
-	    or select a portion of the image using a grid (such a
-	    portion will be rescaled to 400x400 pixels before processing):
-	    <ol>
-	      <li>
-		redraw the grid with a different step size: 
-		<select name="step">
-		  <option value="0" selected>no grid (zoom 1x)</option>
-		  <option value="50">50 (zoom 8x)</option>
-		  <option value="80">80 (zoom 5x)</option>
-		  <option value="100">100 (zoom 4x)</option>
-		  <option value="200">200 (zoom 2x)</option>
-		</select>
-		<input type="submit" name="action" value="redraw" />
-	      </li>
-	      <li>
-		and select the portion of the image by clicking:<br />
-		%if grid:
-		<input type="hidden" name="grid_step" value="${step}">
-		<input type="image" name=""
-		       src="${app.work_url + 'input_grid.png?step=%i' % step}" />
-		%else:
-		<img src="${app.work_url + 'input_0.png'}" />
-		%endif
-	      </li>
-	    </ol>
-	  </li>
-	</ul>
-      </li>
-    </ol>
+
+<!--
+    <label for="r"><i>r</i>(range: [0, ${rmax}])=</label>
+    %if r:
+      <input type="text" name="r" value="${r}" size="5" />
+    %else:
+      <input type="text" name="r" value="40" size="5" />
+    %endif
+-->
+
+      <input type="submit" name="process"  value="run local" />
+    <p>
+    You can also perform a global color correction by clicking here: 
+        <input type="submit" name="process"  value="run global" />
+    </p>
+      <img src="${app.work_url + 'input_0.sel.png'}" />
   </div>
 </form>
+
 
 <%include file="footer.html" />

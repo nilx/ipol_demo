@@ -391,8 +391,8 @@ class image(object):
         sizeY = 128
         margin = 10
         offset = {"R":0, "G":256, "B":512, "I":768}
-        color = {"R":(255, 0, 0), "G":(0, 255, 0), "B":(0, 0, 255), "I":(255, 255, 255)}
-        colorAll = {0:(255, 0, 0), 1:(0, 255, 0), 2:(0, 0, 255), 3:(255, 255, 255)}
+        color = {"R":(255, 0, 0), "G":(0, 255, 0), "B":(0, 0, 255), "I":(192, 192, 192)}
+        colorAll = {0:(255, 0, 0), 1:(0, 255, 0), 2:(0, 0, 255), 3:(192, 192, 192)}
 
         # check image mode
         if self.im.mode not in ("L", "RGB"):
@@ -415,12 +415,12 @@ class image(object):
                 hgray = imgray.histogram()
                 # concatenate I histogram to RGB histograms      
                 h = h + hgray   
-            # create a black output image
+            # create a white output image
             if option == "all":
                 size = (sizeX, 4*sizeY+3*margin)
             else:
                 size = (sizeX, sizeY)
-            imout = PIL.Image.new('RGB', size)
+            imout = PIL.Image.new('RGB', size, (255, 255, 255))
             # draw histograms of R, G, B and I values
             pixout = imout.load()
             if option != "all":
@@ -439,9 +439,9 @@ class image(object):
         else:
             # compute histogram of I values
             h = self.im.histogram()
-            # create a black output image
+            # create a white output image
             size = (sizeX, sizeY)
-            imout = PIL.Image.new('L', size)
+            imout = PIL.Image.new('L', size, (255, 255, 255))
             # draw histogram of I values
             pixout = imout.load()
             maxH = max(h[0:256])

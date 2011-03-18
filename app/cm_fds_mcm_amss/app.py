@@ -110,6 +110,18 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
+    def params(self, newrun=False, msg=None, scale_r=None):
+        """
+        configure the algo execution
+        """
+        if newrun:
+            self.clone_input()
+
+        return self.tmpl_out("params.html", msg=msg, scale_r=scale_r)
+
+
+    @cherrypy.expose
+    @init_app
     def grid(self, step, scaleR, grid_step=0, action=None, x=0, y=0):
         """
         handle the grid drawing and selection
@@ -134,7 +146,7 @@ class app(base_app):
                 grid = True
             else:
                 grid = False
-            return self.tmpl_out("params.html", step=step, grid=grid)
+            return self.tmpl_out("params.html", step=step, grid=grid, scale_r=float(scaleR))
         else:
             # use a part of the image
             x = int(x)
