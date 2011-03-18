@@ -15,7 +15,7 @@ from cherrypy import TimeoutError
 class app(base_app):
     """ mcm_amss app """
 
-    title = "Landscape evolution"
+    title = "Landscape Evolution by Erosion and Sedimentation"
 
     input_nb = 1
     input_max_pixels = 480000 # max size (in pixels) of an input image
