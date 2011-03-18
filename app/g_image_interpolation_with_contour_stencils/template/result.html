@@ -39,7 +39,7 @@
 %if app.cfg['param']['alg_action'] != 'Interpolate image':
     <a href="${app.work_url + 'input_0_sel.png'}?${app.timestamp}">exact</a>&nbsp;
 %endif
-%if float(app.cfg['param']['scalefactor']) >= 3:
+%if float(app.cfg['param']['scalefactor'])*app.cfg['param']['displayzoom'] >= 3:
     <a href="${app.work_url + 'contour.png'}?${app.timestamp}">contours</a>&nbsp;
 %endif
 %if app.cfg['param']['alg_action'] != 'Interpolate image':
@@ -65,7 +65,13 @@
     <li>
       <a href="#">
         Interpolated ${app.cfg['param']['scalefactor']}&times;
-    <span><img src="${app.work_url + 'interpolated.png'}?${app.timestamp}"  alt="" /></span>
+        <span>
+        %if app.cfg['param']['displayzoom'] == 1:            
+            <img src="${app.work_url + 'interpolated.png'}?${app.timestamp}"  alt="" />
+        %else:
+            <img src="${app.work_url + 'interpolated_zoom.png'}?${app.timestamp}"  alt="" />            
+        %endif
+        </span>
       </a>
     </li>
     %if app.cfg['param']['alg_action'] != 'Interpolate image':
@@ -73,12 +79,16 @@
             <a href="#">
             Exact
             <span>
-            <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+            %if app.cfg['param']['displayzoom'] == 1:            
+                <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}"  alt="" />
+            %else:
+                <img src="${app.work_url + 'input_0_sel_zoom.png'}?${app.timestamp}"  alt="" />            
+            %endif
             </span>
             </a>
         </li>
     %endif
-    %if float(app.cfg['param']['scalefactor']) >= 3:
+    %if float(app.cfg['param']['scalefactor'])*app.cfg['param']['displayzoom'] >= 3:
         <li>
             <a href="#">
             Estimated Contour Orientations
@@ -93,7 +103,11 @@
             <a href="#">
             Difference
             <span>
-            <img src="${app.work_url + 'difference.png'}?${app.timestamp}" alt="" />
+            %if app.cfg['param']['displayzoom'] == 1:            
+                <img src="${app.work_url + 'difference.png'}?${app.timestamp}"  alt="" />
+            %else:
+                <img src="${app.work_url + 'difference_zoom.png'}?${app.timestamp}"  alt="" />            
+            %endif
             </span>
             </a>
         </li>

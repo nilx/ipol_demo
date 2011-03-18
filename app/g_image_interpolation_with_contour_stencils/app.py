@@ -17,7 +17,7 @@ import time
 class app(base_app):
     """ cwinterp app """
 
-    title = "Image Interpolation with Line-Shaped Contour Stencils"
+    title = "Image Interpolation with Contour Stencils"
 
     input_nb = 1
     input_max_pixels = 1048576 # max size (in pixels) of an input image
@@ -215,9 +215,15 @@ class app(base_app):
         psfsigma = float(self.cfg['param']['psfsigma'])
         img0 = image(self.work_dir + 'input_0_sel.png')
         (sizeX, sizeY) = img0.size
+        p = {}
         
-        if self.cfg['param']['alg_action'] == 'Interpolate image':                        
-            # Check that input image dimensions are not too large                                        
+        if self.cfg['param']['alg_action'] == 'Interpolate image':
+            # If the image dimensions are small, zoom the displayed results.
+            # This value is always at least 1.
+            displayzoom = int(math.ceil(400.0/(scalefactor*max(sizeX,sizeY))))
+            (displayX, displayY) = (displayzoom*sizeX, displayzoom*sizeY)
+            
+            # Check that interpolated image dimensions are not too large                                        
             sizeXCrop = min(sizeX,int(800/scalefactor))
             sizeYCrop = min(sizeY,int(800/scalefactor))
             
@@ -227,94 +233,138 @@ class app(base_app):
                 img0.crop((x0, y0, x0 + sizeXCrop, y0 + sizeYCrop))
                 img0.save(self.work_dir + 'input_0_sel.png')
             
-            # For display, create a nearest neighbor zoomed version of the 
-            # input. nninterp does nearest neighbor interpolation on precisely
-            # the same grid as cwinterp so that displayed images are aligned.
-            p1 = self.run_proc(['nninterp',
-                '-g', grid,
-                '-x', str(scalefactor), 
-                'input_0_sel.png', 'input_0_zoom.png'],
-                stdout=stdout, stderr=stdout)
-                        
             # Perform the actual contour stencil interpolation
-            p2 = self.run_proc(['cwinterp',
+            p['interp'] = self.run_proc(['cwinterp',
                 '-g', grid,
                 '-x', str(scalefactor), 
                 '-p', str(psfsigma),
                 'input_0_sel.png', 'interpolated.png'],
                 stdout=stdout, stderr=stdout)
+            
+            # For display, create a nearest neighbor zoomed version of the 
+            # input. nninterp does nearest neighbor interpolation on precisely
+            # the same grid as cwinterp so that displayed images are aligned.
+            p['inputzoom'] = self.run_proc(['nninterp',
+                '-g', grid,
+                '-x', str(scalefactor*displayzoom), 
+                'input_0_sel.png', 'input_0_zoom.png'],
+                stdout=stdout, stderr=stdout)
                 
             # Generate an image showing the estimated contour orientations
-            p3 = self.run_proc(['cwinterp', '-s', 
+            p['contour'] = self.run_proc(['cwinterp', '-s', 
                 '-g', grid,
-                '-x', str(scalefactor), 
+                '-x', str(scalefactor*displayzoom), 
                 '-p', str(psfsigma),
                 'input_0_sel.png', 'contour.png'],
                 stdout=stdout, stderr=stdout)
-                
-            self.wait_proc([p1, p2, p3], timeout)
-        else:            
+            
+            if displayzoom > 1:
+                self.wait_proc(p['interp'], timeout)
+                p['interpzoom'] = self.run_proc(['nninterp',
+                    '-g', 'centered',
+                    '-x', str(displayzoom), 
+                    'interpolated.png', 'interpolated_zoom.png'],
+                    stdout=stdout, stderr=stdout)
+        else:
+            # If the image dimensions are small, zoom the displayed results.
+            # This value is always at least 1.
+            displayzoom = int(math.ceil(320.0/max(sizeX,sizeY)))
+            (displayX, displayY) = (displayzoom*sizeX, displayzoom*sizeY)            
+            
             # Coarsen the image
-            p = self.run_proc(['imcoarsen', 
+            p['coarsened'] = self.run_proc(['imcoarsen', 
                 '-g', grid,
                 '-x', str(scalefactor), 
                 '-p', str(psfsigma),                
                 'input_0_sel.png', 'coarsened.png'])
-            self.wait_proc(p, timeout)
             
-            # For display, create a nearest neighbor zoomed version of the
-            # coarsened image.  nninterp does nearest neighbor interpolation 
-            # on precisely the same grid as cwinterp so that displayed images
-            # are aligned.
-            p1 = self.run_proc(['nninterp',
-                '-g', grid,
-                '-x', str(scalefactor), 
-                'coarsened.png', 'coarsened_zoom.png'],
-                stdout=stdout, stderr=stdout)
+            if displayzoom > 1:
+                p['exactzoom'] = self.run_proc(['nninterp',
+                    '-g', 'centered',
+                    '-x', str(displayzoom), 
+                    'input_0_sel.png', 'input_0_sel_zoom.png'],
+                    stdout=stdout, stderr=stdout)
             
             # Perform the actual contour stencil interpolation
-            p2 = self.run_proc(['cwinterp', 
+            self.wait_proc(p['coarsened'], timeout)
+            p['interpolated'] = self.run_proc(['cwinterp', 
                 '-g', grid,
                 '-x', str(scalefactor), 
                 '-p', str(psfsigma),
                 'coarsened.png', 'interpolated.png'],
                 stdout=stdout, stderr=stdout)
-                
+            
             # Generate an image showing the estimated contour orientations
-            p3 = self.run_proc(['cwinterp', '-s', 
+            p['contour'] = self.run_proc(['cwinterp', '-s', 
                 '-g', grid,
-                '-x', str(scalefactor), 
+                '-x', str(scalefactor*displayzoom), 
                 '-p', str(psfsigma),
                 'coarsened.png', 'contour.png'],
                 stdout=stdout, stderr=stdout)
-            self.wait_proc([p1, p2, p3], timeout)
+
+            self.wait_proc(p.values(), timeout)
+
+            # For display, create a nearest neighbor zoomed version of the
+            # coarsened image.  nninterp does nearest neighbor interpolation 
+            # on precisely the same grid as cwinterp so that displayed images
+            # are aligned.
+            p['coarsened_zoom'] = self.run_proc(['nninterp',
+                '-g', grid,
+                '-x', str(scalefactor*displayzoom), 
+                'coarsened.png', 'coarsened_zoom.png'],
+                stdout=stdout, stderr=stdout)
+                        
+            self.wait_proc(p.values(), timeout)
                         
             # Because of rounding, the interpolated image dimensions might be 
             # slightly larger than the original image.  For example, if the 
             # input is 100x100 and the scale factor is 3, then the coarsened 
             # image has size 34x34, and the interpolation has size 102x102.
             # The following crops the results if necessary.
-            img1 = image(self.work_dir + 'coarsened_zoom.png')
-            img2 = image(self.work_dir + 'interpolated.png')
+            self.wait_proc(p['coarsened_zoom'], timeout)
+            img2 = image(self.work_dir + 'coarsened_zoom.png')
+            self.wait_proc(p['contour'], timeout)
             img3 = image(self.work_dir + 'contour.png')
-
+            
+            if (displayX, displayY) != img2.size:
+                img2.crop((0, 0, displayX, displayY))
+                img2.save(self.work_dir + 'coarsened_zoom.png')
+                img3.crop((0, 0, displayX, displayY))
+                img3.save(self.work_dir + 'contour.png')
+            
+            self.wait_proc(p['interpolated'], timeout)
+            img1 = image(self.work_dir + 'interpolated.png')
+            
             if (sizeX, sizeY) != img1.size:
                 img1.crop((0, 0, sizeX, sizeY))
-                img1.save(self.work_dir + 'coarsened_zoom.png')
-                img2.crop((0, 0, sizeX, sizeY))
-                img2.save(self.work_dir + 'interpolated.png')
-                img3.crop((0, 0, sizeX, sizeY))
-                img3.save(self.work_dir + 'contour.png')
+                img1.save(self.work_dir + 'interpolated.png')
                         
-            # Compute maximum difference, PSNR, and MSSIM
-            p4 = self.run_proc(['imdiff', 'input_0_sel.png', 'interpolated.png'],
-                            stdout=stdout, stderr=stdout)
             # Generate difference image
-            p5 = self.run_proc(['imdiff', 'input_0_sel.png', 'interpolated.png', 'difference.png'],
-                            stdout=stdout, stderr=stdout)                                
-            self.wait_proc([p4, p5], timeout)
+            p['difference'] = self.run_proc(['imdiff', 
+                'input_0_sel.png', 'interpolated.png', 'difference.png'],
+                stdout=stdout, stderr=stdout)
+            # Compute maximum difference, PSNR, and MSSIM
+            p['metrics'] = self.run_proc(['imdiff', 
+                'input_0_sel.png', 'interpolated.png'],
+                stdout=stdout, stderr=stdout)
+            
+            if displayzoom > 1:
+                p['interpzoom'] = self.run_proc(['nninterp',
+                    '-g', 'centered',
+                    '-x', str(displayzoom), 
+                    'interpolated.png', 'interpolated_zoom.png'],
+                    stdout=stdout, stderr=stdout)
+                self.wait_proc(p['difference'], timeout)
+                p['differencezoom'] = self.run_proc(['nninterp',
+                    '-g', 'centered',
+                    '-x', str(displayzoom), 
+                    'difference.png', 'difference_zoom.png'],
+                    stdout=stdout, stderr=stdout)
         
+        self.cfg['param']['displayzoom'] = displayzoom
         self.cfg.save()
+        # Wait for all processes to complete 
+        self.wait_proc(p.values(), timeout)
         return
 
     @cherrypy.expose
@@ -326,5 +376,6 @@ class app(base_app):
         """
         self.timestamp = int(time.time())
         return self.tmpl_out("result.html",                           
-            height = max(185,image(self.work_dir + 'interpolated.png').size[1]),
+            height = max(185,image(self.work_dir + 'interpolated.png').size[1]
+                * self.cfg['param']['displayzoom']),
             stdout = open(self.work_dir + 'stdout.txt', 'r').read())
