@@ -50,7 +50,7 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "https://edit.ipol.im/edit/algo/" \
-            + "landscape_evolution/landscape_evolution.tar.gz"
+            + "dcm_landscape_evolution/landscape_evolution.tar.gz"
         tgz_file = self.dl_dir + "landscape_evolution.tar.gz"
         prog_file = self.bin_dir + "landscape_evolution"
         log_file = self.base_dir + "build.log"
