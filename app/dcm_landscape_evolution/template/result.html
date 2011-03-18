@@ -53,7 +53,7 @@ iteration water=${"%2.0f" % iterationw}, iteration=${"%2.0f" % iteration},waterl
       <a href="#">
 	Original Landscape <br>
 	<span>
-	  <img src="${app.work_url + 'result_orig.png?step=%s' % step}" />
+	  <img src="${app.work_url + 'result_orig.png'}" />
 	</span>
       </a>
     </li>
@@ -61,7 +61,7 @@ iteration water=${"%2.0f" % iterationw}, iteration=${"%2.0f" % iteration},waterl
     <li>
       <a href="#">
 	  After water evolution<br></a>
-	  Is varation lower than threshold?
+	  Is variation lower than threshold?
 	  ${open(app.work_dir + 'is_variation_water_only_small_enough.txt', 'r').readline()}<br>
           Number of iterations performed:	  ${float(open(app.work_dir +'nb_iter_water_only.txt').readline().split()[0])}<br>
 	  Mean level of water:

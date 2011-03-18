@@ -4,7 +4,7 @@
   You can now choose the parameters, and run the numerical schemes.
 </p>
 
-<form action="${app.base_url + 'grid'}" method="get">
+<form action="${app.base_url + 'wait'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
     <ol>
@@ -77,42 +77,9 @@
 	<input type="text" name="waterlandcst" value="0.001" size="8" />
       </li>
 
-
       <li>
 	Run the algorithm...
-	<ul>
-	  <li>
-	    on the whole image:
-	    <input type="submit" name="action" value="run" />
-	  </li>
-	  <li>
-	    or select a portion of the image using a grid (such a
-	    portion will be rescaled to 400x400 pixels before processing):
-	    <ol>
-	      <li>
-		redraw the grid with a different step size:
-		<select name="step">
-		  <option value="0" selected>no grid (zoom 1x)</option>
-		  <option value="50">50 (zoom 8x)</option>
-		  <option value="80">80 (zoom 5x)</option>
-		  <option value="100">100 (zoom 4x)</option>
-		  <option value="200">200 (zoom 2x)</option>
-		</select>
-		<input type="submit" name="action" value="redraw" />
-	      </li>
-	      <li>
-		and select the portion of the image by clicking:<br />
-		%if grid:
-		<input type="hidden" name="grid_step" value="${step}">
-		<input type="image" name=""
-		       src="${app.work_url + 'input_grid.png?step=%i' % step}" />
-		%else:
-		<img src="${app.work_url + 'input_0.png'}" />
-		%endif
-	      </li>
-	    </ol>
-	  </li>
-	</ul>
+	    <input type="submit" value="run" />
       </li>
     </ol>
   </div>

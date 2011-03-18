@@ -1,5 +1,5 @@
 """
-mcm_amss ipol demo web app
+landscape_evolution ipol demo web app
 """
 
 from lib import base_app, image, build, http
@@ -13,7 +13,7 @@ from cherrypy import TimeoutError
 
 
 class app(base_app):
-    """ mcm_amss app """
+    """ landscape_evolution app """
 
     title = "Landscape Evolution by Erosion and Sedimentation"
 
@@ -82,23 +82,6 @@ class app(base_app):
     # PARAMETER HANDLING
     #
 
-    @cherrypy.expose
-    @init_app
-    def grid(self, step, rain, expm, erosione, erosioncreep, erosions, iterationw, iteration, waterlandcst, maxvarwater, time_step, grid_step=0, action=None, x=0, y=0):
-        """
-        handle the grid drawing and selection
-        """
-        if action == 'run':
-            # use the whole image
-            img = image(self.work_dir + 'input_0.png')
-            img.save(self.work_dir + 'input' + self.input_ext)
-            img.save(self.work_dir + 'input.png')
-            # go to the wait page, with the key and scale
-            http.redir_303(self.base_url
-                           + "wait?key=%s&time_step=%s&step=%s&rain=%s&expm=%s&erosione=%s&erosioncreep=%s&erosions=%s&iteration=%s&iterationw=%s&waterlandcst=%s&maxvarwater=%s"
-                           % (self.key, time_step, step, rain, expm, erosione, erosioncreep, erosions, iteration,iterationw,waterlandcst,maxvarwater))
-            return
-            return
 
     #
     # EXECUTION AND RESULTS
@@ -106,14 +89,13 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def wait(self, time_step, step, rain, expm, erosione, erosioncreep, erosions, iteration,iterationw,waterlandcst,maxvarwater):
+    def wait(self, time_step, rain, expm, erosione, erosioncreep, erosions, iteration,iterationw,waterlandcst,maxvarwater):
         """
         params handling and run redirection
         """
         # read parameters
         try:
             self.cfg['param'] = {'time_step' : float(time_step),
-                                 'grid_step' : int(step),
                                  'rain' : float(rain),
                                  'expm' : float(expm),
                                  'erosione' : float(erosione),
@@ -122,18 +104,14 @@ class app(base_app):
                                  'iteration' : float(iteration),
                                  'iterationw' : float(iterationw),
                                  'waterlandcst' : float(waterlandcst),
-                                 'maxvarwater' : float(maxvarwater),
-                                 'zoom_factor' : (400.0 / int(step)
-                                                  if int(step) > 0
-                                                  else 1.)}
+                                 'maxvarwater' : float(maxvarwater)}
             self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="Wrong input parameters")
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html",
-                             input=['input.png?step=%s' % step])
+        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
@@ -143,7 +121,6 @@ class app(base_app):
         """
         # read the parameters
         time_step = self.cfg['param']['time_step']
-        zoom_factor = self.cfg['param']['zoom_factor']
         expm = self.cfg['param']['expm']
         erosione = self.cfg['param']['erosione']
         erosioncreep = self.cfg['param']['erosioncreep']
@@ -153,9 +130,6 @@ class app(base_app):
         waterlandcst = self.cfg['param']['waterlandcst']
         maxvarwater = self.cfg['param']['maxvarwater']
         rain = self.cfg['param']['rain']
-
-        # denormalize the scale
-        time_step *= zoom_factor
 
         # run the algorithm
         stdout = open(self.work_dir + 'stdout.txt', 'w')
@@ -172,17 +146,26 @@ class app(base_app):
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
-	"""
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.orig.png", info="uploaded")
-            ar.add_file("input.png", info="input")
-            ar.add_file("output_MCM.png", info="output MCM")
-            ar.add_file("output_AMSS.png", info="output AMSS")
+            ar.add_file("input.tiff", info="input")
+            ar.add_file("result_l.tif", info="result_l")
+            ar.add_file("result_w.tif", info="result_w")
+            ar.add_file("result_orig.tif", info="result_orig")
+            ar.add_file("result_w_only.tif", info="result_w_only")
+            ar.add_file("result_c.tif", info="result_c")
             ar.add_info({'time_step' : self.cfg['param']['time_step'],
-                         'zoom_factor' : self.cfg['param']['zoom_factor']})
+			 'expm' : self.cfg['param']['expm'],
+        		 'erosione' : self.cfg['param']['erosione'],
+        		 'erosioncreep' : self.cfg['param']['erosioncreep'],
+        		 'erosions' : self.cfg['param']['erosions'],
+        		 'iteration' : self.cfg['param']['iteration'],
+        		 'iterationw' : self.cfg['param']['iterationw'],
+        		 'waterlandcst' : self.cfg['param']['waterlandcst'],
+        		 'maxvarwater' : self.cfg['param']['maxvarwater'],
+        		 'rain' : self.cfg['param']['rain']})
             ar.save()
-	"""
+	
 
         return self.tmpl_out("run.html")
 
@@ -194,6 +177,10 @@ class app(base_app):
         """
         stdout = stdout
         # process image
+
+        img = image(self.work_dir + 'input_0.png')
+        img.save(self.work_dir + 'input' + self.input_ext)
+
         p1 = self.run_proc(['landscape_evolution',
                             self.work_dir + 'input' + self.input_ext,
                             self.work_dir + 'result',
@@ -230,8 +217,6 @@ class app(base_app):
         """
         # read the parameters
         time_step = self.cfg['param']['time_step']
-        grid_step = self.cfg['param']['grid_step']
-        zoom_factor = self.cfg['param']['zoom_factor']
         rain  = self.cfg['param']['rain']
         expm  = self.cfg['param']['expm']
         erosione  = self.cfg['param']['erosione']
@@ -242,8 +227,8 @@ class app(base_app):
         waterlandcst  = self.cfg['param']['waterlandcst']
         maxvarwater  = self.cfg['param']['maxvarwater']
 
-        return self.tmpl_out("result.html", step=grid_step,
-                             time_step=time_step, zoom_factor=zoom_factor,
+        return self.tmpl_out("result.html", 
+                             time_step=time_step, 
                              rain=rain,
                              expm=expm,
                              erosione=erosione,
@@ -254,4 +239,4 @@ class app(base_app):
                              waterlandcst=waterlandcst,
                              maxvarwater=maxvarwater,
 			     sizeY="%i" % image(self.work_dir
-                                                + 'input.png').size[1])
+                                                + 'input_0.png').size[1])
