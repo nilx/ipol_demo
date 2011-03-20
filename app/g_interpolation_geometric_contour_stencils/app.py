@@ -15,7 +15,7 @@ import time
 
 
 class app(base_app):
-    """ cwinterp app """
+    """ sinterp app """
 
     title = "Image Interpolation with Geometric Contour Stencils"
 
@@ -50,7 +50,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = 'https://edit.ipol.im/edit/algo/' \
+        tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_interpolation_geometric_contour_stencils/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['sinterp', 'imcoarsen', 'imdiff', 'nninterp']
