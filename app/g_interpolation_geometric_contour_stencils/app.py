@@ -1,5 +1,5 @@
 """
-cwinterp ipol demo web app
+sinterp ipol demo web app
 """
 
 from lib import base_app, build, http
@@ -17,7 +17,7 @@ import time
 class app(base_app):
     """ cwinterp app """
 
-    title = "Image Interpolation with Contour Stencils 2"
+    title = "Image Interpolation with Geometric Contour Stencils"
 
     input_nb = 1
     input_max_pixels = 1048576 # max size (in pixels) of an input image
@@ -51,7 +51,7 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = 'https://edit.ipol.im/edit/algo/' \
-            + 'g_image_interpolation_with_contour_stencils_2/src.tar.gz'
+            + 'g_interpolation_geometric_contour_stencils/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['sinterp', 'imcoarsen', 'imdiff', 'nninterp']
         sub_dir = 'sinterp-src'
