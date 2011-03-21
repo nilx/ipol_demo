@@ -110,14 +110,16 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def params(self, newrun=False, msg=None, scale_r=None):
+    def params(self, newrun=False, msg=None, scale_r=None, step=None):
         """
         configure the algo execution
         """
         if newrun:
             self.clone_input()
 
-        return self.tmpl_out("params.html", msg=msg, scale_r=scale_r)
+	
+
+        return self.tmpl_out("params.html", msg=msg, scale_r=scale_r, step=step)
 
 
     @cherrypy.expose
