@@ -81,26 +81,8 @@ function createLinkedSlider(inputId, sliderId,
 <div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
 <script type="text/javascript">
 // Turn DIV slider into a slider linked to scale
-%if step == '0':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 8, 0.1); });
-%endif
-%if step == '200':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 6, 0.1); });
-%endif
-%if step == '100':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 3, 0.1); });
-%endif
-%if step == '80':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 2, 0.1); });
-%endif
-%if step == '50':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 1.5, 0.1); });
-%endif
+$(document).ready(function() 
+    { createLinkedSlider('#scale', '#slider', 0.1, 10, 0.1); });
 </script>
 <div style="clear:both"> </div>
 </p>
@@ -111,7 +93,6 @@ function createLinkedSlider(inputId, sliderId,
 	<ul>
 	  <li>
 	    on the whole image:
-	    <input type="hidden" name="step" value="${step}">
 	    <input type="submit" name="action" value="run" />
 	  </li>
 	  <li>
@@ -121,41 +102,20 @@ function createLinkedSlider(inputId, sliderId,
 	      <li>
 		redraw the grid with a different step size: 
 		<select name="step">
-		%if step == '0':
 		  <option value="0" selected>no grid (zoom 1x)</option>
-		%else:
-		  <option value="0">no grid (zoom 1x)</option>
-		%endif
-		%if step == '50':
-		  <option value="50" selected>50 (zoom 8x)</option>
-		%else:
 		  <option value="50">50 (zoom 8x)</option>
-		%endif
-		%if step == '80':
-		  <option value="80" selected>80 (zoom 5x)</option>
-		%else:
 		  <option value="80">80 (zoom 5x)</option>
-		%endif
-		%if step == '100':
-		  <option value="100" selected>100 (zoom 4x)</option>
-		%else:
 		  <option value="100">100 (zoom 4x)</option>
-		%endif
-		%if step == '200':
-		  <option value="200" selected>200 (zoom 2x)</option>
-		%else:
 		  <option value="200">200 (zoom 2x)</option>
-		%endif
 		</select>
-
 		<input type="submit" name="action" value="redraw" />
 	      </li>
 	      <li>
 		and select the portion of the image by clicking:<br />
 		%if grid:
-		<input type="hidden" name="step" value="${step}">
+		<input type="hidden" name="grid_step" value="${step}">
 		<input type="image" name=""
-		       src="${app.work_url + 'input_grid.png'}" />
+		       src="${app.work_url + 'input_grid.png?step=%i' % step}" />
 		%else:
 		<img src="${app.work_url + 'input_0.png'}" />
 		%endif

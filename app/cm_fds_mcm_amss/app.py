@@ -117,14 +117,15 @@ class app(base_app):
         if newrun:
             self.clone_input()
 
-	
+	if (step == None):
+	  step='0'
 
         return self.tmpl_out("params.html", msg=msg, scale_r=scale_r, step=step)
 
 
     @cherrypy.expose
     @init_app
-    def grid(self, step, scaleR, grid_step=0, action=None, x=0, y=0):
+    def grid(self, step, scaleR, action=None, x=0, y=0):
         """
         handle the grid drawing and selection
         """
@@ -154,7 +155,7 @@ class app(base_app):
             x = int(x)
             y = int(y)
             # get the step used to draw the grid
-            step = int(grid_step)
+            step = int(step)
             assert step > 0
             # cut the image section
             img = image(self.work_dir + 'input_0.png')
