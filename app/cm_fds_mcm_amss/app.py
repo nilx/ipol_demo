@@ -125,7 +125,7 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def grid(self, step, scaleR, action=None, x=0, y=0):
+    def grid(self, stepG, scaleR, action=None, x=0, y=0):
         """
         handle the grid drawing and selection
         """
@@ -135,13 +135,14 @@ class app(base_app):
             img.save(self.work_dir + 'input' + self.input_ext)
             img.save(self.work_dir + 'input.png')
             # go to the wait page, with the key and scale
+	    stepG=0
             http.redir_303(self.base_url
                            + "wait?key=%s&scaleR=%s&step=%s" 
-                           % (self.key, scaleR, step))
+                           % (self.key, scaleR, stepG))
             return
         elif action == 'redraw':
             # draw the grid
-            step = int(step)
+            step = int(stepG)
             if 0 < step:
                 img = image(self.work_dir + 'input_0.png')
                 img.draw_grid(step)
@@ -149,7 +150,7 @@ class app(base_app):
                 grid = True
             else:
                 grid = False
-            return self.tmpl_out("params.html", step=step, grid=grid, scale_r=float(scaleR))
+            return self.tmpl_out("params.html", step=stepG, grid=grid, scale_r=float(scaleR))
         else:
             # use a part of the image
             x = int(x)
@@ -171,7 +172,7 @@ class app(base_app):
             # go to the wait page, with the key and scale
             http.redir_303(self.base_url
                            + "wait?key=%s&scaleR=%s&step=%s" 
-                           % (self.key, scaleR, step))
+                           % (self.key, scaleR, stepG))
             return
 
     #
@@ -272,7 +273,7 @@ class app(base_app):
         grid_step = self.cfg['param']['grid_step']
         zoom_factor = self.cfg['param']['zoom_factor']
 
-        return self.tmpl_out("result.html", step=grid_step,
+        return self.tmpl_out("result.html", 
                              scale_r=scale_r, zoom_factor=zoom_factor, 
 			     sizeY="%i" % image(self.work_dir
                                                 + 'input.png').size[1])

@@ -111,7 +111,6 @@ function createLinkedSlider(inputId, sliderId,
 	<ul>
 	  <li>
 	    on the whole image:
-	    <input type="hidden" name="step" value="${step}">
 	    <input type="submit" name="action" value="run" />
 	  </li>
 	  <li>
@@ -120,7 +119,7 @@ function createLinkedSlider(inputId, sliderId,
 	    <ol>
 	      <li>
 		redraw the grid with a different step size: 
-		<select name="step">
+		<select name="stepG">
 		%if step == '0':
 		  <option value="0" selected>no grid (zoom 1x)</option>
 		%else:
@@ -147,13 +146,12 @@ function createLinkedSlider(inputId, sliderId,
 		  <option value="200">200 (zoom 2x)</option>
 		%endif
 		</select>
-
 		<input type="submit" name="action" value="redraw" />
 	      </li>
 	      <li>
 		and select the portion of the image by clicking:<br />
 		%if grid:
-		<input type="hidden" name="step" value="${step}">
+		<input type="hidden" name="stepG" value="${step}">
 		<input type="image" name=""
 		       src="${app.work_url + 'input_grid.png'}" />
 		%else:
