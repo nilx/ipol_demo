@@ -72,7 +72,7 @@ class app(base_app):
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir 
+            shutil.copy(self.src_dir
                         + os.path.join("landscape_evolution", "landscape_evolution"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -89,7 +89,7 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def wait(self, time_step, rain, expm, erosione, erosioncreep, erosions, iteration,iterationw,waterlandcst,maxvarwater):
+    def wait(self, time_step, rain, expm, erosione, erosioncreep, erosions, iteration,iterationw,waterlandcst,maxvarwater,percentageland):
         """
         params handling and run redirection
         """
@@ -104,7 +104,9 @@ class app(base_app):
                                  'iteration' : float(iteration),
                                  'iterationw' : float(iterationw),
                                  'waterlandcst' : float(waterlandcst),
-                                 'maxvarwater' : float(maxvarwater)}
+                                 'maxvarwater' : float(maxvarwater),
+                                 'percentageland' : float(percentageland)
+                                 }
             self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
@@ -129,13 +131,14 @@ class app(base_app):
         iterationw = self.cfg['param']['iterationw']
         waterlandcst = self.cfg['param']['waterlandcst']
         maxvarwater = self.cfg['param']['maxvarwater']
+        percentageland = self.cfg['param']['percentageland']
         rain = self.cfg['param']['rain']
 
         # run the algorithm
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(time_step, rain, expm, erosione, erosioncreep, erosions, iteration, iterationw, waterlandcst, maxvarwater, stdout=stdout, timeout=self.timeout)
+            self.run_algo(time_step, rain, expm, erosione, erosioncreep, erosions, iteration, iterationw, waterlandcst, maxvarwater, percentageland, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
@@ -163,13 +166,14 @@ class app(base_app):
         		 'iterationw' : self.cfg['param']['iterationw'],
         		 'waterlandcst' : self.cfg['param']['waterlandcst'],
         		 'maxvarwater' : self.cfg['param']['maxvarwater'],
+        		 'percentageland' : self.cfg['param']['percentageland'],
         		 'rain' : self.cfg['param']['rain']})
             ar.save()
-	
+
 
         return self.tmpl_out("run.html")
 
-    def run_algo(self, time_step, rain, expm, erosione, erosioncreep, erosions, iteration, iterationw, waterlandcst, maxvarwater, stdout=None, timeout=False):
+    def run_algo(self, time_step, rain, expm, erosione, erosioncreep, erosions, iteration, iterationw, waterlandcst, maxvarwater, percentageland, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
@@ -193,7 +197,8 @@ class app(base_app):
                             str(iteration),
                             str(iterationw),
                             str(waterlandcst),
-                            str(maxvarwater)
+                            str(maxvarwater),
+                            str(percentageland)
                             ])
         self.wait_proc([p1], timeout)
         im = image(self.work_dir + 'result_l.tif')
@@ -206,6 +211,10 @@ class app(base_app):
         im.save(self.work_dir + 'result_w_only.png')
         im = image(self.work_dir + 'result_c.tif')
         im.save(self.work_dir + 'result_c.png')
+        im = image(self.work_dir + 'result_diff_landscape.tif')
+        im.save(self.work_dir + 'result_diff_landscape.png')
+
+
 
 
     @cherrypy.expose
@@ -226,9 +235,10 @@ class app(base_app):
         iterationw  = self.cfg['param']['iterationw']
         waterlandcst  = self.cfg['param']['waterlandcst']
         maxvarwater  = self.cfg['param']['maxvarwater']
+        percentageland  = self.cfg['param']['percentageland']
 
-        return self.tmpl_out("result.html", 
-                             time_step=time_step, 
+        return self.tmpl_out("result.html",
+                             time_step=time_step,
                              rain=rain,
                              expm=expm,
                              erosione=erosione,
@@ -238,5 +248,6 @@ class app(base_app):
                              iterationw=iterationw,
                              waterlandcst=waterlandcst,
                              maxvarwater=maxvarwater,
+                             percentageland=percentageland,
 			     sizeY="%i" % image(self.work_dir
                                                 + 'input_0.png').size[1])
