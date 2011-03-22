@@ -156,7 +156,7 @@ class app(base_app):
             x = int(x)
             y = int(y)
             # get the step used to draw the grid
-            step = int(step)
+            step = int(stepG)
             assert step > 0
             # cut the image section
             img = image(self.work_dir + 'input_0.png')

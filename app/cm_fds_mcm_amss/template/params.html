@@ -68,6 +68,7 @@ function createLinkedSlider(inputId, sliderId,
 	disappears): 
 <!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
 <p>
+<!--
 %if scale_r:
   <div style="float:left;padding-right:25px">
     Scale: <input type="text" style="font-family:monospace;text-align:right"
@@ -77,6 +78,31 @@ function createLinkedSlider(inputId, sliderId,
     Scale: <input type="text" style="font-family:monospace;text-align:right"
     size="7" id="scale" name="scaleR" value="1.0" />
 %endif
+-->
+<% smax='1.0' %>
+%if scale_r:
+  <% smax=scale_r %>
+  %if (step == '0') and (float(scale_r) > 8.0):
+    <% smax='8.0' %>
+  %endif
+  %if (step == '200') and (float(scale_r) > 6.0):
+    <% smax='6.0' %>
+  %endif
+  %if (step == '100') and (float(scale_r) > 3.0):
+    <% smax='3.0' %>
+  %endif
+  %if (step == '80') and (float(scale_r) > 2.0):
+    <% smax='2.0' %>
+  %endif
+  %if (step == '50') and (float(scale_r) > 1.5):
+    <% smax='1.5' %>
+  %endif
+%endif
+
+<div style="float:left;padding-right:25px">
+ Scale: <input type="text" style="font-family:monospace;text-align:right"
+ size="7" id="scale" name="scaleR" value="${smax}" />
+
 </div>
 <div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
 <script type="text/javascript">
@@ -151,7 +177,6 @@ function createLinkedSlider(inputId, sliderId,
 	      <li>
 		and select the portion of the image by clicking:<br />
 		%if grid:
-		<input type="hidden" name="stepG" value="${step}">
 		<input type="image" name=""
 		       src="${app.work_url + 'input_grid.png'}" />
 		%else:
