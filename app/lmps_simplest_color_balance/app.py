@@ -85,7 +85,6 @@ class app(base_app):
     # PARAMETER HANDLING
     #
 
-
     @cherrypy.expose
     @init_app
     def wait(self, s="3.0"):
