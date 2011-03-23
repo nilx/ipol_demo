@@ -49,7 +49,7 @@ class app(base_app):
         tgz_url = "https://edit.ipol.im/pub/algo/" \
             + "lmps_simplest_color_balance/simplest_color_balance.tar.gz"
         tgz_file = self.dl_dir + "simplest_color_balance.tar.gz"
-        progs = ["normalize_histo", "normalize_sort"]
+        progs = ["normalize_histo"]
         src_bin = dict([(self.src_dir + os.path.join("simplest_color_balance", prog),
                          self.bin_dir + prog)
                         for prog in progs])
