@@ -29,7 +29,7 @@ GLOBAL PARAMETERS <br>
 time step=${"%2.2f" % time_step} <br>
 <br>
 WATER EVOLUTION PARAMETER <br>
-Rain=${"%2.4f" % rain}<br>
+Rain=${"%2.4f" % rain} x 10^(-7)<br>
 <br>
 EROSION PARAMETERS <br>
 erosion exponent m=${"%2.2f" % expm} <br>
@@ -39,7 +39,9 @@ creep=${"%2.2f" %erosioncreep} <br>
 EROSION PARAMETER <br>
 sedimentation parameter=${"%2.2f" % erosions}<br>
 <br>
-iteration water=${"%2.0f" % iterationw}, iteration=${"%2.0f" % iteration},waterlandcst=${"%1.7f" % waterlandcst},
+iterations water only=${"%2.0f" % iterationw} x 10^3<br>
+iteration all equations =${"%2.0f" %iteration} x 10^3<br>
+Ocean level=${"%1.7f" % waterlandcst}
 
 <br>
 
@@ -64,27 +66,109 @@ iteration water=${"%2.0f" % iterationw}, iteration=${"%2.0f" % iteration},waterl
 	  Is variation lower than threshold?
 	  ${open(app.work_dir + 'is_variation_water_only_small_enough.txt', 'r').readline()}<br>
           Number of iterations performed:	  ${float(open(app.work_dir +'nb_iter_water_only.txt').readline().split()[0])}<br>
-	  Mean level of water:
-	  ${float(open(app.work_dir +'mean_level_water_only.txt').readline().split()[0])}<br>
-Maximum level of water:
- ${float(open(app.work_dir + 'max_level_water_only.txt').readline().split()[0])}<br>
 	<span>
 	  <img src="${app.work_url + 'result_orig.png'}" />
 	  <img src="${app.work_url + 'result_w_only.png'}" />
-	  <img src="${app.work_url + 'result_c'}" />
+	<br>
+	Images: Orignal landscape and level of water
 	</span>
       </a>
+      <br>
+      Mean level of water:
+      ${float(open(app.work_dir +'mean_level_water_only.txt').readline().split()[0])}<br>
+      Maximum level of water:
+      ${float(open(app.work_dir + 'max_level_water_only.txt').readline().split()[0])}<br>
+      Minimum level of water:
+      ${float(open(app.work_dir + 'min_level_water_only.txt').readline().split()[0])}<br>
+
+      Mean level of water above ocean:
+      ${float(open(app.work_dir +'mean_level_water_above_ocean_water_only.txt').readline().split()[0])}<br>
+      Maximum level of water above ocean:
+      ${float(open(app.work_dir + 'max_level_water_above_ocean_water_only.txt').readline().split()[0])}<br>
+      Minimum level of water above ocean:
+      ${float(open(app.work_dir + 'min_level_water_above_ocean_water_only.txt').readline().split()[0])}<br>
+
+
     </li>
 <br>
     <li>
       <a href="#">
-	  After water, erosion and sediment evolution <br>
+	  After water, erosion and sediment evolution <br> </a>
+
+      Is amount of removed landscape meets percentage
+	  ${open(app.work_dir + 'is_landscape_removed_ok.txt', 'r').readline()}<br>
+          Number of iterations performed:	  ${float(open(app.work_dir +'nb_iter_full_equations.txt').readline().split()[0])}<br>
+
 	<span>
 	  <img src="${app.work_url + 'result_l.png'}" />
 	  <img src="${app.work_url + 'result_w.png'}" />
+	  <img src="${app.work_url + 'result_diff_landscape.png'}" />
 	  <img src="${app.work_url + 'result_c.png'}" />
 	</span>
       </a>
+      <br>
+      Images: Landscape, water, difference landscape ([-2sigma,
+      2sigma]) and concentration ([0, 2sigma])
+
+      <br>
+      <br>
+      Mean level of water:
+      ${float(open(app.work_dir +'mean_level_water_full.txt').readline().split()[0])}<br>
+      Maximum level of water:
+      ${float(open(app.work_dir + 'max_level_water_full.txt').readline().split()[0])}<br>
+      Minimum level of water:
+      ${float(open(app.work_dir + 'min_level_water_full.txt').readline().split()[0])}<br>
+
+      Mean level of water above ocean level:
+      ${float(open(app.work_dir +'mean_level_water_above_ocean_full.txt').readline().split()[0])}<br>
+      Maximum level of water above ocean level:
+      ${float(open(app.work_dir + 'max_level_water_above_ocean_full.txt').readline().split()[0])}<br>
+      Minimum level of waterabove ocean level:
+      ${float(open(app.work_dir + 'min_level_water_above_ocean_full.txt').readline().split()[0])}<br>
+
+
+      <br>
+      Mean level of landscape:
+      ${float(open(app.work_dir +'mean_level_landscape_full.txt').readline().split()[0])}<br>
+      Maximum level of landscape:
+      ${float(open(app.work_dir + 'max_level_landscape_full.txt').readline().split()[0])}<br>
+      Minimum level of landscape:
+      ${float(open(app.work_dir + 'min_level_landscape_full.txt').readline().split()[0])}<br>
+      Mean level of landscape above ocean:
+      ${float(open(app.work_dir +'mean_level_landscape_above_ocean_full.txt').readline().split()[0])}<br>
+      Maximum level of landscape above ocean:
+      ${float(open(app.work_dir + 'max_level_landscape_above_ocean_full.txt').readline().split()[0])}<br>
+      Minimum level of landscape above ocean:
+      ${float(open(app.work_dir + 'min_level_landscape_above_ocean_full.txt').readline().split()[0])}<br>
+
+
+      <br>
+      Mean level of difference landscape (old - new):
+      ${float(open(app.work_dir +'mean_level_difference_landscape_full.txt').readline().split()[0])}<br>
+      Standard deviation  level of difference landscape (old - new):
+      ${float(open(app.work_dir +'sigma_level_difference_landscape_full.txt').readline().split()[0])}<br>
+      Maximum level of difference landscape (old - new):
+      ${float(open(app.work_dir + 'max_level_difference_landscape_full.txt').readline().split()[0])}<br>
+      Minimum level of difference landscape (old - new):
+      ${float(open(app.work_dir + 'min_level_difference_landscape_full.txt').readline().split()[0])}<br>
+
+
+      <br>
+      Mean level of concentration):
+      ${float(open(app.work_dir +'mean_level_concentration_full.txt').readline().split()[0])}<br>
+      Sigma level of concentration):
+      ${float(open(app.work_dir +'sigma_level_concentration_full.txt').readline().split()[0])}<br>
+      Maximum level of concentration:
+      ${float(open(app.work_dir + 'max_level_concentration_full.txt').readline().split()[0])}<br>
+      Minimum level of concentration:
+      ${float(open(app.work_dir + 'min_level_concentration_full.txt').readline().split()[0])}<br>
+
+
+
+      <br>
+      <br>
+      Evolution of mass removed:
+      <pre class="stdio">${open(app.work_dir + 'percentage_landscape_removed_iteration.txt', 'r').read()}</pre>
     </li>
   </ul>
 </div>

@@ -18,7 +18,7 @@
 	<li>
 	  </br>
 	<label for="rain"><i>Select rain parameter r</i>:</label>
-	<input type="text" name="rain" value="0.00001" size="8" />
+	<input type="text" name="rain" value="1" size="8" /> x10^(-7)
       </li>
 
 
@@ -26,7 +26,7 @@
 	<li>
 	  </br>
 	<label for="expm"><i>Select erosion exponent m</i>:</label>
-	<input type="text" name="expm" value="1" size="3" />
+	<input type="text" name="expm" value="0.5" size="3" />
       </li>
 
 
@@ -61,14 +61,22 @@
 	<br>
 	<label for="iterationw"><i>Select maximum number of iterations
 	    for running water after which we stop whatsoever</i>:</label>
-	<input type="text" name="iterationw" value="400000" size="8" />
+	<input type="text" name="iterationw" value="400" size="8" />x10^3
       </li>
 
 
-	  <li>
-	  </br>
-	<label for="iteration"><i>Select number of iterations</i>:</label>
-	<input type="text" name="iteration" value="1000" size="8" />
+	<li>
+	</br>
+	  Select parameters for running all equations <br>
+	<label for="percentageland"><i>Select percentage of landscape
+	    to remove</i>:</label>
+	<input type="text" name="percentageland" value="1" size="8" />
+	percent
+      </li>
+
+	<label for="iteration"><i>Select number maximum number of
+	    iterations after which we stop whatsoever</i>:</label>
+	<input type="text" name="iteration" value="10" size="8" />x10^3
       </li>
 
 	<li>
