@@ -21,20 +21,20 @@
       <input type="hidden" name="y0" value="${y0}">
       <input type="hidden" name="x1" value="${x1}">
       <input type="hidden" name="y1" value="${y1}">
-      <input type="hidden" name="gammaR" value="${gammaR}">
+      <!-- <input type="hidden" name="gammaR" value="${gammaR}">
       <input type="hidden" name="gammaG" value="${gammaG}">
       <input type="hidden" name="gammaB" value="${gammaB}">
-      <input type="hidden" name="gammaI" value="${gammaI}">
+      <input type="hidden" name="gammaI" value="${gammaI}"> -->
       <input type="submit" value="different parameter" />
     </form>
     <form style="display:inline;"
 	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
-      <input type="hidden" name="gammaR" value="${gammaR}">
+      <!-- <input type="hidden" name="gammaR" value="${gammaR}">
       <input type="hidden" name="gammaG" value="${gammaG}">
       <input type="hidden" name="gammaB" value="${gammaB}">
-      <input type="hidden" name="gammaI" value="${gammaI}">
+      <input type="hidden" name="gammaI" value="${gammaI}"> -->
       <input type="submit" value="different subimage" />
     </form>
   %else:
@@ -42,10 +42,10 @@
 	  action="${app.base_url + 'params'}" method="get">
       <input type="hidden" name="key" value="${app.key}">
       <input type="hidden" name="newrun" value="1">
-      <input type="hidden" name="gammaR" value="${gammaR}">
+      <!-- <input type="hidden" name="gammaR" value="${gammaR}">
       <input type="hidden" name="gammaG" value="${gammaG}">
       <input type="hidden" name="gammaB" value="${gammaB}">
-      <input type="hidden" name="gammaI" value="${gammaI}">
+      <input type="hidden" name="gammaI" value="${gammaI}"> -->
       <input type="submit" value="different parameters or subimage" />
     </form>
   %endif
@@ -103,6 +103,8 @@ Result 2: Color Correction on Intensity channel (gammaI=${gammaI}) <br />
     </li>
   </ul>
 </div>
+
+<!--  <pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre> -->
 
 
 <hr />

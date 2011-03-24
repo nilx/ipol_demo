@@ -203,17 +203,40 @@ class app(base_app):
 	if gammaR == None:
 	  #compute default value
 	  gammaR=self.default_gamma(channel='R')
+	  #get two decimal precission
+	  gammaR=int(gammaR*100)
+	  gammaR=float(gammaR)*0.01
+	else:
+	  gammaR=float(gammaR)
+
 	if gammaG == None:
 	  #compute default value
 	  gammaG=self.default_gamma(channel='G')
+	  #get two decimal precission
+	  gammaG=int(gammaG*100)
+	  gammaG=float(gammaG)*0.01
+	else:
+	  gammaG=float(gammaG)
+
 	if gammaB == None:
 	  #compute default value
 	  gammaB=self.default_gamma(channel='B')
+	  #get two decimal precission
+	  gammaB=int(gammaB*100)
+	  gammaB=float(gammaB)*0.01
+	else:
+	  gammaB=float(gammaB)
+
 	if gammaI == None:
 	  #compute default value
 	  gammaI=self.default_gamma(channel='I')
+	  #get two decimal precission
+	  gammaI=int(gammaI*100)
+	  gammaI=float(gammaI)*0.01
+	else:
+	  gammaI=float(gammaI)
 
-
+	
         return self.tmpl_out("params2.html", msg=msg, gammaR=gammaR, gammaG=gammaG, gammaB=gammaB, gammaI=gammaI)
 
 
@@ -243,7 +266,7 @@ class app(base_app):
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
 
-                return self.tmpl_out("params1.html", x0=x, y0=y, r=r)
+                return self.tmpl_out("params1.html", x0=x, y0=y, gammaR=gammaR, gammaG=gammaG, gammaB=gammaB, gammaI=gammaI)
             else:
                 # second corner selection
                 x0 = int(x0)
@@ -328,7 +351,7 @@ class app(base_app):
 
         return self.tmpl_out("run.html")
 
-    def run_algo(self, gammaR, gammaG, gammaB, stdout=None, timeout=False):
+    def run_algo(self, gammaR, gammaG, gammaB, gammaI, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
@@ -369,10 +392,10 @@ class app(base_app):
         """
 
         # read the parameters
-        gammaR = self.cfg['param']['gammaR']
-        gammaG = self.cfg['param']['gammaG']
-        gammaB = self.cfg['param']['gammaB']
-        gammaI = self.cfg['param']['gammaI']
+        gammaR = self.cfg['param']['gammar']
+        gammaG = self.cfg['param']['gammag']
+        gammaB = self.cfg['param']['gammab']
+        gammaI = self.cfg['param']['gammai']
         try:
           x0 = self.cfg['subimage']['x0']
         except KeyError:
@@ -392,8 +415,8 @@ class app(base_app):
 
 	sizeY=image(self.work_dir + 'input_0.sel.png').size[1]
 	sizeYhist=image(self.work_dir + 'input_0_hist.png').size[1]
-	#add 20 pixels to the histogram size to take margin into account
-	sizeYmax=max(sizeY, sizeYhist+20)
+	#add 50 pixels to the histogram size to take margin into account
+	sizeYmax=max(sizeY, sizeYhist+50)
 
         return self.tmpl_out("result.html", gammaR=gammaR, gammaG=gammaG, gammaB=gammaB, gammaI=gammaI,
  			     x0=x0, y0=y0, x1=x1, y1=y1, sizeY="%i" % sizeYmax)
