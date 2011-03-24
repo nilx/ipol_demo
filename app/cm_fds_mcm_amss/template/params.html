@@ -17,71 +17,59 @@
       <li>
 	Select the normalized scale (at normalized scale R a disk of radius R
 	disappears): 
-<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
-<p>
-<!--
-%if scale_r:
-  <div style="float:left;padding-right:25px">
-    Scale: <input type="text" style="font-family:monospace;text-align:right"
-    size="7" id="scale" name="scaleR" value="${scale_r}" />
-%else:
-  <div style="float:left;padding-right:25px">
-    Scale: <input type="text" style="font-family:monospace;text-align:right"
-    size="7" id="scale" name="scaleR" value="1.0" />
-%endif
--->
-<% smax='1.0' %>
-%if scale_r:
-  <% smax=scale_r %>
-  %if (step == '0') and (float(scale_r) > 8.0):
-    <% smax='8.0' %>
-  %endif
-  %if (step == '200') and (float(scale_r) > 6.0):
-    <% smax='6.0' %>
-  %endif
-  %if (step == '100') and (float(scale_r) > 3.0):
-    <% smax='3.0' %>
-  %endif
-  %if (step == '80') and (float(scale_r) > 2.0):
-    <% smax='2.0' %>
-  %endif
-  %if (step == '50') and (float(scale_r) > 1.5):
-    <% smax='1.5' %>
-  %endif
-%endif
+	<p>
+	  <% smax='1.0' %>
+	  %if scale_r:
+	  <% smax=scale_r %>
+	  %if (step == '0') and (float(scale_r) > 8.0):
+	  <% smax='8.0' %>
+	  %endif
+	  %if (step == '200') and (float(scale_r) > 6.0):
+	  <% smax='6.0' %>
+	  %endif
+	  %if (step == '100') and (float(scale_r) > 3.0):
+	  <% smax='3.0' %>
+	  %endif
+	  %if (step == '80') and (float(scale_r) > 2.0):
+	  <% smax='2.0' %>
+	  %endif
+	  %if (step == '50') and (float(scale_r) > 1.5):
+	  <% smax='1.5' %>
+	  %endif
+	  %endif
 
-<div style="float:left;padding-right:25px">
- Scale: <input type="text" style="font-family:monospace;text-align:right"
- size="7" id="scale" name="scaleR" value="${smax}" />
+	  <div style="float:left;padding-right:25px">
+	    Scale: <input type="text" style="font-family:monospace;text-align:right"
+			  size="7" id="scale" name="scaleR" value="${smax}" />
 
-</div>
-<div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
-<script type="text/javascript">
-// Turn DIV slider into a slider linked to scale
-%if step == '0':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 8, 0.1); });
-%endif
-%if step == '200':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 6, 0.1); });
-%endif
-%if step == '100':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 3, 0.1); });
-%endif
-%if step == '80':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 2, 0.1); });
-%endif
-%if step == '50':
-  $(document).ready(function() 
-    { createLinkedSlider('#scale', '#slider', 0.1, 1.5, 0.1); });
-%endif
-</script>
-<div style="clear:both"> </div>
-</p>
-<!-- end of code for slider -->
+	  </div>
+	  <div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+	  <script type="text/javascript">
+	    // Turn DIV slider into a slider linked to scale
+	    %if step == '0':
+	    $(document).ready(function() 
+	    { createLinkedSlider('#scale', '#slider', 0.1, 8, 0.1); });
+	    %endif
+	    %if step == '200':
+	    $(document).ready(function() 
+	    { createLinkedSlider('#scale', '#slider', 0.1, 6, 0.1); });
+	    %endif
+	    %if step == '100':
+	    $(document).ready(function() 
+	    { createLinkedSlider('#scale', '#slider', 0.1, 3, 0.1); });
+	    %endif
+	    %if step == '80':
+	    $(document).ready(function() 
+	    { createLinkedSlider('#scale', '#slider', 0.1, 2, 0.1); });
+	    %endif
+	    %if step == '50':
+	    $(document).ready(function() 
+	    { createLinkedSlider('#scale', '#slider', 0.1, 1.5, 0.1); });
+	    %endif
+	  </script>
+	  <div style="clear:both"> </div>
+	</p>
+	<!-- end of code for slider -->
       </li>
       <li>
 	Run the algorithm...
