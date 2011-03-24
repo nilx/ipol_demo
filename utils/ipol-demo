@@ -4,7 +4,7 @@
 #
 
 ### BEGIN INIT INFO
-# Provides:          
+# Provides:          ipol-demo
 # Required-Start:    $all
 # Required-Stop:     $all
 # Should-Start:      
