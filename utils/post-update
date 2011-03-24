@@ -5,7 +5,6 @@
 set -e
 set -x
 
-GITDIR=/srv/ipol/demo
 TMPDIR=/media/tmp
 INITSCRIPT=/etc/init.d/ipol-demo
 
