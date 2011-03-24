@@ -1,0 +1,102 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+<h2>Algorithm Parameters</h2>
+
+On color images the algorithm performs two operations:
+<ol>
+<li> a gamma correction on each color channel</li>
+<li> a gamma correction on the intensity channel, preserving original R/G/B ratios</li>
+</ol>
+
+<p>
+The results of both operations are displayed in the results page
+</p>
+
+<hr/>
+
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+
+<ol>
+<li> Select the gamma values for R, G and B channel, and also for the Intensity component
+
+<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
+<p>
+  <div style="float:left;padding-right:25px">
+    gammaR: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="gammaR_selector" name="gammaR" value="${gammaR}" />
+</div>
+<div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#gammaR_selector', '#sliderR', 0.1, 5, 0.01); });
+</script>
+<div style="clear:both"> </div>
+</p>
+
+<p>
+  <div style="float:left;padding-right:25px">
+    gammaG: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="gammaG_selector" name="gammaG" value="${gammaG}" />
+</div>
+<div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#gammaG_selector', '#sliderG', 0.1, 5, 0.01); });
+</script>
+<div style="clear:both"> </div>
+</p>
+
+<p>
+  <div style="float:left;padding-right:25px">
+    gammaB: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="gammaB_selector" name="gammaB" value="${gammaB}" />
+</div>
+<div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#gammaB_selector', '#sliderB', 0.1, 5, 0.01); });
+</script>
+<div style="clear:both"> </div>
+</p>
+
+<p>
+  <div style="float:left;padding-right:25px">
+    gammaI: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="gammaI_selector" name="gammaI" value="${gammaI}" />
+</div>
+<div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#gammaI_selector', '#sliderI', 0.1, 5, 0.01); });
+</script>
+<div style="clear:both"> </div>
+</p>
+<!-- end of code for slider -->
+
+</li>
+
+<li> Run the algorithm: 
+      <input type="submit"   value="run" />
+</li>
+
+</ol>
+
+      <img src="${app.work_url + 'input_0.sel.png'}" />
+  </div>
+</form>
+
+
+<%include file="footer.html" />
