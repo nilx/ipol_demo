@@ -117,10 +117,11 @@ class app(base_app):
         if newrun:
             self.clone_input()
 
-	if (step == None):
-	  step='0'
+        if (step == None):
+            step = '0'
 
-        return self.tmpl_out("params.html", msg=msg, scale_r=scale_r, step=step)
+        return self.tmpl_out("params.html", msg=msg,
+                             scale_r=scale_r, step=step)
 
 
     @cherrypy.expose
@@ -135,7 +136,7 @@ class app(base_app):
             img.save(self.work_dir + 'input' + self.input_ext)
             img.save(self.work_dir + 'input.png')
             # go to the wait page, with the key and scale
-	    stepG=0
+            stepG = 0
             http.redir_303(self.base_url
                            + "wait?key=%s&scaleR=%s&step=%s" 
                            % (self.key, scaleR, stepG))
@@ -150,7 +151,8 @@ class app(base_app):
                 grid = True
             else:
                 grid = False
-            return self.tmpl_out("params.html", step=stepG, grid=grid, scale_r=float(scaleR))
+            return self.tmpl_out("params.html", step=stepG,
+                                 grid=grid, scale_r=float(scaleR))
         else:
             # use a part of the image
             x = int(x)
@@ -270,10 +272,9 @@ class app(base_app):
         """
         # read the parameters
         scale_r = self.cfg['param']['scale_r']
-        grid_step = self.cfg['param']['grid_step']
         zoom_factor = self.cfg['param']['zoom_factor']
 
         return self.tmpl_out("result.html", 
                              scale_r=scale_r, zoom_factor=zoom_factor, 
-			     sizeY="%i" % image(self.work_dir
+                             sizeY="%i" % image(self.work_dir
                                                 + 'input.png').size[1])
