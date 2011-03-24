@@ -14,8 +14,7 @@ umask 0002
 # stop the service
 sudo $INITSCRIPT stop
 # update the source
-git checkout -f
-# remove the unused files
+git reset --hard
 git clean -fd
 # start the service
 sudo $INITSCRIPT start
