@@ -17,6 +17,7 @@
     Run again the numerical schemes with new parameters.
     <input type="hidden" name="key" value="${app.key}">
     <input type="hidden" name="newrun" value="1">
+    <input type="hidden" name="scale_r" value="${scale_r}">
     <input type="submit" value="new parameters" />
   </div>
 </form>
@@ -33,7 +34,7 @@ normalized scale R=${"%2.2f" % scale_r}, zooming factor=${"%2.2f" % zoom_factor}
       <a href="#">
 	Original
 	<span>
-	  <img src="${app.work_url + 'input.png?step=%s' % step}" />
+	  <img src="${app.work_url + 'input.png'}" />
 	</span>
       </a>
     </li>
