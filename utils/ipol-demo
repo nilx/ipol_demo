@@ -19,7 +19,7 @@ BASEDIR=/srv/ipol
 SCRIPT=${BASEDIR}/demo/demo.py
 SCRIPTNAME=${SCRIPT##*/}
 SUID=www-data
-PIDFILE=${BASEDIR}/run/demo.pid
+PIDFILE=${BASEDIR}/demo.pid
 
 test -x $SCRIPT || exit 0
 
