@@ -1,0 +1,114 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.<br />
+  You can run again this algorithm with new data.
+</p>
+
+<div class="action">
+  Restart with new input data, different parameters or different subimage:
+  <form style="display:inline;"
+	action="${app.base_url}" method="get">
+    <input type="submit" value="new input" />
+  </form>
+  %if x0 and y0 and x1 and y1:
+    <form style="display:inline;"
+	  action="${app.base_url + 'params2'}" method="get">
+      <input type="hidden" name="key" value="${app.key}">
+      <input type="hidden" name="newrun" value="1">
+      <input type="hidden" name="x0" value="${x0}">
+      <input type="hidden" name="y0" value="${y0}">
+      <input type="hidden" name="x1" value="${x1}">
+      <input type="hidden" name="y1" value="${y1}">
+      <!-- <input type="hidden" name="gammaR" value="${gammaR}">
+      <input type="hidden" name="gammaG" value="${gammaG}">
+      <input type="hidden" name="gammaB" value="${gammaB}">
+      <input type="hidden" name="gammaI" value="${gammaI}"> -->
+      <input type="submit" value="different parameter" />
+    </form>
+    <form style="display:inline;"
+	  action="${app.base_url + 'params'}" method="get">
+      <input type="hidden" name="key" value="${app.key}">
+      <input type="hidden" name="newrun" value="1">
+      <!-- <input type="hidden" name="gammaR" value="${gammaR}">
+      <input type="hidden" name="gammaG" value="${gammaG}">
+      <input type="hidden" name="gammaB" value="${gammaB}">
+      <input type="hidden" name="gammaI" value="${gammaI}"> -->
+      <input type="submit" value="different subimage" />
+    </form>
+  %else:
+    <form style="display:inline;"
+	  action="${app.base_url + 'params'}" method="get">
+      <input type="hidden" name="key" value="${app.key}">
+      <input type="hidden" name="newrun" value="1">
+      <!-- <input type="hidden" name="gammaR" value="${gammaR}">
+      <input type="hidden" name="gammaG" value="${gammaG}">
+      <input type="hidden" name="gammaB" value="${gammaB}">
+      <input type="hidden" name="gammaI" value="${gammaI}"> -->
+      <input type="submit" value="different parameters or subimage" />
+    </form>
+  %endif
+</div>
+
+<hr />
+
+  
+<h2>Results </h2>
+
+<p>
+Result 1: Color Correction on each color channel (gammaR=${gammaR}, gammaG=${gammaG}, gammaB=${gammaB}) <br />
+Result 2: Color Correction on Intensity channel (gammaI=${gammaI}) <br />
+</p>
+<div class="gallery" style="height:${sizeY}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	Original
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'input_0.sel.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color:#000;padding:10px" src="${app.work_url + 'input_0_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	Result 1
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color:#000;padding:10px" src="${app.work_url + 'output_1_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	Result 2
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color:#000;padding:10px" src="${app.work_url + 'output_2_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<!--  <pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre> -->
+
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
