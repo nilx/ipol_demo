@@ -1,27 +1,40 @@
 """
-cwinterp ipol demo web app
+Image Interpolation with Contour Stencils ipol demo web app
 """
+# pylint: disable-msg=R0904,C0103
 
 from lib import base_app, build, http
 from lib.misc import ctime
 from lib.base_app import init_app
+from lib.config import cfg_open
 import shutil
 import cherrypy
 from cherrypy import TimeoutError
 from lib import image
+import math
 import os.path
+import time
+
 
 class app(base_app):
-    """ cwinterp app """
+    """ Image Interpolation with Contour Stencils app """
 
-    title = "Image Interpolation with Contour Stencils"
+    title = 'Image Interpolation with Contour Stencils'
 
     input_nb = 1
-    input_max_pixels = 1048576 # max size (in pixels) of an input image
-    input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
-    input_dtype = '3x8i' # input image expected data type
-    input_ext = '.png' # input image expected extension (ie file format)
-    is_test = False
+    input_max_pixels = 1048576          # max size (in pixels) input image
+    input_max_weight = 3 * 1024 * 1024  # max size (in bytes) input file
+    input_dtype = '3x8i'                # input image expected data type
+    input_ext = '.png'                  # expected extension
+    is_test = False    
+    default_param = {'scalefactor': 4,  # default parameters
+             'psfsigma' : 0.35,
+             'grid' : 'centered',
+             'action' : 'Interpolate image',             
+             'x0': None,
+             'y0': None,
+             'x' : None,
+             'y' : None}
 
     def __init__(self):
         """
@@ -40,6 +53,8 @@ class app(base_app):
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
+        # Generate a new timestamp
+        self.timestamp = int(100*time.time())
 
 
     def build(self):
@@ -47,29 +62,31 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/pub/algo/" \
-            + "g_image_interpolation_with_contour_stencils/src.tar.gz"
-        tgz_file = self.dl_dir + "src.tar.gz"
-        progs = ["cwinterp", "imcoarsen", "imdiff"]
-        src_bin = dict([(self.src_dir + prog,
+        tgz_url = 'https://edit.ipol.im/pub/algo/' \
+            + 'g_image_interpolation_with_contour_stencils/src.tar.gz'
+        tgz_file = self.dl_dir + 'src.tar.gz'
+        progs = ['cwinterp', 'imcoarsen', 'imdiff', 'nninterp']
+        sub_dir = 'cwinterp-src'
+        src_bin = dict([(self.src_dir + os.path.join(sub_dir, prog),
                          self.bin_dir + prog)
                         for prog in progs])
-        log_file = self.base_dir + "build.log"
+        log_file = self.base_dir + 'build.log'
         # get the latest source archive
         build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
         if all([(os.path.isfile(bin_file)
                  and ctime(tgz_file) < ctime(bin_file))
                 for bin_file in src_bin.values()]):
-            cherrypy.log("not rebuild needed",
+            cherrypy.log('not rebuild needed',
                          context='BUILD', traceback=False)
         else:
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the programs
-            build.run("make -j4 -C %s %s --makefile=makefile.gcc"
-                      % (self.src_dir, " ".join(progs)),
-                      stdout=log_file)
+            build.run("make -C %s %s"
+                % (self.src_dir + sub_dir, " ".join(progs))
+                + " --makefile=makefile.gcc"
+                + " CXX='ccache c++' -j4", stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
@@ -79,26 +96,117 @@ class app(base_app):
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
+        
+        
+    #
+    # PARAMETER HANDLING
+    #
 
     @cherrypy.expose
     @init_app
-    def wait(self):
+    def params(self, newrun=False, msg=None):
         """
-        params handling and run redirection
+        Configure the algo execution
+        """
+        if newrun:            
+            old_work_dir = self.work_dir
+            self.clone_input()
+            # Keep old parameters
+            self.cfg['param'] = cfg_open(old_work_dir 
+                + 'index.cfg', 'rb')['param']
+            # Also need to clone input_0_sel.png in case the user is running
+            # with new parameters but on the same subimage.
+            shutil.copy(old_work_dir + 'input_0_sel.png',
+                self.work_dir + 'input_0_sel.png')
+
+        # Set undefined parameters to default values
+        self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
+        # Generate a new timestamp
+        self.timestamp = int(100*time.time())
+        
+        # Reset cropping parameters if running with a different subimage
+        if msg == 'different subimage':
+            self.cfg['param']['x0'] = None
+            self.cfg['param']['y0'] = None
+            self.cfg['param']['x'] = None
+            self.cfg['param']['y'] = None
+        
+        self.cfg.save()
+        return self.tmpl_out('params.html')
+
+
+    @cherrypy.expose
+    @init_app
+    def wait(self, **kwargs):
+        """
+        Params handling and run redirection
         as a special case, we have no parameter to check and pass
         """
-        http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html")
+
+        # Read webpage parameters from kwargs, but only those that 
+        # are defined in the default_param dict.  If a parameter is not
+        # defined by kwargs, the value from default_param is used.
+        self.cfg['param'] = dict(self.default_param.items() + 
+            [(p,kwargs[p]) for p in self.default_param.keys() if p in kwargs])
+        # Generate a new timestamp
+        self.timestamp = int(100*time.time())
+        
+        # Validate scalefactor and psfsigma
+        if not (1 <= float(self.cfg['param']['scalefactor']) <= 8) \
+            or not (0 <= float(self.cfg['param']['psfsigma']) <= 1):
+            return self.error(errcode='badparams') 
+        
+        if not 'action' in kwargs:
+            # Select a subimage
+            x = self.cfg['param']['x']
+            y = self.cfg['param']['y']
+            x0 = self.cfg['param']['x0']
+            y0 = self.cfg['param']['y0']
+            
+            if x != None and y != None:
+                img = image(self.work_dir + 'input_0.png')
+                
+                if x0 == None or y0 == None:
+                    # (x,y) specifies the first corner
+                    (x0, y0, x, y) = (int(x), int(y), None, None)
+                    # Draw a cross at the first corner
+                    img.draw_cross((x0, y0), size=4, color="white")
+                    img.draw_cross((x0, y0), size=2, color="red")
+                else:
+                    # (x,y) specifies the second corner
+                    (x0, x) = sorted((int(x0), int(x)))
+                    (y0, y) = sorted((int(y0), int(y)))
+                    assert (x - x0) > 0 and (y - y0) > 0
+                    # Crop the image
+                    img.crop((x0, y0, x, y))
+                    
+                img.save(self.work_dir + 'input_0_sel.png')
+                self.cfg['param']['x0'] = x0
+                self.cfg['param']['y0'] = y0
+                self.cfg['param']['x'] = x
+                self.cfg['param']['y'] = y
+                
+            self.cfg.save()
+            return self.tmpl_out('params.html')
+        else:
+            if any(self.cfg['param'][p] == None \
+                for p in ['x0', 'y0', 'x', 'y']):
+                img0 = image(self.work_dir + 'input_0.png')
+                img0.save(self.work_dir + 'input_0_sel.png')
+            
+            self.cfg.save()
+            http.refresh(self.base_url + 'run?key=%s' % self.key)            
+            return self.tmpl_out("wait.html")
+
 
     @cherrypy.expose
     @init_app
     def run(self):
         """
-        algorithm execution
+        Algorithm execution
         """
         try:
-            self.run_algo(stdout=open(self.work_dir + 'stdout.txt', 'w'),
-                          timeout=self.timeout)
+            self.run_algo(stdout=open(self.work_dir + 'stdout.txt', 'w'))
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -106,65 +214,205 @@ class app(base_app):
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
-        # archive
+        # Archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.orig.png", "original.png", info="uploaded")
-            ar.add_file("input_0.png", "input.png", info="input")
-            ar.add_file("coarsened_zoom.png", info="coarsened")
-            ar.add_file("interpolated.png", info="output")
-            ar.add_file("contour.png", info="contour")
+            ar.add_file('input_0.png', 'input.png')
+            ar.add_file('input_0_sel.png', info='Selected subimage')
+            ar.add_file('interpolated.png', info='Interpolation') 
+            ar.add_file('contour.png', info='Estimated contours')
+            ar.add_info({'action': self.cfg['param']['action'], 
+                'scalefactor': self.cfg['param']['scalefactor'], 
+                'psfsigma': self.cfg['param']['psfsigma']})
+                
+            if self.cfg['param']['action'] != self.default_param['action']:
+                ar.add_file('coarsened.png', info='Coarsened image')
+                ar.add_file('coarsened_zoom.png')
+                ar.add_file('difference.png', info='Difference image')
+            else:
+                ar.add_file('input_0_zoom.png')
+                        
             ar.save()
 
-        return self.tmpl_out("run.html")
+        return self.tmpl_out('run.html')
 
 
-    def run_algo(self, stdout=None, timeout=False):
+    def run_algo(self, stdout=None):
         """
-        the core algo runner
+        The core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
-        # check image dimensions (must be divisible by 4)
-        img0 = image(self.work_dir + 'input_0.png')
-        (sizeX, sizeY) = img0.size
-        if (sizeX % 4 or sizeY % 4):
-            sizeX = (sizeX / 4) * 4
-            sizeY = (sizeY / 4) * 4
-            img0.crop((0, 0, sizeX, sizeY))       
-            img0.save(self.work_dir + 'input_0.png')
+        
+        timeout = False
+        scalefactor = float(self.cfg['param']['scalefactor'])
+        img = image(self.work_dir + 'input_0_sel.png')
+        (sizeX, sizeY) = img.size
+        p = {}
+        
+        if self.cfg['param']['action'] == self.default_param['action']:
+            # In this run mode, the interpolation is performed directly on the
+            # selected image, and the estimated contours are also shown.
+            
+            # If the image dimensions are small, zoom the displayed results.
+            # This value is always at least 1.
+            displayzoom = int(math.ceil(400.0/(scalefactor*max(sizeX, sizeY))))
+            # Check that interpolated image dimensions are not too large
+            cropsize = (min(sizeX, int(800/scalefactor)),
+                min(sizeY, int(800/scalefactor)))
+            
+            if (sizeX, sizeY) != cropsize:
+                (x0, y0) = (int(math.floor((sizeX - cropsize[0])/2)),
+                    int(math.floor((sizeY - cropsize[1])/2)))
+                img.crop((x0, y0, x0 + cropsize[0], y0 + cropsize[1]))
+                img.save(self.work_dir + 'input_0_sel.png')
+            
+            p = {
+                # Perform the actual contour stencil interpolation
+                'interp' : 
+                    self.run_proc(['cwinterp',
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor), 
+                    '-p', str(self.cfg['param']['psfsigma']),
+                    'input_0_sel.png', 'interpolated.png'],
+                    stdout=stdout, stderr=stdout),
+                    
+                # For display, create a nearest neighbor zoomed version of the
+                # input. nninterp does nearest neighbor interpolation on 
+                # precisely the same grid so that displayed images are aligned.
+                'inputzoom' : 
+                    self.run_proc(['nninterp',
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor*displayzoom), 
+                    'input_0_sel.png', 'input_0_zoom.png'],
+                    stdout=stdout, stderr=stdout),
+                    
+                # Generate an image showing the estimated contour orientations
+                'contour' : 
+                    self.run_proc(['cwinterp', '-s', 
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor*displayzoom), 
+                    '-p', str(self.cfg['param']['psfsigma']),
+                    'input_0_sel.png', 'contour.png'],
+                    stdout=stdout, stderr=stdout)
+                }
+            
+            if displayzoom > 1:
+                self.wait_proc(p['interp'], timeout)
+                p['interpzoom'] = self.run_proc(['nninterp',
+                    '-g', 'centered',
+                    '-x', str(displayzoom), 
+                    'interpolated.png', 'interpolated_zoom.png'],
+                    stdout=stdout, stderr=stdout)
+        else:
+            # In this run mode, the selected image is coarsened, interpolated
+            # and compared with the original.
+            
+            # If the image dimensions are small, zoom the displayed results.
+            # This value is always at least 1.
+            displayzoom = int(math.ceil(350.0/max(sizeX, sizeY)))
+            displaysize = (displayzoom*sizeX, displayzoom*sizeY)
+            
+            # Coarsen the image
+            p['coarsened'] = self.run_proc(['imcoarsen', 
+                '-g', self.cfg['param']['grid'],
+                '-x', str(scalefactor), 
+                '-p', str(self.cfg['param']['psfsigma']),
+                'input_0_sel.png', 'coarsened.png'])
+            
+            if displayzoom > 1:
+                p['exactzoom'] = self.run_proc(['nninterp',
+                    '-g', 'centered',
+                    '-x', str(displayzoom), 
+                    'input_0_sel.png', 'input_0_sel_zoom.png'],
+                    stdout=stdout, stderr=stdout)
+            
+            # Perform the actual contour stencil interpolation
+            self.wait_proc(p['coarsened'], timeout)
+            p['interpolated'] = self.run_proc(['cwinterp', 
+                '-g', self.cfg['param']['grid'],
+                '-x', str(scalefactor), 
+                '-p', str(self.cfg['param']['psfsigma']),
+                'coarsened.png', 'interpolated.png'],
+                stdout=stdout, stderr=stdout)
+            
+            # Generate an image showing the estimated contour orientations
+            p['contour'] = self.run_proc(['cwinterp', '-s', 
+                '-g', self.cfg['param']['grid'],
+                '-x', str(scalefactor*displayzoom), 
+                '-p', str(self.cfg['param']['psfsigma']),
+                'coarsened.png', 'contour.png'],
+                stdout=stdout, stderr=stdout)
 
-        a = 4
-        b = 0.35
-        p = self.run_proc(['imcoarsen', str(a), str(b),
-                           'input_0.png', 'coarsened.png'],
-                          stdout=stdout, stderr=stdout)
-        self.wait_proc(p, timeout / 6)
-
-        p2 = self.run_proc(['cwinterp', 'coarsened.png', 'interpolated.png'],
-                          stdout=stdout, stderr=stdout)
-        p4 = self.run_proc(['cwinterp', '-s', 'coarsened.png',
-                            'contour.png'],
-                           stdout=stdout, stderr=stdout)
-        self.wait_proc(p2, timeout * 4 / 6)
-
-        p3 = self.run_proc(['imdiff', 'input_0.png', 'interpolated.png'],
-                          stdout=stdout, stderr=stdout)
-        self.wait_proc([p3, p4], timeout / 6)
-
-        img1 = image(self.work_dir + 'coarsened.png')
-        img1.resize((sizeX, sizeY), method="nearest")
-        img1.save(self.work_dir + 'coarsened_zoom.png')
-
+            # For display, create a nearest neighbor zoomed version of the
+            # coarsened image.  nninterp does nearest neighbor interpolation 
+            # on precisely the same grid as cwinterp so that displayed images
+            # are aligned.
+            p['coarsened_zoom'] = self.run_proc(['nninterp',
+                '-g', self.cfg['param']['grid'],
+                '-x', str(scalefactor*displayzoom), 
+                'coarsened.png', 'coarsened_zoom.png'],
+                stdout=stdout, stderr=stdout)
+                        
+            # Because of rounding, the interpolated image dimensions might be 
+            # slightly larger than the original image.  For example, if the 
+            # input is 100x100 and the scale factor is 3, then the coarsened 
+            # image has size 34x34, and the interpolation has size 102x102.
+            # The following crops the results if necessary.
+            self.wait_proc([p['coarsened_zoom'], p['contour']], timeout)
+            img = image(self.work_dir + 'coarsened_zoom.png')
+            
+            if displaysize != img.size:
+                img.crop((0, 0, displaysize[0], displaysize[1]))
+                img.save(self.work_dir + 'coarsened_zoom.png')
+                img = image(self.work_dir + 'contour.png')
+                img.crop((0, 0, displaysize[0], displaysize[1]))
+                img.save(self.work_dir + 'contour.png')
+            
+            self.wait_proc(p['interpolated'], timeout)
+            img = image(self.work_dir + 'interpolated.png')
+            
+            if (sizeX, sizeY) != img.size:
+                img.crop((0, 0, sizeX, sizeY))
+                img.save(self.work_dir + 'interpolated.png')
+                        
+            # Generate difference image
+            p['difference'] = self.run_proc(['imdiff', 
+                'input_0_sel.png', 'interpolated.png', 'difference.png'],
+                stdout=stdout, stderr=stdout)
+            # Compute maximum difference, PSNR, and MSSIM
+            p['metrics'] = self.run_proc(['imdiff', 
+                'input_0_sel.png', 'interpolated.png'],
+                stdout=stdout, stderr=stdout)
+            
+            if displayzoom > 1:
+                p['interpzoom'] = self.run_proc(['nninterp',
+                    '-g', 'centered',
+                    '-x', str(displayzoom), 
+                    'interpolated.png', 'interpolated_zoom.png'],
+                    stdout=stdout, stderr=stdout)
+                self.wait_proc(p['difference'], timeout)
+                p['differencezoom'] = self.run_proc(['nninterp',
+                    '-g', 'centered',
+                    '-x', str(displayzoom), 
+                    'difference.png', 'difference_zoom.png'],
+                    stdout=stdout, stderr=stdout)
+        
+        self.cfg['param']['displayzoom'] = displayzoom
+        self.cfg.save()
+        # Wait for all processes to complete 
+        self.wait_proc(p.values(), timeout)
         return
 
     @cherrypy.expose
     @init_app
-    def result(self):
+    def result(self, public=None):
         """
-        display the algo results
+        Display the algo results
         SHOULD be defined in the derived classes, to check the parameters
         """
-        return self.tmpl_out("result.html", 
-                             height=image(self.work_dir
-                                          + 'input_0.png').size[1])
+        self.timestamp = int(100*time.time())
+        return self.tmpl_out("result.html",                           
+            height = max(185,image(self.work_dir + 'interpolated.png').size[1]
+                * self.cfg['param']['displayzoom']),
+            stdout = open(self.work_dir + 'stdout.txt', 'r').read())
