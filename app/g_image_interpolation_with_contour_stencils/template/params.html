@@ -60,14 +60,14 @@ for no deconvolution.</p>
 <div style="float:left; text-align:center; padding-bottom:15px; padding-left:50px; padding-right:50px">
     <img src="http://www.ipol.im/pub/algo/g_image_interpolation_with_contour_stencils/demo-1.png" width="109" height="55"
         style="padding-bottom:25px" alt="" /><br />
-    <i>Interpolate image</i>
+    <i>${app.default_param['action']}</i>
 </div>
 <div style="float:left; text-align:center;">
     <img src="http://www.ipol.im/pub/algo/g_image_interpolation_with_contour_stencils/demo-2.png" width="148" height="80" alt="" /><br />
     <i>Coarsen, interpolate, and compare</i>
 </div>
 
-<p style="clear:both">&ldquo;Interpolate image&rdquo; directly interpolates the selected image.</p>
+<p style="clear:both">&ldquo;${app.default_param['action']}&rdquo; directly interpolates the selected image.</p>
 
 <p>With &ldquo;Coarsen, interpolate, and compare,&rdquo; the image is coarsened to create the input 
 image according to <i>input</i>&nbsp;=&nbsp;&darr;(<i>h</i>&nbsp;&lowast;&nbsp;<i>original</i>).
@@ -82,7 +82,7 @@ tar.gz</a></p>
 
 <p style="margin-bottom:5px">You can run the algorithm in two different ways.</p>
 <div style="float:left; text-align:center; padding-left:30px; padding-right:25px">
-    <input type="submit" name="action" value="Interpolate image" />
+    <input type="submit" name="action" value="${app.default_param['action']}" />
 </div>
 <div style="float:left; text-align:center;">
     <input type="submit" name="action" value="Coarsen, interpolate, and compare" />
@@ -90,27 +90,25 @@ tar.gz</a></p>
 
 <div style="clear:both; font-size:8pt">&nbsp;</div>
 
-%if app.cfg['param']['cropped'] == 'false':
-    %if not ('x0' in app.cfg['param'] and 'y0' in app.cfg['param']):
-        <p style="margin-top:0px">Or you can run it after selecting a subimage by clicking two 
-        opposite corners of the subimage.</p>        
-        <p><input type="hidden" name="cropped" value="false" />
-        <input type="image" style="cursor:crosshair;" name=""
-            src="${app.work_url + 'input_0.png'}" /></p>
-    %else:
-        <p style="margin-top:0px">Please select the second corner of the subimage:</p>
-        <p><input type="hidden" name="cropped" value="false" />
-        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
-        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
-        <input type="image" style="cursor:crosshair;" name=""
-            src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" /></p>
-    %endif    
+%if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
+    <p>Or you can run it after selecting a subimage by clicking two 
+    opposite corners of the subimage.</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+        src="${app.work_url + 'input_0.png'}" /></p>
+%elif app.cfg['param']['x'] == None or app.cfg['param']['y'] == None:
+    <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+    <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+    <p>Please select the second corner of the subimage:</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+        src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" /></p>
 %else:
-    <p style="margin-top:0px">The algorithm will run on this selected subimage:</p>
-    <p><input type="hidden" name="cropped" value="true" />
-    <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" /></p>
+    <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+    <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+    <input type="hidden" name="x" value="${app.cfg['param']['x']}" />
+    <input type="hidden" name="y" value="${app.cfg['param']['y']}" />
+    <p>The algorithm will run on this selected subimage:</p>
+    <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
 %endif
-
 
 </form>
 
