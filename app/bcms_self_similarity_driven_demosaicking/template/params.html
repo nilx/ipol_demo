@@ -1,14 +1,14 @@
 <%include file="header.html" />
 
-<p>
+
+<p> 
 The algorithm is run in 2 steps:
-</p>
-<p>
-1) A Bayer pattern mosaic is extracted from the input image.
-</p>
-<p>
-2) The demosaicking algorithm is used to reconstruct the original image.
-</p>
+<ol>
+<li> a Bayer pattern mosaic is extracted from the input image;</li>
+<li> the demosaicking algorithm is used to reconstruct the original
+  image.</li> 
+</ol>
+</p> 
 
 
 <br>
@@ -17,11 +17,10 @@ The algorithm is run in 2 steps:
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
 First you have to choose one of the following mosaic patterns: 
-    RGGB <img src="${app.input_url + 'bayer_RGGB.png'}" />,
-    GRBG <img src="${app.input_url + 'bayer_GRBG.png'}" />,
-    GBRG <img src="${app.input_url + 'bayer_GBRG.png'}" />,
-    BGGR <img src="${app.input_url + 'bayer_BGGR.png'}" />
-   
+    RGGB <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_RGGB.png" />,
+    GRBG <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_GRBG.png" />,
+    GBRG <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_GBRG.png" />,
+    BGGR <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_BGGR.png" />
     <select name="pattern">
       %if pattern:	
         %if pattern == 'RGGB':	 

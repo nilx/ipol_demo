@@ -11,6 +11,8 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import time
+from math import ceil
+from PIL import Image
 
 class app(base_app):
     """ self-similarity driven demosaicking app """
@@ -48,9 +50,9 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "bcms_self_similarity_driven_demosaicking/src.tgz"
-        tgz_file = self.dl_dir + "src.tgz"
-        progs = ["mosaic", "demosaic", "imgdiff"]
+            + "bcms_self_similarity_driven_demosaicking/src.tar.gz"
+        tgz_file = self.dl_dir + "src.tar.gz"
+        progs = ["mosaic", "demosaickingIpol", "imgdiff"]
         src_bin = dict([(self.src_dir + os.path.join("src", prog),
                          self.bin_dir + prog)
                         for prog in progs])
@@ -243,6 +245,8 @@ class app(base_app):
 	    print "Run time error"
             return self.error(errcode='runtime')
 
+ 	stdout.close();
+
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
@@ -275,14 +279,14 @@ class app(base_app):
         self.wait_proc(p, timeout*0.2)
 
 	#demosaic image
-        p1 = self.run_proc(['demosaic', 'input_1.tiff', 'output_1.tiff', pattern],
+        p1 = self.run_proc(['demosaickingIpol', 'input_1.tiff', 'output_1.tiff', pattern],
                            stdout=None, stderr=None)
         self.wait_proc(p1, timeout*0.7)
 
 	#compute image differences
 	D=20
         p2 = self.run_proc(['imgdiff', 'input_0.sel.tiff', 'output_1.tiff', str(D), 'output_2.tiff'],
-                           stdout=None, stderr=None)
+                           stdout=stdout, stderr=stdout)
         self.wait_proc(p2, timeout*0.1)
 
 	#convert results to PNG format
@@ -293,7 +297,7 @@ class app(base_app):
 	im = image(self.work_dir + 'output_2.tiff')
         im.save(self.work_dir + 'output_2.png')
 
-
+	
     @cherrypy.expose
     @init_app
     def result(self):
@@ -321,9 +325,36 @@ class app(base_app):
         except KeyError:
 	  y1=None
 
+	(sizeX, sizeY)=image(self.work_dir + 'input_0.sel.png').size
+	# Resize for visualization (new size of the smallest dimension = 200)
+	zoom_factor=None
+	if (sizeX < 200) or (sizeY < 200):
+	  if sizeX > sizeY:
+	    zoom_factor=int(ceil(200.0/sizeY));
+	  else:
+	    zoom_factor=int(ceil(200.0/sizeX));
+
+	  sizeX=sizeX*zoom_factor
+	  sizeY=sizeY*zoom_factor
+
+	  im=image(self.work_dir + 'input_0.sel.png');
+	  im.resize((sizeX, sizeY), method="pixeldup")
+	  im.save(self.work_dir + 'input_0_zoom.sel.png')
+
+	  im=image(self.work_dir + 'input_1.png');
+	  im.resize((sizeX, sizeY), method="pixeldup")
+	  im.save(self.work_dir + 'input_1_zoom.png')
+
+	  im=image(self.work_dir + 'output_1.png');
+	  im.resize((sizeX, sizeY), method="pixeldup")
+	  im.save(self.work_dir + 'output_1_zoom.png')
+
+	  im=image(self.work_dir + 'output_2.png');
+	  im.resize((sizeX, sizeY), method="pixeldup")
+	  im.save(self.work_dir + 'output_2_zoom.png')
+
         return self.tmpl_out("result.html", pattern=pattern, x0=x0, y0=y0, x1=x1, y1=y1,
-                             sizeY="%i" % image(self.work_dir 
-                                                + 'input_0.sel.png').size[1])
+                             sizeY=sizeY, zoom_factor=zoom_factor)
 
 
 
