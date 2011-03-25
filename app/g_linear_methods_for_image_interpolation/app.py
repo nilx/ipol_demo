@@ -14,7 +14,7 @@ from lib import image
 import math
 import os.path
 import time
-
+import string
 
 class app(base_app):
     """ Linear Methods for Image Interpolation app """
@@ -37,7 +37,7 @@ class app(base_app):
     # For display in params.html
     methodcolumnbreaks = ['Lanczos 2', 'B-Spline 2', 'o-Moms 3']
     # The method identifier (lowercase with no spaces, dashes, etc.)
-    methodidentifiers = [m.lower().translate(None, ' -/&') 
+    methodidentifiers = [m.lower().translate(string.maketrans('', ''), ' -/&') 
         for m in methodtitles]
     # Make a list of dictionaries 
     methods = [{'title' : m, 'identifier' : mid} 
