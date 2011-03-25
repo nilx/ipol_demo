@@ -11,6 +11,9 @@ import gzip
 import sqlite3
 import cPickle as pickle
 import cherrypy
+import stat
+
+S_644 = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
 
 from . import config
 from .image import thumbnail
@@ -79,7 +82,7 @@ class bucket(object):
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
         # read or init config dictionary
-        self.cfg = config.file_dict(self.path)
+        self.cfg = config.file_dict(self.path, mode=S_644)
         if not (self.cfg.has_key('info')
                 and self.cfg.has_key('fileinfo')
                 and self.cfg.has_key('meta')

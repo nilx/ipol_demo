@@ -90,9 +90,9 @@ class file_dict(dict):
             os.remove(tempname)
             raise
         outfile.close()
-        shutil.move(tempname, self.filename)    # atomic commit
         if self.mode is not None:
-            os.chmod(self.filename, self.mode)
+            os.chmod(tempname, self.mode)
+        shutil.move(tempname, self.filename)    # atomic commit
 
     def dump(self, outfile):
         """
