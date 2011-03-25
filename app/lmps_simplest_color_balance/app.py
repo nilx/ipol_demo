@@ -47,10 +47,10 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "https://edit.ipol.im/pub/algo/" \
-            + "lmps_simplest_color_balance/simplest_color_balanceB.tar.gz"
-        tgz_file = self.dl_dir + "simplest_color_balanceB.tar.gz"
-        progs = ["normalize_histo", "normalize_sort"]
-        src_bin = dict([(self.src_dir + os.path.join("simplest_color_balanceB", prog),
+            + "lmps_simplest_color_balance/simplest_color_balance.tar.gz"
+        tgz_file = self.dl_dir + "simplest_color_balance.tar.gz"
+        progs = ["normalize_histo"]
+        src_bin = dict([(self.src_dir + os.path.join("simplest_color_balance", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -67,7 +67,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "simplest_color_balanceB", " ".join(progs)),
+                      % (self.src_dir + "simplest_color_balance", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
@@ -84,7 +84,6 @@ class app(base_app):
     #
     # PARAMETER HANDLING
     #
-
 
     @cherrypy.expose
     @init_app
@@ -153,6 +152,20 @@ class app(base_app):
         self.wait_proc(p, timeout)
 
 
+	"""
+	Compute histograms of images
+	"""
+	im=image(self.work_dir + 'input_0.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'input_0_hist.png')
+	im=image(self.work_dir + 'output_1.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'output_1_hist.png')
+	im=image(self.work_dir + 'output_2.png');
+	im.histogram(option="all")
+	im.save(self.work_dir + 'output_2_hist.png')
+	
+
     @cherrypy.expose
     @init_app
     def result(self):
@@ -161,9 +174,13 @@ class app(base_app):
         """
         # read the parameters
         s = self.cfg['param']['s']
+	sizeY=image(self.work_dir + 'input_0.png').size[1]
+	sizeYhist=image(self.work_dir + 'input_0_hist.png').size[1]
+	#add 20 pixels to the histogram size to take margin into account
+	sizeYmax=max(sizeY, sizeYhist+20)
+
         return self.tmpl_out("result.html", s=s,
-                             sizeY="%i" % image(self.work_dir 
-                                                + 'input_0.png').size[1])
+                             sizeY="%i" % sizeYmax)
 
 
 

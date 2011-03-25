@@ -22,10 +22,10 @@
 
 <hr />
 
-<h2>Results (s=${s})</h2>
-<p>
+<h2>Results (s=${s}%)</h2>
+<!-- <p>
 Result 1: Simplest Color Balance (histogram method) on each color channel <br />
-Result 2: Simplest Color Balance (histogram method) on Intensity channel  <br />
+Result 2: Simplest Color Balance (histogram method) on Intensity channel  <br /> -->
 </p>
 <div class="gallery" style="height:${sizeY}px;">
   <ul class="index">
@@ -33,23 +33,44 @@ Result 2: Simplest Color Balance (histogram method) on Intensity channel  <br />
       <a href="#">
 	Original
 	<span>
-	  <img src="${app.work_url + 'input_0.png'}" />
+	  <!-- <img style="vertical-align:top" src="${app.work_url + 'input_0.png'}" />
+	  <img style="vertical-align:top" src="${app.work_url + 'input_0_hist.png'}" /> -->
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'input_0.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color:#000;padding:10px" src="${app.work_url + 'input_0_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span> 
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	Color Balance
+	<span>
+	  <!-- <img style="vertical-align:top" src="${app.work_url + 'output_1.png'}" />
+	  <img style="vertical-align:top" src="${app.work_url + 'output_1_hist.png'}" /> --->
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color:#000;padding:10px" src="${app.work_url + 'output_1_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
 	</span>
       </a>
     </li>
     <li>
       <a href="#">
-	Result 1
+	Grey Level Balance
 	<span>
-	  <img src="${app.work_url + 'output_1.png'}" />
-	</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	Result 2
-	<span>
-	  <img src="${app.work_url + 'output_2.png'}" />
+	  <!-- <img style="vertical-align:top" src="${app.work_url + 'output_2.png'}" />
+	  <img style="vertical-align:top" src="${app.work_url + 'output_2_hist.png'}" /> -->
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color:#000;padding:10px" src="${app.work_url + 'output_2_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
 	</span>
       </a>
     </li>
