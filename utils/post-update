@@ -5,7 +5,11 @@
 set -e
 set -x
 
-TMPDIR=/media/tmp
+# use ccache if available
+export PATH="/usr/lib/ccache:$PATH"
+export CCACHE_DIR=/srv/ipol/ccache
+
+# system init script for the demo
 INITSCRIPT=/etc/init.d/ipol-demo
 
 # folders should be group-writable
