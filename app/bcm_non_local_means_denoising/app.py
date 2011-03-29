@@ -51,10 +51,10 @@ class app(base_app):
 
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "bcm_non_local_means_denoising/src.tgz"
-        tgz_file = self.dl_dir + "src.tgz"
-        progs = ["addnoise", "estnoise", "denoise", "diffnoise"]
-        src_bin = dict([(self.src_dir + os.path.join("src", prog),
+            + "bcm_non_local_means_denoising/nlmeansB.tar.gz"
+        tgz_file = self.dl_dir + "nlmeansB.tar.gz"
+        progs = ["nlmeans_ipol", "img_diff_ipol",  "img_mse_ipol"]
+        src_bin = dict([(self.src_dir + os.path.join("nlmeansB", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -72,7 +72,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "src", " ".join(progs)),
+                      % (self.src_dir + "nlmeansB", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
@@ -255,8 +255,8 @@ class app(base_app):
             ar = self.make_archive()
             ar.add_file("input_0.orig.png", info="uploaded image")
             ar.add_file("input_0.sel.png", info="selected subimage")
-            ar.add_file("input_1.png", info="mosaicked image")
-            ar.add_file("output_1.png", info="demosaicked image")
+            ar.add_file("input_1.png", info="noisy image")
+            ar.add_file("output_1.png", info="denoised image")
             ar.add_file("output_2.png", info="difference image")
             ar.add_info({"sigma": sigma})
             ar.save()
@@ -270,46 +270,23 @@ class app(base_app):
         this one needs no parameter
         """
 
-	#convert image to TIFF format
-	im = image(self.work_dir + 'input_0.sel.png')
-        im.save(self.work_dir + 'input_0.sel.tiff')
 
-	#noisy image
-        p = self.run_proc(['addnoise', 'input_0.sel.tiff', 'input_1.tiff', str(sigma)],
+	#noisy and denoised images
+        p = self.run_proc(['nlmeans_ipol', 'input_0.sel.png', str(sigma), 'input_1.png', 'output_1.png'],
                            stdout=None, stderr=None)
-        self.wait_proc(p, timeout*0.1)
+        self.wait_proc(p, timeout*0.8)
 
-	#estimate noise
-        p1 = self.run_proc(['estnoise', 'input_1.tiff'],
-                           stdout=stdout, stderr=None)
-
-	#denoise image
-	if im.im.mode == 'RGB':
-            p2 = self.run_proc(['denoise', 'input_1.tiff', 'output_1.tiff', str(sigma), str(sigma), str(sigma)],
-                                 stdout=None, stderr=None)
-	else:
-            p2 = self.run_proc(['denoise', 'input_1.tiff', 'output_1.tiff', str(sigma)],
-                                 stdout=None, stderr=None)
-
-        self.wait_proc([p1, p2], timeout*0.8)
 
 	#compute image differences
-	if im.im.mode == 'RGB':
-            p3 = self.run_proc(['diffnoise', 'input_0.sel.tiff', 'output_1.tiff', 'output_2.tiff', str(sigma), str(sigma), str(sigma)],
-                               stdout=stdout, stderr=stdout)
-	else:
-            p3 = self.run_proc(['diffnoise', 'input_0.sel.tiff', 'output_1.tiff', 'output_2.tiff', str(sigma)],
-                               stdout=stdout, stderr=stdout)
+        p2 = self.run_proc(['img_diff_ipol', 'input_0.sel.png', 'output_1.png', str(sigma), 'output_2.png'],
+                               stdout=None, stderr=None)
 
-        self.wait_proc(p3, timeout*0.1)
+	#estimate MSE and PSNR
+        p3 = self.run_proc(['img_mse_ipol', 'input_0.sel.png', 'output_1.png'],
+                               stdout=stdout, stderr=None)
 
-	#convert results to PNG format
-	im = image(self.work_dir + 'input_1.tiff')
-        im.save(self.work_dir + 'input_1.png')
-	im = image(self.work_dir + 'output_1.tiff')
-        im.save(self.work_dir + 'output_1.png')
-	im = image(self.work_dir + 'output_2.tiff')
-        im.save(self.work_dir + 'output_2.png')
+        self.wait_proc([p2, p3], timeout*0.2)
+
 
 	
     @cherrypy.expose
@@ -369,6 +346,7 @@ class app(base_app):
 
         return self.tmpl_out("result.html", sigma=sigma, x0=x0, y0=y0, x1=x1, y1=y1,
                              sizeY=sizeY, zoom_factor=zoom_factor)
+
 
 
 
