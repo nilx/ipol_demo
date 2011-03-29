@@ -142,12 +142,12 @@ class app(base_app):
                                '-r72','-dEPSCrop','-sOutputFile=output.png',
                                'output.eps'])
             self.wait_proc(p, timeout/2)
+            im = image(self.work_dir + "output.png")
+            im.invert()
+            im.save(self.work_dir + "output.png")
         except OSError:
             self.log("eps->png conversion failed,"
                      + " gs is probably missing on this system")
-        im = image(self.work_dir + "output.png")
-        im.invert()
-        im.save(self.work_dir + "output.png")
         return
 
     @cherrypy.expose
