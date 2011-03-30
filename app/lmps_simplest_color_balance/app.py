@@ -47,10 +47,10 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "https://edit.ipol.im/pub/algo/" \
-            + "lmps_simplest_color_balance/simplest_color_balance.tar.gz"
-        tgz_file = self.dl_dir + "simplest_color_balance.tar.gz"
+            + "lmps_simplest_color_balance/simplest_color_balanceD.tar.gz"
+        tgz_file = self.dl_dir + "simplest_color_balanceD.tar.gz"
         progs = ["normalize_histo"]
-        src_bin = dict([(self.src_dir + os.path.join("simplest_color_balance", prog),
+        src_bin = dict([(self.src_dir + os.path.join("simplest_color_balanceD", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -67,7 +67,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "simplest_color_balance", " ".join(progs)),
+                      % (self.src_dir + "simplest_color_balanceD", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
@@ -84,19 +84,30 @@ class app(base_app):
     #
     # PARAMETER HANDLING
     #
+    @cherrypy.expose
+    @init_app
+    def params(self, newrun=False, msg=None, s1="1.5", s2="1.5"):
+        """
+        configure the algo execution
+        """
+        if newrun:
+            self.clone_input()
+
+        return self.tmpl_out("params.html", msg=msg, s1=s1, s2=s2)
 
     @cherrypy.expose
     @init_app
-    def wait(self, s="3.0"):
+    def wait(self, s1="1.5", s2="1.5"):
         """
         params handling and run redirection
         """
         # save and validate the parameters
-	if (float(s) < 0) or (float(s) > 100.0) :
+	if (float(s1) > 100.0-float(s2)) or (float(s1) < 0) or (float(s1) > 100.0) or (float(s2) < 0) or (float(s2) > 100.0):
 	  return self.error(errcode='badparams',
-                              errmsg="s must be a value between 0.0 and 100.0")
+                              errmsg="s1 and s2 must be a value between 0.0 and 100.0. s1 must be smaller than 100-s2")
         try:
-            self.cfg['param'] = {'s' : float(s)}
+            self.cfg['param'] = {'s1' : float(s1), 
+				 's2' : float(s2)}
             self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
@@ -112,12 +123,13 @@ class app(base_app):
         algorithm execution
         """
         # read the parameters
-        s = self.cfg['param']['s']
+        s1 = self.cfg['param']['s1']
+        s2 = self.cfg['param']['s2']
         # run the algorithm
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(s, stdout=stdout, timeout=self.timeout)
+            self.run_algo(s1, s2, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
@@ -134,19 +146,20 @@ class app(base_app):
             ar.add_file("input_0.png", info="original image")
             ar.add_file("output_1.png", info="result image 1 (RGB)")
             ar.add_file("output_2.png", info="result image 2 (I)")
-            ar.add_info({"s": s})
+            ar.add_info({"s1": s1})
+            ar.add_info({"s2": s2})
             ar.save()
 
         return self.tmpl_out("run.html")
 
-    def run_algo(self, s, stdout=None, timeout=False):
+    def run_algo(self, s1, s2, stdout=None, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
 
-        p = self.run_proc(['normalize_histo', str(s), 'input_0.png',
+        p = self.run_proc(['normalize_histo', str(s1), str(s2), 'input_0.png',
                             'output_1.png', 'output_2.png'],
                            stdout=None, stderr=None)
         self.wait_proc(p, timeout)
@@ -173,13 +186,14 @@ class app(base_app):
         display the algo results
         """
         # read the parameters
-        s = self.cfg['param']['s']
+        s1 = self.cfg['param']['s1']
+        s2 = self.cfg['param']['s2']
 	sizeY=image(self.work_dir + 'input_0.png').size[1]
 	sizeYhist=image(self.work_dir + 'input_0_hist.png').size[1]
 	#add 20 pixels to the histogram size to take margin into account
 	sizeYmax=max(sizeY, sizeYhist+20)
 
-        return self.tmpl_out("result.html", s=s,
+        return self.tmpl_out("result.html", s1=s1, s2=s2,
                              sizeY="%i" % sizeYmax)
 
 
