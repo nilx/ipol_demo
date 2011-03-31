@@ -58,7 +58,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        tgz_url = 'https://edit.ipol.im/edit/algo/' \
+        tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_zhang_wu_lmmse_image_demosaicking/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['dmzhangwu', 'dmbilinear', 'mosaic', 'imdiff']

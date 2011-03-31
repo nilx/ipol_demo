@@ -85,7 +85,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        tgz_url = 'https://edit.ipol.im/edit/algo/' \
+        tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_linear_methods_for_image_interpolation/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['linterp', 'imcoarsen', 'imdiff']
