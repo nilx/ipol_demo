@@ -1,7 +1,6 @@
 """
 PSF Estimation demo interaction
 """
-# pylint: disable=C0103
 
 from lib import base_app, build, http, image
 from lib.misc import app_expose, ctime
@@ -50,26 +49,30 @@ class app(base_app):
         pattern_file = self.bin_dir + "pattern_noise.pgm"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/algo/admm_non_blind_psf_estimation/psf_estim.tar.gz", tgz_file)
+        build.download("http://www.ipol.im/pub/algo/" \
+        "admm_non_blind_psf_estimation/psf_estim.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
         # dont rebuild the file
         if  (os.path.isfile(prog_file)
-			and ctime(tgz_file) < ctime(prog_file)) :
-			cherrypy.log("not rebuild needed",
-			context='BUILD', traceback=False)
+            and ctime(tgz_file) < ctime(prog_file)) :
+            cherrypy.log("not rebuild needed",
+            context='BUILD', traceback=False)
         else:
-			#extract the archive
-			build.extract(tgz_file, self.src_dir)
-                        # build the program
-			build.run("make -j4 -C %s psf_estim" % (self.src_dir + "psf_estim"), stdout=log_file)
-                        # save into bin dir
-			if os.path.isdir(self.bin_dir):
-				shutil.rmtree(self.bin_dir)
-                        os.mkdir(self.bin_dir)
-                        shutil.copy(self.src_dir + os.path.join("psf_estim", "psf_estim"), prog_file)
-                        shutil.copy(self.src_dir + os.path.join("psf_estim", "pattern_noise.pgm"), pattern_file)
-                        # cleanup the source dir
-                        shutil.rmtree(self.src_dir)
+            #extract the archive
+            build.extract(tgz_file, self.src_dir)
+            # build the program
+            build.run("make -j4 -C %s psf_estim" 
+                      % (self.src_dir + "psf_estim"), stdout=log_file)
+            # save into bin dir
+            if os.path.isdir(self.bin_dir):
+                shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
+            shutil.copy(self.src_dir + os.path.join("psf_estim", 
+                        "psf_estim"), prog_file)
+            shutil.copy(self.src_dir + os.path.join("psf_estim",
+                        "pattern_noise.pgm"), pattern_file)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
         return
 
     @cherrypy.expose
@@ -82,13 +85,13 @@ class app(base_app):
         try:
             self.cfg['param'] = {'s' : int(s),
                                  'k' : int(k),
- 				 't' : int(t)}
+                                 't' : int(t)}
             self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
 
-		#Original:
+                #Original:
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         #http.refresh(self.outside_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html")
@@ -103,7 +106,7 @@ class app(base_app):
         s = self.cfg['param']['s']
         k = self.cfg['param']['k']
         t = self.cfg['param']['t']
-	# save standard output
+        # save standard output
         stdout = open(self.work_dir + 'stdout.txt', 'w')
 
         # run the algorithm
@@ -117,9 +120,16 @@ class app(base_app):
         except RuntimeError:
             stdout_text = open(self.work_dir + 'stdout.txt', 'r').read() 
             if stdout_text.find("No pattern was detected.")!=-1:
-                return self.error('returncode', 'Pattern Not Found. If the pattern is too small crop the image so that the pattern covers at least half of the image and re-run. Otherwise, upload an image containing a pattern.')
+                return self.error("returncode",
+                                  "Pattern Not Found. " + 
+                                  "If the pattern is too small crop the image" +
+                                  " so that the pattern covers at least half " +
+                                  "of the image and re-run. Otherwise, upload" +
+                                  " an image containing a pattern.")
             if stdout_text.find("More than one pattern was detected.")!=-1:
-                return self.error('returncode', 'More than one pattern was detected. Crop the image surounding the desired pattern and re-run.')
+                return self.error('returncode', 'More than one pattern was ' +
+                                  'detected. Crop the image surounding the ' +
+                                  'desired pattern and re-run.')
             return self.error('returncode', 'Unknown Run Time Error')
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
@@ -144,14 +154,20 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-	
-        p = self.run_proc(['psf_estim','-p',self.bin_dir + 'pattern_noise.pgm','-s', str(s),
-                           '-k',str(k),'-d', 'det_out.ppm','-t',str(t),'-o', 'output.pgm',
-                           'input_0.pgm','output.txt'], stdout=stdout, stderr=stdout)
-        self.wait_proc(p)		
-		
+        
+        p = self.run_proc(['psf_estim',
+                           '-p', self.bin_dir + 'pattern_noise.pgm',
+                           '-s', str(s),
+                           '-k', str(k),
+                           '-d', 'det_out.ppm',
+                           '-t', str(t),
+                           '-o', 'output.pgm',
+                           'input_0.pgm', 'output.txt'],
+                            stdout=stdout, stderr=stdout)
+        self.wait_proc(p)               
+                
         im = image(self.work_dir + "output.pgm")
-        # re adjust width and height to avoid visualization interpolation filters
+        # re adjust width and height to avoid visualization interpolation
         width = 600
         height = 600
         # interpolate it by neareset neighbor
