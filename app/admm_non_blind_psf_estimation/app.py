@@ -20,7 +20,7 @@ class app(base_app):
     input_max_weight = 1 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.pgm'   # input image expected extension (ie file format)
-    is_test = True       # switch to False for deployment
+    is_test = False      # switch to False for deployment
 
     def __init__(self):
         """
@@ -49,8 +49,9 @@ class app(base_app):
         pattern_file = self.bin_dir + "pattern_noise.pgm"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/algo/" \
-        "admm_non_blind_psf_estimation/psf_estim.tar.gz", tgz_file)
+        build.download("http://www.ipol.im/pub/algo/" +
+                       "admm_non_blind_psf_estimation/" +
+                       "psf_estim.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
         # dont rebuild the file
         if  (os.path.isfile(prog_file)
