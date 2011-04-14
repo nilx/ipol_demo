@@ -110,6 +110,7 @@ class app(base_app):
         img.save(self.work_dir + 'input_0.sel.png')
 	return
 
+
     @cherrypy.expose
     @init_app
     def params(self, newrun=False, msg=None, r=None):
