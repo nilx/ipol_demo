@@ -50,10 +50,10 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "bcms_self_similarity_driven_demosaicking/src.tar.gz"
-        tgz_file = self.dl_dir + "src.tar.gz"
+            + "bcms_self_similarity_driven_demosaicking/srcB.tar.gz"
+        tgz_file = self.dl_dir + "srcB.tar.gz"
         progs = ["mosaic", "demosaickingIpol", "imgdiff"]
-        src_bin = dict([(self.src_dir + os.path.join("src", prog),
+        src_bin = dict([(self.src_dir + os.path.join("srcB", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -71,7 +71,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "src", " ".join(progs)),
+                      % (self.src_dir + "srcB", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
