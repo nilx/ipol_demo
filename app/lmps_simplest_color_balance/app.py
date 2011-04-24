@@ -47,10 +47,10 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "https://edit.ipol.im/pub/algo/" \
-            + "lmps_simplest_color_balance/simplest_color_balanceD.tar.gz"
-        tgz_file = self.dl_dir + "simplest_color_balanceD.tar.gz"
+            + "lmps_simplest_color_balance/simplest_color_balanceE.tar.gz"
+        tgz_file = self.dl_dir + "simplest_color_balanceE.tar.gz"
         progs = ["normalize_histo"]
-        src_bin = dict([(self.src_dir + os.path.join("simplest_color_balanceD", prog),
+        src_bin = dict([(self.src_dir + os.path.join("simplest_color_balanceE", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -67,7 +67,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "simplest_color_balanceD", " ".join(progs)),
+                      % (self.src_dir + "simplest_color_balanceE", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
