@@ -50,7 +50,7 @@ class app(base_app):
         """
 
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/edit/algo/" \
+        tgz_url = "http://www.ipol.im/pub/algo/" \
             + "ys_dct_denoising/src_demoDCTdenoisingB.tar.gz"
         tgz_file = self.dl_dir + "src_demoDCTdenoisingB.tar.gz"
         progs = ["demo_DCTdenoising", "img_diff_ipol",  "img_mse_ipol"]
