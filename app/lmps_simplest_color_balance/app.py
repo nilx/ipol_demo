@@ -40,7 +40,7 @@ class app(base_app):
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
-
+ 
     def build(self):
         """
         program build/update
