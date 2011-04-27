@@ -2,12 +2,12 @@
 
 <p>
   The algorithm result is displayed hereafter.
-  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.<br />
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
   You can run again this algorithm with new data.
 </p>
 
 <div class="action">
-  Restart with new input data, different parameter or different subimage:
+  Run again?:
   <form style="display:inline;"
 	action="${app.base_url}" method="get">
     <input type="submit" value="new input" />
@@ -65,13 +65,20 @@ Results
 %if zoom_factor:
 
 <p>
-Remark: for visualization the images are displayed with ${zoom_factor}x pixel duplication.
-You can download the original images:  
+For visualization, the images are displayed with ${zoom_factor}x pixel duplication.
+</p>
+
+%endif
+
+<p>
+Download:  
   <a href="${app.work_url + 'input_1.png'}">mosaic</a>, 
   <a href="${app.work_url + 'output_1.png'}">demosaic</a>,
   <a href="${app.work_url + 'input_0.sel.png'}">original</a>,
   <a href="${app.work_url + 'output_2.png'}">difference</a>.
 </p>
+
+%if zoom_factor:
 
   <div class="gallery" style="height:${sizeY}px;">
     <ul class="index">
