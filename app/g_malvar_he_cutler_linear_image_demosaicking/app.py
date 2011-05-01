@@ -1,7 +1,6 @@
 """
 Malvar-He-Cutler Linear Image Demosaicking ipol demo web app
 """
-# pylint: disable-msg=R0904,C0103
 
 from lib import base_app, build, http, image
 from lib.misc import ctime
