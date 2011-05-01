@@ -1,5 +1,5 @@
 """
-cwinterp ipol demo web app
+Geometric Contour Stencils Interpolation ipol demo web app
 """
 
 from .app import app
