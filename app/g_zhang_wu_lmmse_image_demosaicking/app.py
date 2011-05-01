@@ -243,7 +243,7 @@ class app(base_app):
         pattern = self.cfg['param']['pattern']
 
         # Mosaic image
-        self.wait_proc(self.run_proc(['mosaic', pattern, 
+        self.wait_proc(self.run_proc(['mosaic', '-p', pattern, 
             'input_0_sel.png', 'mosaiced.png'],
             stdout=stdout, stderr=stdout), timeout*0.2)
 
