@@ -15,9 +15,10 @@ from math import ceil
 
 
 class app(base_app):
-    """ unturk-Altunbasak-Mersereau Alternating Projections app """
+    """ Gunturk-Altunbasak-Mersereau Alternating Projections app """
 
-    title = 'Gunturk-Altunbasak-Mersereau Alternating Projections Image Demosaicking'
+    title = 'Gunturk-Altunbasak-Mersereau' \
+        + 'Alternating Projections Image Demosaicking'
 
     input_nb = 1
     input_max_pixels = 700 * 700        # max size (in pixels) of input image
