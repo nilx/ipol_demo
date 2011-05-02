@@ -59,7 +59,8 @@ def _optimize_png(fname):
     #     p = subprocess.Popen(["optipng", "-q", "-o2",
     #                           os.path.basename(fname)],
     #                          cwd=os.path.dirname(fname),
-    #                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    #                          stdout=subprocess.PIPE,
+    #                          stderr=subprocess.STDOUT)
     # except OSError:
     #     p = None
     # return p
@@ -170,9 +171,9 @@ class image(object):
         resize the image, in-place
 
         @param size: target size, given as an integer number of pixels,
-        a float scale ratio, or a pair (width, height)
+               a float scale ratio, or a pair (width, height)
         @param method: interpolation method, can be "nearest",
-                       "bilinear", "bicubic" or "antialias"
+               "bilinear", "bicubic", "antialias" or "pixeldup"
         """
         if isinstance(size, int):
             # size is a number of pixels -> convert to a float scale
@@ -185,14 +186,45 @@ class image(object):
 
         try:
             method_kw = {"nearest" : PIL.Image.NEAREST,
-			 "bilinear" : PIL.Image.BILINEAR,
+                         "bilinear" : PIL.Image.BILINEAR,
                          "bicubic" : PIL.Image.BICUBIC,
-			 "antialias" : PIL.Image.ANTIALIAS}[method]
+                         "antialias" : PIL.Image.ANTIALIAS,
+                         "pixeldup" : None}[method]
         except KeyError:
             raise KeyError("method must be 'nearest', 'bilinear',"
-                           + " 'bicubic' or 'antialias'")
+                           + " 'bicubic', 'antialias' or 'pixeldup'")
 
-        self.im = self.im.resize(size, method_kw)
+        if method == "pixeldup":
+            # rescaling by pixel duplication
+            # PIL "nearest" filter is buggy
+            # http://mail.python.org/pipermail/image-sig/2011-March/006699.html
+            if size == self.im.size:
+                # no resize needed
+                pass
+            else:
+                # scaling ratio
+                if not (size[0] >= self.im.size[0] and 
+                        size[0] % self.im.size[0] == 0 and
+                        size[1] >= self.im.size[1] and 
+                        size[1] % self.im.size[1] == 0):
+                    raise ValueError('the scale factor must be'
+                                     + ' a positive integer number')
+                # scaling ratio
+                rX = size[0] // self.im.size[0]
+                rY = size[1] // self.im.size[1]
+                # create a new image
+                imout = PIL.Image.new(self.im.mode, size)
+                pix = self.im.load()
+                pixout = imout.load()
+                # duplicate the pixels
+                for y in range(0, size[1]):
+                    for x in range(0, size[0]):
+                        pixout[x, y] = pix[x//rX, y//rY]
+                self.im = imout
+        else:
+            # use resize function from PIL.Image class
+            self.im = self.im.resize(size, method_kw)
+
         return self
 
     def convert(self, mode):
