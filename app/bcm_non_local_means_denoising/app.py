@@ -12,7 +12,6 @@ from cherrypy import TimeoutError
 import os.path
 import time
 from math import ceil
-from PIL import Image
 
 class app(base_app):
     """ non-local means denoising app """
@@ -105,17 +104,17 @@ class app(base_app):
         # try cropping from the original input image
         # (if different from input_1)
         im0 = image(self.work_dir + 'input_0.orig.png')
-        (dx0, dy0) = im0.size
+        dx0 = im0.size[0]
         img = image(self.work_dir + 'input_0.png')
-        (dx, dy) = img.size
+        dx = img.size[0]
         if (dx != dx0) :
-            z=float(dx0)/float(dx)
+            z = float(dx0)/float(dx)
             im0.crop((int(x0*z), int(y0*z), int(x1*z), int(y1*z)))
             # resize if cropped image is too big
             if (self.input_max_pixels
                 and prod(im0.size) > self.input_max_pixels):
                 im0.resize(self.input_max_pixels, method="antialias")
-            img=im0
+            img = im0
         else :
             img.crop((x0, y0, x1, y1))
         # save result
@@ -147,10 +146,6 @@ class app(base_app):
         """
         params handling 
         """
- 
-        """
-        select a rectangle in the image
-        """
         if action == 'run':
             if x == None:
                 #save parameter
@@ -165,10 +160,10 @@ class app(base_app):
                 #save parameters
                 try:
                     self.cfg['param'] = {'sigma' : sigma, 
-                                       'x0' : int(x0),
-                                       'y0' : int(y0),
-                                       'x1' : int(x),
-                                       'y1' : int(y)}
+                                         'x0' : int(x0),
+                                         'y0' : int(y0),
+                                         'x1' : int(x),
+                                         'y1' : int(y)}
                     self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
@@ -254,7 +249,7 @@ class app(base_app):
             print "Run time error"
             return self.error(errcode='runtime')
 
-        stdout.close();
+        stdout.close()
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
@@ -312,53 +307,48 @@ class app(base_app):
         try:
             x0 = self.cfg['param']['x0']
         except KeyError:
-            x0=None
+            x0 = None
         try:
             y0 = self.cfg['param']['y0']
         except KeyError:
-            y0=None
+            y0 = None
         try:
             x1 = self.cfg['param']['x1']
         except KeyError:
-            x1=None
+            x1 = None
         try:
             y1 = self.cfg['param']['y1']
         except KeyError:
-            y1=None
+            y1 = None
 
-        (sizeX, sizeY)=image(self.work_dir + 'input_0.sel.png').size
+        (sizeX, sizeY) = image(self.work_dir + 'input_0.sel.png').size
         # Resize for visualization (new size of the smallest dimension = 200)
-        zoom_factor=None
+        zoom_factor = None
         if (sizeX < 200) or (sizeY < 200):
             if sizeX > sizeY:
-                zoom_factor=int(ceil(200.0/sizeY));
+                zoom_factor = int(ceil(200.0/sizeY))
             else:
-                zoom_factor=int(ceil(200.0/sizeX));
+                zoom_factor = int(ceil(200.0/sizeX))
 
-            sizeX=sizeX*zoom_factor
-            sizeY=sizeY*zoom_factor
+            sizeX = sizeX*zoom_factor
+            sizeY = sizeY*zoom_factor
 
-            im=image(self.work_dir + 'input_0.sel.png');
+            im = image(self.work_dir + 'input_0.sel.png')
             im.resize((sizeX, sizeY), method="pixeldup")
             im.save(self.work_dir + 'input_0_zoom.sel.png')
             
-            im=image(self.work_dir + 'input_1.png');
+            im = image(self.work_dir + 'input_1.png')
             im.resize((sizeX, sizeY), method="pixeldup")
             im.save(self.work_dir + 'input_1_zoom.png')
             
-            im=image(self.work_dir + 'output_1.png');
+            im = image(self.work_dir + 'output_1.png')
             im.resize((sizeX, sizeY), method="pixeldup")
             im.save(self.work_dir + 'output_1_zoom.png')
             
-            im=image(self.work_dir + 'output_2.png');
+            im = image(self.work_dir + 'output_2.png')
             im.resize((sizeX, sizeY), method="pixeldup")
             im.save(self.work_dir + 'output_2_zoom.png')
             
         return self.tmpl_out("result.html", sigma=sigma,
                              x0=x0, y0=y0, x1=x1, y1=y1,
                              sizeY=sizeY, zoom_factor=zoom_factor)
-
-
-
-
-
