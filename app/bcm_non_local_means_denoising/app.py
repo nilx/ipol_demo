@@ -91,32 +91,32 @@ class app(base_app):
 
 
     def select_subimage(self, x0, y0, x1, y1):
-	"""
-	cut subimage from original image
-	"""
+        """
+        cut subimage from original image
+        """
         # draw selected rectangle on the image
         imgS = image(self.work_dir + 'input_0.png')
         imgS.draw_line([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)], color="red")
         imgS.draw_line([(x0+1, y0+1), (x1-1, y0+1), (x1-1, y1-1), (x0+1, y1-1), (x0+1, y0+1)], color="white")
         imgS.save(self.work_dir + 'input_0s.png')
         # crop the image
-	# try cropping from the original input image (if different from input_1)
-	im0 = image(self.work_dir + 'input_0.orig.png')
-	(dx0, dy0) = im0.size
+        # try cropping from the original input image (if different from input_1)
+        im0 = image(self.work_dir + 'input_0.orig.png')
+        (dx0, dy0) = im0.size
         img = image(self.work_dir + 'input_0.png')
         (dx, dy) = img.size
-	if (dx != dx0) :
-           z=float(dx0)/float(dx)
-           im0.crop((int(x0*z), int(y0*z), int(x1*z), int(y1*z)))
-           # resize if cropped image is too big
-           if self.input_max_pixels and prod(im0.size) > (self.input_max_pixels):
-              im0.resize(self.input_max_pixels, method="antialias")
-           img=im0
-	else :
-           img.crop((x0, y0, x1, y1))
-	# save result
+        if (dx != dx0) :
+            z=float(dx0)/float(dx)
+            im0.crop((int(x0*z), int(y0*z), int(x1*z), int(y1*z)))
+            # resize if cropped image is too big
+            if self.input_max_pixels and prod(im0.size) > (self.input_max_pixels):
+                im0.resize(self.input_max_pixels, method="antialias")
+            img=im0
+        else :
+            img.crop((x0, y0, x1, y1))
+        # save result
         img.save(self.work_dir + 'input_0.sel.png')
-	return
+        return
 
 
     @cherrypy.expose
@@ -128,8 +128,8 @@ class app(base_app):
         if newrun:
             self.clone_input()
 
-	if x0:
-	  self.select_subimage(int(x0), int(y0), int(x1), int(y1))
+        if x0:
+            self.select_subimage(int(x0), int(y0), int(x1), int(y1))
 
         return self.tmpl_out("params.html", msg=msg, x0=x0, y0=y0, x1=x1, y1=y1, sigma=sigma)
 
@@ -145,27 +145,27 @@ class app(base_app):
         select a rectangle in the image
         """
         if action == 'run':
-	    if x == None:
-	        #save parameter
+            if x == None:
+                #save parameter
                 try:
-                  self.cfg['param'] = {'sigma' : sigma}
-                  self.cfg.save()
+                    self.cfg['param'] = {'sigma' : sigma}
+                    self.cfg.save()
                 except ValueError:
-                  return self.error(errcode='badparams',
-                                    errmsg="Incorrect standard deviation value.")
-	    else:
-		#save parameters
-        	try:
-            	  self.cfg['param'] = {'sigma' : sigma, 
-				       'x0' : int(x0),
-				       'y0' : int(y0),
-				       'x1' : int(x),
-				       'y1' : int(y)}
-            	  self.cfg.save()
-        	except ValueError:
-            	  return self.error(errcode='badparams',
-                                    errmsg="Incorrect parameters.")
-	
+                    return self.error(errcode='badparams',
+                                      errmsg="Incorrect standard deviation value.")
+            else:
+                #save parameters
+                try:
+                    self.cfg['param'] = {'sigma' : sigma, 
+                                       'x0' : int(x0),
+                                       'y0' : int(y0),
+                                       'x1' : int(x),
+                                       'y1' : int(y)}
+                    self.cfg.save()
+                except ValueError:
+                    return self.error(errcode='badparams',
+                                      errmsg="Incorrect parameters.")
+        
             # use the whole image if no subimage is available
             try:
                 img = image(self.work_dir + 'input_0.sel.png')
@@ -199,19 +199,19 @@ class app(base_app):
                 (y0, y1) = (min(y0, y1), max(y0, y1))
                 assert (x1 - x0) > 0
                 assert (y1 - y0) > 0
-		#save parameters
-        	try:
-            	  self.cfg['param'] = {'sigma' : sigma, 
-				       'x0' : x0,
-				       'y0' : y0,
-				       'x1' : x1,
-				       'y1' : y1}
-            	  self.cfg.save()
-        	except ValueError:
-            	  return self.error(errcode='badparams',
-                                    errmsg="Incorrect parameters.")
- 		#select subimage
-		self.select_subimage(x0, y0, x1, y1)
+                #save parameters
+                try:
+                    self.cfg['param'] = {'sigma' : sigma, 
+                                         'x0' : x0,
+                                         'y0' : y0,
+                                         'x1' : x1,
+                                         'y1' : y1}
+                    self.cfg.save()
+                except ValueError:
+                    return self.error(errcode='badparams',
+                                      errmsg="Incorrect parameters.")
+                #select subimage
+                self.select_subimage(x0, y0, x1, y1)
                 # go to the wait page, with the key
                 http.redir_303(self.base_url + "wait?key=%s" % self.key)
             return
@@ -243,10 +243,10 @@ class app(base_app):
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
-	    print "Run time error"
+            print "Run time error"
             return self.error(errcode='runtime')
 
- 	stdout.close();
+        stdout.close();
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
@@ -271,79 +271,79 @@ class app(base_app):
         """
 
 
-	#noisy and denoised images
+        #noisy and denoised images
         p = self.run_proc(['nlmeans_ipol', 'input_0.sel.png', str(sigma), 'input_1.png', 'output_1.png'],
                            stdout=None, stderr=None)
         self.wait_proc(p, timeout*0.8)
 
 
-	#compute image differences
+        #compute image differences
         p2 = self.run_proc(['img_diff_ipol', 'input_0.sel.png', 'output_1.png', str(sigma), 'output_2.png'],
                                stdout=None, stderr=None)
 
-	#estimate MSE and PSNR
+        #estimate MSE and PSNR
         p3 = self.run_proc(['img_mse_ipol', 'input_0.sel.png', 'output_1.png'],
                                stdout=stdout, stderr=None)
 
         self.wait_proc([p2, p3], timeout*0.2)
 
 
-	
+        
     @cherrypy.expose
     @init_app
     def result(self):
         """
         display the algo results
         """
-	print "Display results"
+        print "Display results"
 
         # read the parameters
         sigma = self.cfg['param']['sigma']
         try:
-          x0 = self.cfg['param']['x0']
+            x0 = self.cfg['param']['x0']
         except KeyError:
-	  x0=None
+            x0=None
         try:
-          y0 = self.cfg['param']['y0']
+            y0 = self.cfg['param']['y0']
         except KeyError:
-	  y0=None
+            y0=None
         try:
-          x1 = self.cfg['param']['x1']
+            x1 = self.cfg['param']['x1']
         except KeyError:
-	  x1=None
+            x1=None
         try:
-          y1 = self.cfg['param']['y1']
+            y1 = self.cfg['param']['y1']
         except KeyError:
-	  y1=None
+            y1=None
 
-	(sizeX, sizeY)=image(self.work_dir + 'input_0.sel.png').size
-	# Resize for visualization (new size of the smallest dimension = 200)
-	zoom_factor=None
-	if (sizeX < 200) or (sizeY < 200):
-	  if sizeX > sizeY:
-	    zoom_factor=int(ceil(200.0/sizeY));
-	  else:
-	    zoom_factor=int(ceil(200.0/sizeX));
+        (sizeX, sizeY)=image(self.work_dir + 'input_0.sel.png').size
+        # Resize for visualization (new size of the smallest dimension = 200)
+        zoom_factor=None
+        if (sizeX < 200) or (sizeY < 200):
+            if sizeX > sizeY:
+                zoom_factor=int(ceil(200.0/sizeY));
+            else:
+                zoom_factor=int(ceil(200.0/sizeX));
 
-	  sizeX=sizeX*zoom_factor
-	  sizeY=sizeY*zoom_factor
+            sizeX=sizeX*zoom_factor
+            sizeY=sizeY*zoom_factor
 
-	  im=image(self.work_dir + 'input_0.sel.png');
-	  im.resize((sizeX, sizeY), method="pixeldup")
-	  im.save(self.work_dir + 'input_0_zoom.sel.png')
-
-	  im=image(self.work_dir + 'input_1.png');
-	  im.resize((sizeX, sizeY), method="pixeldup")
-	  im.save(self.work_dir + 'input_1_zoom.png')
-
-	  im=image(self.work_dir + 'output_1.png');
-	  im.resize((sizeX, sizeY), method="pixeldup")
-	  im.save(self.work_dir + 'output_1_zoom.png')
-
-	  im=image(self.work_dir + 'output_2.png');
-	  im.resize((sizeX, sizeY), method="pixeldup")
-	  im.save(self.work_dir + 'output_2_zoom.png')
-
+            im=image(self.work_dir + 'input_0.sel.png');
+            im.resize((sizeX, sizeY), method="pixeldup")
+            im.save(self.work_dir + 'input_0_zoom.sel.png')
+            
+            im=image(self.work_dir + 'input_1.png');
+            im.resize((sizeX, sizeY), method="pixeldup")
+            im.save(self.work_dir + 'input_1_zoom.png')
+            
+            im=image(self.work_dir + 'output_1.png');
+            im.resize((sizeX, sizeY), method="pixeldup")
+            im.save(self.work_dir + 'output_1_zoom.png')
+            
+            im=image(self.work_dir + 'output_2.png');
+            im.resize((sizeX, sizeY), method="pixeldup")
+            im.save(self.work_dir + 'output_2_zoom.png')
+            
         return self.tmpl_out("result.html", sigma=sigma, x0=x0, y0=y0, x1=x1, y1=y1,
                              sizeY=sizeY, zoom_factor=zoom_factor)
 
