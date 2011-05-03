@@ -50,7 +50,8 @@ class app(base_app):
             + "lmps_simplest_color_balance/simplest_color_balance.tar.gz"
         tgz_file = self.dl_dir + "simplest_color_balance.tar.gz"
         progs = ["normalize_histo"]
-        src_bin = dict([(self.src_dir + os.path.join("simplest_color_balance", prog),
+        src_bin = dict([(self.src_dir + 
+                         os.path.join("simplest_color_balance", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -67,7 +68,8 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "simplest_color_balance", " ".join(progs)),
+                      % (self.src_dir + "simplest_color_balance", 
+                      " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
@@ -102,9 +104,12 @@ class app(base_app):
         params handling and run redirection
         """
         # save and validate the parameters
-	if (float(s1) > 100.0-float(s2)) or (float(s1) < 0) or (float(s1) > 100.0) or (float(s2) < 0) or (float(s2) > 100.0):
-	  return self.error(errcode='badparams',
-                              errmsg="s1 and s2 must be a value between 0.0 and 100.0. s1 must be smaller than 100-s2")
+        if (float(s1) > 100.0-float(s2)) or \
+           (float(s1) < 0) or (float(s1) > 100.0) \
+           or (float(s2) < 0) or (float(s2) > 100.0):
+            return self.error(errcode='badparams',
+                              errmsg="s1 and s2 must be a value between 0.0 and"
+                              + "100.0. s1 must be smaller than 100-s2")
         try:
             self.cfg['param'] = {'s1' : float(s1), 
 				 's2' : float(s2)}
@@ -165,18 +170,16 @@ class app(base_app):
         self.wait_proc(p, timeout)
 
 
-	"""
-	Compute histograms of images
-	"""
-	im=image(self.work_dir + 'input_0.png');
-	im.histogram(option="all")
-	im.save(self.work_dir + 'input_0_hist.png')
-	im=image(self.work_dir + 'output_1.png');
-	im.histogram(option="all")
-	im.save(self.work_dir + 'output_1_hist.png')
-	im=image(self.work_dir + 'output_2.png');
-	im.histogram(option="all")
-	im.save(self.work_dir + 'output_2_hist.png')
+        #Compute histograms of images
+        im = image(self.work_dir + 'input_0.png')
+        im.histogram(option="all")
+        im.save(self.work_dir + 'input_0_hist.png')
+        im = image(self.work_dir + 'output_1.png')
+        im.histogram(option="all")
+        im.save(self.work_dir + 'output_1_hist.png')
+        im = image(self.work_dir + 'output_2.png')
+        im.histogram(option="all")
+        im.save(self.work_dir + 'output_2_hist.png')
 	
 
     @cherrypy.expose
@@ -188,10 +191,10 @@ class app(base_app):
         # read the parameters
         s1 = self.cfg['param']['s1']
         s2 = self.cfg['param']['s2']
-	sizeY=image(self.work_dir + 'input_0.png').size[1]
-	sizeYhist=image(self.work_dir + 'input_0_hist.png').size[1]
-	#add 20 pixels to the histogram size to take margin into account
-	sizeYmax=max(sizeY, sizeYhist+20)
+        sizeY = image(self.work_dir + 'input_0.png').size[1]
+        sizeYhist = image(self.work_dir + 'input_0_hist.png').size[1]
+        # add 20 pixels to the histogram size to take margin into account
+        sizeYmax = max(sizeY, sizeYhist+20)
 
         return self.tmpl_out("result.html", s1=s1, s2=s2,
                              sizeY="%i" % sizeYmax)
