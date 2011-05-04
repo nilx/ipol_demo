@@ -376,7 +376,21 @@ class image(object):
         self.im = PIL.ImageOps.invert(self.im)
         return self
 
-    def histogram(self, option="all"):
+    def drawhistogram(self, imout, h, offH, ymax, scaleH, color):
+        """
+        draws in imout the histogram values stored in h
+        """
+        print "   offH=%i  ymax=%i  scaleH=%2.2f  color=%s" % (offH, ymax, scaleH, color)
+        draw = PIL.ImageDraw.Draw(imout)
+        for x in range(0, 256):
+            #print "draw line: (%i, %i) - (%i, %i)\n" % (x, ymax, x, ymax-int(h[offH+x] * scaleH))
+            draw.line([(x, ymax), 
+                       (x, ymax-int(h[offH+x] * scaleH))],
+                       fill=color)
+        del draw
+
+
+    def histogram(self, option="all", sizeH=(256, 128), margin=10):
         """
         creates an image displaying the histogram of image values,
         only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
@@ -387,12 +401,17 @@ class image(object):
         """
         
         # constant values
-        sizeX = 256
-        sizeY = 128
-        margin = 10
-        offset = {"R":0, "G":256, "B":512, "I":768}
+        offsetH = {"R":0, "G":256, "B":512, "I":768}
+        offsetY = {"R": sizeH[1]-1, 
+                   "G": 2*sizeH[1]+margin-1, 
+                   "B": 3*sizeH[1]+2*margin-1, 
+                   "I": 4*sizeH[1]+3*margin-1}
         color = {"R":(255, 0, 0), "G":(0, 255, 0), "B":(0, 0, 255), "I":(192, 192, 192)}
-        colorAll = {0:(255, 0, 0), 1:(0, 255, 0), 2:(0, 0, 255), 3:(192, 192, 192)}
+        #colorAll = {0:(255, 0, 0), 1:(0, 255, 0), 2:(0, 0, 255), 3:(192, 192, 192)}
+        rgb2I = (
+            0.333333, 0.333333, 0.333333, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0 )
 
         # check image mode
         if self.im.mode not in ("L", "RGB"):
@@ -402,12 +421,7 @@ class image(object):
             pix = self.im.load()
             # compute grey level image: I = (R + G + B) / 3
             if (option == "I") or (option == "all"):
-                imgray = PIL.Image.new('L', self.im.size)
-                pixgray = imgray.load()
-                for y in range(0, self.im.size[1]):
-                    for x in range(0, self.im.size[0]):
-                        pixgray[x, y] = (pix[x, y][0] + pix[x, y][1] +
-                                         pix[x, y][2]) / 3
+                imgray = self.im.convert("L", rgb2I)
             # compute histograms of R,G and B values
             h = self.im.histogram()
             # compute histograms of I values
@@ -417,37 +431,59 @@ class image(object):
                 h = h + hgray   
             # create a white output image
             if option == "all":
-                size = (sizeX, 4*sizeY+3*margin)
+                size = (sizeH[0], 4*sizeH[1]+3*margin)
             else:
-                size = (sizeX, sizeY)
+                size = sizeH
             imout = PIL.Image.new('RGB', size, (255, 255, 255))
             # draw histograms of R, G, B and I values
-            pixout = imout.load()
+            #pixout = imout.load()
             if option != "all":
-                off = offset[option]
+                off = offsetH[option]
                 maxH = max(h[off:off+256])
-                for x in range(0, 256):
-                    for y in range(0, int(h[off+x] * sizeY/maxH)):
-                        pixout[x, sizeY-1-y] = color[option]
+                scaleH=float(sizeH[1])/float(maxH)
+                self.drawhistogram(imout, h, offsetH[option], sizeH[1]-1, scaleH, color[option])
+ 
+                #for x in range(0, 256):
+                #    imout.drawline([(x, sizeH[1]-1), 
+                #                    (x, sizeH[1]-1-int(h[off+x] * sizeH[1]/maxH))],
+                #                    color=color[option])
+                    #for y in range(0, int(h[off+x] * sizeH[1]/maxH)):
+                    #    pixout[x, sizeH[1]-1-y] = color[option]
             else:
                 maxH = max(h)
-                for x in range(0, 256):
-                    for i in range (0, 4):
-                        for y in range(0, int(h[256*i+x]*sizeY/maxH)):
-                            pixout[x, (i+1)*sizeY+i*margin-1-y] = colorAll[i]
+                scaleH=float(sizeH[1])/float(maxH)
+                for i in ['R', 'G', 'B', 'I']:
+                    print "Histogram %s\n" % (i)
+                    self.drawhistogram(imout, h, offsetH[i], offsetY[i], scaleH, color[i])
+
+                #for x in range(0, 256):
+                    #for i in ['R', 'G', 'B', 'I']:
+                        #imout.drawline([(x, offsetY[i]), 
+                        #                (x, offsetY[i]-int(h[offsetH[i]+x]*sizeH[1]/maxH))],
+                        #                color=color[i])
+                    #for i in range (0, 4):
+                    #    for y in range(0, int(h[256*i+x]*sizeH[1]/maxH)):
+                    #        pixout[x, (i+1)*sizeH[1]+i*margin-1-y] = colorAll[i]
 
         else:
             # compute histogram of I values
             h = self.im.histogram()
             # create a white output image
-            size = (sizeX, sizeY)
-            imout = PIL.Image.new('L', size, (255, 255, 255))
+            size = sizeH
+            imout = PIL.Image.new('L', size, 255)
             # draw histogram of I values
-            pixout = imout.load()
+            #pixout = imout.load()
             maxH = max(h[0:256])
-            for x in range(0, 256):
-                for y in range(0, int(h[x]*sizeY/maxH)):
-                    pixout[x, sizeY-1-y] = 255
+            scaleH=float(sizeH[1])/float(maxH)
+            # histogram color: light gray
+            self.drawhistogram(imout, h, 0, sizeH[1]-1, scaleH, 192)
+
+            #for x in range(0, 256):
+            #    imout.drawline([(x, sizeH[1]-1), 
+            #                    (x, sizeH[1]-1-int(h[x]*sizeH[1]/maxH))],
+            #                    color="white")
+                #for y in range(0, int(h[x]*sizeH[1]/maxH)):
+                #    pixout[x, sizeH[1]-1-y] = 255
 
         self.im = imout
         return self

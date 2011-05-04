@@ -312,8 +312,7 @@ class app(base_app):
         im.save(self.work_dir + 'output_1_hist.png')
         im = image(self.work_dir + 'output_2.png')
         im.histogram(option="all")
-        im.save(self.work_dir + 'output_2_hist.png')
-
+        im.save(self.work_dir + 'output_2_hist.png')       
 
 
     @cherrypy.expose
