@@ -181,23 +181,6 @@ class app(base_app):
         im.histogram(option="all")
         im.save(self.work_dir + 'output_2_hist.png')
 	
-
-        #test
-        im = image("/home/joseluis/ipol/demo/srcdemos/rgbprocess/test/test.png")
-        im.histogram(option="R")
-        im.save("/home/joseluis/ipol/demo/srcdemos/rgbprocess/test/testHR.png")
-        im.histogram(option="G")
-        im.save("/home/joseluis/ipol/demo/srcdemos/rgbprocess/test/testHG.png")
-        im.histogram(option="B")
-        im.save("/home/joseluis/ipol/demo/srcdemos/rgbprocess/test/testHB.png")
-        im.histogram(option="I")
-        im.save("/home/joseluis/ipol/demo/srcdemos/rgbprocess/test/testHI.png")
-        im = image("/home/joseluis/ipol/demo/srcdemos/rgbprocess/test/testG.png")
-        im.histogram(option="all")
-        im.save("/home/joseluis/ipol/demo/srcdemos/rgbprocess/test/testGH.png")
-
-
-
     @cherrypy.expose
     @init_app
     def result(self):
