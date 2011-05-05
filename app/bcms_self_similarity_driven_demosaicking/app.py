@@ -12,7 +12,6 @@ from cherrypy import TimeoutError
 import os.path
 import time
 from math import ceil
-from PIL import Image
 
 class app(base_app):
     """ self-similarity driven demosaicking app """
@@ -112,11 +111,11 @@ class app(base_app):
             # resize if cropped image is too big
             if self.input_max_pixels and prod(im0.size) > self.input_max_pixels:
                 im0.resize(self.input_max_pixels, method="antialias")
-                img = im0
-            else :
-                img.crop((x0, y0, x1, y1))
-	    # save result
-            img.save(self.work_dir + 'input_0.sel.png')
+            img = im0
+        else :
+            img.crop((x0, y0, x1, y1))
+	# save result
+        img.save(self.work_dir + 'input_0.sel.png')
         return
 
 

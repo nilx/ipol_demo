@@ -1,111 +1,65 @@
 <%include file="header.html" />
 
-
 <p> 
 The algorithm is run in 2 steps:
 <ol>
 <li> a Gaussian noise is added to the input image;</li>
-<li> the DCT-based algorithm is used to denoise the image.</li> 
+<li> the NLmeans algorithm is used to denoise the image.</li> 
 </ol>
 </p> 
 
-
-<br>
+<br />
 
 <form action="${app.base_url + 'rectangle'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
 First you have to select a level (standard deviation) of additive Gaussian noise: 
     <select name="sigma">
-      %if sigma:	
-        %if sigma == '2':	 
-  	  <option value="2" selected>2</option>
-	%else:
-  	  <option value="2">2</option>
-	%endif
-        %if sigma == '5':	 
-  	  <option value="5" selected>5</option>
-	%else:
-  	  <option value="5">5</option>
-	%endif
-        %if sigma == '10':	 
-  	  <option value="10" selected>10</option>
-	%else:
-  	  <option value="10">10</option>
-	%endif
-        %if sigma == '15':	 
-  	  <option value="15" selected>15</option>
-	%else:
-  	  <option value="15">15</option>
-	%endif
-        %if sigma == '20':	 
-  	  <option value="20" selected>20</option>
-	%else:
-  	  <option value="20">20</option>
-	%endif
-        %if sigma == '25':	 
-  	  <option value="25" selected>25</option>
-	%else:
-  	  <option value="25">25</option>
-	%endif
-        %if sigma == '30':	 
-  	  <option value="30" selected>30</option>
-	%else:
-  	  <option value="30">30</option>
-	%endif
-        %if sigma == '35':	 
-  	  <option value="35" selected>35</option>
-	%else:
-  	  <option value="35">35</option>
-	%endif
-        %if sigma == '40':	 
-  	  <option value="40" selected>40</option>
-	%else:
-  	  <option value="40">40</option>
-	%endif
-      %else:
-  	  <option value="2">2</option>
-  	  <option value="5">5</option>
-  	  <option value="10" selected>10</option>
-  	  <option value="15">15</option>
-  	  <option value="20">20</option>
-  	  <option value="25">25</option>
-  	  <option value="30">30</option>
-  	  <option value="35">35</option>
-  	  <option value="40">40</option>
-      %endif
+<%
+selected = {2:'', 5:'', 10:'', 15:'', 20:'', 25:'', 30:'', 35:'', 40:''}
+try:
+   sigmaSel = int(sigma)
+except TypeError:
+   sigmaSel = 10
+selected[int(sigmaSel)] = 'selected'
+%>
+%for s in sorted(selected.keys()):
+      <option value="${s}" ${selected[s]}>${s}</option>
+%endfor
     </select>
 
-    %if x0 and y0 and x1 and y1:
-      <input type="hidden" name="x0" value="${x0}">
-      <input type="hidden" name="y0" value="${y0}">
-      <input type="hidden" name="x" value="${x1}">
-      <input type="hidden" name="y" value="${y1}">
-      <p>
-        <input type="submit" name="action" value="run" />
-      <p/>
-      <img src="${app.work_url + 'input_0.sel.png'}" />
-    %else:
-      <p>
-        Now you can run the algorithm on the whole image:
-        <input type="submit" name="action" value="run" />
-      </p>
-      <p>
-        Or you can run it after selecting a subimage, 
-by clicking on two opposite corners of the sub-image.
-      </p>
-      %if x0 and y0:
-        <input type="hidden" name="x0" value="${x0}">
-        <input type="hidden" name="y0" value="${y0}">
-        <input type="image" style="cursor:crosshair;" name=""
-	       src="${app.work_url + 'input.png?xy=%i,%i' % (x0, y0)}" />
-      %else:
-        <input type="image" style="cursor:crosshair;" name=""
-	       src="${app.work_url + 'input_0.png'}" />
-      %endif
-    %endif
+
+
+
+%if x0 and y0 and x1 and y1:
+    <input type="hidden" name="x0" value="${x0}">
+    <input type="hidden" name="y0" value="${y0}">
+    <input type="hidden" name="x" value="${x1}">
+    <input type="hidden" name="y" value="${y1}">
+    <p>
+      <input type="submit" name="action" value="run" />
+    <p/>
+    <img src="${app.work_url + 'input_0.sel.png'}" />
+%else:
+    <p>
+      Now you can run the algorithm on the whole image:
+      <input type="submit" name="action" value="run" />
+    </p>
+    <p>
+      Or you can run it after selecting a subimage, 
+      by clicking on two opposite corners of the sub-image.
+    </p>
+  %if x0 and y0:
+    <input type="hidden" name="x0" value="${x0}">
+    <input type="hidden" name="y0" value="${y0}">
+    <input type="image" style="cursor:crosshair;" name=""
+           src="${app.work_url + 'input.png?xy=%i,%i' % (x0, y0)}" />
+  %else:
+    <input type="image" style="cursor:crosshair;" name=""
+           src="${app.work_url + 'input_0.png'}" />
+  %endif
+%endif
   </div>
 </form>
-
 
 <%include file="footer.html" />
