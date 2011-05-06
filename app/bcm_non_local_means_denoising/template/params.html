@@ -18,15 +18,18 @@ First you have to select a level (standard deviation) of additive Gaussian noise
 <%
 selected = {2:'', 5:'', 10:'', 15:'', 20:'', 25:'', 30:'', 35:'', 40:''}
 try:
-   assert(None != sigma)
-except Exception:
-   sigma = 10
-selected[sigma] = 'selected'
+   sigmaSel = int(sigma)
+except TypeError:
+   sigmaSel = 10
+selected[int(sigmaSel)] = 'selected'
 %>
 %for s in sorted(selected.keys()):
       <option value="${s}" ${selected[s]}>${s}</option>
 %endfor
     </select>
+
+
+
 
 %if x0 and y0 and x1 and y1:
     <input type="hidden" name="x0" value="${x0}">
