@@ -15,6 +15,8 @@
   <form style="display:inline;"
 	action="${app.base_url + 'params'}" method="get">
     <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="s1" value="${s1}">
+    <input type="hidden" name="s2" value="${s2}">
     <input type="hidden" name="newrun" value="1">
     <input type="submit" value="different parameters" />
   </form>
@@ -22,10 +24,7 @@
 
 <hr />
 
-<h2>Results (s=${s}%)</h2>
-<!-- <p>
-Result 1: Simplest Color Balance (histogram method) on each color channel <br />
-Result 2: Simplest Color Balance (histogram method) on Intensity channel  <br /> -->
+<h2>Results (s1=${s1}, s2=${s2})</h2>
 </p>
 <div class="gallery" style="height:${sizeY}px;">
   <ul class="index">
@@ -33,8 +32,6 @@ Result 2: Simplest Color Balance (histogram method) on Intensity channel  <br />
       <a href="#">
 	Original
 	<span>
-	  <!-- <img style="vertical-align:top" src="${app.work_url + 'input_0.png'}" />
-	  <img style="vertical-align:top" src="${app.work_url + 'input_0_hist.png'}" /> -->
 	  <table >
 	  <tr>
 	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'input_0.png'}" /> </td>
@@ -48,8 +45,6 @@ Result 2: Simplest Color Balance (histogram method) on Intensity channel  <br />
       <a href="#">
 	Color Balance
 	<span>
-	  <!-- <img style="vertical-align:top" src="${app.work_url + 'output_1.png'}" />
-	  <img style="vertical-align:top" src="${app.work_url + 'output_1_hist.png'}" /> --->
 	  <table >
 	  <tr>
 	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1.png'}" /> </td>
@@ -63,8 +58,6 @@ Result 2: Simplest Color Balance (histogram method) on Intensity channel  <br />
       <a href="#">
 	Grey Level Balance
 	<span>
-	  <!-- <img style="vertical-align:top" src="${app.work_url + 'output_2.png'}" />
-	  <img style="vertical-align:top" src="${app.work_url + 'output_2_hist.png'}" /> -->
 	  <table >
 	  <tr>
 	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2.png'}" /> </td>
