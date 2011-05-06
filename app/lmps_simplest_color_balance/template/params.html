@@ -25,7 +25,6 @@ be preserved).
     <input type="hidden" name="key" value="${app.key}">
 
 <!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
-<p>
   <div style="float:left;padding-right:25px">
     s1: <input type="text" style="font-family:monospace;text-align:right"
     size="7" id="s1_selector" name="s1" value="${s1}" />
@@ -37,9 +36,7 @@ $(document).ready(function()
     { createLinkedSlider('#s1_selector', '#sliderS1', 0.0, 20.0, 0.1); });
 </script>
 <div style="clear:both"> </div>
-</p>
 
-<p>
   <div style="float:left;padding-right:25px">
     s2: <input type="text" style="font-family:monospace;text-align:right"
     size="7" id="s2_selector" name="s2" value="${s2}" />
@@ -51,7 +48,6 @@ $(document).ready(function()
     { createLinkedSlider('#s2_selector', '#sliderS2', 0.0, 20.0, 0.1); });
 </script>
 <div style="clear:both"> </div>
-</p>
 
 <!-- end of code for slider -->
 
