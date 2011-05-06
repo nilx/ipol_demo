@@ -17,7 +17,6 @@ that you can select:
     <input type="hidden" name="rmax" value="${rmax}">
 
 <!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
-<p>
 %if (r != None):
   <div style="float:left;padding-right:25px">
     r: <input type="text" style="font-family:monospace;text-align:right"
@@ -35,7 +34,6 @@ $(document).ready(function()
     { createLinkedSlider('#r_selector', '#slider', 0, ${rmax}, 1); });
 </script>
 <div style="clear:both"> </div>
-</p>
 <!-- end of code for slider -->
 
 
