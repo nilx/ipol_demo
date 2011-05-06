@@ -1,0 +1,52 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+<h2>Algorithm Parameters</h2>
+
+The algorithm performs a local color correction.
+The "locality" of the method depends upon a radius parameter r,
+that you can select:
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="rmax" value="${rmax}">
+
+<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
+<p>
+%if (r != None):
+  <div style="float:left;padding-right:25px">
+    r: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="r_selector" name="r" value="${r}" />
+%else:
+  <div style="float:left;padding-right:25px">
+    r: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="r_selector" name="r" value="40" />
+%endif
+</div>
+<div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#r_selector', '#slider', 0, ${rmax}, 1); });
+</script>
+<div style="clear:both"> </div>
+</p>
+<!-- end of code for slider -->
+
+
+      <input type="submit" name="process"  value="run local" />
+    <p>
+    You can also perform a global color correction by clicking here: 
+        <input type="submit" name="process"  value="run global" />
+    </p>
+      <img src="${app.work_url + 'input_0.sel.png'}" />
+  </div>
+</form>
+
+
+<%include file="footer.html" />
