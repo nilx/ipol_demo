@@ -1,10 +1,7 @@
 <%include file="header.html" />
 
 <p>
-  Warning: this algorithm only works on orthorectified images. If
-  your pair is not orthorectified, use 
-  <a href='../../m_quasi_euclidean_epipolar_rectification/'>a
-    rectification step</a> first.
+  Note: As a first step of this algorithm, a <a href='http://www.ipol.im/pub/algo/m_quasi_euclidean_epipolar_rectification/'>rectification algorithm</a> will be run to ensure the apparent motion is horizontal.
 </p>
 
 <form action="${app.base_url + 'wait'}" method="get">
