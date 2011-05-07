@@ -1,6 +1,7 @@
 """
 Zhang-Wu LMMSE Image Demosaicking ipol demo web app
 """
+# pylint: disable-msg=R0904,C0103
 
 from lib import base_app, build, http, image
 from lib.misc import ctime
@@ -217,10 +218,10 @@ class app(base_app):
                 info="selected subimage")
             ar.add_file("mosaiced.png", 
                 info="mosaiced image")
-            ar.add_file("malvar.png", 
-                info="Malvar demosaiced image")
-            ar.add_file("diffmalvar.png", 
-                info="difference image for Malvar")
+            ar.add_file("dmzhangwu.png", 
+                info="Zhang-Wu demosaiced image")
+            ar.add_file("diffdmzhangwu.png", 
+                info="difference image for Zhang-Wu")
             ar.add_file("bilinear.png", 
                 info="bilinear demosaiced image")
             ar.add_file("diffbilinear.png", 
