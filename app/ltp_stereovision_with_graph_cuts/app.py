@@ -2,9 +2,6 @@
 Computing Visual Correspondence with Occlusions using Graph Cuts demo
 interaction script
 """
-# pylint: disable=C0103
-# pylint: disable=R0904
-# pylint: disable=W0221
 
 from lib import base_app, build, image, http
 from lib.misc import app_expose, ctime
