@@ -100,7 +100,7 @@ class app(base_app):
                        (x0+1, y0+1)], color="white")
         imgS.save(self.work_dir + 'input_0s.png')
         # crop the image
-        # try cropping from the original input image (if different from input_1)
+        # try cropping from the original input image (if different from input_0)
         im0 = image(self.work_dir + 'input_0.orig.png')
         dx0 = im0.size[0]
         img = image(self.work_dir + 'input_0.png')
@@ -252,9 +252,8 @@ class app(base_app):
             ar = self.make_archive()
             ar.add_file("input_0.orig.png", info="uploaded image")
             ar.add_file("input_0.sel.png", info="selected subimage")
-            ar.add_file("input_1.png", info="mosaicked image")
-            ar.add_file("output_1.png", info="demosaicked image")
-            ar.add_file("output_2.png", info="difference image")
+            ar.add_file("output.png", info="cartoon image")
+            ar.add_file("diff.png", info="texture image")
             ar.add_info({"scale": scale})
             ar.save()
 
