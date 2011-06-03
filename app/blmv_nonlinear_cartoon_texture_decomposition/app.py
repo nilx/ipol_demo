@@ -251,7 +251,15 @@ class app(base_app):
         if self.cfg['meta']['original']:
             ar = self.make_archive()
             ar.add_file("input_0.orig.png", info="uploaded image")
-            ar.add_file("input_0.sel.png", info="selected subimage")
+            # save processed image (if different from uploaded)
+            im0 = image(self.work_dir + 'input_0.orig.png')
+            dx0 = im0.size[0]
+            img = image(self.work_dir + 'input_0.png')
+            dx = img.size[0]
+            imgsel = image(self.work_dir + 'input_0.sel.png')
+            dxsel = imgsel.size[0]
+            if (dx != dx0) or (dxsel != dx):
+              ar.add_file("input_0.sel.png", info="original input image")
             ar.add_file("output.png", info="cartoon image")
             ar.add_file("diff.png", info="texture image")
             ar.add_info({"scale": scale})
