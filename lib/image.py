@@ -388,7 +388,51 @@ class image(object):
         self.im = PIL.ImageOps.invert(self.im)
         return self
 
-    def histogram(self, option="all", sizeH=(256, 128), margin=10):
+    def max_histogram(self, option="all"):
+        """
+        returns the maximum value of the histogram of image values,
+        only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
+
+        @param option: "R" histogram of R values, "G" histogram of G values,
+                       "B" histogram of B values, "I" histogram of I values,
+                       "all" histograms of R, G, B and I values
+        """
+        
+        # constant values
+        offsetH = {"R":0, "G":256, "B":512, "I":768}
+        rgb2I = (
+            0.333333, 0.333333, 0.333333, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0 )
+
+        # check image mode
+        if self.im.mode not in ("L", "RGB"):
+            raise ValueError("Unsuported image mode for histogram computation")
+
+        if self.im.mode == "RGB":
+            # compute grey level image: I = (R + G + B) / 3
+            if (option == "I") or (option == "all"):
+                imgray = self.im.convert("L", rgb2I)
+            # compute histograms of R,G and B values
+            h = self.im.histogram()
+            # compute histograms of I values
+            if (option == "I") or (option == "all"):
+                # concatenate I histogram to RGB histograms      
+                h = h + imgray.histogram()
+            # get maximum of histograms of R, G, B and I values
+            if option != "all":
+                maxH = max(h[offsetH[option]:offsetH[option]+256])
+            else:
+                maxH = max(h)
+        else:
+            # compute histogram of I values
+            h = self.im.histogram()
+            # get maximum of histogram of I values
+            maxH = max(h[0:256])
+
+        return maxH
+
+    def histogram(self, option="all", sizeH=(256, 128), margin=10, maxRef=None):
         """
         creates an image displaying the histogram of image values,
         only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
@@ -436,12 +480,18 @@ class image(object):
             # draw histograms of R, G, B and I values
             if option != "all":
                 maxH = max(h[offsetH[option]:offsetH[option]+256])
-                scaleH = float(sizeH[1])/float(maxH)
+                if maxRef:
+                    scaleH = float(sizeH[1])/float(maxRef)
+                else:
+                    scaleH = float(sizeH[1])/float(maxH)
                 drawhistogram(imout, h[offsetH[option]:offsetH[option]+256],
                               sizeH[1]-1, scaleH, color[option])
             else:
                 maxH = max(h)
-                scaleH = float(sizeH[1])/float(maxH)
+                if maxRef:
+                    scaleH = float(sizeH[1])/float(maxRef)
+                else:
+                    scaleH = float(sizeH[1])/float(maxH)
                 for i in ['R', 'G', 'B', 'I']:
                     drawhistogram(imout, h[offsetH[i]:offsetH[i]+256], 
                                   offsetY[i], scaleH, color[i])
@@ -453,9 +503,13 @@ class image(object):
             imout = PIL.Image.new('L', size, 255)
             # draw histogram of I values
             maxH = max(h[0:256])
-            scaleH = float(sizeH[1])/float(maxH)
+            if maxRef:
+                scaleH = float(sizeH[1])/float(maxRef)
+            else:
+                scaleH = float(sizeH[1])/float(maxH)
             # histogram color: light gray
             drawhistogram(imout, h[0:256], sizeH[1]-1, scaleH, 192)
 
         self.im = imout
         return self
+

@@ -369,18 +369,23 @@ class app(base_app):
                            stdout=stdout, stderr=None)
         self.wait_proc([p1, p2], timeout)
 
-	"""
-	Compute histograms of images
-	"""
-	im=image(self.work_dir + 'input_0.sel.png');
-	im.histogram(option="all")
-	im.save(self.work_dir + 'input_0_hist.png')
-	im=image(self.work_dir + 'output_1.png');
-	im.histogram(option="all")
-	im.save(self.work_dir + 'output_1_hist.png')
-	im=image(self.work_dir + 'output_2.png');
-	im.histogram(option="all")
-	im.save(self.work_dir + 'output_2_hist.png')
+	
+	#Compute histograms of images
+        im1 = image(self.work_dir + 'input_0.sel.png')
+        im2 = image(self.work_dir + 'output_1.png')
+        im3 = image(self.work_dir + 'output_2.png')
+        #compute maximum of histogram values
+        maxH1=im1.max_histogram(option="all")
+        maxH2=im2.max_histogram(option="all")
+        maxH3=im3.max_histogram(option="all")
+        maxH=max([maxH1, maxH2, maxH3])
+        #draw all the histograms using the same reference maximum
+        im1.histogram(option="all", maxRef=maxH)
+        im1.save(self.work_dir + 'input_0_hist.png')
+        im2.histogram(option="all", maxRef=maxH)
+        im2.save(self.work_dir + 'output_1_hist.png')
+        im3.histogram(option="all", maxRef=maxH)
+        im3.save(self.work_dir + 'output_2_hist.png')
 
 
 
