@@ -275,7 +275,7 @@ class app(base_app):
 
         amin=40
         rmax=3.0
-        use_recursiveCC=1
+        use_recursiveCC=0
 	#process image
         p = self.run_proc(['mlocalhistogram', 'input_0.sel.png', 'output.png', 
                            str(level), str(amin), str(rmax), str(use_recursiveCC)],
