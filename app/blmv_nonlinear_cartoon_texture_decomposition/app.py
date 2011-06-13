@@ -49,10 +49,10 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "blmv_nonlinear_cartoon_texture_decomposition/src.tgz"
-        tgz_file = self.dl_dir + "src.tar.gz"
-        progs = ["ct"]
-        src_bin = dict([(self.src_dir + os.path.join("src", prog),
+            + "blmv_nonlinear_cartoon_texture_decomposition/srcB.tar.gz"
+        tgz_file = self.dl_dir + "srcB.tar.gz"
+        progs = ["cartoonIpol"]
+        src_bin = dict([(self.src_dir + os.path.join("srcB", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -70,7 +70,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "src", " ".join(progs)),
+                      % (self.src_dir + "srcB", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
@@ -274,20 +274,10 @@ class app(base_app):
         this one needs no parameter
         """
 
-	#convert image to TIFF format
-        im = image(self.work_dir + 'input_0.sel.png')
-        im.save(self.work_dir + 'input_0.sel.tiff')
-
-	#mosaic image
-        p = self.run_proc(['ct', str(scale), 'input_0.sel.tiff', 'output.tiff', 
-                          'diff.tiff'], stdout=None, stderr=None)
+	#cartoon-texture images
+        p = self.run_proc(['cartoonIpol', 'input_0.sel.png', str(scale), 'cartoon.png', 
+                          'texture.png'], stdout=None, stderr=None)
         self.wait_proc(p, timeout)
-
-        #convert results to PNG format
-        im = image(self.work_dir + 'output.tiff')
-        im.save(self.work_dir + 'output.png')
-        im = image(self.work_dir + 'diff.tiff')
-        im.save(self.work_dir + 'diff.png')
 
 	
     @cherrypy.expose
@@ -332,13 +322,13 @@ class app(base_app):
             im.resize((sizeX, sizeY), method="pixeldup")
             im.save(self.work_dir + 'input_0_zoom.sel.png')
 
-            im = image(self.work_dir + 'output.png')
+            im = image(self.work_dir + 'cartoon.png')
             im.resize((sizeX, sizeY), method="pixeldup")
-            im.save(self.work_dir + 'output_zoom.png')
+            im.save(self.work_dir + 'cartoon_zoom.png')
 
-            im = image(self.work_dir + 'diff.png')
+            im = image(self.work_dir + 'texture.png')
             im.resize((sizeX, sizeY), method="pixeldup")
-            im.save(self.work_dir + 'diff_zoom.png')
+            im.save(self.work_dir + 'texture_zoom.png')
 
 
         return self.tmpl_out("result.html", scale=scale, 
