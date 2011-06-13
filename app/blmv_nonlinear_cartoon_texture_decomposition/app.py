@@ -260,8 +260,8 @@ class app(base_app):
             dxsel = imgsel.size[0]
             if (dx != dx0) or (dxsel != dx):
               ar.add_file("input_0.sel.png", info="original input image")
-            ar.add_file("output.png", info="cartoon image")
-            ar.add_file("diff.png", info="texture image")
+            ar.add_file("cartoon.png", info="cartoon image")
+            ar.add_file("texture.png", info="texture image")
             ar.add_info({"scale": scale})
             ar.save()
 
