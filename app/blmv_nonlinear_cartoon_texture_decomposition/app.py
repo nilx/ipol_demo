@@ -259,7 +259,7 @@ class app(base_app):
             imgsel = image(self.work_dir + 'input_0.sel.png')
             dxsel = imgsel.size[0]
             if (dx != dx0) or (dxsel != dx):
-              ar.add_file("input_0.sel.png", info="original input image")
+                ar.add_file("input_0.sel.png", info="original input image")
             ar.add_file("cartoon.png", info="cartoon image")
             ar.add_file("texture.png", info="texture image")
             ar.add_info({"scale": scale})
@@ -275,8 +275,9 @@ class app(base_app):
         """
 
 	#cartoon-texture images
-        p = self.run_proc(['cartoonIpol', 'input_0.sel.png', str(scale), 'cartoon.png', 
-                          'texture.png'], stdout=None, stderr=None)
+        p = self.run_proc(['cartoonIpol', 'input_0.sel.png', str(scale), 
+                           'cartoon.png', 'texture.png'], 
+                           stdout=None, stderr=None)
         self.wait_proc(p, timeout)
 
 	
