@@ -80,6 +80,43 @@ class app(base_app):
                 shutil.copy(src, dst)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
+
+        # store common file path in variables
+        tgz_url = "https://edit.ipol.im/pub/algo/" \
+            + "lmps_simplest_color_balance/simplest_color_balance-0.20110622.tar.gz"
+        tgz_file = self.dl_dir + "simplest_color_balance-0.20110622.tar.gz"
+        progs = ["balance_rgb", "balance_hsl"]
+        src_bin = dict([(self.src_dir + 
+                         os.path.join("simplest_color_balance-0.20110622", prog),
+                         self.bin_dir + prog)
+                        for prog in progs])
+        log_file = self.base_dir + "build.log"
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
+        # test if any dest file is missing, or too old
+        if all([(os.path.isfile(bin_file)
+                 and ctime(tgz_file) < ctime(bin_file))
+                for bin_file in src_bin.values()]):
+            cherrypy.log("not rebuild needed",
+                         context='BUILD', traceback=False)
+        else:
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
+            # build the programs
+            build.run("make -j4 -C %s %s"
+                      % (self.src_dir + "simplest_color_balance-0.20110622", 
+                      " ".join(progs)),
+                      stdout=log_file)
+            # save into bin dir
+            #if os.path.isdir(self.bin_dir):
+            #    shutil.rmtree(self.bin_dir)
+            #os.mkdir(self.bin_dir)
+            for (src, dst) in src_bin.items():
+		print "copy %s to %s" % (src, dst) 
+                shutil.copy(src, dst)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+
         return
 
 
@@ -169,16 +206,22 @@ class app(base_app):
                            stdout=None, stderr=None)
         self.wait_proc(p, timeout)
 
+        p = self.run_proc(['balance_hsl', str(s1), str(s2), 'input_0.png',
+                            'output_3.png'],
+                           stdout=None, stderr=None)
+        self.wait_proc(p, timeout)
 
         #Compute histograms of images
         im1 = image(self.work_dir + 'input_0.png')
         im2 = image(self.work_dir + 'output_1.png')
         im3 = image(self.work_dir + 'output_2.png')
+        im4 = image(self.work_dir + 'output_3.png')
         #compute maximum of histogram values
         maxH1=im1.max_histogram(option="all")
         maxH2=im2.max_histogram(option="all")
         maxH3=im3.max_histogram(option="all")
-        maxH=max([maxH1, maxH2, maxH3])
+        maxH4=im4.max_histogram(option="all")
+        maxH=max([maxH1, maxH2, maxH3, maxH4])
         #draw all the histograms using the same reference maximum
         im1.histogram(option="all", maxRef=maxH)
         im1.save(self.work_dir + 'input_0_hist.png')
@@ -186,6 +229,8 @@ class app(base_app):
         im2.save(self.work_dir + 'output_1_hist.png')
         im3.histogram(option="all", maxRef=maxH)
         im3.save(self.work_dir + 'output_2_hist.png')
+        im4.histogram(option="all", maxRef=maxH)
+        im4.save(self.work_dir + 'output_3_hist.png')
 	
     @cherrypy.expose
     @init_app
