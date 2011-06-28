@@ -49,8 +49,8 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "blm_color_dimensional_filtering/rgbprocess.tar.gz"
-        tgz_file = self.dl_dir + "rgbprocess.tar.gz"
+            + "blm_color_dimensional_filtering/rgbprocessB.tar.gz"
+        tgz_file = self.dl_dir + "rgbprocessB.tar.gz"
         prog_file = self.bin_dir + "rgbprocess"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
@@ -65,14 +65,14 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the program
             build.run("make -j4 -C %s rgbprocess"
-                      % (self.src_dir + "rgbprocess"),
+                      % (self.src_dir + "rgbprocessB"),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
             shutil.copy(self.src_dir 
-                        + os.path.join("rgbprocess", "rgbprocess"), prog_file)
+                        + os.path.join("rgbprocessB", "rgbprocess"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
@@ -201,6 +201,32 @@ class app(base_app):
 
         return self.tmpl_out("run.html")
 
+    def check_removed(self):
+       """
+       check that the number of removed pixels (pixels with isolated color)
+       is below 50% of the total number of pixels
+       """
+       ok=False
+       npixels=0
+       npixelsremoved=0
+       img1 = image(self.work_dir + 'input.png')
+       img2 = image(self.work_dir + 'input_1.png')
+       pix1 = img1.im.load()
+       pix2 = img2.im.load()
+       for y in range(0, img1.im.size[1]):
+           for x in range(0, img1.im.size[0]):
+               if pix1[x, y] != (0, 0, 0):
+                   npixels+=1
+                   if pix2[x, y] == (0, 0, 0):
+                       npixelsremoved+=1
+       if npixels > 0:
+           prc=npixelsremoved*100.0/npixels
+       else:
+           prc=0
+       print "not-zero pixels:%i   removed:%i    (%2.2f)" %(npixels, npixelsremoved, prc)   
+       ok=(prc < 50)
+       return ok
+
     def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
@@ -221,6 +247,15 @@ class app(base_app):
                             'RGBviewsparams.txt'],
                            stdout=None, stderr=stdout)
         self.wait_proc([p1, p2], timeout)
+
+        #check that the number of removed pixels (pixels with isolated color)
+        #is below 50% of the total number of pixels,
+        #else copy input.png to input_1.png
+        okRemoved=self.check_removed()
+        if not okRemoved: 
+            img = image(self.work_dir + 'input.png')
+            img.save(self.work_dir + 'input_1.png')
+
 
         p3 = self.run_proc(['rgbprocess', 'filter',
                             'input_1.png', 'output_1.png'],
