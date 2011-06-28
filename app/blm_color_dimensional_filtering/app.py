@@ -201,31 +201,6 @@ class app(base_app):
 
         return self.tmpl_out("run.html")
 
-    def check_removed(self):
-       """
-       check that the number of removed pixels (pixels with isolated color)
-       is below 50% of the total number of pixels
-       """
-       ok=False
-       npixels=0
-       npixelsremoved=0
-       img1 = image(self.work_dir + 'input.png')
-       img2 = image(self.work_dir + 'input_1.png')
-       pix1 = img1.im.load()
-       pix2 = img2.im.load()
-       for y in range(0, img1.im.size[1]):
-           for x in range(0, img1.im.size[0]):
-               if pix1[x, y] != (0, 0, 0):
-                   npixels+=1
-                   if pix2[x, y] == (0, 0, 0):
-                       npixelsremoved+=1
-       if npixels > 0:
-           prc=npixelsremoved*100.0/npixels
-       else:
-           prc=0
-       print "not-zero pixels:%i   removed:%i    (%2.2f)" %(npixels, npixelsremoved, prc)   
-       ok=(prc < 50)
-       return ok
 
     def run_algo(self, stdout=None, timeout=False):
         """
@@ -247,14 +222,10 @@ class app(base_app):
                             'RGBviewsparams.txt'],
                            stdout=None, stderr=stdout)
         self.wait_proc([p1, p2], timeout)
-
-        #check that the number of removed pixels (pixels with isolated color)
-        #is below 50% of the total number of pixels,
-        #else copy input.png to input_1.png
-        okRemoved=self.check_removed()
-        if not okRemoved: 
-            img = image(self.work_dir + 'input.png')
-            img.save(self.work_dir + 'input_1.png')
+  
+        #TEST JL: do not remove isolated colors
+        img = image(self.work_dir + 'input.png')
+        img.save(self.work_dir + 'input_1.png')
 
 
         p3 = self.run_proc(['rgbprocess', 'filter',
