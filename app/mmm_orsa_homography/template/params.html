@@ -1,0 +1,39 @@
+<%include file="header.html" />
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    Choose the precision (in pixels) and run the registration process.
+    <input type="hidden" name="key" value="${app.key}">
+    <select name="precision">
+      %for _p in ['arbitrary','5','2','1','0.5']:
+      <option value="${_p}">${_p}</option>
+      %endfor
+    </select>
+    <input type="submit" value="run" />
+  </div>
+</form>
+
+<h2>Input Images</h2>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	first image
+	<span>
+	  <img src="${app.work_url + 'input_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second image
+	<span>
+	  <img src="${app.work_url + 'input_1.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<%include file="footer.html" />

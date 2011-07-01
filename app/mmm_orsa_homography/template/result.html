@@ -1,0 +1,118 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Restart with new input.
+    <input type="submit" value="new input" />
+  </div>
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    Restart with new precision.
+    <input type="hidden" name="key" value="${app.key}" />
+    <input type="hidden" name="newrun" value="1" />
+    <input type="submit" value="new precision" />
+  </div>
+</form>
+
+<h2>Input Images</h2>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	first image
+	<span>
+	  <img src="${app.work_url + 'input_0.png'}" />
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second image
+	<span>
+	  <img src="${app.work_url + 'input_1.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<h2>Output Matches</h2>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	inliers
+	<span>
+	  <img src="${app.work_url + 'inliers.png'}" />
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	outliers
+	<span>
+	  <img src="${app.work_url + 'outliers.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<h2>Output Registered Images</h2>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	Panorama
+	<span>
+	  <img src="${app.work_url + 'panorama.png'}" />
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	image 1
+	<span>
+	  <img src="${app.work_url + 'registered_0.png'}" />
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	image 2
+	<span>
+	  <img src="${app.work_url + 'registered_1.png'}" />
+        </span>
+      </a>
+    </li>
+</ul>
+</div>
+
+<ul>
+  <li>
+    <a href="${app.work_url + 'match.txt'}">correspondences</a>
+  </li>
+  <li>
+    <a href="${app.work_url + 'matchOrsa.txt'}">inliers</a>
+  </li>
+</ul>
+
+<h2>Program Output</h2>
+
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />

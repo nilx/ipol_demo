@@ -1,0 +1,51 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm did not find a valid registration model.
+  See below for a possible explanation.
+</p>
+
+<h2>Input Images</h2>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	first image
+	<span>
+	  <img src="${app.work_url + 'input_0.png'}" />
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second image
+	<span>
+	  <img src="${app.work_url + 'input_1.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<h2>Output Matches</h2>
+
+<span>
+  <img src="${app.work_url + 'outliers.png'}" />
+</span>
+
+<ul>
+  <li>
+    <a href="${app.work_url + 'match.txt'}">correspondences</a>
+  </li>
+</ul>
+
+<h2>Program Output</h2>
+
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
