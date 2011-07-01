@@ -1,0 +1,42 @@
+<%include file="header.html" />
+
+<form action="${app.base_url + 'crop'}" method="get">
+    <input type="hidden" name="key" value="${app.key}" />    
+    <p>
+      Output/input size ratio:
+      <select name="ratio">
+	%for r in ['1.0', '1.2', '1.5', '2.0', '3.0', '4.0']:
+        %if ratio == r:
+        <option value="${r}" selected>${r}</option>
+        %else:
+        <option value="${r}">${r}</option>
+        %endif
+	%endfor
+      </select>
+    </p>
+
+    <p>Run the algorithm: <input type="submit" name="action" value="run" /><p/>
+
+    %if x0 and y0 and x1 and y1:
+    <input type="hidden" name="x0" value="${x0}" />
+    <input type="hidden" name="y0" value="${y0}" />
+    <input type="hidden" name="x1" value="${x1}" />
+    <input type="hidden" name="y1" value="${y1}" />
+    <p>The algorithm will run on this selected subimage:</p>
+    <img src="${app.work_url + 'input_selection.png'}" alt="" />
+    %elif x0 and y0:
+    <input type="hidden" name="x0" value="${x0}" />
+    <input type="hidden" name="y0" value="${y0}" />
+    <p>Please select the second corner of the subimage:</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+              src="${app.work_url + 'input_corner.png'}" /></p>
+    %else:
+    <p>Or you can run it after selecting a subimage by clicking two 
+      opposite corners of the subimage.</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+              src="${app.work_url + 'input_0.png'}" /></p>
+    %endif
+</form>
+
+
+<%include file="footer.html" />
