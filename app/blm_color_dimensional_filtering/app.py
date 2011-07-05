@@ -49,8 +49,8 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "blm_color_dimensional_filtering/rgbprocessB.tar.gz"
-        tgz_file = self.dl_dir + "rgbprocessB.tar.gz"
+            + "blm_color_dimensional_filtering/rgbprocess.tar.gz"
+        tgz_file = self.dl_dir + "rgbprocess.tar.gz"
         prog_file = self.bin_dir + "rgbprocess"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
@@ -65,14 +65,14 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the program
             build.run("make -j4 -C %s rgbprocess"
-                      % (self.src_dir + "rgbprocessB"),
+                      % (self.src_dir + "rgbprocess"),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
             shutil.copy(self.src_dir 
-                        + os.path.join("rgbprocessB", "rgbprocess"), prog_file)
+                        + os.path.join("rgbprocess", "rgbprocess"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
