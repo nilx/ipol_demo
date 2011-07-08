@@ -33,4 +33,3 @@ To create a new demo,
 4. in this new folder, customize the `params.html` and `result.html`
    templates in the `template` folder
 5. debug, test, debug, release
-

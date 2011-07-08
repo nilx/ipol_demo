@@ -46,20 +46,8 @@
 
 <h2>
 Results 
-(Mosaic pattern: 
-%if pattern == 'RGGB':
-    RGGB <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_RGGB.png" />,
-%endif
-%if pattern == 'GRBG':
-    GRBG <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_GRBG.png" />,
-%endif
-%if pattern == 'GBRG':
-    GBRG <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_GBRG.png" />,
-%endif
-%if pattern == 'BGGR':
-    BGGR <img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_BGGR.png" />
-%endif
-) 
+(Mosaic pattern: ${pattern}
+<img src="http://www.ipol.im/pub/algo/bcms_self_similarity_driven_demosaicking/bayer_${pattern}.png" />) 
 </h2>
 
 %if zoom_factor:
@@ -159,7 +147,7 @@ Download:
 %endif
 
 
-<br>
+<br />
 
 
 <p>
@@ -173,7 +161,6 @@ and 255 respectively.
 </p>
 <div id="formula" style="display:none"> 
   <p>
-  <!-- <img src="${app.input_url + 'formulaerrordisplay.png'}" /> -->
   The displayed error is:
   <ul>
     <li> 0 if the error is under -20</li>
