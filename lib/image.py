@@ -208,6 +208,8 @@ class image(object):
 
         if method == "pixeldup":
             # rescaling by pixel duplication
+            # PIL "nearest" filter is buggy
+            # http://mail.python.org/pipermail/image-sig/2011-March/006699.html
             if size == self.im.size:
                 # no resize needed
                 pass
