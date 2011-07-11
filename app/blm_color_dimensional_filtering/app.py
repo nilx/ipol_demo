@@ -224,8 +224,8 @@ class app(base_app):
         self.wait_proc([p1, p2], timeout)
   
         #TEST JL: do not remove isolated colors
-        img = image(self.work_dir + 'input.png')
-        img.save(self.work_dir + 'input_1.png')
+        #img = image(self.work_dir + 'input.png')
+        #img.save(self.work_dir + 'input_1.png')
 
 
         p3 = self.run_proc(['rgbprocess', 'filter',
