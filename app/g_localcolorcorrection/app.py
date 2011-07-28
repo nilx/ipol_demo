@@ -48,8 +48,8 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "gl_localcolorcorrection/LCC.tar.gz"
-        tgz_file = self.dl_dir + "LCC.tar.gz"
+            + "gl_localcolorcorrection/LCC_28072011.tar.gz"
+        tgz_file = self.dl_dir + "LCC_28072011.tar.gz"
         prog_file = self.bin_dir + "localcolorcorrection"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
@@ -296,22 +296,39 @@ class app(base_app):
                             'output_1.png', str(r), str(option)], 
                             stdout=None, stderr=None)
 
-        #color correction of intensity channel
+        #color correction of intensity channel (keep R/G/B ratios)
         option = 2
         p2 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 
                            'output_2.png', str(r), str(option)], 
                            stdout=None, stderr=None)
-        self.wait_proc([p1, p2], timeout)
+
+        #color correction of Y channel (use YPbPr color space)
+        option = 3
+        p3 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 
+                           'output_3.png', str(r), str(option)], 
+                           stdout=None, stderr=None)
+
+        #color correction of L channel (use HSL color space)
+        option = 4
+        p4 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 
+                           'output_4.png', str(r), str(option)], 
+                           stdout=None, stderr=None)
+
+        self.wait_proc([p1, p2, p3, p4], timeout)
 
         #Compute histograms of images
         im1 = image(self.work_dir + 'input_0.sel.png')
         im2 = image(self.work_dir + 'output_1.png')
         im3 = image(self.work_dir + 'output_2.png')
+        im4 = image(self.work_dir + 'output_3.png')
+        im5 = image(self.work_dir + 'output_4.png')
         #compute maximum of histogram values
         maxH1=im1.max_histogram(option="all")
         maxH2=im2.max_histogram(option="all")
         maxH3=im3.max_histogram(option="all")
-        maxH=max([maxH1, maxH2, maxH3])
+        maxH4=im4.max_histogram(option="all")
+        maxH5=im5.max_histogram(option="all")
+        maxH=max([maxH1, maxH2, maxH3, maxH4, maxH5])
         #draw all the histograms using the same reference maximum
         im1.histogram(option="all", maxRef=maxH)
         im1.save(self.work_dir + 'input_0_hist.png')
@@ -319,6 +336,10 @@ class app(base_app):
         im2.save(self.work_dir + 'output_1_hist.png')
         im3.histogram(option="all", maxRef=maxH)
         im3.save(self.work_dir + 'output_2_hist.png')
+        im4.histogram(option="all", maxRef=maxH)
+        im4.save(self.work_dir + 'output_3_hist.png')
+        im5.histogram(option="all", maxRef=maxH)
+        im5.save(self.work_dir + 'output_4_hist.png')
 
 
     @cherrypy.expose
