@@ -110,6 +110,15 @@
   </ul>
 </div>
 
+<p>Estimated contours: 
+<a href="${app.work_url + 'contour.svg'}?${app.timestamp}">[SVG]</a>
+<a href="${app.work_url + 'contour.pdf'}?${app.timestamp}">[PDF]</a>
+%if int(app.cfg['param']['imagewidth']) <= 166 and int(app.cfg['param']['imageheight']) <= 185:
+<br />
+<object data="${app.work_url + 'contour.svg'}?${app.timestamp}" width="${6*app.cfg['param']['imagewidth']}" height="${6*app.cfg['param']['imageheight']}" type="image/svg+xml"></object>
+%endif
+</p>
+
 <h2>stdout</h2>
 <pre class="stdio">
   ${stdout}

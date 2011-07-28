@@ -219,7 +219,11 @@ class app(base_app):
             ar.add_file('input_0.png', 'input.png')
             ar.add_file('input_0_sel.png', info='Selected subimage')
             ar.add_file('interpolated.png', info='Interpolation') 
-            ar.add_file('contour.png', info='Estimated contours')
+            ar.add_file('contour.png', info='Estimated contours')            
+            ar.add_file('contour.pdf', info='Estimated contours')
+            ar.add_file('contour-bg.png',
+                        info='Background image for contour.svg')
+            ar.add_file('contour.svg', info='Estimated contours')
             ar.add_info({'action': self.cfg['param']['action'], 
                 'scalefactor': self.cfg['param']['scalefactor'], 
                 'psfsigma': self.cfg['param']['psfsigma']})
@@ -230,7 +234,7 @@ class app(base_app):
                 ar.add_file('difference.png', info='Difference image')
             else:
                 ar.add_file('input_0_zoom.png')
-                        
+            
             ar.save()
 
         return self.tmpl_out('run.html')
@@ -246,8 +250,9 @@ class app(base_app):
         timeout = False
         scalefactor = float(self.cfg['param']['scalefactor'])
         img = image(self.work_dir + 'input_0_sel.png')
-        (sizeX, sizeY) = img.size
+        (sizeX, sizeY) = img.size        
         p = {}
+        logfile = open(self.work_dir + 'log.txt', 'w')
         
         if self.cfg['param']['action'] == self.default_param['action']:
             # In this run mode, the interpolation is performed directly on the
@@ -259,6 +264,8 @@ class app(base_app):
             # Check that interpolated image dimensions are not too large
             cropsize = (min(sizeX, int(800/scalefactor)),
                 min(sizeY, int(800/scalefactor)))
+            self.cfg['param']['imagewidth'] = cropsize[0]
+            self.cfg['param']['imageheight'] = cropsize[1]
             
             if (sizeX, sizeY) != cropsize:
                 (x0, y0) = (int(math.floor((sizeX - cropsize[0])/2)),
@@ -284,7 +291,7 @@ class app(base_app):
                     '-g', self.cfg['param']['grid'],
                     '-x', str(scalefactor*displayzoom), 
                     'input_0_sel.png', 'input_0_zoom.png'],
-                    stdout=stdout, stderr=stdout),
+                    stdout=logfile, stderr=logfile),
                     
                 # Generate an image showing the estimated contour orientations
                 'contour' : 
@@ -293,7 +300,25 @@ class app(base_app):
                     '-x', str(scalefactor*displayzoom), 
                     '-p', str(self.cfg['param']['psfsigma']),
                     'input_0_sel.png', 'contour.png'],
-                    stdout=stdout, stderr=stdout)
+                    stdout=logfile, stderr=logfile),
+                    
+                # Estimated contour orientations as EPS
+                'contour-eps' : 
+                    self.run_proc(['sinterp', '-s', 
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor*displayzoom), 
+                    '-p', str(self.cfg['param']['psfsigma']),
+                    'input_0_sel.png', 'contour.eps'],
+                    stdout=logfile, stderr=logfile),
+                    
+                # Estimated contour orientations as SVG
+                'contour-svg' : 
+                    self.run_proc(['sinterp', '-s', 
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor*displayzoom), 
+                    '-p', str(self.cfg['param']['psfsigma']),
+                    'input_0_sel.png', 'contour.svg', 'contour-bg.png'],
+                    stdout=logfile, stderr=logfile)
                 }
             
             if displayzoom > 1:
@@ -302,11 +327,11 @@ class app(base_app):
                     '-g', 'centered',
                     '-x', str(displayzoom), 
                     'interpolated.png', 'interpolated_zoom.png'],
-                    stdout=stdout, stderr=stdout)
+                    stdout=logfile, stderr=logfile)
         else:
             # In this run mode, the selected image is coarsened, interpolated
             # and compared with the original.
-            
+                        
             # If the image dimensions are small, zoom the displayed results.
             # This value is always at least 1.
             displayzoom = int(math.ceil(350.0/max(sizeX, sizeY)))
@@ -324,24 +349,49 @@ class app(base_app):
                     '-g', 'centered',
                     '-x', str(displayzoom), 
                     'input_0_sel.png', 'input_0_sel_zoom.png'],
-                    stdout=stdout, stderr=stdout)
+                    stdout=logfile, stderr=logfile)
             
             # Perform the actual contour stencil interpolation
             self.wait_proc(p['coarsened'], timeout)
-            p['interpolated'] = self.run_proc(['sinterp', 
-                '-g', self.cfg['param']['grid'],
-                '-x', str(scalefactor), 
-                '-p', str(self.cfg['param']['psfsigma']),
-                'coarsened.png', 'interpolated.png'],
-                stdout=stdout, stderr=stdout)
+            self.cfg['param']['imagewidth'] = math.ceil(sizeX/scalefactor)
+            self.cfg['param']['imageheight'] = math.ceil(sizeY/scalefactor)
             
-            # Generate an image showing the estimated contour orientations
-            p['contour'] = self.run_proc(['sinterp', '-s', 
-                '-g', self.cfg['param']['grid'],
-                '-x', str(scalefactor*displayzoom), 
-                '-p', str(self.cfg['param']['psfsigma']),
-                'coarsened.png', 'contour.png'],
-                stdout=stdout, stderr=stdout)
+            p = {
+                'interpolated' : 
+                    self.run_proc(['sinterp', 
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor), 
+                    '-p', str(self.cfg['param']['psfsigma']),
+                    'coarsened.png', 'interpolated.png'],
+                    stdout=stdout, stderr=stdout),
+                            
+                # Generate an image showing the estimated contour orientations
+                'contour' :
+                    self.run_proc(['sinterp', '-s', 
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor*displayzoom), 
+                    '-p', str(self.cfg['param']['psfsigma']),
+                    'coarsened.png', 'contour.png'],
+                    stdout=logfile, stderr=logfile),
+                    
+                # Estimated contour orientations as EPS
+                'contour-eps' :
+                    self.run_proc(['sinterp', '-s', 
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor*displayzoom), 
+                    '-p', str(self.cfg['param']['psfsigma']),
+                    'coarsened.png', 'contour.eps'],
+                    stdout=logfile, stderr=logfile),
+                    
+                # Estimated contour orientations as SVG
+                'contour-svg' :
+                    self.run_proc(['sinterp', '-s', 
+                    '-g', self.cfg['param']['grid'],
+                    '-x', str(scalefactor*displayzoom), 
+                    '-p', str(self.cfg['param']['psfsigma']),
+                    'coarsened.png', 'contour.svg', 'contour-bg.png'],
+                    stdout=logfile, stderr=logfile)
+                }
 
             # For display, create a nearest neighbor zoomed version of the
             # coarsened image.  nninterp does nearest neighbor interpolation 
@@ -351,7 +401,7 @@ class app(base_app):
                 '-g', self.cfg['param']['grid'],
                 '-x', str(scalefactor*displayzoom), 
                 'coarsened.png', 'coarsened_zoom.png'],
-                stdout=stdout, stderr=stdout)
+                stdout=logfile, stderr=logfile)
                         
             # Because of rounding, the interpolated image dimensions might be 
             # slightly larger than the original image.  For example, if the 
@@ -378,7 +428,7 @@ class app(base_app):
             # Generate difference image
             p['difference'] = self.run_proc(['imdiff', 
                 'input_0_sel.png', 'interpolated.png', 'difference.png'],
-                stdout=stdout, stderr=stdout)
+                stdout=logfile, stderr=logfile)
             # Compute maximum difference, PSNR, and MSSIM
             p['metrics'] = self.run_proc(['imdiff', 
                 'input_0_sel.png', 'interpolated.png'],
@@ -389,14 +439,27 @@ class app(base_app):
                     '-g', 'centered',
                     '-x', str(displayzoom), 
                     'interpolated.png', 'interpolated_zoom.png'],
-                    stdout=stdout, stderr=stdout)
+                    stdout=logfile, stderr=logfile)
                 self.wait_proc(p['difference'], timeout)
                 p['differencezoom'] = self.run_proc(['nninterp',
                     '-g', 'centered',
                     '-x', str(displayzoom), 
                     'difference.png', 'difference_zoom.png'],
-                    stdout=stdout, stderr=stdout)
+                    stdout=logfile, stderr=logfile)
         
+        # Convert EPS to PDF
+        self.wait_proc(p['contour-eps'], timeout)
+        try:
+            self.wait_proc(self.run_proc(['/usr/bin/gs', 
+                '-dSAFER', '-q', '-P-', '-dCompatibilityLevel=1.4',
+                '-dNOPAUSE', '-dBATCH', '-sDEVICE=pdfwrite', 
+                '-sOutputFile=contour.pdf', '-c', '.setpdfwrite', 
+                '-f', 'contour.eps'],
+                stdout=stdout, stderr=stdout), timeout*0.1)
+        except OSError:
+            self.log("eps->pdf conversion failed,"
+                    + " gs is probably missing on this system")
+                
         self.cfg['param']['displayzoom'] = displayzoom
         self.cfg.save()
         # Wait for all processes to complete 
