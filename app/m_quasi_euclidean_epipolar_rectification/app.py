@@ -16,6 +16,7 @@ import shutil
 #
 
 class NoMatchError(RuntimeError):
+    """ Exception raised when epipolar rectification fails """
     pass
 
 class app(base_app):
@@ -122,7 +123,6 @@ class app(base_app):
         """
         algorithm execution
         """
-        # TODO check image size
         try:
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
@@ -131,7 +131,8 @@ class app(base_app):
         except TimeoutError:
             return self.error(errcode='timeout')
         except NoMatchError:
-            http.redir_303(self.base_url + 'result?key=%s&error_nomatch=1' % self.key)
+            http.redir_303(self.base_url +
+                           'result?key=%s&error_nomatch=1' % self.key)
         except RuntimeError:
             return self.error(errcode='runtime')
         else:
@@ -144,8 +145,10 @@ class app(base_app):
                 ar.add_file("input_1.orig.png", info="uploaded #2")
                 ar.add_file("input_0.png", info="input #1")
                 ar.add_file("input_1.png", info="input #2")
-                ar.add_file("output_0_annotated.png", info="output #1, annotated")
-                ar.add_file("output_1_annotated.png", info="output #2, annotated")
+                ar.add_file("output_0_annotated.png",
+                            info="output #1, annotated")
+                ar.add_file("output_1_annotated.png",
+                            info="output #2, annotated")
                 ar.add_file("output_0.png", info="output #1")
                 ar.add_file("output_1.png", info="output #2")
                 ar.add_file("orsa.txt", compress=True)
