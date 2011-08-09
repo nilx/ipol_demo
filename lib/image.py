@@ -107,18 +107,6 @@ def thumbnail(fname, size=(128, 128), ext=".png"):
 
     return tn_fname
 
-def drawhistogram(imout, h, ymax, scaleH, color):
-    """
-    draws in imout the histogram values stored in h
-    """
-    draw = PIL.ImageDraw.Draw(imout)
-    for x in range(0, 256):
-        draw.line([(x, ymax), 
-                   (x, ymax-int(h[x] * scaleH))],
-                   fill=color)
-    del draw
-
-    
 #
 # IMAGE CLASS
 #
@@ -388,76 +376,4 @@ class image(object):
         @return: the inverted image object
         """
         self.im = PIL.ImageOps.invert(self.im)
-        return self
-
-    def histogram(self, option="all", sizeH=(256, 128), margin=10):
-        """
-        creates an image displaying the histogram of image values,
-        only for '1x8i' (8bit gray) or '3x8i' (RGB) modes
-
-        @param option: "R" histogram of R values, "G" histogram of G values,
-                       "B" histogram of B values, "I" histogram of I values,
-                       "all" histograms of R, G, B and I values
-        """
-        
-        # constant values
-        offsetH = {"R":0, "G":256, "B":512, "I":768}
-        offsetY = {"R": sizeH[1]-1, 
-                   "G": 2*sizeH[1]+margin-1, 
-                   "B": 3*sizeH[1]+2*margin-1, 
-                   "I": 4*sizeH[1]+3*margin-1}
-        color = {"R":(255, 0, 0), 
-                 "G":(0, 255, 0), 
-                 "B":(0, 0, 255), 
-                 "I":(192, 192, 192)}
-        rgb2I = (
-            0.333333, 0.333333, 0.333333, 0,
-            0, 0, 0, 0,
-            0, 0, 0, 0 )
-
-        # check image mode
-        if self.im.mode not in ("L", "RGB"):
-            raise ValueError("Unsuported image mode for histogram computation")
-
-        if self.im.mode == "RGB":
-            # compute grey level image: I = (R + G + B) / 3
-            if (option == "I") or (option == "all"):
-                imgray = self.im.convert("L", rgb2I)
-            # compute histograms of R,G and B values
-            h = self.im.histogram()
-            # compute histograms of I values
-            if (option == "I") or (option == "all"):
-                # concatenate I histogram to RGB histograms      
-                h = h + imgray.histogram()
-            # create a white output image
-            if option == "all":
-                size = (sizeH[0], 4*sizeH[1]+3*margin)
-            else:
-                size = sizeH
-            imout = PIL.Image.new('RGB', size, (255, 255, 255))
-            # draw histograms of R, G, B and I values
-            if option != "all":
-                maxH = max(h[offsetH[option]:offsetH[option]+256])
-                scaleH = float(sizeH[1])/float(maxH)
-                drawhistogram(imout, h[offsetH[option]:offsetH[option]+256],
-                              sizeH[1]-1, scaleH, color[option])
-            else:
-                maxH = max(h)
-                scaleH = float(sizeH[1])/float(maxH)
-                for i in ['R', 'G', 'B', 'I']:
-                    drawhistogram(imout, h[offsetH[i]:offsetH[i]+256], 
-                                  offsetY[i], scaleH, color[i])
-        else:
-            # compute histogram of I values
-            h = self.im.histogram()
-            # create a white output image
-            size = sizeH
-            imout = PIL.Image.new('L', size, 255)
-            # draw histogram of I values
-            maxH = max(h[0:256])
-            scaleH = float(sizeH[1])/float(maxH)
-            # histogram color: light gray
-            drawhistogram(imout, h[0:256], sizeH[1]-1, scaleH, 192)
-
-        self.im = imout
         return self

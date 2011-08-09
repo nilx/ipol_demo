@@ -1,7 +1,8 @@
 <%include file="header.html" />
 
 <p>
-  The algorithm result is displayed hereafter.
+  The algorithm result is displayed hereafter, with the
+  RGB color balance and IRGB intensity balance variants.
   It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.<br />
   You can run again this algorithm with new data.
 </p>
@@ -25,51 +26,36 @@
 <hr />
 
 <h2>Results (s1=${s1}, s2=${s2})</h2>
-</p>
+
+Histogram scale is set to the histogram size of the input image.
+Dark colors indicate overflows and truncated bins.
+
 <div class="gallery" style="height:${sizeY}px;">
   <ul class="index">
+    %for (label, img) in [('input','input_0'), \
+                          ('RGB','output_rgb'), \
+                          ('IRGB', 'output_irgb')]:
     <li>
       <a href="#">
-	Original
+	${label}
 	<span>
-	  <table >
-	  <tr>
-	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'input_0.png'}" /> </td>
-	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'input_0_hist.png'}" /> </td>
-	  </tr>
-	  </table> 
+	  <table><tr><td style="vertical-align:top;">
+	  <img src="${app.work_url + img + '.png'}"
+	       style="width=${sizeX}px; height=${sizeY}px" />
+	  </td><td style="vertical-align:top;">
+	  <img src="${app.work_url + img + '_R.png'}"
+	       style="background:white; padding:10px; width=256px; height=128px" /><br />
+	  <img src="${app.work_url + img + '_G.png'}"
+	       style="background:white; padding:10px; width=256px; height=128px" /><br />
+	  <img src="${app.work_url + img + '_B.png'}"
+	       style="background:white; padding:10px; width=256px; height=128px" /><br />
+	  </td></tr></table>
 	</span> 
       </a>
     </li>
-    <li>
-      <a href="#">
-	Color Balance
-	<span>
-	  <table >
-	  <tr>
-	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1.png'}" /> </td>
-	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_hist.png'}" /> </td>
-	  </tr>
-	  </table> 
-	</span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	Grey Level Balance
-	<span>
-	  <table >
-	  <tr>
-	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2.png'}" /> </td>
-	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_hist.png'}" /> </td>
-	  </tr>
-	  </table> 
-	</span>
-      </a>
-    </li>
+%endfor
   </ul>
 </div>
-
 
 <hr />
 
