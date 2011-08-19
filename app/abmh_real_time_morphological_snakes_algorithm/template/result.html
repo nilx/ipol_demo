@@ -1,0 +1,84 @@
+<%include file="header.html" />
+
+<div class="action" style="padding-bottom:3ex">    
+    <form style="float:left" action="${app.base_url}" method="get">
+        <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="try with another image" /></p>
+    </form>    
+
+<%doc>
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">
+</%doc>
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="post">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="msg" value="use the output points" />
+        <input type="submit" value="rerun with the output contour" /></p>
+    </form>
+</div>
+
+You can rerun with the same input  contour and other parameters by simply going back to the preceding page.
+
+<hr />
+
+The algorithm result is displayed hereafter. It ran in ${"%0.2f" % app.cfg['info']['run_time']} s.
+
+<p/></p>
+
+<div class="gallery" style="width:${displaysize[0] + 200}px; height:${displaysize[1]}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+        Output animated
+        <span>
+        <img src="${app.work_url + 'animate_output.gif'}" alt="" />
+<%doc>
+        <img src="${app.work_url + 'animate_output.gif'}?${app.timestamp}" alt="" />
+</%doc>
+        </span>
+      </a>
+    </li>
+
+    <li>
+      <a href="#">
+        Output
+        <span>
+        <img src="${app.work_url + 'output_0.png'}" alt="" />
+<%doc>
+        <img src="${app.work_url + 'output_0.png'}?${app.timestamp}" alt="" />
+</%doc>
+        </span>
+      </a>
+    </li>
+  </ul>
+
+<dl>
+  <dt style="background-color: blue; color: white; width: 8ex">blue</dt>
+  <dd>initial contour</dd>
+
+  <dt style="background-color: red; width: 8ex">red</dt>
+  <dd>first iteration</dd>
+
+  <dt style="background-color: lime; width: 8ex">green</dt>
+  <dd>second iteration</dd>
+
+  <dt>blue, red, green, ...</dt>
+  <dd>next iterations</dd>
+
+  <dt style="background-color: yellow; width: 8ex">yellow</dt>
+  <dd>last iteration</dd>
+</dl>
+
+<a href="${app.work_url + 'output_0.cn'}">output contour</a>
+
+</div>
+
+   <br /> 
+
+<fieldset> 
+  <legend>Command line: </legend>
+  <code style="font-size: 80%"> ${app.cfg['param']['command_line']} </code>
+
+</fieldset>
+
+
+<%include file="footer.html" />

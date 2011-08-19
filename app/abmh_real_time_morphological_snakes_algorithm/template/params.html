@@ -1,0 +1,256 @@
+<%include file="header-jquery.html" />
+
+<%   
+   WIDTH = app.cfg['param']['viewport_width'] 
+   HEIGHT = app.cfg['param']['viewport_height']
+
+   width  = 2** app.cfg['param']['zoom'] * app.cfg['param']['img_width'] 
+   height = 2** app.cfg['param']['zoom'] * app.cfg['param']['img_height']
+
+   bg = app.work_url + 'input_0.png'
+   fg = app.work_url + 'foreground.gif'
+%>
+
+
+<%doc>
+  ********************************************************************
+  ********************************************************************
+</%doc>
+
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+
+<%include file="js/cp_depends.js" />
+<%include file="js/CanvasWidget.js" />
+<%include file="js/CPWidgets.js" />
+
+var lineWidthWidget;
+
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#sigma', '#slider2', 0, 30, 0.5);  
+
+    if ( document.getElementById('poly').value != "[]" ) {
+         window.scrollBy(0,130);
+         //document.scrollto(100,50);
+    }
+
+//     lineWidthWidget = new LineWidthWidget('lineWidthChooser', document.getElementById('zoom').value * document.getElementById('sigma').value, {x: 0, y: 0});
+
+    var scale = Math.pow( 2, document.getElementById('zoom').value );
+    var xpos = 2.4 * Math.floor(( document.getElementById('sigma').value  *255)/76);
+
+    lineWidthWidget = new LineWidthWidget('lineWidthChooser', scale * document.getElementById('sigma').value, xpos,  {x: 0, y: 0});
+});
+
+function updateGaussPanel() { 
+     var scale = Math.pow( 2, document.getElementById('zoom').value );
+     var xpos = 2.4 * Math.floor(( document.getElementById('sigma').value *255)/76);
+
+     lineWidthWidget.linePosition = xpos;
+     lineWidthWidget.lineWidth = scale * document.getElementById('sigma').value;
+     lineWidthWidget.drawWidget();
+     lineWidthWidget.drawWidget();                                             
+}
+</script>
+
+
+
+
+
+<%doc>
+  ********************************************************************
+  ********************************************************************
+</%doc>
+
+
+
+<div id="interface">
+
+<%doc>
+  <form name="theform" action="${app.base_url + 'addpoint'}" method="get" style="padding:10px">
+</%doc>
+  <form name="theform" action="${app.base_url + 'addpoint'}" method="post" style="padding:10px">
+  <p id="buttons">
+
+   <input type="hidden" id="key" name="key" value="${app.key}" />
+
+   <input type="submit" name="action" value="zoom_in" />
+   <input type="submit" name="action" value="zoom_out" />
+
+   <input type="submit" id="action" name="action" value="redraw" />
+   <input type="submit" id="action" name="action" value="delete last point" />
+   <input type="submit" id="action" name="action" value="clear" />
+  </p>
+
+  <script type="text/javascript">
+
+  function update_scroll() {
+    document.getElementById('scrollx').value = document.getElementById('viewport').scrollLeft;
+    document.getElementById('scrolly').value = document.getElementById('viewport').scrollTop;
+  };
+  function set_scroll() {
+    document.getElementById('viewport').scrollLeft = document.getElementById('scrollx').value;
+    document.getElementById('viewport').scrollTop  = document.getElementById('scrolly').value;
+  };
+
+  </script>
+
+
+  <div id="viewport"
+       style="position: relative;
+              top: 0;
+              left: 0;
+              width: ${WIDTH}px;
+              height: ${HEIGHT}px;
+              overflow:scroll;
+              border:black 1px solid;"
+       onscroll="update_scroll();" >
+
+    <img id="background"
+         src="${bg}"
+         alt="this interface requires a graphical browser"
+         style="position: absolute;
+                top: 0;
+                left: 0;
+                width: ${width}px;
+                height: ${height}px;" />
+
+    <input id="foreground"
+           type="image" name="point" src="${fg}"
+           style="cursor: crosshair;
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: ${width}px;
+                  height: ${height}px;"  />
+  </div>
+
+
+  <input type="hidden" id="poly" name="poly" value="${app.cfg['param']['poly']}"/> 
+
+
+  <input type="hidden" id="zoom" name="zoom" value="${app.cfg['param']['zoom']}" />
+  <input type="hidden" id="scrollx" name="scrollx" value="${app.cfg['param']['scrollx']}" />
+  <input type="hidden" id="scrolly" name="scrolly" value="${app.cfg['param']['scrolly']}" />
+
+
+
+
+
+
+<%doc>
+  ********************************************************************
+  ********************************************************************
+</%doc>
+
+<fieldset style="padding-top:1.5ex">
+
+<p> Click on the image to select the initial snake, then set the additional parameters to run the algorithm. </p>
+
+
+<div style="float:left; width:24em; text-align:left; margin-bottom:1.5ex">
+Gauss value (<i>&sigma;</i>) in [0,30]: &nbsp;&nbsp; <input type="text" style="font-family:monospace; text-align:right;" size="7" id="sigma" name="sigma" value="${app.cfg['param']['sigma']}" onchange="updateGaussPanel()" />
+</div>
+
+
+Associated gaussian size
+
+   <br />
+
+<!-- <div id="slider2" style="width:18em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"> </div> -->
+<div id="slider2" style="width:18em; float:left; margin-top:4px; font-size:10pt;" onmousemove="updateGaussPanel()"> </div>
+
+<canvas id="lineWidthChooser" width="250" height="76"></canvas>
+
+<div style="float:left; width:24em; text-align:left; margin-bottom:1.5ex"> </div>
+
+   <br /> 
+
+<div style="clear:both;float:left;width:12em"> Structure type: </div>
+
+
+
+<div style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;">
+
+  <%
+    print "\n\n app.cfg['param']['snake_structure']::  " + str(app.cfg['param']['snake_structure']) + "\n\n"
+  %>
+
+  % if app.cfg['param']['snake_structure'] == 1 :
+      <input type="radio" name="structure"  id="contrast" value="1" checked /> 
+  % else :
+      <input type="radio" name="structure"  id="contrast" value="1" /> 
+  % endif 
+
+      <label for="contrast"> (1) high contrast region </label> 
+
+  % if app.cfg['param']['snake_structure'] == 0 :
+      <input type="radio" name="structure"  id="dark" value="0" checked /> 
+  % else :
+      <input type="radio" name="structure"  id="dark" value="0"  /> 
+  % endif 
+
+      <label for="dark"> (0) dark center lines </label>
+</div> 
+
+   <br /> 
+
+<div style="clear:both;float:left;width:12em"> Balloon type: </div>
+
+<div style="width:38em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;">
+
+  <%
+#    print "\n\n app.cfg['param']['snake_balloon']::  " + str(app.cfg['param']['snake_balloon']) + "\n\n"
+  %>
+
+  % if app.cfg['param']['snake_balloon'] == 0 :
+      <input type="radio" name="balloon" id="no" value="0" checked>
+  % else :
+      <input type="radio" name="balloon" id="no" value="0">
+  % endif 
+
+      <label for="no"> (0) no balloon force </label>
+
+
+  % if app.cfg['param']['snake_balloon'] == 1 :
+      <input type="radio" name="balloon" id="expansion" value="1" checked>
+  % else :
+      <input type="radio" name="balloon" id="expansion" value="1">
+  % endif 
+
+      <label for="expansion"> (1) expansion balloon force </label>
+
+
+  % if app.cfg['param']['snake_balloon'] == -1 :
+      <input type="radio" name="balloon" id="contraction" value="-1" checked>
+  % else :
+      <input type="radio" name="balloon" id="contraction" value="-1">
+  % endif 
+
+      <label for="contraction"> (-1) contraction balloon force </label>  
+</div>
+
+
+   <br /> 
+
+<div style="float:left; width:28em; text-align:left; margin-bottom:1.5ex">
+Iterations: &nbsp;&nbsp; <input type="text" style="font-family:monospace; text-align:right;" size="7" id="iterations" name="iterations" value="${app.cfg['param']['iterations']}" /> </div>
+
+</fieldset>
+
+
+
+<input type="submit" name="action" value="Run" onClick="document.theform.action='${app.base_url + 'wait'}';" >
+
+</form>
+
+</div>
+
+
+<%include file="footer.html" />
+
