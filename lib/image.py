@@ -113,9 +113,15 @@ def drawhistogram(imout, h, ymax, scaleH, color):
     """
     draw = PIL.ImageDraw.Draw(imout)
     for x in range(0, 256):
-        draw.line([(x, ymax), 
-                   (x, ymax-int(h[x] * scaleH))],
-                   fill=color)
+        if (ymax-int(h[x] * scaleH)) < 0:
+            #saturated value
+            draw.line([(x, ymax), 
+                       (x, 0)],
+                       fill=0)
+        else:
+            draw.line([(x, ymax), 
+                       (x, ymax-int(h[x] * scaleH))],
+                       fill=color)
     del draw
 
     
