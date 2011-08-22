@@ -1,0 +1,205 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.<br />
+  You can run again this algorithm with new data.
+</p>
+
+<div class="action">
+  Restart with new input data or different parameter:
+  <form style="display:inline;"
+	action="${app.base_url}" method="get">
+    <input type="submit" value="new input" />
+  </form>
+  <form style="display:inline;"
+	action="${app.base_url + 'params'}" method="get">
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="s1" value="${s1}">
+    <input type="hidden" name="s2" value="${s2}">
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="different parameters" />
+  </form>
+</div>
+
+<hr />
+
+<h2>Results (smin=${s1}, smax=${s2})</h2>
+<p>
+RGB channels processed indepentdently
+</p>
+<div class="gallery" style="height:${sizeY}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	Original
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'input_0.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'input_0_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span> 
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=1
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N1.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N1_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=2
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N2.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N2_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=3
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N3.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N3_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=4
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N4.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N4_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=9
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N9.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N9_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<p>
+Intensity channel processed, R/G/B ratios preserved
+</p>
+<div class="gallery" style="height:${sizeY}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	Original
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'input_0.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'input_0_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span> 
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=1
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N1.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N1_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=2
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N2.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N2_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=3
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N3.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N3_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=4
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N4.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N4_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=9
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N9.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N9_hist.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />

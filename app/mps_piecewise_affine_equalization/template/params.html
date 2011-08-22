@@ -1,0 +1,57 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+
+<h2>Algorithm Parameters</h2>
+<p>
+Choose the minimum (smin) and maximum (smax) slope of the affine transformation
+of image values.
+
+
+</p>
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+
+<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
+  <div style="float:left;padding-right:25px">
+    smin: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="s1_selector" name="s1" value="${s1}" />
+</div>
+<div id="sliderS1" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#s1_selector', '#sliderS1', 0.1, 1.0, 0.1); });
+</script>
+<div style="clear:both"> </div>
+
+  <div style="float:left;padding-right:25px">
+    smax: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="s2_selector" name="s2" value="${s2}" />
+</div>
+<div id="sliderS2" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#s2_selector', '#sliderS2', 1.0, 10.0, 0.1); });
+</script>
+<div style="clear:both"> </div>
+
+<!-- end of code for slider -->
+
+
+    <input type="submit" value="run" />
+  </div>
+</form>
+
+<h2>Input Image</h2>
+
+<img src="${app.work_url + 'input_0.png'}" alt="" /> 
+
+<%include file="footer.html" />
