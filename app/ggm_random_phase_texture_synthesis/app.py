@@ -93,7 +93,6 @@ class app(base_app):
                 img = image(self.work_dir + 'input_0.png')
                 img.save(self.work_dir + 'input' + self.input_ext)
                 img.save(self.work_dir + 'input.png')
-                img.save(self.work_dir + 'input.tiff')
             else:
                 self.cfg['param']['x0'] = x0
                 self.cfg['param']['y0'] = y0
@@ -151,7 +150,6 @@ class app(base_app):
                           int(x1 * zx), int(y1 * zy)))
                 img.save(self.work_dir + 'input' + self.input_ext)
                 img.save(self.work_dir + 'input.png')
-                img.save(self.work_dir + 'input.tiff')
                 return self.tmpl_out("params.html",
                                      x0=x0, y0=y0, x1=x1, y1=y1, ratio=ratio)
             return
@@ -192,9 +190,6 @@ class app(base_app):
         except RuntimeError:
             return self.error(errcode='runtime')
 
-        img = image(self.work_dir + 'output.tiff')
-        img.save(self.work_dir + 'output.png')
-
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
         # archive
@@ -225,11 +220,11 @@ class app(base_app):
 
         if 1. == self.cfg['param']['ratio']:
             p = self.run_proc(['random_phase_noise',
-                               'input.tiff', 'output.tiff'])
+                               'input.png', 'output.png'])
         else:
             p = self.run_proc(['random_phase_noise',
                                '-r', str(self.cfg['param']['ratio']),
-                               'input.tiff', 'output.tiff'])
+                               'input.png', 'output.png'])
         self.wait_proc(p, timeout)
 
     @cherrypy.expose
