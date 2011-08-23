@@ -165,7 +165,8 @@ class app(base_app):
         if (r != None):
             r = min(int(r), rmax)
         else:
-            r = min(int(0.2*rmax), 40)
+            #r = min(int(0.2*rmax), 40)
+            r=int(0.2*rmax)
 
         return self.tmpl_out("params2.html", msg=msg, rmax=rmax, r=r)
 
