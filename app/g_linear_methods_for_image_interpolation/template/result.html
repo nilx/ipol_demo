@@ -41,11 +41,7 @@
         <li>
         <a href="#">${m['title']}
         <span>
-        %if app.cfg['param']['displayzoom'] > 1:
-        <img src="${app.work_url + 'interp_' + m['identifier'] + '_zoom.png'}?${app.timestamp}" alt="" />
-        %else:
         <img src="${app.work_url + 'interp_' + m['identifier'] + '.png'}?${app.timestamp}" alt="" />
-        %endif
         </span>
         </a>
         </li>
@@ -56,11 +52,7 @@
       <a href="#">
         Smoothed
         <span>
-        %if app.cfg['param']['displayzoom'] > 1:
-        <img src="${app.work_url + 'smoothed_zoom.png'}?${app.timestamp}" alt="" />
-        %else:
         <img src="${app.work_url + 'smoothed.png'}?${app.timestamp}" alt="" />
-        %endif
         </span>
       </a>
     </li>
@@ -68,11 +60,7 @@
       <a href="#">
         Original
         <span>
-        %if app.cfg['param']['displayzoom'] > 1:
-        <img src="${app.work_url + 'input_0_sel_zoom.png'}?${app.timestamp}" alt="" />
-        %else:
         <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
-        %endif
         </span>
       </a>
     </li>
@@ -108,5 +96,9 @@
 %endfor
 </table>
 %endif
+
+<hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />

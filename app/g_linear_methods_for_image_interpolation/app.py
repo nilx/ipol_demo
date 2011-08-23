@@ -1,7 +1,6 @@
 """
 Linear Methods for Image Interpolation ipol demo web app
 """
-# pylint: disable-msg=R0904,C0103
 
 from lib import base_app, build, http
 from lib.misc import ctime
@@ -14,7 +13,7 @@ from lib import image
 import math
 import os.path
 import time
-import string
+
 
 class app(base_app):
     """ Linear Methods for Image Interpolation app """
@@ -37,7 +36,7 @@ class app(base_app):
     # For display in params.html
     methodcolumnbreaks = ['Lanczos 2', 'B-Spline 2', 'o-Moms 3']
     # The method identifier (lowercase with no spaces, dashes, etc.)
-    methodidentifiers = [m.lower().translate(string.maketrans('', ''), ' -/&') 
+    methodidentifiers = [m.lower().translate(None, ' -/&') 
         for m in methodtitles]
     # Make a list of dictionaries 
     methods = [{'title' : m, 'identifier' : mid} 
@@ -206,8 +205,18 @@ class app(base_app):
                     (x0, x) = sorted((int(x0), int(x)))
                     (y0, y) = sorted((int(y0), int(y)))
                     assert (x - x0) > 0 and (y - y0) > 0
+                    
                     # Crop the image
-                    img.crop((x0, y0, x, y))
+                    # Check if the original image is a different size, which is
+                    # possible if the input image is very large.
+                    imgorig = image(self.work_dir + 'input_0.orig.png')
+                    
+                    if imgorig.size != img.size:                        
+                        s = float(imgorig.size[0])/float(img.size[0])
+                        imgorig.crop(tuple([int(s*v) for v in (x0, y0, x, y)]))
+                        img = imgorig
+                    else:
+                        img.crop((x0, y0, x, y))
                     
                 img.save(self.work_dir + 'input_0_sel.png')
                 self.cfg['param']['x0'] = x0
@@ -294,9 +303,6 @@ class app(base_app):
             # In this run mode, the interpolation is performed directly on the
             # selected image.
             
-            # If the image dimensions are small, zoom the displayed results.
-            # This value is always at least 1.
-            displayzoom = int(math.ceil(400.0/(scalefactor*max(sizeX, sizeY))))
             # Check that interpolated image dimensions are not too large
             cropsize = (min(sizeX, int(500/scalefactor)),
                 min(sizeY, int(500/scalefactor)))
@@ -324,18 +330,13 @@ class app(base_app):
                 [self.run_proc(['linterp',
                     '-m', 'nearest',
                     '-g', 'centered',
-                    '-x', str(scalefactor*displayzoom),
+                    '-x', str(scalefactor),
                     'input_0_sel.png', 'input_zoom.png'],
                     stdout=stdout, stderr=stdout)
                 ], timeout)
         else:
             # In this run mode, the selected image is coarsened, interpolated
             # and compared with the original.
-            
-            # If the image dimensions are small, zoom the displayed results.
-            # This value is always at least 1.
-            displayzoom = int(math.ceil(350.0/max(sizeX, sizeY)))
-            displaysize = (displayzoom*sizeX, displayzoom*sizeY)
             
             # Coarsen the image
             self.wait_proc(
@@ -370,7 +371,7 @@ class app(base_app):
                 self.run_proc(['linterp',
                     '-m', 'nearest',
                     '-g', 'centered',
-                    '-x', str(scalefactor*displayzoom),
+                    '-x', str(scalefactor),
                     'coarsened.png', 'input_zoom.png'],
                     stdout=stdout, stderr=stdout)], timeout)
             
@@ -390,8 +391,8 @@ class app(base_app):
             # Crop input_zoom.png if necessary.
             img = image(self.work_dir + 'input_zoom.png')
             
-            if displaysize != img.size:
-                img.crop((0, 0, displaysize[0], displaysize[1]))
+            if (sizeX, sizeY) != img.size:
+                img.crop((0, 0, sizeX, sizeY))
                 img.save(self.work_dir + 'input_zoom.png')
             
             # Compute metrics, the results are saved in files metrics_*.txt
@@ -421,37 +422,7 @@ class app(base_app):
                 max([self.cfg['param'][m + '_psnr'] for m in runmethods])
             self.cfg['param']['best_mssim'] = \
                 max([self.cfg['param'][m + '_mssim'] for m in runmethods])
-            
-            # Zoom input_0_sel.png and smoothed.png for display
-            if displayzoom > 1:
-                self.wait_proc(                
-                    [self.run_proc(['linterp',
-                        '-m', 'nearest',
-                        '-g', 'centered',
-                        '-x', str(displayzoom),
-                        'input_0_sel.png', 'input_0_sel_zoom.png'],
-                        stdout=stdout, stderr=stdout),
-                    self.run_proc(['linterp',
-                        '-m', 'nearest',
-                        '-g', 'centered',
-                        '-x', str(displayzoom),
-                        'smoothed.png', 'smoothed_zoom.png'],
-                        stdout=stdout, stderr=stdout)], timeout)
 
-        # Zoom the interpolations for display
-        if displayzoom > 1:
-            self.wait_proc(
-                [self.run_proc(['linterp', 
-                    '-m', 'nearest',
-                    '-g', 'centered',
-                    '-x', str(displayzoom),
-                    'interp_' + m + '.png', 
-                    'interp_' + m + '_zoom.png'],
-                    stdout=stdout, stderr=stdout)
-                    for m in runmethods
-                ], timeout)
-                
-        self.cfg['param']['displayzoom'] = displayzoom
         self.cfg.save()
         return
 
