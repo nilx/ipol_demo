@@ -9,8 +9,10 @@
 <h2>Algorithm Parameters</h2>
 
 The algorithm performs a local color correction.
-The "locality" of the method depends upon a radius parameter r,
-that you can select:
+The "locality" of the method depends upon a radius 
+parameter r,
+that you can select. The default value of r is 10%
+of the smallest dimension of the image.
 <form action="${app.base_url + 'wait'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
