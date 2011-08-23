@@ -17,8 +17,8 @@ from math import ceil
 class app(base_app):
     """ Gunturk-Altunbasak-Mersereau Alternating Projections app """
 
-    title = 'Gunturk-Altunbasak-Mersereau' \
-        + ' Alternating Projections Image Demosaicking'
+    title = \
+    'Gunturk-Altunbasak-Mersereau Alternating Projections Image Demosaicking'
 
     input_nb = 1
     input_max_pixels = 700 * 700        # max size (in pixels) of input image
@@ -167,8 +167,18 @@ class app(base_app):
                     (x0, x) = sorted((int(x0), int(x)))
                     (y0, y) = sorted((int(y0), int(y)))
                     assert (x - x0) > 0 and (y - y0) > 0
+                    
                     # Crop the image
-                    img.crop((x0, y0, x, y))
+                    # Check if the original image is a different size, which is
+                    # possible if the input image is very large.
+                    imgorig = image(self.work_dir + 'input_0.orig.png')
+                    
+                    if imgorig.size != img.size:                        
+                        s = float(imgorig.size[0])/float(img.size[0])
+                        imgorig.crop(tuple([int(s*v) for v in (x0, y0, x, y)]))
+                        img = imgorig
+                    else:
+                        img.crop((x0, y0, x, y))
                     
                 img.save(self.work_dir + 'input_0_sel.png')
                 self.cfg['param']['x0'] = x0

@@ -93,7 +93,7 @@ Download:
 </div>
 
 <p>
-The error range [-20,20] is linearly transformed to [0,255] for
+The error range [&minus;20,20] is linearly transformed to [0,255] for
 visualization purposes. Errors outside this range are saturated to 0
 and 255 respectively.
 
@@ -106,8 +106,8 @@ and 255 respectively.
 <!-- <img src="${app.input_url + 'formulaerrordisplay.png'}" /> -->
 The displayed error is:
 <ul>
-    <li> 0 if the error is under -20</li>
-    <li> 128 + 128/20 * error if the error is between -20 and 20 </li>
+    <li> 0 if the error is under &minus;20</li>
+    <li> 128 + 128/20 * error if the error is between &minus;20 and 20 </li>
     <li> 255 if the error is over 20 </li>
 </ul>
 </p>
@@ -116,5 +116,7 @@ The displayed error is:
 
 
 <hr />
+
+<%include file="archive_info.html" />
 
 <%include file="footer.html" />
