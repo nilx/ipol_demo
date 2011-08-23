@@ -48,8 +48,8 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "gl_localcolorcorrection/LCC_28072011.tar.gz"
-        tgz_file = self.dl_dir + "LCC_28072011.tar.gz"
+            + "gl_localcolorcorrection/LCC.tar.gz"
+        tgz_file = self.dl_dir + "LCC.tar.gz"
         prog_file = self.bin_dir + "localcolorcorrection"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
