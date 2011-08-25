@@ -1,0 +1,104 @@
+<%include file="header.html" />
+
+%if app.cfg['param']['action'] == app.default_param['action']:
+<p>Notice that if the interpolated image dimensions were to exceed 500&times;500, then the image has been cropped.</p>
+%endif
+
+<div class="action" style="padding-bottom:3ex">    
+    <form style="float:left" action="${app.base_url}" method="get">
+        <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
+    </form>    
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="msg" value="different parameter" />
+        <input type="submit" value="different parameter" /></p>
+    </form>
+    %if all(app.cfg['param'][p] != None for p in ['x0', 'y0', 'x', 'y']):
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="msg" value="different subimage" />
+        <input type="submit" value="different subimage" /></p>
+    </form>
+    %endif
+</div>
+
+<hr />
+
+<div class="gallery" style="width:${displaysize[0] + 200}px; height:${displaysize[1]}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+        Input
+        <span>
+        <img src="${app.work_url + 'input_zoom.png'}?${app.timestamp}" alt="" />
+        </span>
+      </a>
+    </li>
+%for m in app.methods:
+    %if str(app.cfg['param'][m['identifier']]) == 'True':
+        <li>
+        <a href="#">${m['title']}
+        <span>
+        <img src="${app.work_url + 'interp_' + m['identifier'] + '.png'}?${app.timestamp}" alt="" />
+        </span>
+        </a>
+        </li>
+    %endif
+%endfor    
+%if app.cfg['param']['action'] != app.default_param['action']:
+    <li>
+      <a href="#">
+        Smoothed
+        <span>
+        <img src="${app.work_url + 'smoothed.png'}?${app.timestamp}" alt="" />
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        Original
+        <span>
+        <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+        </span>
+      </a>
+    </li>
+%endif
+  </ul>
+</div>
+%if app.cfg['param']['action'] != app.default_param['action']:
+<p>Difference between the smoothed image and the interpolations:</p>
+<table style="margin:0px;margin-top:10px;text-align:center">
+<tr><th>Method</th><th>PSNR</th><th>MSSIM</th></tr>
+%for m in app.methods:
+    %if str(app.cfg['param'][m['identifier']]) == 'True':
+    <tr>
+    <td>
+        ${m['title']}
+    </td>
+    <td>
+    %if app.cfg['param'][m['identifier'] + '_psnr'] == app.cfg['param']['best_psnr']:
+        <b>${'%.2f' % app.cfg['param'][m['identifier'] + '_psnr']}</b>
+    %else:
+        ${'%.2f' % app.cfg['param'][m['identifier'] + '_psnr']}
+    %endif
+    </td>
+    <td>
+    %if app.cfg['param'][m['identifier'] + '_mssim'] == app.cfg['param']['best_mssim']:
+        <b>${'%.4f' % app.cfg['param'][m['identifier'] + '_mssim']}</b>
+    %else:
+        ${'%.4f' % app.cfg['param'][m['identifier'] + '_mssim']}
+    %endif
+    </td>
+    </tr>
+    %endif
+%endfor
+</table>
+%endif
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
