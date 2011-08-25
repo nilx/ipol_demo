@@ -1,0 +1,115 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+<form action="${app.base_url + 'wait'}" method="get" style="padding:10px">
+
+<fieldset>
+<div style="position:relative; width:6em; top:-1em; 
+background: url('http://www.ipol.im/static/bg-main.png') left top repeat;
+padding:.2em .5em; background-color:#fafafa; margin:0px">Parameters</div>
+
+<input type="hidden" name="key" value="${app.key}" />
+
+<div style="float:left; width:18em; text-align:right;">
+Scale factor&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="scalefactor" name="scalefactor" value="${app.cfg['param']['scalefactor']}" />
+</div>
+<div id="slider1" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<div style="float:left; width:18em; text-align:right">
+Deconvolution strength&nbsp;<i>&sigma;<sub>h</sub></i>&nbsp;&nbsp;<input type="text" 
+style="font-family:monospace; text-align:right;" size="7" id="psfsigma" name="psfsigma" 
+value="${app.cfg['param']['psfsigma']}" />
+</div>
+<div id="slider2" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#scalefactor', '#slider1', 2, 6, 1);
+    createLinkedSlider('#psfsigma', '#slider2', 0.15, 0.75, 0.01);  
+});
+</script>
+</fieldset>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<p style="margin:0px"><a class="toggle" style="cursor:help" onclick="toggle('paramdetails');">Details</a></p>
+<div style="display:none;border: #ccccff 1px solid;padding-left:1ex;padding-right:1ex" class="toggleable" id="paramdetails">
+<p><b>&bull;&nbsp;Scale factor.</b> The dimensions of the interpolated image are determined by the scale factor.
+For example, interpolation with scale factor of 4 increases a 100&times;100 image to 
+400&times;400.</p>
+
+<p><b>&bull;&nbsp;Deconvolution strength&nbsp;<i>&sigma;<sub>h</sub></i>.</b> The interpolation finds an 
+image satisfying the degradation model</p>
+<p style="margin-left:30px"><i>input</i>&nbsp;=&nbsp;&darr;(<i>h</i>&nbsp;&lowast;&nbsp;<i>interpolation</i>)</p>
+<p>where &darr;(&sdot;) denotes subsampling and <i>h</i> is a Gaussian with standard deviation 
+<i>&sigma;<sub>h</sub></i> in units of input pixels.  The <i>&sigma;<sub>h</sub></i> parameter 
+controls the deconvolution stength of the interpolation.  Set <i>&sigma;<sub>h</sub></i>&nbsp;=&nbsp;0 
+for no deconvolution.</p>
+
+<p><b>&bull;&nbsp;The algorithm can run in two different ways:</b></p>
+
+<div style="float:left; text-align:center; padding-bottom:15px; padding-left:50px; padding-right:50px">
+    <img src="http://www.ipol.im/pub/algo/g_image_interpolation_with_contour_stencils/demo-1.png" width="109" height="55"
+        style="padding-bottom:25px" alt="" /><br />
+    <i>${app.default_param['action']}</i>
+</div>
+<div style="float:left; text-align:center;">
+    <img src="http://www.ipol.im/pub/algo/g_image_interpolation_with_contour_stencils/demo-2.png" width="148" height="80" alt="" /><br />
+    <i>Coarsen, interpolate, and compare</i>
+</div>
+
+<p style="clear:both">&ldquo;${app.default_param['action']}&rdquo; directly interpolates the selected image.</p>
+
+<p>With &ldquo;Coarsen, interpolate, and compare,&rdquo; the image is coarsened to create the input 
+image according to <i>input</i>&nbsp;=&nbsp;&darr;(<i>h</i>&nbsp;&lowast;&nbsp;<i>original</i>).
+The coarsened image is then interpolated and compared with the original image.</p>
+
+<p><b>&bull;&nbsp;Source code for this demo:</b> 
+<a href="http://www.ipol.im/pub/algo/g_roussos_diffusion_interpolation/src.zip">
+zip</a>
+<a href="http://www.ipol.im/pub/algo/g_roussos_diffusion_interpolation/src.tar.gz">
+tar.gz</a></p>
+</div>
+
+<p style="margin-bottom:5px">You can run the algorithm in two different ways.</p>
+<div style="float:left; text-align:center; padding-left:30px; padding-right:25px">
+    <input type="submit" name="action" value="${app.default_param['action']}" />
+</div>
+<div style="float:left; text-align:center;">
+    <input type="submit" name="action" value="Coarsen, interpolate, and compare" />
+</div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+%if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
+    <p>Or you can run it after selecting a subimage by clicking two 
+    opposite corners of the subimage.</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+        src="${app.work_url + 'input_0.png'}" /></p>
+%elif app.cfg['param']['x'] == None or app.cfg['param']['y'] == None:
+    <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+    <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+    <p>Please select the second corner of the subimage:</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+        src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" /></p>
+%else:
+    <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+    <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+    <input type="hidden" name="x" value="${app.cfg['param']['x']}" />
+    <input type="hidden" name="y" value="${app.cfg['param']['y']}" />
+    <p>The algorithm will run on this selected subimage:</p>
+    <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+%endif
+
+</form>
+
+<%include file="footer.html" />
