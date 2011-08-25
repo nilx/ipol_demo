@@ -243,7 +243,7 @@ class app(base_app):
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(sigma, stdout=stdout)
+            self.run_algo(sigma, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
