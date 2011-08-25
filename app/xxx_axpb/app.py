@@ -43,11 +43,12 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_file = self.dl_dir + "axpb.tar.gz"
+        tgz_file = self.dl_dir + "io_png.tar.gz"
         prog_file = self.bin_dir + "axpb"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("https://edit.ipol.im/meta/dev/axpb.tar.gz", tgz_file)
+        build.download("http://tools.ipol.im/wiki/editor/demo/"
+                       + "io_png.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
             and ctime(tgz_file) < ctime(prog_file)):
@@ -57,13 +58,15 @@ class app(base_app):
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the program
-            build.run("make -j4 -C %s axpb" % (self.src_dir + "axpb"),
+            build.run("make -j4 -C %s %s" % (self.src_dir + "io_png",
+                                             os.path.join("example", "axpb")),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir + os.path.join("axpb", "axpb"), prog_file)
+            shutil.copy(self.src_dir + os.path.join("io_png", "example",
+                                                    "axpb"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
