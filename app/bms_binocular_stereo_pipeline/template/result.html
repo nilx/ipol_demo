@@ -1,0 +1,122 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Restart with new input.
+    <input type="submit" value="new input" />
+  </div> 
+</form>
+
+<hr />
+
+<h2>Result</h2>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	original image 1
+	<span>
+	  <img src="${app.work_url + 'input_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	original image 2
+	<span>
+	  <img src="${app.work_url + 'input_1.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	rectified image 2
+	<span>
+	  <img src="${app.work_url + 'rect_1.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	rectified image 1
+	<span>
+	  <img src="${app.work_url + 'rect_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	AC pixel disparity
+	<span>
+	  <img src="${app.work_url + 'disp1_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	self-sim. filter disp.
+	<span>
+	  <img src="${app.work_url + 'disp2_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	sub-pixel disparity
+	<span>
+	  <img src="${app.work_url + 'disp3_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	denser disparity
+	<span>
+	  <img src="${app.work_url + 'disp4_0.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<ul>
+  <li>
+    <a href="${app.work_url + 'orsa.txt.gz'}">correspondences</a>
+  </li>
+  <li>homography: 
+    <a href="${app.work_url + 'homo_0.txt'}">first image</a>,
+    <a href="${app.work_url + 'homo_1.txt'}">second image</a>
+  </li>
+  <li>rectified images: 
+    <a href="${app.work_url + 'rect_0.png'}">first image</a>,
+    <a href="${app.work_url + 'rect_1.png'}">second image</a>
+  </li>
+  <li>exact floating-point maps: 
+    <a href="${app.work_url + 'disp1_0.tif'}">AC pixel disparity</a>,
+    <a href="${app.work_url + 'disp2_0.tif'}">self-sim. filter disparity</a>,
+    <a href="${app.work_url + 'disp3_0.tif'}">subpixel disparity</a>,
+    <a href="${app.work_url + 'disp4_0.tif'}">denser disparity</a>
+  </li>
+  <li>
+    <a href="${app.work_url + 'disp4_0.ply.gz'}">3D mesh</a><br/>
+    This PLY file, containing 3D point cloud reconstruction data,
+    can be visualized with open source softwares
+    <a href="http://meshlab.sourceforge.net/">MeshLab</a> or
+    <a href="http://paraview.org/">ParaView</a>.
+</ul>
+
+<h2>Program Output</h2>
+
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
