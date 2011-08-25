@@ -50,10 +50,10 @@ class app(base_app):
 
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "bcm_non_local_means_denoising/nlmeansB.tar.gz"
-        tgz_file = self.dl_dir + "nlmeansB.tar.gz"
+            + "bcm_non_local_means_denoising/nlmeansC.tar.gz"
+        tgz_file = self.dl_dir + "nlmeansC.tar.gz"
         progs = ["nlmeans_ipol", "img_diff_ipol",  "img_mse_ipol"]
-        src_bin = dict([(self.src_dir + os.path.join("nlmeansB", prog),
+        src_bin = dict([(self.src_dir + os.path.join("nlmeansC", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -71,7 +71,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "nlmeansB", " ".join(progs)),
+                      % (self.src_dir + "nlmeansC", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
@@ -240,7 +240,7 @@ class app(base_app):
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(sigma, stdout=stdout)
+            self.run_algo(sigma, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
