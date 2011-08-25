@@ -1,0 +1,39 @@
+<%include file="header.html" />
+
+<p>
+  Note: As a first step of this algorithm, a <a href='http://www.ipol.im/pub/algo/m_quasi_euclidean_epipolar_rectification/'>rectification algorithm</a> will be run to ensure the apparent motion is horizontal.
+</p>
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    You can now run the 'Computing Visual Correspondence with Occlusions
+    using Graph Cuts' algorithm on these 2 images.
+    <input type="hidden" name="key" value="${app.key}" />
+    <input type="submit" value="run" />
+  </div>
+</form>
+
+<h2>Input</h2>
+
+<div class="gallery" style="height: 1024px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	first input image
+	<span>
+	  <img src="${app.work_url + 'input_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second input image
+	<span>
+	  <img src="${app.work_url + 'input_1.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+  
+<%include file="footer.html" />
