@@ -176,7 +176,7 @@ class app(base_app):
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(stdout=stdout, timeout=self.timeout)
+            self.run_algo(stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
@@ -201,7 +201,6 @@ class app(base_app):
 
         return self.tmpl_out("run.html")
 
-
     def run_algo(self, stdout=None, timeout=False):
         """
         the core algo runner
@@ -222,11 +221,6 @@ class app(base_app):
                             'RGBviewsparams.txt'],
                            stdout=None, stderr=stdout)
         self.wait_proc([p1, p2], timeout)
-  
-        #TEST JL: do not remove isolated colors
-        #img = image(self.work_dir + 'input.png')
-        #img.save(self.work_dir + 'input_1.png')
-
 
         p3 = self.run_proc(['rgbprocess', 'filter',
                             'input_1.png', 'output_1.png'],
