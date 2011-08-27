@@ -165,7 +165,8 @@ class app(base_app):
         if (r != None):
             r = min(int(r), rmax)
         else:
-            r = min(int(0.2*rmax), 40)
+            #r = min(int(0.2*rmax), 40)
+            r = int(0.2*rmax)
 
         return self.tmpl_out("params2.html", msg=msg, rmax=rmax, r=r)
 
@@ -257,7 +258,7 @@ class app(base_app):
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(r, stdout=stdout)
+            self.run_algo(r, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
@@ -296,23 +297,45 @@ class app(base_app):
                             'output_1.png', str(r), str(option)], 
                             stdout=None, stderr=None)
 
-        #color correction of intensity channel
+        #color correction of intensity channel (keep R/G/B ratios)
         option = 2
         p2 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 
                            'output_2.png', str(r), str(option)], 
                            stdout=None, stderr=None)
-        self.wait_proc([p1, p2], timeout)
+
+        #color correction of Y channel (use YPbPr color space)
+        option = 3
+        p3 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 
+                           'output_3.png', str(r), str(option)], 
+                           stdout=None, stderr=None)
+
+        #color correction of L channel (use HSL color space)
+        option = 4
+        p4 = self.run_proc(['localcolorcorrection', 'input_0.sel.png', 
+                           'output_4.png', str(r), str(option)], 
+                           stdout=None, stderr=None)
+
+        self.wait_proc([p1, p2, p3, p4], timeout)
 
         #Compute histograms of images
-        im = image(self.work_dir + 'input_0.sel.png')
-        im.histogram(option="all")
-        im.save(self.work_dir + 'input_0_hist.png')
-        im = image(self.work_dir + 'output_1.png')
-        im.histogram(option="all")
-        im.save(self.work_dir + 'output_1_hist.png')
-        im = image(self.work_dir + 'output_2.png')
-        im.histogram(option="all")
-        im.save(self.work_dir + 'output_2_hist.png')       
+        im1 = image(self.work_dir + 'input_0.sel.png')
+        im2 = image(self.work_dir + 'output_1.png')
+        im3 = image(self.work_dir + 'output_2.png')
+        im4 = image(self.work_dir + 'output_3.png')
+        im5 = image(self.work_dir + 'output_4.png')
+        #compute maximum of histogram values for the input image
+        maxH = im1.max_histogram(option="all")
+        #draw all the histograms using the same reference maximum
+        im1.histogram(option="all", maxRef=maxH)
+        im1.save(self.work_dir + 'input_0_hist.png')
+        im2.histogram(option="all", maxRef=maxH)
+        im2.save(self.work_dir + 'output_1_hist.png')
+        im3.histogram(option="all", maxRef=maxH)
+        im3.save(self.work_dir + 'output_2_hist.png')
+        im4.histogram(option="all", maxRef=maxH)
+        im4.save(self.work_dir + 'output_3_hist.png')
+        im5.histogram(option="all", maxRef=maxH)
+        im5.save(self.work_dir + 'output_4_hist.png')
 
 
     @cherrypy.expose
