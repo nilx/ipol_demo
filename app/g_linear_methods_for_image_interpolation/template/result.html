@@ -26,7 +26,7 @@
 
 <hr />
 
-<div class="gallery" style="width:${displaysize[0] + 200}px; height:${displaysize[1]}px;">
+<div class="gallery" style="height:${app.cfg['param']['galleryheight']}px;">
   <ul class="index">
     <li>
       <a href="#">
@@ -50,14 +50,6 @@
 %if app.cfg['param']['action'] != app.default_param['action']:
     <li>
       <a href="#">
-        Smoothed
-        <span>
-        <img src="${app.work_url + 'smoothed.png'}?${app.timestamp}" alt="" />
-        </span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
         Original
         <span>
         <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
@@ -68,7 +60,7 @@
   </ul>
 </div>
 %if app.cfg['param']['action'] != app.default_param['action']:
-<p>Difference between the smoothed image and the interpolations:</p>
+<p>Difference between the input image and the interpolations:</p>
 <table style="margin:0px;margin-top:10px;text-align:center">
 <tr><th>Method</th><th>PSNR</th><th>MSSIM</th></tr>
 %for m in app.methods:

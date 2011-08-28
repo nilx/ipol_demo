@@ -1,6 +1,7 @@
 """
 Linear Methods for Image Interpolation ipol demo web app
 """
+# pylint: disable-msg=R0904,C0103
 
 from lib import base_app, build, http
 from lib.misc import ctime
@@ -28,11 +29,11 @@ class app(base_app):
     is_test = False    
     
     # List of methods in the order in which they are to be displayed
-    methodtitles = ['Bilinear', 'Bicubic', 'Fourier', 
+    methodtitles = ['Bilinear', 'Bicubic', 'Sinc', 
         'Lanczos 2', 'Lanczos 3', 'Lanczos 4', 
         'B-Spline 2', 'B-Spline 3', 'B-Spline 5', 
         'B-Spline 7', 'B-Spline 9', 'B-Spline 11', 
-        'o-Moms 3', 'o-Moms 5', 'Schaum 2', 'Schaum 3']    
+        'o-Moms 3', 'o-Moms 5', 'o-Moms 7', 'Schaum 2', 'Schaum 3']    
     # For display in params.html
     methodcolumnbreaks = ['Lanczos 2', 'B-Spline 2', 'o-Moms 3']
     # The method identifier (lowercase with no spaces, dashes, etc.)
@@ -43,14 +44,13 @@ class app(base_app):
         for m, mid in zip(methodtitles, methodidentifiers)]
     
     # These methods are selected by default
-    defaultselected = ['bilinear', 'bicubic', 'fourier', 
+    defaultselected = ['bilinear', 'bicubic', 'sinc', 
         'lanczos3', 'bspline3', 'omoms3']
     
     # Default parameters
     default_param = dict(
             [(m, str(m in defaultselected)) for m in methodidentifiers] +
             {'scalefactor': 4,  
-             'psfsigma'   : 0.6,
              'grid'       : 'centered',
              'boundary'   : 'hsym',
              'action'     : 'Interpolate image',             
@@ -179,9 +179,8 @@ class app(base_app):
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
                         
-        # Validate scalefactor and psfsigma
-        if not (1 <= float(self.cfg['param']['scalefactor']) <= 8) \
-            or not (0 <= float(self.cfg['param']['psfsigma']) <= 1):
+        # Validate scalefactor
+        if not (1 <= float(self.cfg['param']['scalefactor']) <= 8):
             return self.error(errcode='badparams') 
         
         if not 'action' in kwargs:
@@ -258,8 +257,7 @@ class app(base_app):
             ar = self.make_archive()
             ar.add_file('input_0_sel.png', info='Selected subimage')
             ar.add_info({'action': self.cfg['param']['action'], 
-                'scalefactor': self.cfg['param']['scalefactor'], 
-                'psfsigma': self.cfg['param']['psfsigma']})
+                'scalefactor': self.cfg['param']['scalefactor']})
             
             if self.cfg['param']['action'] == self.default_param['action']:
                 # "Interpolate directly"
@@ -270,7 +268,6 @@ class app(base_app):
             else:
                 # "Coarsen, interpolate, and compare"
                 ar.add_file('coarsened.png', info='Coarsened image')
-                ar.add_file('smoothed.png', info='Smoothed image')
                 
                 # Save the interpolations and PSNR and MSSIM metrics
                 for m in self.methods:
@@ -295,9 +292,9 @@ class app(base_app):
         timeout = False
         scalefactor = float(self.cfg['param']['scalefactor'])
         runmethods = [m for m in self.methodidentifiers if
-            str(self.cfg['param'][m]) == 'True']
+            str(self.cfg['param'][m]) == 'True']        
         img = image(self.work_dir + 'input_0_sel.png')
-        (sizeX, sizeY) = img.size
+        (sizeX, sizeY) = img.size        
         
         if self.cfg['param']['action'] == self.default_param['action']:
             # In this run mode, the interpolation is performed directly on the
@@ -312,7 +309,7 @@ class app(base_app):
                     int(math.floor((sizeY - cropsize[1])/2)))
                 img.crop((x0, y0, x0 + cropsize[0], y0 + cropsize[1]))
                 img.save(self.work_dir + 'input_0_sel.png')
-            
+                     
             self.wait_proc(
                 # Perform the interpolations
                 [self.run_proc(['linterp', 
@@ -342,7 +339,8 @@ class app(base_app):
             self.wait_proc(
                 self.run_proc(['imcoarsen', 
                     '-g', self.cfg['param']['grid'],
-                    '-p', str(self.cfg['param']['psfsigma']),
+                    '-b', self.cfg['param']['boundary'],
+                    '-p', '0',
                     '-x', str(scalefactor),
                     'input_0_sel.png', 'coarsened.png'],
                     stdout=stdout, stderr=stdout), timeout)
@@ -358,17 +356,10 @@ class app(base_app):
                     'coarsened.png', 'interp_' + m + '.png'],
                     stdout=stdout, stderr=stdout)
                     for m in runmethods] +
-                # Compute the image smoothed but not downsampled
-                [self.run_proc(['imcoarsen', 
-                    '-g', self.cfg['param']['grid'],
-                    '-p', str(scalefactor*float(self.cfg['param']['psfsigma'])),
-                    '-x', '1',
-                    'input_0_sel.png', 'smoothed.png'],
-                    stdout=stdout, stderr=stdout),
                 # For display, create a nearest neighbor zoomed version of the
                 # input. nninterp does nearest neighbor interpolation on 
                 # precisely the same grid so that displayed images are aligned.
-                self.run_proc(['linterp',
+                [self.run_proc(['linterp',
                     '-m', 'nearest',
                     '-g', 'centered',
                     '-x', str(scalefactor),
@@ -398,7 +389,7 @@ class app(base_app):
             # Compute metrics, the results are saved in files metrics_*.txt
             self.wait_proc(
                 [self.run_proc(['imdiff',
-                    'smoothed.png', 'interp_' + m + '.png'],
+                    'input_0_sel.png', 'interp_' + m + '.png'],
                     stdout=open(self.work_dir 
                     + 'metrics_' + m + '.txt', 'w'), stderr=None)
                 for m in runmethods], timeout)
@@ -423,6 +414,8 @@ class app(base_app):
             self.cfg['param']['best_mssim'] = \
                 max([self.cfg['param'][m + '_mssim'] for m in runmethods])
 
+        self.cfg['param']['galleryheight'] = max(32*(2 + len(runmethods)), \
+            image(self.work_dir + 'input_zoom.png').size[1])
         self.cfg.save()
         return
 
@@ -434,6 +427,4 @@ class app(base_app):
         SHOULD be defined in the derived classes, to check the parameters
         """
         return self.tmpl_out('result.html',
-            displaysize=image(self.work_dir + 'input_zoom.png').size,
-            stdout=open(self.work_dir 
-                        + 'stdout.txt', 'r').read())
+            stdout=open(self.work_dir + 'stdout.txt', 'r').read())

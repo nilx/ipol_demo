@@ -19,18 +19,10 @@ size="7" id="scalefactor" name="scalefactor" value="${app.cfg['param']['scalefac
 
 <div style="clear:both; font-size:8pt">&nbsp;</div>
 
-<div style="float:left; width:18em; text-align:right; margin-bottom:1.5ex">
-Antialiasing strength&nbsp;<i>&sigma;<sub>h</sub></i>&nbsp;&nbsp;<input type="text" 
-style="font-family:monospace; text-align:right;" size="7" id="psfsigma" name="psfsigma" 
-value="${app.cfg['param']['psfsigma']}" />
-</div>
-<div id="slider2" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
-
 <script type="text/javascript">
 $(document).ready(function() 
 {
     createLinkedSlider('#scalefactor', '#slider1', 1, 8, 0.1);
-    createLinkedSlider('#psfsigma', '#slider2', 0, 1, 0.01);  
 });
 </script>
 
@@ -51,6 +43,39 @@ $(document).ready(function()
 </div>
     
 </fieldset>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<p style="margin:0px"><a class="toggle" style="cursor:help" onclick="toggle('paramdetails');">Details</a></p>
+<div style="display:none;border: #ccccff 1px solid;padding-left:1ex;padding-right:1ex" class="toggleable" id="paramdetails">
+<p><b>&bull;&nbsp;Scale factor.</b> The dimensions of the interpolated image are determined by the scale factor.
+For example, interpolation with scale factor of 4 increases a 100&times;100 image to 
+400&times;400.  For non-integer scale factors, the dimension is rounded up.</p>
+
+<p>For efficiency, sinc interpolation follows a slightly different rule for a non-integer scale factor: the scale factor is rounded up so that the scale factor times the image size is integer.  Thus slight misalignments may be visible between sinc interpolation and other results for non-integer scale factors.</p>
+
+<p><b>&bull;&nbsp;The algorithm can run in two different ways:</b></p>
+
+<div style="float:left; text-align:center; padding-bottom:15px; padding-left:50px; padding-right:50px">
+    <img src="http://www.ipol.im/pub/algo/g_linear_methods_for_image_interpolation/demo-1.png" width="109" height="55"
+        style="padding-bottom:25px" alt="" /><br />
+    <i>${app.default_param['action']}</i>
+</div>
+<div style="float:left; text-align:center;">
+    <img src="http://www.ipol.im/pub/algo/g_linear_methods_for_image_interpolation/demo-2.png" width="148" height="80" alt="" /><br />
+    <i>Coarsen, interpolate, and compare</i>
+</div>
+
+<p style="clear:both">&ldquo;${app.default_param['action']}&rdquo; directly interpolates the selected image.</p>
+
+<p>With &ldquo;Coarsen, interpolate, and compare,&rdquo; the image is downsampled to create the input image.  This image is then interpolated and compared with the original image.</p>
+
+<p><b>&bull;&nbsp;Source code for this demo:</b> 
+<a href="http://www.ipol.im/pub/algo/g_linear_methods_for_image_interpolation/src.zip">
+zip</a>
+<a href="http://www.ipol.im/pub/algo/g_linear_methods_for_image_interpolation/src.tar.gz">
+tar.gz</a></p>
+</div>
 
 <p style="clear:both;margin-bottom:5px">You can run the algorithm in two different ways.</p>
 <div style="float:left; text-align:center; padding-left:30px; padding-right:25px">
