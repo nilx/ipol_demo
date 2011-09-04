@@ -1,6 +1,8 @@
 """
-Rudin-Osher-Fatemi Total Variation Denoising  ipol demo web app
+Rudin-Osher-Fatemi Total Variation Denoising using Split-Bregman 
+ipol demo web app
 """
+# pylint: disable-msg=R0904,C0103
 
 from lib import base_app, build, http, image
 from lib.misc import ctime
@@ -15,9 +17,9 @@ import time
 from math import ceil
 
 class app(base_app):
-    """ Rudin-Osher-Fatemi Total Variation Denoising app """
+    """ Rudin-Osher-Fatemi Total Variation Denoising using Split-Bregman app """
 
-    title = "Rudin-Osher-Fatemi Total Variation Denoising "
+    title = "Rudin-Osher-Fatemi Total Variation Denoising using Split-Bregman"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
