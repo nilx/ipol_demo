@@ -48,7 +48,7 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_file = self.dl_dir + "OrsaHomography.tar.gz"
-        tgz_url = "https://edit.ipol.im/edit/algo/mmm_orsa_homography/" + \
+        tgz_url = "http://www.ipol.im/pub/algo/mmm_orsa_homography/" + \
             "OrsaHomography.tar.gz"
         build_dir = (self.src_dir
                      + os.path.join("OrsaHomography", "build") + os.path.sep)
