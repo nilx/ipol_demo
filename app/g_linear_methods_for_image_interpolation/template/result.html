@@ -4,6 +4,8 @@
 <p>Notice that if the interpolated image dimensions were to exceed 500&times;500, then the image has been cropped.</p>
 %endif
 
+<p>Interpolating input of size ${app.cfg['param']['inputwidth']}&times;${app.cfg['param']['inputheight']} to output of size ${app.cfg['param']['interpwidth']}&times;${app.cfg['param']['interpheight']}.</p>
+
 <div class="action" style="padding-bottom:3ex">    
     <form style="float:left" action="${app.base_url}" method="get">
         <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
