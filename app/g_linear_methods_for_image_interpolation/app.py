@@ -1,7 +1,6 @@
 """
 Linear Methods for Image Interpolation ipol demo web app
 """
-# pylint: disable-msg=R0904,C0103
 
 from lib import base_app, build, http
 from lib.misc import ctime
@@ -266,8 +265,8 @@ class app(base_app):
                         ar.add_file('interp_' + m['identifier'] + '.png', 
                         info=m['title'])
             else:
-                # "Coarsen, interpolate, and compare"
-                ar.add_file('coarsened.png', info='Coarsened image')
+                # "Subsample, interpolate, and compare"
+                ar.add_file('subsampled.png', info='Subsampled image')
                 
                 # Save the interpolations and PSNR and MSSIM metrics
                 for m in self.methods:
@@ -309,14 +308,21 @@ class app(base_app):
                     int(math.floor((sizeY - cropsize[1])/2)))
                 img.crop((x0, y0, x0 + cropsize[0], y0 + cropsize[1]))
                 img.save(self.work_dir + 'input_0_sel.png')
-                     
+            
+            interpsize = (int(math.ceil(scalefactor*cropsize[0])),
+                    int(math.ceil(scalefactor*cropsize[1])))
+            self.cfg['param']['inputwidth'] = cropsize[0]
+            self.cfg['param']['inputheight'] = cropsize[1]
+            self.cfg['param']['interpwidth'] = interpsize[0]
+            self.cfg['param']['interpheight'] = interpsize[1]
+            
             self.wait_proc(
                 # Perform the interpolations
                 [self.run_proc(['linterp', 
                     '-g', self.cfg['param']['grid'],
                     '-b', self.cfg['param']['boundary'],
                     '-p', '0',
-                    '-x', str(scalefactor),
+                    '-x', '%dx%d!' % interpsize,
                     '-m', m,
                     'input_0_sel.png', 'interp_' + m + '.png'],
                     stdout=stdout, stderr=stdout)
@@ -327,33 +333,41 @@ class app(base_app):
                 [self.run_proc(['linterp',
                     '-m', 'nearest',
                     '-g', 'centered',
-                    '-x', str(scalefactor),
+                    '-x', '%dx%d!' % interpsize,
                     'input_0_sel.png', 'input_zoom.png'],
                     stdout=stdout, stderr=stdout)
                 ], timeout)
         else:
-            # In this run mode, the selected image is coarsened, interpolated
+            # In this run mode, the selected image is subsampled, interpolated
             # and compared with the original.
             
-            # Coarsen the image
+            inputsize = (int(math.ceil(sizeX/scalefactor)), 
+                int(math.ceil(sizeY/scalefactor)))
+                
+            # Subsample the image
             self.wait_proc(
                 self.run_proc(['imcoarsen', 
                     '-g', self.cfg['param']['grid'],
                     '-b', self.cfg['param']['boundary'],
                     '-p', '0',
-                    '-x', str(scalefactor),
-                    'input_0_sel.png', 'coarsened.png'],
+                    '-x', '%dx%d!' % inputsize,
+                    'input_0_sel.png', 'subsampled.png'],
                     stdout=stdout, stderr=stdout), timeout)
-                        
+            
+            self.cfg['param']['inputwidth'] = inputsize[0]
+            self.cfg['param']['inputheight'] = inputsize[1]
+            self.cfg['param']['interpwidth'] = sizeX
+            self.cfg['param']['interpheight'] = sizeY
+            
             self.wait_proc(
                 # Perform the interpolations
                 [self.run_proc(['linterp', 
                     '-g', self.cfg['param']['grid'],
                     '-b', self.cfg['param']['boundary'],
                     '-p', '0',
-                    '-x', str(scalefactor),
+                    '-x', '%dx%d!' % (sizeX, sizeY),
                     '-m', m,
-                    'coarsened.png', 'interp_' + m + '.png'],
+                    'subsampled.png', 'interp_' + m + '.png'],
                     stdout=stdout, stderr=stdout)
                     for m in runmethods] +
                 # For display, create a nearest neighbor zoomed version of the
@@ -362,29 +376,29 @@ class app(base_app):
                 [self.run_proc(['linterp',
                     '-m', 'nearest',
                     '-g', 'centered',
-                    '-x', str(scalefactor),
-                    'coarsened.png', 'input_zoom.png'],
+                    '-x', '%dx%d!' % (sizeX, sizeY),
+                    'subsampled.png', 'input_zoom.png'],
                     stdout=stdout, stderr=stdout)], timeout)
             
             # Because of rounding, the interpolated image dimensions might be 
             # slightly larger than the original image.  For example, if the 
-            # input is 100x100 and the scale factor is 3, then the coarsened 
+            # input is 100x100 and the scale factor is 3, then the subsampled 
             # image has size 34x34, and the interpolation has size 102x102.
             # The following crops the results if necessary.
-            for m in runmethods:
-                f = self.work_dir + 'interp_' + m + '.png'
-                img = image(f)
-                
-                if (sizeX, sizeY) != img.size:
-                    img.crop((0, 0, sizeX, sizeY))
-                    img.save(f)
+            #for m in runmethods:
+            #    f = self.work_dir + 'interp_' + m + '.png'
+            #    img = image(f)
+            #    
+            #    if (sizeX, sizeY) != img.size:
+            #        img.crop((0, 0, sizeX, sizeY))
+            #        img.save(f)
             
             # Crop input_zoom.png if necessary.
-            img = image(self.work_dir + 'input_zoom.png')
-            
-            if (sizeX, sizeY) != img.size:
-                img.crop((0, 0, sizeX, sizeY))
-                img.save(self.work_dir + 'input_zoom.png')
+            #img = image(self.work_dir + 'input_zoom.png')
+            #
+            #if (sizeX, sizeY) != img.size:
+            #    img.crop((0, 0, sizeX, sizeY))
+            #    img.save(self.work_dir + 'input_zoom.png')
             
             # Compute metrics, the results are saved in files metrics_*.txt
             self.wait_proc(

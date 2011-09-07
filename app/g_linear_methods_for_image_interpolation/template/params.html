@@ -52,8 +52,6 @@ $(document).ready(function()
 For example, interpolation with scale factor of 4 increases a 100&times;100 image to 
 400&times;400.  For non-integer scale factors, the dimension is rounded up.</p>
 
-<p>For efficiency, sinc interpolation follows a slightly different rule for a non-integer scale factor: the scale factor is rounded up so that the scale factor times the image size is integer.  Thus slight misalignments may be visible between sinc interpolation and other results for non-integer scale factors.</p>
-
 <p><b>&bull;&nbsp;The algorithm can run in two different ways:</b></p>
 
 <div style="float:left; text-align:center; padding-bottom:15px; padding-left:50px; padding-right:50px">
@@ -63,12 +61,12 @@ For example, interpolation with scale factor of 4 increases a 100&times;100 imag
 </div>
 <div style="float:left; text-align:center;">
     <img src="http://www.ipol.im/pub/algo/g_linear_methods_for_image_interpolation/demo-2.png" width="148" height="80" alt="" /><br />
-    <i>Coarsen, interpolate, and compare</i>
+    <i>Subsample, interpolate, and compare</i>
 </div>
 
 <p style="clear:both">&ldquo;${app.default_param['action']}&rdquo; directly interpolates the selected image.</p>
 
-<p>With &ldquo;Coarsen, interpolate, and compare,&rdquo; the image is downsampled to create the input image.  This image is then interpolated and compared with the original image.</p>
+<p>With &ldquo;Subsample, interpolate, and compare,&rdquo; the image is downsampled to create the input image.  This image is then interpolated and compared with the original image.</p>
 
 <p><b>&bull;&nbsp;Source code for this demo:</b> 
 <a href="http://www.ipol.im/pub/algo/g_linear_methods_for_image_interpolation/src.zip">
@@ -82,7 +80,7 @@ tar.gz</a></p>
     <input type="submit" name="action" value="${app.default_param['action']}" />
 </div>
 <div style="float:left; text-align:center;">
-    <input type="submit" name="action" value="Coarsen, interpolate, and compare" />
+    <input type="submit" name="action" value="Subsample, interpolate, and compare" />
 </div>
 
 <div style="clear:both; font-size:8pt">&nbsp;</div>
