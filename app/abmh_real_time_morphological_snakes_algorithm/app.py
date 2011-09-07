@@ -624,13 +624,16 @@ class app(base_app):
         
        
         animate_inc = 20
-        niter = self.cfg['param']['iterations'] + animate_inc
-        
+        #niter = self.cfg['param']['iterations'] # + animate_inc
+        niter = int( (self.cfg['param']['iterations']/animate_inc) ) + 1
+
         nn = 0
-        
-        for nn in range(1, niter, animate_inc) :
-       
-            oimg = ''
+        oimg = ''
+
+        #for nn in range(1, niter, animate_inc) :        
+        for ii in range(0, niter) :
+            
+            nn = ii * animate_inc
             
             if nn < 100 :
                 oimg = 'output_0' + str(nn) 
@@ -655,7 +658,30 @@ class app(base_app):
 
         self.wait_proc( morpho_snake, timeout )
 
-        shutil.copy( self.work_dir + 'output_' + str(nn) +'_0.png', \
+
+        if self.cfg['param']['iterations'] < 100 :
+            oimg = 'output_0' + str(self.cfg['param']['iterations']) 
+        else :
+            oimg = 'output_' + str(self.cfg['param']['iterations'])
+
+
+        morpho_snake = self.run_proc(['morphological_snake',  \
+             '-I', 'input_0.png',                             \
+             '-O', oimg +'_0.png',                            \
+             '-C', 'input_0.cn',                              \
+             '-F', 'output_0.cn',                             \
+             '-S', str(self.cfg['param']['sigma']),           \
+             '-T', str(self.cfg['param']['snake_structure']), \
+             '-N', str(self.cfg['param']['iterations']),      \
+             '-B', str(self.cfg['param']['snake_balloon']),   \
+             '-R', str(self.cfg['param']['snake_balloon_diff_radius']),  \
+             '-P', str(self.cfg['param']['snake_edge_detector_threshold'])], \
+                   stdout=stdout, stderr=stdout )
+
+        self.wait_proc( morpho_snake, timeout )
+
+
+        shutil.copy( self.work_dir + oimg +'_0.png', \
                      self.work_dir + 'output_0.png' )         
 
         cmdrun = ['convert', '-delay', '100', '-loop', '0', ' ', \
