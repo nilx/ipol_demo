@@ -17,7 +17,7 @@ from math import ceil
 class app(base_app):
     """ Zhang-Wu LMMSE Image Demosaicking app """
 
-    title = 'Zhang-Wu LMMSE Image Demosaicking'
+    title = 'Zhang-Wu Directional LMMSE Image Demosaicking'
 
     input_nb = 1
     input_max_pixels = 700 * 700        # max size (in pixels) of input image

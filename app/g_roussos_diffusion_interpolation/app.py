@@ -18,7 +18,7 @@ import time
 class app(base_app):
     """ Roussos-Maragos Image Interpolation app """
 
-    title = 'Roussos-Maragos Image Interpolation'
+    title = 'Roussos-Maragos Tensor-Driven Diffusion for Image Interpolation'
 
     input_nb = 1
     input_max_pixels = 1048576          # max size (in pixels) input image

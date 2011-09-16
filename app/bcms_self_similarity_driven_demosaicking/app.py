@@ -16,7 +16,7 @@ from math import ceil
 class app(base_app):
     """ self-similarity driven demosaicking app """
 
-    title = "Self-similarity Driven Demosaicking"
+    title = "Self-Similarity Driven Demosaicking"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image

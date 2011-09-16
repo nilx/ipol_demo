@@ -16,7 +16,7 @@ from math import ceil
 class app(base_app):
     """ nonlinear cartoon+texture decomposition  """
 
-    title = "Nonlinear cartoon+texture decomposition"
+    title = "Cartoon+Texture Image Decomposition"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image

@@ -16,7 +16,7 @@ from math import ceil
 class app(base_app):
     """ non-local means denoising app """
 
-    title = "Non-Local Means Denoising"
+    title = "Non-local Means Denoising"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
