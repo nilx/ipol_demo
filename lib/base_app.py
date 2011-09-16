@@ -72,6 +72,7 @@ class base_app(empty_app):
     # default class attributes
     # to be modified in subclasses
     title = "base demo"
+    xlink_algo = None
 
     input_nb = 1 # number of input files
     input_max_pixels = 1024 * 1024 # max size of an input image
