@@ -51,7 +51,7 @@ class app(base_app):
         txt2png_file = self.bin_dir + "txt2png.py"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("https://edit.ipol.im/edit/algo/" +
+        build.download("http://www.ipol.im/pub/algo/" +
                        "damm_blind_psf_estimation_from_scaled_image_pairs/" +
                        "blind_psf_estim.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
