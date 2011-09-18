@@ -1,0 +1,103 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed  hereafter.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Restart this algorithm with new data.
+    <input type="submit" value="new input" />
+  </div>
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    Restart this algorithm with new parameters.
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="new parameters" />
+  </div>
+</form>
+
+<hr />
+
+<h2>Result</h2>
+
+<p>
+  The algorithm ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
+</p>
+
+<p>
+  You can download the results in plain-text: 
+  <a href="${app.work_url + 'psf_kernel.txt'}">psf</a>
+  <a href="${app.work_url + 'int_kernel.txt'}">inter kernel</a>
+</p>
+
+
+<div class="gallery" style="height:600px">
+  <ul class="index">
+    <li>
+      <a href="#">psf
+	<span>
+	  <img src="${app.work_url + 'psf_kernel.png'}" alt="psf" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">inter kernel
+	<span>
+	  <img src="${app.work_url + 'int_kernel.png'}" alt="int kernel"/>
+	</span>
+      </a>
+    </li>
+	
+	<li>
+      <a href="#">mask
+	<span>
+	  <img src="${app.work_url + 'imgMask.png'}" alt="mask"/>
+	</span>
+      </a>
+    </li>
+	
+	  <li>
+      <a href="#">zoomed-out
+	<span>
+	  <img src="${app.work_url + 'imgW.png'}" alt="zoomed-out"/>
+	</span>
+      </a>
+    </li>
+	<li>
+      <a href="#">zoomed-in
+	<span>
+	  <img src="${app.work_url + 'imgC.png'}" alt="zoomed-in"/>
+	</span>
+      </a>
+    </li>
+	<li>
+      <a href="#">residue
+	<span>
+	  <img src="${app.work_url + 'imgDiff.png'}" alt="residue"/>
+	</span>
+      </a>
+    </li>
+
+  </ul>
+</div>
+
+
+
+<span class="font-size:80%">
+This image has been resized from its original size ${"%2d" % app.cfg['param']['k']} x ${"%2d" % app.cfg['param']['k']} pixels for better visualization.
+</font>
+
+<h2>Program Output</h2>
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+<br />
+
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
