@@ -48,7 +48,6 @@ class app(base_app):
         # store common file path in variables
         tgz_file = self.dl_dir + "blind_psf_estim.tar.gz"
         prog_file = self.bin_dir + "blind_psf_estim"
-        txt2png_file = self.bin_dir + "txt2png.py"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download("http://www.ipol.im/pub/algo/" +
@@ -71,9 +70,7 @@ class app(base_app):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
             shutil.copy(self.src_dir + os.path.join("blind_psf_estim", 
-                        "blind_psf_estim"), prog_file)
-            shutil.copy(self.src_dir + os.path.join("blind_psf_estim",
-                                                    "txt2png.py"), txt2png_file)
+                        "blind_psf_estim"), prog_file) 
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
@@ -181,22 +178,19 @@ class app(base_app):
         # interpolate it by neareset neighbor
         im = im.resize((width, height), "nearest") 
         im.save(self.work_dir + "int_kernel.png")
-				
-        # Generate Difference image, imgW and imgC 
-        procDesc1 = self.run_proc(['txt2png.py', 
-                                   'ipol_imgC.txt', 'imgC.png'])
-        procDesc2 = self.run_proc(['txt2png.py', 
-                                   'ipol_imgW.txt', 'imgW.png'])
-        procDesc3 = self.run_proc(['txt2png.py', 
-                                   'ipol_diff.txt', 'imgDiff.png'])
-        procDesc4 = self.run_proc(['txt2png.py', 
-                                   'ipol_mask.txt', 'imgMask.png'])
-		
-        self.wait_proc(procDesc1, timeout=self.timeout)
-        self.wait_proc(procDesc2, timeout=self.timeout)
-        self.wait_proc(procDesc3, timeout=self.timeout)
-        self.wait_proc(procDesc4, timeout=self.timeout)
+        # convert images from .pgm to .png
+        im = image(self.work_dir + "ipol_imgC.pgm")
+        im.save(self.work_dir + "ipol_imgC.png")
 
+        im = image(self.work_dir + "ipol_imgW.pgm")
+        im.save(self.work_dir + "ipol_imgW.png")
+
+        im = image(self.work_dir + "ipol_diff.pgm")
+        im.save(self.work_dir + "ipol_diff.png")	
+
+        im = image(self.work_dir + "ipol_mask.pgm")
+        im.save(self.work_dir + "ipol_mask.png")
+						
         return
 
     @cherrypy.expose
