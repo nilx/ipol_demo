@@ -12,7 +12,6 @@ from cherrypy import TimeoutError
 import os.path
 import time
 from math import ceil
-from PIL import Image
 
 class app(base_app):
     """ dct denoising app """
