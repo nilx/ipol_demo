@@ -16,7 +16,8 @@ from math import ceil
 class app(base_app):
     """ dct denoising app """
 
-    title = "DCT Image Denoising"
+    title = "DCT image denoising: a simple and effective image denoising \
+algorithm "
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -50,8 +51,8 @@ class app(base_app):
 
         # store common file path in variables
         tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "ys_dct_denoising/src_demoDCTdenoisingB.tar.gz"
-        tgz_file = self.dl_dir + "src_demoDCTdenoisingB.tar.gz"
+            + "ys_dct_denoising/src_demoDCTdenoising.tar.gz"
+        tgz_file = self.dl_dir + "src_demoDCTdenoising.tar.gz"
         progs = ["demo_DCTdenoising", "img_diff_ipol",  "img_mse_ipol"]
         src_bin = dict([(self.src_dir + 
                        os.path.join("src_demoDCTdenoisingB", prog),
