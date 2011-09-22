@@ -14,12 +14,27 @@
 	  type="text/css" />
     <style TYPE="text/css">
     <%include file="style.css" />
+    %if not prod:
+    <%include file="style_dev.css" />
+    %endif
     </style>
     <script type="text/javascript">
       <%include file="script.js" />
     </script>
   </head>
   <body>
+    <div class="pageheader">
+      <div class="header">
+	<div class="parentlinks">
+	  <a href="http://www.ipol.im/">ipol.im</a>
+	  »
+	  <a href="http://www.ipol.im/pub/">pub</a>
+	  »
+	  <a href="http://www.ipol.im/pub/demo/">demo</a>
+	  »
+	</div> <!-- .parentlinks -->
+      </div> <!-- .header -->
+    </div> <!-- .pageheader -->
     <div id="main" class="archive">
       <div id="pagetitle">
 	${app.title}
