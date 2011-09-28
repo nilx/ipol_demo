@@ -68,12 +68,12 @@ class app(base_app):
             # extract the archive
             build.extract(surf_tgz_file, self.src_dir)
             # build the program
-            build.run("make -j4 -C %s demo_SURF" %
+            build.run("make -j4 -C %s" %
                       (self.src_dir + "demo_SURF_src"),
                       stdout=surf_log_file)
             # save into bin dir
             shutil.copy(self.src_dir + os.path.join("demo_SURF_src",
-                                                    "bin"),
+                                                    "bin", "surf"),
                         surf_prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
