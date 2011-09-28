@@ -1,0 +1,63 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <div class="action">
+      You can run again this algorithm with new data.
+      <input type="submit" value="new input" />
+  </div>
+</form>
+
+<hr />
+
+<h2>Program Output</h2>
+
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+
+<h2>Output</h2>
+
+<div class="gallery" style="height:${height}px; width:100%;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	SURF
+	<span>
+	  <img src="${app.work_url + 'output_SURF.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	SIFT
+	<span>
+	  <img src="${app.work_url + 'output_SIFT.png'}" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<ul>
+  <li>
+    <a href="${app.work_url + 'match_SURF.txt'}">coordinates of SURF match
+    points</a>
+  </li>
+  <li>SURF keypoints in
+    the <a href="${app.work_url + 'keypoint1.txt'}">first</a>
+    and <a href="${app.work_url + 'keypoint2.txt'}">second</a> image</li>
+</ul>
+
+<h2>Input</h2>
+
+<img src="${app.work_url + 'input_0.png'}" alt="" />
+<img src="${app.work_url + 'input_1.png'}" alt="" />
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
