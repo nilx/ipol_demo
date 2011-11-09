@@ -155,3 +155,12 @@ form input[type="submit"] {
     width: 0;
     height: .5em; }
 
+.citation {
+    background-color: #E3F3FF; 
+    border-top: 1px #E4E4E4 solid; 
+    border-bottom: 1px #E4E4E4 solid; 
+    padding: .1em 1em;
+    font-size:80%; }
+.citation a {
+    color:black; 
+    text-decoration: underline; }
