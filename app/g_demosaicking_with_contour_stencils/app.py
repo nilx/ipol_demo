@@ -26,7 +26,7 @@ class app(base_app):
     input_ext = '.png'                  # expected extension
     is_test = False
     default_param = {'pattern': 'RGGB', # default parameters
-             'alpha': 1.7,
+             'alpha': 1.8,
              'x0': None,
              'y0': None,
              'x' : None,
@@ -234,11 +234,13 @@ class app(base_app):
             ar.add_file("mosaicked.png", 
                 info="mosaicked image")
             ar.add_file("dmcswl1.png", 
-                info="Contour stencils demosaicked image")
+                info="contour stencils demosaicked (MSE " 
+                + self.cfg['param']['mse_dmcswl1'] + ")")
             ar.add_file("diffdmcswl1.png", 
                 info="difference image for contour stencils")
             ar.add_file("bilinear.png", 
-                info="bilinear demosaicked image")
+                info="bilinear demosaicked (MSE "
+                + self.cfg['param']['mse_bilinear'] + ")")
             ar.add_file("diffbilinear.png", 
                 info="difference image for bilinear")
             ar.add_info({"pattern": self.cfg['param']['pattern']})
@@ -262,13 +264,15 @@ class app(base_app):
         
         timeout = False
         pattern = self.cfg['param']['pattern']
+        padding = 16
         
         # Get image size
         (sizeX, sizeY) = image(self.work_dir + 'input_0_sel.png').size 
         showcontours = (sizeX*sizeY <= self.showcontours_max_pixels)
         
-        # Mosaic image
-        self.wait_proc(self.run_proc(['mosaic', '-p', pattern, 
+        # Mosaic image with 8-pixel padding
+        self.wait_proc(self.run_proc(['mosaic', 
+            '-p', pattern, '-e', str(padding),
             'input_0_sel.png', 'mosaicked.png'],
             stdout=stdout, stderr=stdout), timeout*0.1)
 
@@ -280,7 +284,7 @@ class app(base_app):
             self.run_proc(['dmbilinear', '-p', pattern, 
                 'mosaicked.png', 'bilinear.png'],
                 stdout=stdout, stderr=stdout)]
-                
+        
         # Display estimate image contours as EPS
         if showcontours:            
             p.append(self.run_proc(['dmcswl1', '-p', pattern, '-s',
@@ -288,7 +292,27 @@ class app(base_app):
                 stdout=stdout, stderr=stdout))
         
         self.wait_proc(p, timeout*0.7)
-
+        
+        # Trim the padding
+        for m in ['mosaicked', 'bilinear', 'dmcswl1']:
+            img = image(self.work_dir + m + '.png')
+            img.crop((padding, padding, padding + sizeX, padding + sizeY))
+            img.save(self.work_dir + m + '.png')
+        
+        # Compute MSEs, the results are saved in files mse_*.txt
+        self.wait_proc(
+            [self.run_proc(['imdiff','-mmse',
+                'input_0_sel.png', m + '.png'],
+                stdout=open(self.work_dir 
+                + 'mse_' + m + '.txt', 'w'), stderr=None)
+            for m in ['bilinear', 'dmcswl1']], timeout*0.1)
+        
+        # Read the mse_*.txt files
+        for m in ['bilinear', 'dmcswl1']:
+            f = open(self.work_dir + 'mse_' + m + '.txt', 'r')
+            self.cfg['param']['mse_' + m] = "%.2f" % float(f.readline())
+            f.close()        
+        
         # Compute image differences
         self.wait_proc([self.run_proc(['imdiff', 'input_0_sel.png', 
                 'dmcswl1.png', 'diffdmcswl1.png'],

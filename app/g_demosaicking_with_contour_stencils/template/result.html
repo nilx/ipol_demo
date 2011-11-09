@@ -98,10 +98,17 @@ Download:
     </ul>
 </div>
 
-<p>
-The error range [&minus;20,20] is linearly transformed to [0,255] for
-visualization purposes. Errors outside this range are saturated to 0
-and 255 respectively.
+<table border="0" cellspacing="2px" cellpadding="0" 
+style="background:none; margin:0; padding:0; margin-top:20px; margin-bottom:20px; 
+border-top:1px solid black; border-bottom:1px solid black">
+<tr><td colspan="2" align="center"><i>Mean squared errors</i></td></tr>
+<tr><td>Bilinear demosaicking</td><td>MSE ${app.cfg['param']['mse_bilinear']}</td></tr>
+<tr><td>Contour stencils demosaicking&nbsp;&nbsp;&nbsp;</td>
+<td>MSE ${app.cfg['param']['mse_dmcswl1']}</td></tr>
+</table>
+
+<p>In the difference images, the error range [&minus;20,20] is linearly transformed to [0,255] for
+visualization purposes. Errors outside this range are saturated to 0 and 255 respectively.
 
 <a class="toggle" href="#formula" onclick="toggle('formula');">
     Details
