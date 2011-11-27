@@ -1,14 +1,5 @@
 <%include file="header.html" />
 
-<p>
-The algorithm result is displayed hereafter.
-You can run again this algorithm with new data.
-</p>
-
-%if app.cfg['param']['zoomfactor'] > 1:
-    <p>For visualization, the images are displayed with ${app.cfg['param']['zoomfactor']}&times; pixel duplication.</p>
-%endif
-
 <div class="action" style="padding-bottom:3ex">    
     <form style="float:left" action="${app.base_url}" method="get">
         <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
@@ -29,14 +20,15 @@ You can run again this algorithm with new data.
     %endif
 </div>
 
-<p>
-Download:  
-<a href="${app.work_url + 'mosaicked.png'}">mosaick</a>, 
-<a href="${app.work_url + 'bilinear.png'}">bilinear demosaick</a>,
-<a href="${app.work_url + 'dmcswl1.png'}">contour stencils demosaick</a>,
-<a href="${app.work_url + 'input_0.sel.png'}">original</a>,
-<a href="${app.work_url + 'diffbilinear.png'}">bilinear difference</a>,
-<a href="${app.work_url + 'diffdmcswl1.png'}">contour stencils difference</a>.
+<p>Notice that if the image dimensions exceeded 800&times;800, then the image has been cropped.  
+%if app.cfg['param']['zoomfactor'] > 1:
+For visualization, the images are displayed with ${app.cfg['param']['zoomfactor']}&times; pixel duplication.
+%endif
+Results at native resolution can be downloaded here:<br />
+<a href="${app.work_url + 'mosaicked.png'}">mosaick</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'bilinear.png'}">bilinear demosaicked</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'dmcswl1.png'}">contour stencils demosaicked</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'input_0.sel.png'}">original</a>.
 </p>
 
 %if app.cfg['param']['showcontours']:
@@ -98,17 +90,22 @@ Download:
     </ul>
 </div>
 
-<table border="0" cellspacing="2px" cellpadding="0" 
+<table border="0" cellspacing="0" cellpadding="2px" 
 style="background:none; margin:0; padding:0; margin-top:20px; margin-bottom:20px; 
 border-top:1px solid black; border-bottom:1px solid black">
-<tr><td colspan="2" align="center"><i>Mean squared errors</i></td></tr>
-<tr><td>Bilinear demosaicking</td><td>MSE ${app.cfg['param']['mse_bilinear']}</td></tr>
+<tr>
+<td style="border-bottom:1px solid black">Method</td>
+<td style="border-bottom:1px solid black">Mean squared error&nbsp;&nbsp;&nbsp;</td>
+<td style="border-bottom:1px solid black">CPU time</td></tr>
+<tr>
+<td>Bilinear demosaicking</td><td>${app.cfg['param']['mse_bilinear']}</td>
+<td>${app.cfg['param']['cpu_bilinear']}</td></tr>
 <tr><td>Contour stencils demosaicking&nbsp;&nbsp;&nbsp;</td>
-<td>MSE ${app.cfg['param']['mse_dmcswl1']}</td></tr>
+<td>${app.cfg['param']['mse_dmcswl1']}</td>
+<td>${app.cfg['param']['cpu_dmcswl1']}</td></tr>
 </table>
 
-<p>In the difference images, the error range [&minus;20,20] is linearly transformed to [0,255] for
-visualization purposes. Errors outside this range are saturated to 0 and 255 respectively.
+<p>In the difference images, the error range [&minus;20,20] is linearly transformed to [0,255] for visualization purposes. Errors outside this range are saturated to 0 and 255 respectively.
 
 <a class="toggle" href="#formula" onclick="toggle('formula');">
     Details

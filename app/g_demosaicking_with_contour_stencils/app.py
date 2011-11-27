@@ -11,7 +11,7 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import time
-from math import ceil
+from math import floor, ceil
 
 
 class app(base_app):
@@ -266,37 +266,50 @@ class app(base_app):
         pattern = self.cfg['param']['pattern']
         padding = 16
         
-        # Get image size
-        (sizeX, sizeY) = image(self.work_dir + 'input_0_sel.png').size 
-        showcontours = (sizeX*sizeY <= self.showcontours_max_pixels)
+        # Crop image if necessary
+        img = image(self.work_dir + 'input_0_sel.png')
+        (sizeX, sizeY) = img.size
+        cropsize = (min(sizeX, 800), min(sizeY, 800))
         
-        # Mosaic image with 8-pixel padding
+        if (sizeX, sizeY) != cropsize:
+            (x0, y0) = (int(floor((sizeX - cropsize[0])/2)),
+                int(floor((sizeY - cropsize[1])/2)))
+            img.crop((x0, y0, x0 + cropsize[0], y0 + cropsize[1]))
+            img.save(self.work_dir + 'input_0_sel.png')
+        
+        showcontours = (cropsize[0]*cropsize[1] \
+            <= self.showcontours_max_pixels)
+        
+        # Mosaic image with 16-pixel padding
         self.wait_proc(self.run_proc(['mosaic', 
             '-p', pattern, '-e', str(padding),
             'input_0_sel.png', 'mosaicked.png'],
-            stdout=stdout, stderr=stdout), timeout*0.1)
+            stdout=None, stderr=None), timeout*0.1)
 
-        # Demosaic image
+        # Demosaic image, CPU times are recorded in stdout_*.txt files
         p = [self.run_proc(['dmcswl1', '-p', pattern, 
                 '-a', str(self.cfg['param']['alpha']),
                 'mosaicked.png', 'dmcswl1.png'],
-                stdout=stdout, stderr=stdout),
+                stdout=open(self.work_dir 
+                + 'stdout_dmcswl1.txt', 'w'), stderr=None),
             self.run_proc(['dmbilinear', '-p', pattern, 
                 'mosaicked.png', 'bilinear.png'],
-                stdout=stdout, stderr=stdout)]
+                stdout=open(self.work_dir 
+                + 'stdout_bilinear.txt', 'w'), stderr=None)]
         
         # Display estimate image contours as EPS
         if showcontours:            
             p.append(self.run_proc(['dmcswl1', '-p', pattern, '-s',
                 'input_0_sel.png', 'contours.eps'],
-                stdout=stdout, stderr=stdout))
+                stdout=None, stderr=None))
         
         self.wait_proc(p, timeout*0.7)
         
         # Trim the padding
         for m in ['mosaicked', 'bilinear', 'dmcswl1']:
             img = image(self.work_dir + m + '.png')
-            img.crop((padding, padding, padding + sizeX, padding + sizeY))
+            img.crop((padding, padding, \
+                padding + cropsize[0], padding + cropsize[1]))
             img.save(self.work_dir + m + '.png')
         
         # Compute MSEs, the results are saved in files mse_*.txt
@@ -307,19 +320,26 @@ class app(base_app):
                 + 'mse_' + m + '.txt', 'w'), stderr=None)
             for m in ['bilinear', 'dmcswl1']], timeout*0.1)
         
-        # Read the mse_*.txt files
+        # Read the mse_*.txt and stdout_*.txt files
         for m in ['bilinear', 'dmcswl1']:
             f = open(self.work_dir + 'mse_' + m + '.txt', 'r')
             self.cfg['param']['mse_' + m] = "%.2f" % float(f.readline())
-            f.close()        
+            f.close()
+            
+            self.cfg['param']['cpu_' + m] = ''
+            
+            for line in open(self.work_dir + 'stdout_' + m + '.txt', 'r'):
+                if line.count('CPU Time:') > 0:
+                    self.cfg['param']['cpu_' + m] = line.split(':',1)[1]
+                    break
         
         # Compute image differences
         self.wait_proc([self.run_proc(['imdiff', 'input_0_sel.png', 
                 'dmcswl1.png', 'diffdmcswl1.png'],
-                stdout=stdout, stderr=stdout),
+                stdout=None, stderr=None),
             self.run_proc(['imdiff', 'input_0_sel.png', 
                 'bilinear.png', 'diffbilinear.png'],
-                stdout=stdout, stderr=stdout)], timeout*0.1)
+                stdout=None, stderr=None)], timeout*0.1)
                         
         # Convert EPS to PDF
         if showcontours:
@@ -336,8 +356,8 @@ class app(base_app):
                 showcontours = False
         
         # Resize for visualization (new size of the smallest dimension = 200)
-        zoomfactor = max(1, int(ceil(200.0/min(sizeX, sizeY))))
-        (sizeX, sizeY) = (zoomfactor*sizeX, zoomfactor*sizeY)
+        zoomfactor = int(max(1, ceil(200.0/min(cropsize[0], cropsize[1]))))
+        (sizeX, sizeY) = (zoomfactor*cropsize[0], zoomfactor*cropsize[1])
         
         for filename in ['input_0_sel', 'mosaicked', 'dmcswl1', 'bilinear',
             'diffdmcswl1', 'diffbilinear']:
