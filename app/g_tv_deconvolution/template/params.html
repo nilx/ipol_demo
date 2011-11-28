@@ -1,0 +1,240 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+
+function num2sci(value, numDigits)
+{
+    var exponent = Math.floor(Math.log(value) / Math.log(10));
+    var mantissa = value / Math.pow(10, exponent - numDigits);
+    return Math.round(mantissa + (9*exponent - 1)*Math.pow(10, numDigits));
+}
+
+function sci2str(sci, numDigits)
+{
+    var exponent = Math.floor(sci / (9*Math.pow(10, numDigits)));
+    var mantissa = sci/Math.pow(10, numDigits) - (9*exponent - 1);
+    var value = Math.pow(10, exponent) * mantissa;
+    return value.toExponential(numDigits);
+}
+
+// Create a JQueryUI slider linked with text input with scientific notation
+//
+// inputId      the ID of the text input element
+// sliderId     the ID of the DIV element to turn into a slider
+// valueMin     minimum value
+// valueMax     maximum value
+// numDigits    number of digits after decimal point
+function createLinkedSliderExp(inputId, sliderId, 
+    valueMin, valueMax, numDigits)
+{    
+    var inputObj = $(inputId);
+    // Create JQueryUI slider
+    var sliderObj = $(sliderId).slider({
+        min: num2sci(valueMin, numDigits),         // Minimum value
+        max: num2sci(valueMax, numDigits),         // Maximum value
+        value: num2sci(parseFloat(                 // Initial value
+            inputObj.attr('value')), numDigits),
+        animate: 'fast'});                         // Animation speed
+    
+    // Update slider when input changes
+    inputObj.blur(function()
+        {
+            var value = parseFloat(inputObj.attr('value'));
+            var valueClamped;
+
+            if(value <= 0 || !isFinite(value))
+                valueClamped = sliderObj.slider('option', 'min');
+            else
+            {
+                value = num2sci(value, numDigits);
+                valueClamped = Math.min(Math.max(value, 
+                    sliderObj.slider('option', 'min')), 
+                    sliderObj.slider('option', 'max'));
+            }
+
+            sliderObj.slider('value', valueClamped);
+    
+            if(value != valueClamped)
+                inputObj.val(sci2str(valueClamped, numDigits));
+        });
+
+    // Update input when slider changes
+    sliderObj.slider('option', 'slide',
+        function(event, ui) { inputObj.val(sci2str(ui.value, numDigits)); });
+}
+
+/*
+function setkernel(s)
+{
+    $('#kernelpreview').css('background-image', 
+        'url(\'https://edit.ipol.im/edit/algo/g_tv_deconvolution/kernel-' 
+        + s + '.png\')');
+}*/
+
+var rowoffset = 0;
+
+function spritecoords(s)
+{
+    var n = Math.max(Math.round(parseFloat(s)*5) - 3, 0);
+    var col = Math.floor(n/14);
+    var row = n - 14*col + 14*rowoffset;
+    return (-47*col) + 'px ' + (-47*row) + 'px';
+}
+
+function setkernel(k)
+{
+    rowoffset = k;
+    $('#kernelpreview').css('background-position', 
+        spritecoords($('#kernelsize').attr('value')));
+}
+
+$(document).ready(function() 
+{
+    createLinkedSlider('#kernelsize', '#slider1', 0, 20, 0.1);
+    createLinkedSlider('#noiselevel', '#slider2', 0, 10, 0.1);
+
+    $('#lambda').val(parseFloat($('#lambda').attr('value')).toExponential(1));
+
+    $('#kernelpreview').css('border', '1px #CCC solid');
+    $('#kernelpreview').css('background-image', 
+        'url(\'http://www.ipol.im/pub/algo/g_tv_deconvolution/kernels.png\')');
+%if app.cfg['param']['kernel'] == app.default_param['kernel']:    
+    setkernel(0);
+%else:
+    setkernel(1);
+%endif
+    
+    // Update kernel preview image with kernelsize slider
+    $('#kernelsize').blur(function()
+        {
+            var value = $('#kernelsize').attr('value');
+            var valueClamped = Math.min(Math.max(value, 
+                $('#slider1').slider('option', 'min')), 
+                $('#slider1').slider('option', 'max'));
+            $('#slider1').slider('value', valueClamped);
+            $('#kernelpreview').css('background-position', 
+                spritecoords(valueClamped));
+
+            if(value != valueClamped)
+                $('#kernelsize').val(valueClamped.toFixed(numDigits));
+        });
+    $('#slider1').slider('option', 'slide',
+        function(event, ui) { 
+            $('#kernelsize').val(ui.value.toFixed(1)); 
+            $('#kernelpreview').css('background-position', 
+                spritecoords(ui.value));
+        });
+});
+// -->
+</script>
+
+<form action="${app.base_url + 'wait'}" method="get">
+
+<fieldset>
+<div style="position:relative; width:6em; top:-1em; 
+background: url('http://www.ipol.im/static/bg-main.png') left top repeat;
+padding:.2em .5em; background-color:#fafafa; margin:0px">Parameters</div>
+
+<input type="hidden" name="key" value="${app.key}" />
+
+<table border="0" style="margin-left:2em;margin-right:0;text-align:right;background:none">
+<tr>
+<td rowspan="2"><div id="kernelpreview" name="kernelpreview" style="width:47px; height:47px;margin-right:1.5em"></div>
+</td>
+<td>Kernel <i>&phi;</i></td>
+<td style="text-align:left">
+%if app.cfg['param']['kernel'] == app.default_param['kernel']:
+    <input type="radio" id="kernel-disk" name="kernel" value="disk" onClick="setkernel(0)"  style="margin-left:0.5em" checked><label for="kernel-disk">disk</label>
+    <input type="radio" id="kernel-gaussian" name="kernel" value="Gaussian" style="margin-left:0.5em" onClick="setkernel(1)"><label for="kernel-gaussian">Gaussian</label>        
+%else:
+    <input type="radio" id="kernel-disk" name="kernel" value="disk" onClick="setkernel(0)"  style="margin-left:0.5em"><label for="kernel-disk">disk</label>
+    <input type="radio" id="kernel-gaussian" name="kernel" value="Gaussian" style="margin-left:0.5em" onClick="setkernel(1)" checked><label for="kernel-gaussian">Gaussian</label>    
+%endif
+</td>
+</tr>
+<tr>
+<td>size</td><td>
+<div style="float:left">
+<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="kernelsize" name="kernelsize" value="${app.cfg['param']['kernelsize']}" />
+</div>
+<div id="slider1" style="float:left; width:32em; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+</td>
+</tr>
+<tr><td colspan="3">&nbsp;</td></tr>
+<tr>
+<td colspan="2">Noise level</td>
+<td>
+<div style="float:left">
+<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="noiselevel" name="noiselevel" value="${app.cfg['param']['noiselevel']}" />
+</div>
+<div id="slider2" style="float:left; width:32em; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+</td>
+</tr>
+</table>
+
+</fieldset>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<p style="margin:0px"><a class="toggle" style="cursor:help" onclick="toggle('paramdetails');">Details</a></p>
+<div style="display:none;border: #ccccff 1px solid;padding-left:1ex;padding-right:1ex" class="toggleable" id="paramdetails">
+<p><b>&bull;&nbsp;Kernel <i>&phi;</i>.</b> The input image is deconvolved such that <i>&phi;</i>&lowast;<i>output</i>&nbsp;&asymp;&nbsp;<i>input</i>.  Either a disk-shaped kernel or Gaussian kernel may be selected (please download the source code below to run with other kernels).  The &ldquo;size&rdquo; parameter is the radius of the disk-shaped kernel or twice the standard deviation of the Gaussian kernel.</p>
+
+<p><b>&bull;&nbsp;Noise level.</b> The noise level specifies the standard deviation of the additive Gaussian noise.</p>
+
+<p>The fidelity stength <i>&lambda;</i> is computed from the kernel size and noise level using the empirical formula described in the article.</p>
+
+<p><b>&bull;&nbsp;The algorithm can run in two different ways:</b></p>
+
+<ol>
+<li>&ldquo;<b>${app.default_param['action']}</b>&rdquo; directly deconvolves the selected image.  No noise is added to the image.  The noise level specifies how much noise is in the selected image.</li>
+<li>With &ldquo;<b>Convolve, add noise, then deconvolve</b>,&rdquo; the image is first convolved with <i>&phi;</i>, then white Gaussian noise is added, then the algorithm is applied to deconvolve the blurry and noisy image.</li>
+</ol>
+
+<p>Note that in either case, the image is quantized to 8-bit precision before deconvolution.  Thus there is quantization noise even when a noise level of zero is selected.</p>
+
+<p><b>&bull;&nbsp;Source code for this demo:</b>
+<a href="http://www.ipol.im/pub/algo/g_tv_denoising/tvreg.zip">
+zip</a>
+<a href="http://www.ipol.im/pub/algo/g_tv_denoising/tvreg.tar.gz">
+tar.gz</a></p>
+</div>
+
+<p style="clear:both;margin-bottom:5px">You can run the algorithm in two different ways.</p>
+<div style="float:left; text-align:center; padding-left:30px; padding-right:25px">
+    <input type="submit" name="action" value="${app.default_param['action']}" />
+</div>
+<div style="float:left;">
+    <input type="submit" name="action" value="Convolve, add noise, then deconvolve" />
+</div>
+
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+    %if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
+        <p>Or you can run it after selecting a subimage by clicking two 
+        opposite corners.</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0.png'}" /></p>
+    %elif app.cfg['param']['x'] == None or app.cfg['param']['y'] == None:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <p>Please select the second corner of the subimage:</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" /></p>
+    %else:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <input type="hidden" name="x" value="${app.cfg['param']['x']}" />
+        <input type="hidden" name="y" value="${app.cfg['param']['y']}" />
+        <p>The algorithm will run on this selected subimage:</p>
+        <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+    %endif
+</form>
+
+
+<%include file="footer.html" />

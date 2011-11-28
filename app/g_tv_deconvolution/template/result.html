@@ -1,0 +1,118 @@
+<%include file="header.html" />
+
+<div class="action" style="padding-bottom:3ex">    
+    <form style="float:left" action="${app.base_url}" method="get">
+        <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
+    </form>    
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="msg" value="different parameter" />
+        <input type="submit" value="different parameter" /></p>
+    </form>
+    %if all(app.cfg['param'][p] != None for p in ['x0', 'y0', 'x', 'y']):
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="msg" value="different subimage" />
+        <input type="submit" value="different subimage" /></p>
+    </form>
+    %endif
+</div>
+
+<p>Notice that if the image dimensions exceeded 450&times;450, then the image has been cropped.  For visualization, images are displayed with ${app.cfg['param']['zoomfactor']}&times; pixel duplication.  Results at native resolution can be downloaded here:
+%if app.cfg['param']['action'] == app.default_param['action']:
+<a href="${app.work_url + 'input_0_sel.png'}">input</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'tvdeconv.png'}">deconvolved</a>.
+%else:
+<a href="${app.work_url + 'blurry.png'}">input</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'tvdeconv.png'}">deconvolved</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'input_0_sel.png'}">exact</a>
+%endif
+</p>
+<hr />
+
+<p>Parameters: <i>&phi;</i>&nbsp;= ${app.cfg['param']['kernel']} of size ${app.cfg['param']['kernelsize']},&nbsp;&nbsp; noise&nbsp;level&nbsp;= ${app.cfg['param']['noiselevel']},&nbsp;&nbsp; <i>&lambda;</i>&nbsp;= 
+${'%g' % app.cfg['param']['lambda']}</p>
+
+<div class="gallery" style="height: ${app.cfg['param']['displayheight']}px;">
+<ul class="index">
+%if app.cfg['param']['action'] == app.default_param['action']:
+<li>
+    <a href="#">
+        Input
+        <span><img src="${app.work_url + 'input_0_sel_zoom.png'}" alt="" /></span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        Deconvolved
+        <span><img src="${app.work_url + 'tvdeconv_zoom.png'}?"  alt="" /></span>
+    </a>
+</li>
+%else:
+<li>
+    <a href="#">
+        Input<br />PSNR ${app.cfg['param']['psnr_blurry']}
+        <span><img src="${app.work_url + 'blurry_zoom.png'}" alt=""  /></span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        Deconvolved<br />PSNR ${app.cfg['param']['psnr_tvdeconv']}
+        <span><img src="${app.work_url + 'tvdeconv_zoom.png'}?"  alt="" /></span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        Exact
+        <span><img src="${app.work_url + 'input_0_sel_zoom.png'}"  alt="" /></span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        Difference input
+        <span><img src="${app.work_url + 'diff_blurry_zoom.png'}"  alt="" /></span>
+    </a>
+</li>
+<li>
+    <a href="#">
+        Difference deconvolved
+        <span><img src="${app.work_url + 'diff_tvdeconv_zoom.png'}"  alt="" /></span>
+    </a>
+</li>
+%endif
+</ul>
+</div>
+
+<h2>stdout</h2>
+<pre class="stdio">
+${app.cfg['param']['stdout']}
+</pre>
+
+%if app.cfg['param']['action'] != app.default_param['action']:
+<p>
+The error range [&minus;40,40] is linearly transformed to [0,255] for
+visualization. Errors outside this range are saturated to 0
+and 255 respectively.
+
+<a class="toggle" href="#formula" onclick="toggle('formula');">
+    Details
+</a>
+</p>
+<div id="formula" style="display:none"> 
+<p>
+<!-- <img src="${app.input_url + 'formulaerrordisplay.png'}" /> -->
+The displayed error is:
+<ul>
+    <li> 0 if the error is under &minus;40</li>
+    <li> 128 + 128/40 * error if the error is between &minus;40 and 40 </li>
+    <li> 255 if the error is over 40 </li>
+</ul>
+</p>
+%endif
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
