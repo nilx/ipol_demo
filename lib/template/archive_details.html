@@ -1,13 +1,13 @@
 <%include file="header_archive.html" />
 
-<div class="note">
+<p>
 This archive is not moderated.
 In case of copyright infringement or similar problem, please 
 <a href="http://www.ipol.im/meta/contact/">contact us</a> to request
 the removal of some images.
 Some archived content may be deleted by the editorial board for size
 matters, inadequate content, user requests, or other reasons.
-</div>
+</p>
 
 <%
 images = filter(lambda i : i.is_file and i.has_tn, bucket['files'])
