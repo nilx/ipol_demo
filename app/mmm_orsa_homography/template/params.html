@@ -8,7 +8,13 @@
       %for _p in ['arbitrary','5','2','1','0.5']:
       <option value="${_p}">${_p}</option>
       %endfor
-    </select>
+    </select><br \>
+    Choose the SIFT ratio (higher=more matches).
+    <select name="SiftRatio">
+      %for _p in ['0.6','0.8','1']:
+      <option value="${_p}">${_p}</option>
+      %endfor
+    </select><br />
     <input type="submit" value="run" />
   </div>
 </form>

@@ -103,6 +103,9 @@ class app(base_app):
         if 'precision' in kwargs:
             self.cfg['param']['precision'] = kwargs['precision']
             self.cfg.save()
+        if 'SiftRatio' in kwargs:
+            self.cfg['param']['siftratio'] = kwargs['SiftRatio']
+            self.cfg.save()
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         height = max(image(self.work_dir + 'input_0.png').size[1],
@@ -141,6 +144,8 @@ class app(base_app):
             ar.add_file("input_1.png", info="input #2")
             if 'precision' in self.cfg['param']:
                 ar.add_info({"precision": self.cfg['param']['precision']})
+            if 'siftratio' in self.cfg['param']:
+                ar.add_info({"SiftRatio": self.cfg['param']['siftratio']})
             ar.add_file("match.txt", compress=True)
             ar.add_file("matchOrsa.txt", compress=True)
             ar.add_file("outliers.png", info="outliers image")
@@ -167,6 +172,13 @@ class app(base_app):
                 precision = str(self.cfg['param']['precision'])
             except ValueError:
                 pass
+        SiftRatio = "0.6"
+        if 'siftratio' in self.cfg['param']:
+            try:
+                float(self.cfg['param']['siftratio'])
+                SiftRatio = str(self.cfg['param']['siftratio'])
+            except ValueError:
+                pass
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         proc = self.run_proc(['demo_orsa_homography',
                               self.work_dir + 'input_0.png',
@@ -178,7 +190,8 @@ class app(base_app):
                               "outliers.png",
                               "panorama.png",
                               "registered_0.png",
-                              "registered_1.png"],
+                              "registered_1.png",
+                              SiftRatio],
                              stdout=stdout, stderr=stdout)
         try:
             self.wait_proc(proc, timeout)
