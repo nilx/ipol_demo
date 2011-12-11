@@ -1,0 +1,129 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+
+function num2sci(value, numDigits)
+{
+    var exponent = Math.floor(Math.log(value) / Math.log(10));
+    var mantissa = value / Math.pow(10, exponent - numDigits);
+    return Math.round(mantissa + (9*exponent - 1)*Math.pow(10, numDigits));
+}
+
+function sci2str(sci, numDigits)
+{
+    var exponent = Math.floor(sci / (9*Math.pow(10, numDigits)));
+    var mantissa = sci/Math.pow(10, numDigits) - (9*exponent - 1);
+    var value = Math.pow(10, exponent) * mantissa;
+    return value.toExponential(numDigits);
+}
+
+// Create a JQueryUI slider linked with text input with scientific notation
+//
+// inputId      the ID of the text input element
+// sliderId     the ID of the DIV element to turn into a slider
+// valueMin     minimum value
+// valueMax     maximum value
+// numDigits    number of digits after decimal point
+function createLinkedSliderExp(inputId, sliderId, 
+    valueMin, valueMax, numDigits)
+{    
+    var inputObj = $(inputId);
+    // Create JQueryUI slider
+    var sliderObj = $(sliderId).slider({
+        min: num2sci(valueMin, numDigits),         // Minimum value
+        max: num2sci(valueMax, numDigits),         // Maximum value
+        value: num2sci(parseFloat(                 // Initial value
+            inputObj.attr('value')), numDigits),
+        animate: 'fast'});                         // Animation speed
+    
+    // Update slider when input changes
+    inputObj.blur(function()
+        {
+            var value = parseFloat(inputObj.attr('value'));
+            var valueClamped;
+
+            if(value <= 0 || !isFinite(value))
+                valueClamped = sliderObj.slider('option', 'min');
+            else
+            {
+                value = num2sci(value, numDigits);
+                valueClamped = Math.min(Math.max(value, 
+                    sliderObj.slider('option', 'min')), 
+                    sliderObj.slider('option', 'max'));
+            }
+
+            sliderObj.slider('value', valueClamped);
+    
+            if(value != valueClamped)
+                inputObj.val(sci2str(valueClamped, numDigits));
+        });
+
+    // Update input when slider changes
+    sliderObj.slider('option', 'slide',
+        function(event, ui) { inputObj.val(sci2str(ui.value, numDigits)); });
+}
+// -->
+</script>
+
+<p>Click on the image to draw the inpainting domain <i>D</i>.</p>
+
+<form action="${app.base_url + 'editmask'}" method="get">
+<fieldset>
+<input type="hidden" id="key" name="key" value="${app.key}" />
+<input type="submit" id="action" name="action" value="undo" />
+<input type="submit" id="action" name="action" value="clear" />&nbsp;&nbsp;&nbsp;
+<select id="pensize" name="pensize">
+%for (k, v) in [('thin pen', 3), ('medium pen', 7), ('thick pen', 15)]:
+%if v == int(app.cfg['param']['pensize']):
+<option value="${v}" selected />${k}</option>
+%else:
+<option value="${v}" />${k}</option>
+%endif
+%endfor
+</select>&nbsp;&nbsp;&nbsp;
+<input type="submit" id="pencolor_yellow" name="pencolor_yellow" value="" 
+style="background:none; background-color:#FFFF00" />
+<input type="submit" id="pencolor_blue" name="pencolor_blue" value="" 
+style="background:none; background-color:#0000FF" />
+<input type="submit" id="pencolor_black" name="pencolor_black" value="" 
+style="background:none; background-color:#000000" />
+<!--
+<input type="radio" name="pen" value="4" id="pen4" /><label for="pen4">Small</label>
+<input type="radio" name="pen" value="8" id="pen8" checked /><label for="pen8">Medium</label>
+<input type="radio" name="pen" value="16" id="pen16" /><label for="pen16">Large</label> -->
+<br>
+<!-- <div width="${app.cfg['param']['viewbox_width']}" height="${app.cfg['param']['viewbox_height']}">
+<img src="${app.work_url + 'input_0.png'}" width="${app.cfg['param']['viewbox_width']}" height="${app.cfg['param']['viewbox_height']}" style="padding:0; margin:0;" /><input type="image" style="cursor:crosshair; position:relative; padding:0; margin:0; left:-${app.cfg['param']['viewbox_width']}px"
+ src="${app.work_url + 'mask.gif'}?${app.timestamp}"
+width="${app.cfg['param']['viewbox_width']}"
+height="${app.cfg['param']['viewbox_height']}" />
+</div> -->
+<input type="image" style="cursor:crosshair; margin-top:4px;
+background:url('${app.work_url + 'input_0.png'}')"
+src="${app.work_url + 'mask.gif'}?${app.timestamp}" 
+width="${app.cfg['param']['viewbox_width']}"
+height="${app.cfg['param']['viewbox_height']}" alt="" />
+</fieldset>
+</form>
+
+<form action="${app.base_url + 'wait'}" method="get">
+<input type="hidden" name="key" value="${app.key}" />
+<p style="clear:both;">Run the algorithm: <input type="submit" name="action" value="run" /><p/>
+<div style="float:left; width:8em; text-align:right;">
+<i>&lambda;</i>&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="lambda" name="lambda" value="${'%.1e' % app.cfg['param']['lambda']}" />
+</div>
+<div id="slider1" style="width:32em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSliderExp('#lambda', '#slider1', 1e1, 1e4, 1);
+});
+</script>
+</form>
+
+<div style="clear:both">&nbsp;</div>
+
+<%include file="footer.html" />
