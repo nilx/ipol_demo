@@ -32,6 +32,8 @@ def init_app(func):
         """
         # key check
         key = kwargs.pop('key', None)
+        if isinstance(key, list):
+            key = key[0]
         self.init_key(key)
         self.init_cfg()
 
