@@ -65,7 +65,9 @@ def init_app(func):
                 archive.index_add(self.archive_index,
                                   bucket=ar,
                                   path=self.archive_dir)
-        return func(self, *args, **kwargs)
+        x = func(self, *args, **kwargs)
+        self.cfg.save()
+        return x
     return init_func
 
 
