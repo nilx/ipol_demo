@@ -16,7 +16,7 @@ class app(base_app):
     """ template demo app """
 
     title = "TV-L1 Optical Flow Estimation"
-    is_test = True       # switch to False for deployment
+    is_test = False
     is_listed = True
     is_built = True
 
