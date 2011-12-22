@@ -97,7 +97,6 @@ class app(base_app):
         try:
             self.cfg['param'] = {'t' : int(T),
                                  'a' : float(a)}
-            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
@@ -120,7 +119,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(T, a, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
