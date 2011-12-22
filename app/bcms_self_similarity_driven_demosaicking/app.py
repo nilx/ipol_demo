@@ -147,7 +147,6 @@ class app(base_app):
 	        #save parameter
                 try:
                     self.cfg['param'] = {'pattern' : pattern}
-                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect mosaic pattern.")
@@ -159,7 +158,6 @@ class app(base_app):
 				         'y0' : int(y0),
 				         'x1' : int(x),
 				         'y1' : int(y)}
-                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect parameters.")
@@ -204,7 +202,6 @@ class app(base_app):
                                          'y0' : y0,
                                          'x1' : x1,
                                          'y1' : y1}
-                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect parameters.")
@@ -237,7 +234,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(pattern, stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
