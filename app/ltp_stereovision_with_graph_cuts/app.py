@@ -190,7 +190,6 @@ class app(base_app):
                 l_prev = str2frac(self.cfg['param']['lambda'])
                 self.cfg['param']['lambda'] = frac2str((l_prev[0]*l_[0],
                                                         l_prev[1]*l_[1]))
-            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be rationals.")
@@ -212,7 +211,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout',
                               errmsg="Try again with simpler images.")
@@ -320,7 +318,6 @@ class app(base_app):
             self.cfg['param']['k'] = self.cfg['param']['k_auto']
             self.cfg['param']['lambda'] = \
                 self.cfg['param']['lambda_auto']
-        self.cfg.save()
         k = self.cfg['param']['k']
         l = self.cfg['param']['lambda']
         dmin = self.cfg['param']['dmin']
