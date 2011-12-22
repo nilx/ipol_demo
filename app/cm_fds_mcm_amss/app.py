@@ -194,7 +194,6 @@ class app(base_app):
                                  'zoom_factor' : (400.0 / int(step)
                                                   if int(step) > 0
                                                   else 1.)}
-            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="Wrong input parameters")
@@ -222,7 +221,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(scale_r, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
