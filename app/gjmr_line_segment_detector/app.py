@@ -94,7 +94,6 @@ class app(base_app):
            self.run_algo(timeout=self.timeout)
            # save the run time in the config dict
            self.cfg['info']['run_time'] = time.time() - run_time
-           self.cfg.save()
         except TimeoutError:
            return self.error(errcode='timeout',
                              errmsg="Try again with simpler images.")
