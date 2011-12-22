@@ -102,10 +102,8 @@ class app(base_app):
         """
         if 'precision' in kwargs:
             self.cfg['param']['precision'] = kwargs['precision']
-            self.cfg.save()
         if 'SiftRatio' in kwargs:
             self.cfg['param']['siftratio'] = kwargs['SiftRatio']
-            self.cfg.save()
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         height = max(image(self.work_dir + 'input_0.png').size[1],
@@ -123,7 +121,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout')
         except NoMatchError:
