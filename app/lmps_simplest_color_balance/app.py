@@ -113,7 +113,6 @@ class app(base_app):
                               errmsg="s1 and s2 must be a value between 0 and"
                               + "100. s1 + s2 must be smaller than 100")
         self.cfg['param'] = {'s1' : s1, 's2' : s2}
-        self.cfg.save()
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html")
@@ -133,7 +132,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(s1, s2, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
