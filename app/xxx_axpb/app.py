@@ -81,7 +81,6 @@ class app(base_app):
         try:
             self.cfg['param'] = {'a' : float(a),
                                  'b' : float(b)}
-            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
