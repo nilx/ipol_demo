@@ -147,7 +147,6 @@ class app(base_app):
             self.cfg['param']['x'] = None
             self.cfg['param']['y'] = None
         
-        self.cfg.save()
         return self.tmpl_out('params.html')
 
     @cherrypy.expose
@@ -222,7 +221,6 @@ class app(base_app):
                 self.cfg['param']['x'] = x
                 self.cfg['param']['y'] = y
                 
-            self.cfg.save()
             return self.tmpl_out('params.html')
         else:
             if any(self.cfg['param'][k] == None \
@@ -230,7 +228,6 @@ class app(base_app):
                 img0 = image(self.work_dir + 'input_0.png')
                 img0.save(self.work_dir + 'input_0_sel.png')
             
-            self.cfg.save()
             http.refresh(self.base_url + 'run?key=%s' % self.key)            
             return self.tmpl_out("wait.html")
 
@@ -430,7 +427,6 @@ class app(base_app):
 
         self.cfg['param']['galleryheight'] = max(32*(2 + len(runmethods)), \
             image(self.work_dir + 'input_zoom.png').size[1])
-        self.cfg.save()
         return
 
     @cherrypy.expose
