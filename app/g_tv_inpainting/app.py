@@ -181,7 +181,6 @@ class app(base_app):
         self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
                 
         self.rendermask()
-        self.cfg.save()
         return self.tmpl_out('params.html')
 
     @cherrypy.expose
@@ -206,7 +205,6 @@ class app(base_app):
         self.timestamp = int(100*time.time())
         
         self.rendermask()
-        self.cfg.save()
         return self.tmpl_out('params.html')
 
 
@@ -251,7 +249,6 @@ class app(base_app):
         
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
-        self.cfg.save()
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html")
 
@@ -268,7 +265,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -334,6 +330,5 @@ class app(base_app):
         self.cfg['param']['zoomfactor'] = zoomfactor
         self.cfg['param']['zoomwidth'] = size[0]
         self.cfg['param']['zoomheight'] = size[1]
-        self.cfg.save()
 
     
