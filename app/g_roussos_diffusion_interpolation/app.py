@@ -129,7 +129,6 @@ class app(base_app):
             self.cfg['param']['x'] = None
             self.cfg['param']['y'] = None
         
-        self.cfg.save()
         return self.tmpl_out('params.html')
 
 
@@ -194,7 +193,6 @@ class app(base_app):
                 self.cfg['param']['x'] = x
                 self.cfg['param']['y'] = y
                 
-            self.cfg.save()
             return self.tmpl_out('params.html')
         else:
             if any(self.cfg['param'][p] == None \
@@ -202,7 +200,6 @@ class app(base_app):
                 img0 = image(self.work_dir + 'input_0.png')
                 img0.save(self.work_dir + 'input_0_sel.png')
             
-            self.cfg.save()
             http.refresh(self.base_url + 'run?key=%s' % self.key)            
             return self.tmpl_out("wait.html")
 
@@ -415,7 +412,6 @@ class app(base_app):
                         stdout=stdout, stderr=stdout)                
         
         self.cfg['param']['displayzoom'] = displayzoom
-        self.cfg.save()
         # Wait for all processes to complete 
         self.wait_proc(p.values(), timeout)
         return
