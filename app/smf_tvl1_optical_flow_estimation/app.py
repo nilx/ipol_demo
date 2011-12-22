@@ -180,7 +180,6 @@ class app(base_app):
         except ValueError:
             return self.error(errcode='badparams',
                      errmsg='The parameters must be numeric.')
-        #self.cfg.save()
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         self.cfg['meta']['height'] = image(self.work_dir + '/a.png').size[1]
         self.cfg['meta']['colorscheme'] = 'ipoln'
