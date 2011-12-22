@@ -55,7 +55,7 @@ algorithm "
         tgz_file = self.dl_dir + "src_demoDCTdenoising.tar.gz"
         progs = ["demo_DCTdenoising", "img_diff_ipol",  "img_mse_ipol"]
         src_bin = dict([(self.src_dir + 
-                       os.path.join("src_demoDCTdenoisingB", prog),
+                       os.path.join("src_demoDCTdenoising", prog),
                        self.bin_dir + prog)
                        for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -73,7 +73,7 @@ algorithm "
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "src_demoDCTdenoisingB", 
+                      % (self.src_dir + "src_demoDCTdenoising", 
                       " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
