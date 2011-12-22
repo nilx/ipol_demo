@@ -135,7 +135,6 @@ class app(base_app):
                               errmsg="T must be a value between 0 and 255")
         try:
             self.cfg['param'] = {'t' : float(t)}
-            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
@@ -157,7 +156,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(t, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
