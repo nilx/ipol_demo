@@ -448,8 +448,6 @@ class app(base_app):
                                          kwargs['point.x'], kwargs['point.y'], \
                                          self.cfg['param'])
 
-        self.cfg.save()        
-
         self.draw_poly( self.cfg['param'] )
 
         return self.tmpl_out('params.html')
@@ -523,8 +521,6 @@ class app(base_app):
             self.cfg['param']['poly'] = json.dumps( lst )
 
 
-        self.cfg.save()
-
         self.draw_poly( self.cfg['param'] )
 
         return self.tmpl_out('params.html')
@@ -552,7 +548,6 @@ class app(base_app):
         self.cfg['param']['iterations'] = int( kwargs['iterations'] )
         self.cfg['param']['sigma'] = float( kwargs['sigma'] )
 
-        self.cfg.save()
         http.refresh(self.base_url + 'run?key=%s' % self.key)            
         return self.tmpl_out("wait.html")
 
@@ -571,7 +566,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(stdout=open(self.work_dir + 'stdout.txt', 'w'))
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -701,8 +695,6 @@ class app(base_app):
              ' -R ' + str(self.cfg['param']['snake_balloon_diff_radius']) +   \
              ' -P ' + str(self.cfg['param']['snake_edge_detector_threshold'])
 
-
-        self.cfg.save()
         return
 
 
