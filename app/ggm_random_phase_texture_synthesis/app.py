@@ -99,7 +99,6 @@ class app(base_app):
                 self.cfg['param']['x1'] = x1
                 self.cfg['param']['y1'] = y1
             self.cfg['param']['ratio'] = ratio
-            self.cfg.save()
             # go to the wait page, with the key
             http.redir_303(self.base_url + "wait?key=%s&ratio=%s" 
                            % (self.key, ratio))
@@ -169,7 +168,6 @@ class app(base_app):
         except AssertionError:
             ratio = 1.
         self.cfg['param']['ratio'] = ratio
-        self.cfg.save()
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html")
 
@@ -184,7 +182,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo()
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
