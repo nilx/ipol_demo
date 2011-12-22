@@ -151,7 +151,6 @@ class app(base_app):
                 #save parameter
                 try:
                     self.cfg['param'] = {'sigma' : sigma}
-                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect standard"
@@ -164,7 +163,6 @@ class app(base_app):
                                          'y0' : int(y0),
                                          'x1' : int(x),
                                          'y1' : int(y)}
-                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect parameters.")
@@ -209,7 +207,6 @@ class app(base_app):
                                          'y0' : y0,
                                          'x1' : x1,
                                          'y1' : y1}
-                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect parameters.")
@@ -242,7 +239,6 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(sigma, stdout=stdout, timeout=self.timeout)
             self.cfg['info']['run_time'] = time.time() - run_time
-            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
