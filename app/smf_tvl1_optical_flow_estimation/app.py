@@ -21,9 +21,10 @@ class app(base_app):
     is_built = True
 
     xlink_algo = \
-            "https://edit.ipol.im/edit/algo/smf_tvl1_optical_flow_estimation/"
-    xlink_src = "http://dev.ipol.im/~coco/static/tvl1flow_1.tar.gz"
-    xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript.tar.gz"
+            "http://www.ipol.im/pub/algo/smf_tvl1_optical_flow_estimation/"
+    xlink_src = \
+"http://www.ipol.im/pub/algo/smf_tvl1_optical_flow_estimation/tvl1flow_1.tar.gz"
+    xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}
