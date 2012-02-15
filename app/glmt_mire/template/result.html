@@ -1,0 +1,68 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed  hereafter.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Restart this algorithm with new data.
+    <input type="submit" value="new input" />
+  </div>
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    Restart this algorithm with new parameter.
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="new parameters" />
+  </div>
+</form>
+
+<hr />
+
+<h2>Result</h2>
+
+<div class="gallery" style="height:${height}px">
+  <ul class="index">
+    <li>
+      <a href="#">Input
+	<span>
+	  <img src="${app.work_url + 'input_0.sel.png'}" alt="input" />
+	</span>
+      </a>
+    </li>
+    
+    <li>
+      <a href="#">Contrast enhanced (input of MIRE)
+	<span>
+	  <img src="${app.work_url + 'input_0.sel_normalized.png'}" alt="input" />
+	</span>
+      </a>
+    </li>    
+    
+    
+    
+    
+    <li>
+      <a href="#">Output (dynamic re-stretched to [0,255)]
+	<span>
+	  <img src="${app.work_url + 'output.png'}" alt="output" />
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<h2>Additional Info</h2>
+
+<p>Sigma parameter value found (measured in pixels) :</p>
+
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
