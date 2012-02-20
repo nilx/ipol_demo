@@ -46,18 +46,50 @@ computebiasChecked = app.checkbox_value(computebias, False)
 <!-- tau_2d_hard parameter -->
 - Choose the 2D transform during the <i>first</i> step which will be applied to the all patches in the 3D group: 
     <select name="tau2dhard">
-      <option value="dct">dct</option>
-      <option value="bior">bior 1.5</option>
+<%
+contents = (('dct','dct'), ('bior','bior 1.5'))
+
+try:
+   sel = str(tau2dhard)
+   if sel is None or sel == 'None':
+     sel = 'bior'
+except Exception:
+   sel = 'bior'
+%>
+
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
     </select>
     <br/>
+
 
 <!-- tau_2d_wien parameter -->
 - Choose the 2D transform during the <i>second</i> step which will be applied to the all patches in the 3D group: 
     <select name="tau2dwien">
-      <option value="dct">dct</option>
-      <option value="bior">bior 1.5</option>
+<%
+contents = (('dct','dct'), ('bior','bior 1.5'))
+
+try:
+   sel = str(tau2dwien)
+   if sel is None or sel == 'None':
+     sel = 'dct'
+except Exception:
+   sel = 'dct'
+%>
+
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
     </select>
     <br/>
+
 
 <!-- usesdhard parameter -->
     <label for="usesdhard">- Check if you want to use the standard deviation weighting for the <i>first</i> step:</label>
