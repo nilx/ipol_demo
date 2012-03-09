@@ -21,90 +21,51 @@
   </div>
 </form>
 
-<h2>Input Images</h2>
+<h2>Results</h2>
 
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
+    <li><a href="#">Panorama
+	    <span><img src="${app.work_url + 'panorama.png'}" /></span>
+    </a></li>
+    <li><a href="#">Reg. image 1
+	    <span><img src="${app.work_url + 'registered_0.png'}" /></span>
+    </a></li>
+    <li><a href="#">Reg. image 2
+        <span><img src="${app.work_url + 'registered_1.png'}" /></span>
+    </a></li>
     <li>
-      <a href="#">
-	first image
-	<span>
-	  <img src="${app.work_url + 'input_0.png'}" />
-        </span>
-      </a>
-    </li>
+%if 'inliers' in app.cfg['info']:
+      <a href="#">inliers (${app.cfg['info']['inliers']})
+%else:
+      <a href="#">inliers
+%endif
+	    <span><img src="${app.work_url + 'inliers.png'}" /></span>
+    </a></li>
     <li>
-      <a href="#">
-	second image
-	<span>
-	  <img src="${app.work_url + 'input_1.png'}" />
-	</span>
-      </a>
-    </li>
+%if 'outliers' in app.cfg['info']:
+      <a href="#">outliers (${app.cfg['info']['outliers']})
+%else:
+      <a href="#">outliers
+%endif
+	    <span><img src="${app.work_url + 'outliers.png'}" /></span>
+    </a></li>
+    <li><a href="#">first image
+%if 'x0' in app.cfg['param']:
+        <span><img src="${app.work_url + 'input_crop.png'}" /></span>
+%else:
+        <span><img src="${app.work_url + 'input_0.png'}" /></span>
+%endif
+    </a></li>
+    <li><a href="#">second image
+	    <span><img src="${app.work_url + 'input_1.png'}" /></span>
+    </a></li>
   </ul>
-</div>
-
-<h2>Output Matches</h2>
-
-<div class="gallery" style="height: ${height}px;">
-  <ul class="index">
-    <li>
-      <a href="#">
-	inliers
-	<span>
-	  <img src="${app.work_url + 'inliers.png'}" />
-        </span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	outliers
-	<span>
-	  <img src="${app.work_url + 'outliers.png'}" />
-	</span>
-      </a>
-    </li>
-  </ul>
-</div>
-
-<h2>Output Registered Images</h2>
-
-<div class="gallery" style="height: ${height}px;">
-  <ul class="index">
-    <li>
-      <a href="#">
-	Panorama
-	<span>
-	  <img src="${app.work_url + 'panorama.png'}" />
-        </span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	image 1
-	<span>
-	  <img src="${app.work_url + 'registered_0.png'}" />
-        </span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	image 2
-	<span>
-	  <img src="${app.work_url + 'registered_1.png'}" />
-        </span>
-      </a>
-    </li>
-</ul>
 </div>
 
 <ul>
-  <li>
-    <a href="${app.work_url + 'match.txt'}">correspondences</a>
-  </li>
-  <li>
-    <a href="${app.work_url + 'matchOrsa.txt'}">inliers</a>
-  </li>
+  <li><a href="${app.work_url + 'match.txt'}">correspondences</a></li>
+  <li><a href="${app.work_url + 'matchOrsa.txt'}">inliers</a></li>
 </ul>
 
 <h2>Program Output</h2>

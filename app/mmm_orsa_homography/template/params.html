@@ -16,6 +16,38 @@
       %endfor
     </select><br />
     <input type="submit" value="run" />
+%if x0 and y0 and x1 and y1:
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="x0" value="${x0}">
+    <input type="hidden" name="y0" value="${y0}">
+    <input type="hidden" name="x1" value="${x1}">
+    <input type="hidden" name="y1" value="${y1}">
+    <input type="checkbox" name="rectangle" value="run" checked="checked" />
+    with selected rectangle<br />
+%endif
+  </div>
+</form>
+
+<h2>Image Rectangle Selection</h2>
+
+<form action="${app.base_url + 'rectangle'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+%if x1 and y1:
+    <p>Click new first corner to select another rectangle</p>
+    <input type="image" style="cursor:crosshair;" name=""
+           src="${app.work_url + 'input_crop.png'}" />
+%elif x0 and y0:
+    <p>Click second rectangle corner</p>
+    <input type="hidden" name="x0" value="${x0}">
+    <input type="hidden" name="y0" value="${y0}">
+    <input type="image" style="cursor:crosshair;" name=""
+           src="${app.work_url + 'input_crop.png'}" />
+%else:
+    <p>This is the first image. You can select a rectangular region to register. For that, click first rectangle corner</p>
+    <input type="image" style="cursor:crosshair;" name=""
+           src="${app.work_url + 'input_0.png'}" />
+%endif
   </div>
 </form>
 
