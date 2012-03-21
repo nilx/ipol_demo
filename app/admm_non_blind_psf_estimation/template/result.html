@@ -29,19 +29,19 @@
 </p>
 
 <p>
-  You can download the results in plain-text: 
-  <a href="${app.work_url + "output.txt"}">psf</a>.
+  You can download the results in plain-text 
+  <a href="${app.work_url + "psf.txt"}">psf</a>,
 </p>
 
-<img src="${app.work_url + 'output.png'}" width="600" height="600"/><br />
-
-<span class="font-size:80%">
+<img src="${app.work_url + 'psf.png'}" width="600" height="600"/>
+<br>
+<font size="2">
 This image has been resized from its original size ${"%2d" % app.cfg['param']['k']} x ${"%2d" % app.cfg['param']['k']} pixels for better visualization.
 </font>
 
 <h2>Program Output</h2>
 <pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
-<br />
+<br>
 
 <div class="gallery" style="height:${height}px">
   <ul class="index">
@@ -63,6 +63,8 @@ This image has been resized from its original size ${"%2d" % app.cfg['param']['k
 </div>
 
 <hr />
+
+
 
 <%include file="archive_info.html" />
 
