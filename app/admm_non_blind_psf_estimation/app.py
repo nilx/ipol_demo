@@ -20,7 +20,6 @@ class app(base_app):
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.pgm'   # input image expected extension (ie file format)
-    is_test = True       # switch to False for deployment
 
     def __init__(self):
         """
