@@ -16,11 +16,11 @@ class app(base_app):
     
     title = "Non-parametric sub-pixel local point spread function estimation"
     input_nb = 1 # number of input images
-    input_max_pixels = 3000000 # max size (in pixels) of an input image
-    input_max_weight = 1 * 1024 * 1024 # max size (in bytes) of an input file
+    input_max_pixels = 4000000 # max size (in pixels) of an input image
+    input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '1x8i' # input image expected data type
     input_ext = '.pgm'   # input image expected extension (ie file format)
-    is_test = False      # switch to False for deployment
+    is_test = True       # switch to False for deployment
 
     def __init__(self):
         """
@@ -44,14 +44,13 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_file = self.dl_dir + "psf_estim.tar.gz"
+        tgz_file = self.dl_dir + "psfestim_1.3.tar.gz"
         prog_file = self.bin_dir + "psf_estim"
         pattern_file = self.bin_dir + "pattern_noise.pgm"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/algo/" +
-                       "admm_non_blind_psf_estimation/" +
-                       "psf_estim.tar.gz", tgz_file)
+        build.download("http://www.ipol.im/pub/algo/" \
+        "admm_non_blind_psf_estimation/psfestim_1.3.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
         # dont rebuild the file
         if  (os.path.isfile(prog_file)
@@ -63,14 +62,14 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the program
             build.run("make -j4 -C %s psf_estim" 
-                      % (self.src_dir + "psf_estim"), stdout=log_file)
+                      % (self.src_dir + "psfestim_1.3"), stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir + os.path.join("psf_estim", 
+            shutil.copy(self.src_dir + os.path.join("psfestim_1.3", 
                         "psf_estim"), prog_file)
-            shutil.copy(self.src_dir + os.path.join("psf_estim",
+            shutil.copy(self.src_dir + os.path.join("psfestim_1.3",
                         "pattern_noise.pgm"), pattern_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -87,6 +86,7 @@ class app(base_app):
             self.cfg['param'] = {'s' : int(s),
                                  'k' : int(k),
                                  't' : int(t)}
+            self.cfg.save()
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
@@ -114,6 +114,7 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(s, k, t, stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -121,9 +122,14 @@ class app(base_app):
             if stdout_text.find("No pattern was detected.")!=-1:
                 return self.error("returncode",
                                   "Pattern Not Found. " + 
-                                  "If the pattern is too small crop the image" +
-                                  " so that the pattern covers at least half " +
-                                  "of the image and re-run. Otherwise, upload" +
+                                  "Are you sure that there's a pattern "+ 
+                                  "in the image? " +
+                                  "It may have not been detected if " +
+                                  "pattern covers only a small part " +
+                                  "of the image. Crop " +
+                                  "the image so that the pattern covers at " +
+                                  "least half of the image and re-run. " +
+                                  "Otherwise, upload" +
                                   " an image containing a pattern.")
             if stdout_text.find("More than one pattern was detected.")!=-1:
                 return self.error('returncode', 'More than one pattern was ' +
@@ -138,11 +144,12 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.pgm", "input.pgm")
-            ar.add_file("output.txt", compress=True)
-            ar.add_file("output.png", compress=True)
-            ar.add_file("det_out.png", compress=True)
-            ar.add_info({"s": s, "k": k, "t":t})
+            ar.add_file("input_0.png")
+            ar.add_file("psf.txt", compress=True)
+            ar.add_file("stdout.txt", compress=True)
+            ar.add_file("det_out.png")
+            ar.add_file("psf.png")
+            ar.add_info({"s": s, "k": k, "t": t})
             ar.add_info({"run time" : self.cfg['info']['run_time']})
             ar.save()
         return self.tmpl_out("run.html")
@@ -160,18 +167,18 @@ class app(base_app):
                            '-k', str(k),
                            '-d', 'det_out.ppm',
                            '-t', str(t),
-                           '-o', 'output.pgm',
-                           'input_0.pgm', 'output.txt'],
+                           '-o', 'psf.pgm',
+                           'input_0.pgm', 'psf.txt'],
                             stdout=stdout, stderr=stdout)
         self.wait_proc(p)               
-                
-        im = image(self.work_dir + "output.pgm")
+       
+        im = image(self.work_dir + "psf.pgm")
         # re adjust width and height to avoid visualization interpolation
         width = 600
         height = 600
         # interpolate it by neareset neighbor
         im = im.resize((width, height), "nearest") 
-        im.save(self.work_dir + "output.png")
+        im.save(self.work_dir + "psf.png")
         
         im = image(self.work_dir + "det_out.ppm")
         im.save(self.work_dir + "det_out.png")
