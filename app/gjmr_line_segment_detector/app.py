@@ -233,13 +233,13 @@ class app(base_app):
         try:
             p = self.run_proc(['/usr/bin/convert', 'output.svg', 'output.png'])
             self.wait_proc(p)
+            im = image(self.work_dir + "output.png")
+            im.convert('1x8i')
+            im.invert()
+            im.save(self.work_dir + "output-inv.png")
         except OSError:
             self.log("eps->png conversion failed,"
                      + " 'convert' is probably missing on this system")
-        im = image(self.work_dir + "output.png")
-        im.convert('1x8i')
-        im.invert()
-        im.save(self.work_dir + "output-inv.png")
 
         return
 
