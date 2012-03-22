@@ -251,10 +251,14 @@ class app(base_app):
     def result(self):
         """Display the algorithm result."""
 
-        png = os.path.isfile(self.work_dir + 'output-inv.png')
-        h = image(self.work_dir + 'input_0_selection.png').size[1]
-        if h < 70:   # if image is too small add some space for archive link
+        try:
+            h = min(70, image(self.work_dir + 'input_0_selection.png').size[1])
+            # if image is too small add space for archive link
+            png = True
+        except IOError:
             h = 70
+            png = False
+
         return self.tmpl_out("result.html", with_png=png, height=h)
 
 #-------------------------------------------------------------------------------
