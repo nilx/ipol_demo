@@ -237,7 +237,7 @@ class app(base_app):
             im.convert('1x8i')
             im.invert()
             im.save(self.work_dir + "output-inv.png")
-        except OSError:
+        except (OSError, IOError):
             self.log("eps->png conversion failed,"
                      + " 'convert' is probably missing on this system")
 
