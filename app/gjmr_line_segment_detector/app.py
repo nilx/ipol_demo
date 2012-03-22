@@ -4,7 +4,7 @@ LSD IPOL demo app
 Line Segment Detector
 by Rafael Grompone von Gioi, Jeremie Jakubowicz,
    Jean-Michel Morel and Gregory Randall.
-March 20, 2012
+March 22, 2012
 """
 #-------------------------------------------------------------------------------
 
@@ -231,7 +231,10 @@ class app(base_app):
 
         # convert the EPS result into a PNG image
         try:
-            p = self.run_proc(['/usr/bin/convert', 'output.svg', 'output.png'])
+            p = self.run_proc(['/usr/bin/gs', '-dNOPAUSE', '-dBATCH',
+                               '-sDEVICE=pnggray', '-dGraphicsAlphaBits=4',
+                               '-r72','-dEPSCrop', '-sOutputFile=output.png',
+                               'output.eps'])
             self.wait_proc(p)
             im = image(self.work_dir + "output.png")
             im.convert('1x8i')
@@ -239,7 +242,7 @@ class app(base_app):
             im.save(self.work_dir + "output-inv.png")
         except Exception:
             self.log("eps->png conversion failed,"
-                     + " 'convert' is probably missing on this system")
+                     + " GS is probably missing on this system")
 
         return
 
@@ -252,8 +255,8 @@ class app(base_app):
         """Display the algorithm result."""
 
         try:
-            h = min(70, image(self.work_dir + 'input_0_selection.png').size[1])
             # if image is too small add space for archive link
+            h = max(70, image(self.work_dir + 'input_0_selection.png').size[1])
             png = True
         except Exception:
             h = 70
