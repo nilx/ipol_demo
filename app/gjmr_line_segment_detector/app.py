@@ -31,7 +31,7 @@ class app(base_app):
                                              # of an input file
     input_dtype = '1x8i'  # input image expected data type
     input_ext = '.pgm'    # input image expected extension (i.e. file format)
-    is_test = True        # switch to False for deployment
+    is_test = False       # switch to False for deployment
 
     #---------------------------------------------------------------------------
     # Set up application.
