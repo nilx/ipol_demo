@@ -237,7 +237,7 @@ class app(base_app):
             im.convert('1x8i')
             im.invert()
             im.save(self.work_dir + "output-inv.png")
-        except (OSError, IOError):
+        except Exception:
             self.log("eps->png conversion failed,"
                      + " 'convert' is probably missing on this system")
 
@@ -255,7 +255,7 @@ class app(base_app):
             h = min(70, image(self.work_dir + 'input_0_selection.png').size[1])
             # if image is too small add space for archive link
             png = True
-        except IOError:
+        except Exception:
             h = 70
             png = False
 
