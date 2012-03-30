@@ -1,9 +1,25 @@
 <%include file="header.html" />
 
 <p>
-  The algorithm did not find a valid registration model.
+  The algorithm ran in ${"%0.2f" % app.cfg['info']['run_time']}s but did not find a valid registration model.
   See below for a possible explanation.
 </p>
+
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Restart with new input.
+    <input type="submit" value="new input" />
+  </div>
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    Restart with new parameters.
+    <input type="hidden" name="key" value="${app.key}" />
+    <input type="hidden" name="newrun" value="1" />
+    <input type="submit" value="new parameters" />
+  </div>
+</form>
 
 <h2>Results</h2>
 
