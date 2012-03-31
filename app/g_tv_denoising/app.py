@@ -1,41 +1,49 @@
 """
-Rudin-Osher-Fatemi Total Variation Denoising using Split-Bregman 
-ipol demo web app
+Total Variation Deconvolution using Split-Bregman ipol demo web app
 """
 
 from lib import base_app, build, http, image
 from lib.misc import ctime
-from lib.misc import prod
 from lib.base_app import init_app
+from lib.config import cfg_open
 import shutil
-import tarfile
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import time
-from math import ceil
+import math
+
 
 class app(base_app):
-    """ Rudin-Osher-Fatemi Total Variation Denoising using Split-Bregman app """
+    """ Total Variation Denoising using Split-Bregman app """
 
-    title = "Rudin-Osher-Fatemi Total Variation Denoising using Split-Bregman"
+    title = \
+    'Rudin-Osher-Fatemi Total Variation Denoising using Split-Bregman'
 
     input_nb = 1
-    input_max_pixels = 700 * 700 # max size (in pixels) of an input image
-    input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of an input file
-    input_dtype = '3x8i' # input image expected data type
-    input_ext = '.png' # input image expected extension (ie file format)
+    input_max_pixels = 700 * 700        # max size (in pixels) of input image
+    input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of input file
+    input_dtype = '3x8i'                # input image expected data type
+    input_ext = '.png'                  # expected extension
     is_test = False
+    default_param = {
+        'noisemodel': 'Gaussian',       # default parameters
+        'noiselevel': '10',
+        'action': 'Denoise',
+        'x0': None,
+        'y0': None,
+        'x' : None,
+        'y' : None}
 
     def __init__(self):
         """
-        app setup
+        App setup
         """
-        # setup the parent class
+        # Setup the parent class
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
 
-        # select the base_app steps to expose
+        # Select the base_app steps to expose
         # index() and input_xxx() are generic
         base_app.index.im_func.exposed = True
         base_app.input_select.im_func.exposed = True
@@ -44,6 +52,9 @@ class app(base_app):
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
+        # Generate a new timestamp
+        self.timestamp = int(100*time.time())
+
 
     def build(self):
         """
@@ -51,44 +62,31 @@ class app(base_app):
         """
         
         # store common file path in variables
-        tgz_urls = ['http://www.ipol.im/pub/algo/g_tv_denoising/' \
-            + tgz_name for tgz_name in ['tvreg.tar.gz', 'tvipol-src.tar.gz']]
-        tgz_files = [self.dl_dir 
-            + tgz_name for tgz_name in ['tvreg.tar.gz', 'tvipol-src.tar.gz']]
-        progs = ['tvipol', 'img_diff_ipol']
-        sub_dir = 'tvreg'
-        src_bin = dict([(self.src_dir + os.path.join(sub_dir, prog),
-                         self.bin_dir + prog)
-                        for prog in progs])
-        log_file = self.base_dir + 'build.log'        
-        
-        # get the latest source archives
-        for tgz_url, tgz_file in zip(tgz_urls, tgz_files):
-            build.download(tgz_url, tgz_file)
-            
+        archive = 'tvdenoise_20120331'
+        tgz_url = 'http://www.ipol.im/pub/algo/' \
+            + 'g_tv_denoising/' + archive + '.tar.gz'
+        tgz_file = self.dl_dir + archive + '.tar.gz'
+        progs = ['tvdenoise', 'imnoise',  'imdiff']
+        src_bin = dict([(self.src_dir 
+            + os.path.join(archive, prog),
+            self.bin_dir + prog) for prog in progs])
+        log_file = self.base_dir + 'build.log'
+
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
         if all([(os.path.isfile(bin_file)
                  and ctime(tgz_file) < ctime(bin_file))
-                for bin_file in src_bin.values() for tgz_file in tgz_files]):
-            cherrypy.log("not rebuild needed",
+                for bin_file in src_bin.values()]):
+            cherrypy.log('not rebuild needed',
                          context='BUILD', traceback=False)
         else:
-            # extract the archives
-            build.extract(tgz_files[0], self.src_dir)
-            tarfile.open(tgz_files[1]).extractall(self.src_dir)
-                
-            # move the contents of tvipol-src into tvreg folder
-            for src_file in \
-                os.listdir(os.path.join(self.src_dir, 'tvipol-src')):
-                os.rename(os.path.join(self.src_dir, 'tvipol-src', src_file),
-                os.path.join(self.src_dir, sub_dir, src_file))
-            
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
             # build the programs
-            build.run("make -C %s %s"
-                % (self.src_dir + sub_dir, " ".join(progs))
-                + " --makefile=makeipol.gcc"
-                + " CXX='ccache c++' -j4", stdout=log_file)
-            
+            build.run('make -j4 -C %s -f makefile.gcc %s'
+                % (self.src_dir + archive, ' '.join(progs)),
+                stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
@@ -99,253 +97,218 @@ class app(base_app):
             shutil.rmtree(self.src_dir)
         return
 
-
     #
     # PARAMETER HANDLING
     #
 
-
-    def select_subimage(self, x0, y0, x1, y1):
-        """
-        cut subimage from original image
-        """
-        # draw selected rectangle on the image
-        imgS = image(self.work_dir + 'input_0.png')
-        imgS.draw_line([(x0, y0), (x1, y0), (x1, y1), 
-            (x0, y1), (x0, y0)], color="red")
-        imgS.draw_line([(x0+1, y0+1), (x1-1, y0+1), 
-            (x1-1, y1-1), (x0+1, y1-1), (x0+1, y0+1)], color="white")
-        imgS.save(self.work_dir + 'input_0s.png')
-        # crop the image
-        # try cropping from the original input image (if different from input_1)
-        im0 = image(self.work_dir + 'input_0.orig.png')
-        dx0 = im0.size[0]
-        img = image(self.work_dir + 'input_0.png')
-        dx = img.size[0]
-        if (dx != dx0):
-            z = float(dx0)/float(dx)
-            im0.crop((int(x0*z), int(y0*z), int(x1*z), int(y1*z)))
-            # resize if cropped image is too big
-            if self.input_max_pixels \
-                and prod(im0.size) > (self.input_max_pixels):
-                im0.resize(self.input_max_pixels, method="antialias")
-            img = im0
-        else:
-            img.crop((x0, y0, x1, y1))
-        # save result
-        img.save(self.work_dir + 'input_0.sel.png')
-        return
-
-
     @cherrypy.expose
     @init_app
-    def params(self, newrun=False, msg=None, 
-        x0=None, y0=None, x1=None, y1=None, sigma=None):
+    def params(self, newrun=False, msg=None):
         """
-        configure the algo execution
+        Configure the algo execution
         """
-        if newrun:
+        if newrun:            
+            old_work_dir = self.work_dir
             self.clone_input()
+            # Keep old parameters
+            self.cfg['param'] = cfg_open(old_work_dir 
+                + 'index.cfg', 'rb')['param']
+            # Also need to clone input_0_sel.png in case the user is running
+            # with new parameters but on the same subimage.
+            shutil.copy(old_work_dir + 'input_0_sel.png',
+                self.work_dir + 'input_0_sel.png')
 
-        if x0:
-            self.select_subimage(int(x0), int(y0), int(x1), int(y1))
-
-        return self.tmpl_out('params.html', 
-            msg=msg, x0=x0, y0=y0, x1=x1, y1=y1, sigma=sigma)
+        # Set undefined parameters to default values
+        self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
+        # Generate a new timestamp
+        self.timestamp = int(100*time.time())
+        
+        # Reset cropping parameters if running with a different subimage
+        if msg == 'different subimage':
+            self.cfg['param']['x0'] = None
+            self.cfg['param']['y0'] = None
+            self.cfg['param']['x'] = None
+            self.cfg['param']['y'] = None
+        
+        return self.tmpl_out('params.html')
 
 
     @cherrypy.expose
     @init_app
-    def rectangle(self, action=None, 
-        sigma=None, x=None, y=None, x0=None, y0=None):
+    def wait(self, **kwargs):
         """
-        params handling 
-
-        select a rectangle in the image
+        Run redirection
         """
-        if action == 'run':
-            if x == None:
-                # save parameter
-                try:
-                    self.cfg['param'] = {'sigma' : sigma}
-                except ValueError:
-                    return self.error(errcode='badparams',
-                        errmsg="Incorrect standard deviation value.")
-            else:
-                # save parameters
-                try:
-                    self.cfg['param'] = {'sigma' : sigma, 
-                        'x0' : int(x0),
-                        'y0' : int(y0),
-                        'x1' : int(x),
-                        'y1' : int(y)}
-                except ValueError:
-                    return self.error(errcode='badparams',
-                        errmsg="Incorrect parameters.")
+        
+        # Read webpage parameters from kwargs, but only those that 
+        # are defined in the default_param dict.  If a parameter is not
+        # defined by kwargs, the value from default_param is used.
+        self.cfg['param'] = dict(self.default_param.items() + 
+            [(p,kwargs[p]) for p in self.default_param.keys() if p in kwargs])
+        # Generate a new timestamp
+        self.timestamp = int(100*time.time())
+        
+        if not 'action' in kwargs:
+            # Select a subimage
+            x = self.cfg['param']['x']
+            y = self.cfg['param']['y']
+            x0 = self.cfg['param']['x0']
+            y0 = self.cfg['param']['y0']
             
-            # use the whole image if no subimage is available
-            try:
-                img = image(self.work_dir + 'input_0.sel.png')
-            except IOError:
+            if x != None and y != None:
                 img = image(self.work_dir + 'input_0.png')
-                img.save(self.work_dir + 'input_0.sel.png')
-
-            # go to the wait page, with the key
-            http.redir_303(self.base_url + "wait?key=%s" % self.key)
-            return
+                
+                if x0 == None or y0 == None:
+                    # (x,y) specifies the first corner
+                    (x0, y0, x, y) = (int(x), int(y), None, None)
+                    # Draw a cross at the first corner
+                    img.draw_cross((x0, y0), size=4, color='white')
+                    img.draw_cross((x0, y0), size=2, color='red')
+                else:
+                    # (x,y) specifies the second corner
+                    (x0, x) = sorted((int(x0), int(x)))
+                    (y0, y) = sorted((int(y0), int(y)))
+                    assert (x - x0) > 0 and (y - y0) > 0
+                    
+                    # Crop the image
+                    # Check if the original image is a different size, which is
+                    # possible if the input image is very large.
+                    imgorig = image(self.work_dir + 'input_0.orig.png')
+                    
+                    if imgorig.size != img.size:                        
+                        s = float(imgorig.size[0])/float(img.size[0])
+                        imgorig.crop(tuple([int(s*v) for v in (x0, y0, x, y)]))
+                        img = imgorig
+                    else:
+                        img.crop((x0, y0, x, y))
+                    
+                img.save(self.work_dir + 'input_0_sel.png')
+                self.cfg['param']['x0'] = x0
+                self.cfg['param']['y0'] = y0
+                self.cfg['param']['x'] = x
+                self.cfg['param']['y'] = y
+            
+            return self.tmpl_out('params.html')
         else:
-            # use a part of the image
-            if x0 == None:
-                # first corner selection
-                x = int(x)
-                y = int(y)
-                # draw a cross at the first corner
-                img = image(self.work_dir + 'input_0.png')
-                img.draw_cross((x, y), size=4, color="white")
-                img.draw_cross((x, y), size=2, color="red")
-                img.save(self.work_dir + 'input.png')
-                return self.tmpl_out("params.html", sigma=sigma, x0=x, y0=y)
-            else:
-                # second corner selection
-                x0 = int(x0)
-                y0 = int(y0)
-                x1 = int(x)
-                y1 = int(y)
-                # reorder the corners
-                (x0, x1) = (min(x0, x1), max(x0, x1))
-                (y0, y1) = (min(y0, y1), max(y0, y1))
-                assert (x1 - x0) > 0
-                assert (y1 - y0) > 0
-            #save parameters
-            try:
-                self.cfg['param'] = {'sigma' : sigma, 
-                    'x0' : x0,
-                    'y0' : y0,
-                    'x1' : x1,
-                    'y1' : y1}
-            except ValueError:
-                return self.error(errcode='badparams',
-                                    errmsg="Incorrect parameters.")
-            #select subimage
-            self.select_subimage(x0, y0, x1, y1)
-            # go to the wait page, with the key
-            http.redir_303(self.base_url + "wait?key=%s" % self.key)
-            return
+            if any(self.cfg['param'][p] == None \
+                for p in ['x0', 'y0', 'x', 'y']):
+                img0 = image(self.work_dir + 'input_0.png')
+                img0.save(self.work_dir + 'input_0_sel.png')
+            
+            http.refresh(self.base_url + 'run?key=%s' % self.key)            
+            return self.tmpl_out("wait.html")
 
-    @cherrypy.expose
-    @init_app
-    def wait(self):
-        """
-        run redirection
-        """
-        http.refresh(self.base_url + 'run?key=%s' % self.key)
-        return self.tmpl_out("wait.html")
 
     @cherrypy.expose
     @init_app
     def run(self):
         """
-        algorithm execution
+        Algorithm execution
         """
-        # read the parameters
-        sigma = self.cfg['param']['sigma']
-        # run the algorithm
+        # Run the algorithm
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(sigma, stdout=stdout)
+            self.run_algo(stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
             print "Run time error"
             return self.error(errcode='runtime')
-
+        
         stdout.close()
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
-
-        # archive
+        
+        # Archive
         if self.cfg['meta']['original']:
-            ar = self.make_archive()
-            ar.add_file("input_0.orig.png", info="uploaded image")
-            ar.add_file("input_0.sel.png", info="selected subimage")
-            ar.add_file("input_1.png", info="noisy image")
-            ar.add_file("output_1.png", info="denoised image")
-            ar.add_file("output_2.png", info="difference image")
-            ar.add_info({"sigma": sigma})
+            ar = self.make_archive()                        
+            ar.add_info({'action': self.cfg['param']['action']})
+            ar.add_info({'noise': self.cfg['param']['noisemodel'] \
+                + ' noise with standard deviation ' \
+                + str(self.cfg['param']['noiselevel'])})
+            
+            if self.cfg['param']['action'] == self.default_param['action']:
+                ar.add_file('input_0_sel.png', info='input image')
+                ar.add_file('denoised.png', info='denoised image')
+            else:
+                ar.add_file('input_0_sel.png', info='exact image')
+                ar.add_file('noisy.png', info='input (RMSE '
+                    + self.cfg['param']['rmse_noisy'] + ')')
+                ar.add_file('denoised.png', info='denoised (RMSE '
+                    + self.cfg['param']['rmse_denoised'] + ')')
+            
+            ar.add_file('diff.png', info='denoised difference')
             ar.save()
 
-        return self.tmpl_out("run.html")
+        return self.tmpl_out('run.html')
 
-    def run_algo(self, sigma, stdout=None, timeout=False):
+
+    def run_algo(self, stdout=None):
         """
-        the core algo runner
+        The core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
-
-        # Noisy and denoised images
-        self.wait_proc(self.run_proc(['tvipol', 
-            'input_0.sel.png', str(sigma), 'input_1.png', 'output_1.png'],
-            stdout=stdout, stderr=stdout), timeout*0.8)
-
-        # Compute image differences
-        self.wait_proc(self.run_proc(['img_diff_ipol', 
-            'input_0.sel.png', 'output_1.png', str(sigma), 'output_2.png'],
-            stdout=stdout, stderr=stdout), timeout*0.2)
-
-
-    
-    @cherrypy.expose
-    @init_app
-    def result(self):
-        """
-        display the algo results
-        """
         
-        # read the parameters
-        sigma = self.cfg['param']['sigma']
-        try:
-            x0 = self.cfg['param']['x0']
-        except KeyError:
-            x0 = None
-        try:
-            y0 = self.cfg['param']['y0']
-        except KeyError:
-            y0 = None
-        try:
-            x1 = self.cfg['param']['x1']
-        except KeyError:
-            x1 = None
-        try:
-            y1 = self.cfg['param']['y1']
-        except KeyError:
-            y1 = None
-
-        (sizeX, sizeY) = image(self.work_dir + 'input_0.sel.png').size
-        # Resize for visualization (new size of the smallest dimension = 200)
-        zoom_factor = None
-        if (sizeX < 200) or (sizeY < 200):
-            if sizeX > sizeY:
-                zoom_factor = int(ceil(200.0/sizeY))
-            else:
-                zoom_factor = int(ceil(200.0/sizeX))
-
-            sizeX = sizeX*zoom_factor
-            sizeY = sizeY*zoom_factor
-
-        for f in [('input_0.sel.png', 'input_0_zoom.sel.png'), \
-            ('input_1.png', 'input_1_zoom.png'), \
-            ('output_1.png', 'output_1_zoom.png'), \
-            ('output_2.png', 'output_2_zoom.png')]:
-            im = image(self.work_dir + f[0])
-            im.resize((sizeX, sizeY), method='nearest')
-            im.save(self.work_dir + f[1])
-
-        return self.tmpl_out("result.html", 
-            sigma=sigma, x0=x0, y0=y0, x1=x1, y1=y1,
-            sizeY=sizeY, zoom_factor=zoom_factor)
-
-
-
-
+        timeout = False
+        noisearg = str.lower(self.cfg['param']['noisemodel']) \
+            + ':' + str(self.cfg['param']['noiselevel'])
+        darg = '-D' + str(4*float(self.cfg['param']['noiselevel']))
+        files = ['input_0_sel', 'denoised', 'diff']
+        
+        if self.cfg['param']['action'] == self.default_param['action']:
+            self.wait_proc(self.run_proc(['tvdenoise', noisearg,
+                'input_0_sel.png', 'denoised.png'],
+                stdout=stdout, stderr=stdout), timeout*0.925)
+            self.wait_proc(self.run_proc(['imdiff', darg, 'input_0_sel.png',
+                'denoised.png', 'diff.png'],
+                stdout=stdout, stderr=stdout), timeout*0.075)
+        else:
+            files.append('noisy')
+            self.wait_proc(self.run_proc(['imnoise', noisearg,
+                'input_0_sel.png', 'noisy.png'],
+                stdout=stdout, stderr=None), timeout*0.075)
+            self.wait_proc([self.run_proc(['tvdenoise', noisearg,
+                    'noisy.png', 'denoised.png'],
+                    stdout=stdout, stderr=stdout),
+                self.run_proc(['imdiff', '-mrmse',
+                    'input_0_sel.png', 'noisy.png'],
+                    stdout=open(self.work_dir 
+                    + 'rmse_noisy.txt', 'w'), stderr=stdout)], timeout*0.85)
+            self.wait_proc(
+                [self.run_proc(['imdiff', '-mrmse',
+                    'input_0_sel.png', 'denoised.png'],
+                    stdout=open(self.work_dir
+                    + 'rmse_denoised.txt', 'w'), stderr=None),
+                self.run_proc(['imdiff', darg, 'input_0_sel.png', 
+                    'denoised.png', 'diff.png'],
+                    stdout=None, stderr=stdout)], timeout*0.075)
+            
+            # Read the rmse_*.txt files
+            for m in ['noisy', 'denoised']:
+                f = open(self.work_dir + 'rmse_' + m + '.txt', 'r')
+                self.cfg['param']['rmse_' + m] = '%.2f' % float(f.readline())
+                f.close()
+        
+        # Resize for visualization (always zoom by at least 2x)
+        (sizeX, sizeY) = image(self.work_dir + 'input_0_sel.png').size
+        zoomfactor = max(1, int(math.ceil(480.0/max(sizeX, sizeY))))
+        
+        if zoomfactor > 1:
+            (sizeX, sizeY) = (zoomfactor*sizeX, zoomfactor*sizeY)
+            
+            for filename in files:
+                im = image(self.work_dir + filename + '.png')
+                im.resize((sizeX, sizeY), method='nearest')
+                im.save(self.work_dir + filename + '_zoom.png')
+            
+            self.cfg['param']['disp_suffix'] = '_zoom.png'
+        else:
+            self.cfg['param']['disp_suffix'] = '.png'
+        
+        self.cfg['param']['zoomfactor'] = zoomfactor
+        self.cfg['param']['displayheight'] = max(200, sizeY)
+        self.cfg['param']['stdout'] = \
+            open(self.work_dir + 'stdout.txt', 'r').read()
+    
