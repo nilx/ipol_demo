@@ -3,11 +3,10 @@ TV Inpainting ipol demo web app
 """
 
 from lib import base_app, build, http, image
-from lib.misc import ctime, prod
+from lib.misc import ctime
 from lib.base_app import init_app
 from lib.config import cfg_open
 import shutil
-import tarfile
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -59,36 +58,31 @@ class app(base_app):
         """
         
         # store common file path in variables
-        tgz_urls = ['http://www.ipol.im/pub/algo/g_tv_denoising/tvreg.tar.gz']
-        tgz_files = [self.dl_dir 
-            + tgz_name for tgz_name in ['tvreg.tar.gz']]
-        progs = ['tvrestore']
-        sub_dir = 'tvreg'
-        src_bin = dict([(self.src_dir + os.path.join(sub_dir, prog),
-                         self.bin_dir + prog)
-                        for prog in progs])
-        log_file = self.base_dir + 'build.log'        
-        
-        # get the latest source archives
-        for tgz_url, tgz_file in zip(tgz_urls, tgz_files):
-            build.download(tgz_url, tgz_file)
-            
+        archive = 'tvinpaint_20120331'
+        tgz_url = 'http://www.ipol.im/pub/algo/' \
+            + 'g_tv_inpainting/' + archive + '.tar.gz'
+        tgz_file = self.dl_dir + archive + '.tar.gz'
+        progs = ['tvinpaint']
+        src_bin = dict([(self.src_dir 
+            + os.path.join(archive, prog),
+            self.bin_dir + prog) for prog in progs])
+        log_file = self.base_dir + 'build.log'
+
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
         if all([(os.path.isfile(bin_file)
                  and ctime(tgz_file) < ctime(bin_file))
-                for bin_file in src_bin.values() for tgz_file in tgz_files]):
-            cherrypy.log("not rebuild needed",
+                for bin_file in src_bin.values()]):
+            cherrypy.log('not rebuild needed',
                          context='BUILD', traceback=False)
         else:
-            # extract the archives
-            build.extract(tgz_files[0], self.src_dir)
-            
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
             # build the programs
-            build.run("make -C %s %s"
-                % (self.src_dir + sub_dir, " ".join(progs))
-                + " --makefile=makefile.gcc"
-                + " CXX='ccache c++' -j4", stdout=log_file)
-            
+            build.run('make -j4 -C %s -f makefile.gcc %s'
+                % (self.src_dir + archive, ' '.join(progs)),
+                stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
@@ -105,20 +99,29 @@ class app(base_app):
     #
     
     def readcommandlist(self):
+        """
+        Read the drawing commandlist from maskcomands.txt
+        """
+                
         try:
             ifile = file(self.work_dir + 'maskcommands.txt', 'r')
             commandlist = [tuple([int(t) for t in line.split(' ')]) \
                 for line in ifile.readlines()]
             ifile.close()
-        except:
+        except IOError:
             commandlist = []
         
         return commandlist
     
     
     def rendermask(self):
+        """
+        Render the drawing commandlist into the mask 
+        """
         
-        pencolors = {'yellow':[255,255,0], 'blue':[0,0,255], 'black':[0,0,0]}
+        pencolors = {'yellow'   : [255, 255, 0], 
+                     'blue'     : [0, 0, 255], 
+                     'black'    : [0, 0, 0]}
         commandlist = self.readcommandlist()
         size = image(self.work_dir + 'input_0.png').size
         self.cfg['param']['viewbox_width'] = size[0]
@@ -127,15 +130,8 @@ class app(base_app):
         mask = Image.new('P', size, 1)   # Create a grayscale image
         draw = ImageDraw.Draw(mask)
     
-        for (t,x,y) in commandlist:
+        for (t, x, y) in commandlist:
             draw.ellipse((x - t, y - t, x + t + 1, y + t + 1), fill=0)
-        
-        #if composite:
-            #img = Image.open(self.work_dir + 'input_0.png').convert('RGB')
-            #img.paste(tuple(pencolors[self.cfg['param']['pencolor']]), mask)
-            #img.save(self.work_dir + 'composite.png')
-            #img.paste((128,128,128), mask)
-            #img.save(self.work_dir + 'f.png')
         
         mask.putpalette(pencolors[self.cfg['param']['pencolor']] 
             + [128,128,128] + [0,0,0]*254)
@@ -179,7 +175,7 @@ class app(base_app):
         self.cfg['param']['pensize'] = int(kwargs['pensize'])
         # Set undefined parameters to default values
         self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
-                
+        
         self.rendermask()
         return self.tmpl_out('params.html')
 
@@ -227,7 +223,7 @@ class app(base_app):
         
         # Extract alpha
         alpha = mask.copy()
-        alpha.putpalette([255,255,255] + [0,0,0]*255)
+        alpha.putpalette([255, 255, 255] + [0, 0, 0]*255)
         alpha = alpha.convert('L')
         
         # Extract mask palette for display
@@ -236,7 +232,7 @@ class app(base_app):
         lut = lut.convert("RGB").getdata()
         
         # Save binary PNG version of the mask
-        mask.putpalette([255,255,255] + [0,0,0]*255)
+        mask.putpalette([255, 255, 255] + [0, 0, 0]*255)
         mask.save(self.work_dir + 'mask.png')
         
         # Save image + mask composited version for display
@@ -244,7 +240,7 @@ class app(base_app):
         img.save(self.work_dir + 'composite.png')
         
         # Save another composite where mask is gray for computation
-        img.paste((128,128,128), alpha)
+        img.paste((128, 128, 128), alpha)
         img.save(self.work_dir + 'u0.png')
         
         # Generate a new timestamp
@@ -300,25 +296,13 @@ class app(base_app):
         
         # Get image size
         size = image(self.work_dir + 'input_0.png').size
-        #cropsize = (min(sizeX, 500), min(sizeY, 500))
-        
-        #if (sizeX, sizeY) != cropsize:
-            #(x0, y0) = (int(floor((sizeX - cropsize[0])/2)),
-                #int(floor((sizeY - cropsize[1])/2)))
-                
-            #for filename in ['input_0', 'composite', 'u0', 'mask']:
-                #img = image(self.work_dir + filename + '.png')
-                #img.crop((x0, y0, x0 + cropsize[0], y0 + cropsize[1]))
-                #img.save(self.work_dir + filename + '.png')
         
         # Run tvrestore
-        self.wait_proc(self.run_proc(['tvrestore', 
-                'lambda:' + str(self.cfg['param']['lambda']),
-                'D:mask.png', 'tol:1e-5', 'maxiter:250',
-                'u0.png', 'inpainted.png'],
-                stdout=stdout, stderr=stdout), timeout)
+        self.wait_proc(self.run_proc(['tvinpaint', 'mask.png',
+            str(self.cfg['param']['lambda']), 'u0.png', 'inpainted.png'],
+            stdout=stdout, stderr=stdout), timeout)
         
-        zoomfactor = int(max(1,floor(550.0/max(size[0],size[1]))))
+        zoomfactor = int(max(1, floor(550.0/max(size[0], size[1]))))
         size = (zoomfactor*size[0], zoomfactor*size[1])
         
         for filename in ['input_0', 'composite', 'inpainted']:
