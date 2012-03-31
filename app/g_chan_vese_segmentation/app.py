@@ -59,44 +59,31 @@ class app(base_app):
         """
         
         # store common file path in variables
-        tgz_urls = ['http://www.ipol.im/pub/algo/g_tv_denoising/tvreg.tar.gz', \
-            'http://www.ipol.im/pub/algo/g_chan_vese_segmentation/cvipol-src.tar.gz']
-        tgz_files = [self.dl_dir 
-            + tgz_name for tgz_name in ['tvreg.tar.gz', 'cvipol-src.tar.gz']]
-        progs = ['cvipol']
-        sub_dir = 'tvreg'
-        src_bin = dict([(self.src_dir + os.path.join(sub_dir, prog),
-                         self.bin_dir + prog)
-                        for prog in progs])
-        log_file = self.base_dir + 'build.log'        
-        
-        # get the latest source archives
-        for tgz_url, tgz_file in zip(tgz_urls, tgz_files):
-            build.download(tgz_url, tgz_file)
-            
+        archive = 'chanvese_20120331'
+        tgz_url = 'http://www.ipol.im/pub/algo/' \
+            + 'g_chan_vese_segmentation/' + archive + '.tar.gz'
+        tgz_file = self.dl_dir + archive + '.tar.gz'
+        progs = ['chanvese']
+        src_bin = dict([(self.src_dir 
+            + os.path.join(archive, prog),
+            self.bin_dir + prog) for prog in progs])
+        log_file = self.base_dir + 'build.log'
+
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
         if all([(os.path.isfile(bin_file)
                  and ctime(tgz_file) < ctime(bin_file))
-                for bin_file in src_bin.values() for tgz_file in tgz_files]):
-            cherrypy.log("not rebuild needed",
+                for bin_file in src_bin.values()]):
+            cherrypy.log('not rebuild needed',
                          context='BUILD', traceback=False)
         else:
-            # extract the archives
-            build.extract(tgz_files[0], self.src_dir)
-            tarfile.open(tgz_files[1]).extractall(self.src_dir)
-            
-            # move the contents of cvipol-src into tvreg folder
-            for src_file in \
-                os.listdir(os.path.join(self.src_dir, 'cvipol-src')):
-                os.rename(os.path.join(self.src_dir, 'cvipol-src', src_file),
-                os.path.join(self.src_dir, sub_dir, src_file))
-            
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
             # build the programs
-            build.run("make -C %s %s"
-                % (self.src_dir + sub_dir, " ".join(progs))
-                + " --makefile=makecvipol.gcc"
-                + " CXX='ccache c++' -j4", stdout=log_file)
-            
+            build.run('make -j4 -C %s -f makefile.gcc %s'
+                % (self.src_dir + archive, ' '.join(progs)),
+                stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
@@ -106,7 +93,6 @@ class app(base_app):
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
-
 
     #
     # PARAMETER HANDLING
@@ -266,8 +252,8 @@ class app(base_app):
             img.crop((x0, y0, x0 + cropsize[0], y0 + cropsize[1]))
             img.save(self.work_dir + 'input_0_sel.png')
         
-        # Run cvipol
-        self.wait_proc(self.run_proc(['cvipol', 
+        # Run chanvese
+        self.wait_proc(self.run_proc(['chanvese', 
                 'mu:' + str(self.cfg['param']['mu']),
                 'tol:-1', 'maxiter:100', 'iterperframe:5',
                 'input_0_sel.png', 'evolution.gif', 'segmentation.png'],
