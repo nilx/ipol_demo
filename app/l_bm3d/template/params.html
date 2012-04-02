@@ -1,0 +1,159 @@
+<%include file="header.html" />
+
+<p> 
+The algorithm is run in 2 steps:
+<ol>
+<li> a Gaussian noise is added to the input image;</li>
+<li> the BM3D algorithm is used to denoise the image.</li> 
+</ol>
+</p>
+
+<br />
+
+<form action="${app.base_url + 'rectangle'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+
+<!-- sigma parameter -->
+- Level (standard deviation) of additive Gaussian noise: 
+    <select name="sigma">
+<%
+selected = {2:'', 5:'', 10:'', 15:'', 20:'', 25:'', 30:'', 35:'', 40:'', 45:'', 50:'', 55:'', 60:'', 65:'', 70:'', 75:'', 80:'', 85:'', 90:'', 95:'', 100:''}
+try:
+   sigmaSel = int(sigma)
+except Exception:
+   sigmaSel = 10
+selected[sigmaSel] = 'selected'
+%>
+%for s in sorted(selected.keys()):
+      <option value="${s}" ${selected[s]}>${s}</option>
+%endfor
+    </select>
+    <br/>
+
+<!-- computebias parameter -->
+    <label for="computebias">- Check if you want to compute the bias image:</label>
+<%
+computebiasChecked = app.checkbox_value(computebias, False)
+%>
+%if computebiasChecked:
+    <input type="checkbox" name="computebias" checked/>
+%else:
+    <input type="checkbox" name="computebias" />
+%endif
+    <br/>
+
+<!-- tau_2d_hard parameter -->
+- Choose the 2D transform during the <i>first</i> step which will be applied to the all patches in the 3D group: 
+    <select name="tau2dhard">
+<%
+contents = (('dct','dct'), ('bior','bior 1.5'))
+
+try:
+   sel = str(tau2dhard)
+   if sel is None or sel == 'None':
+     sel = 'bior'
+except Exception:
+   sel = 'bior'
+%>
+
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
+    </select>
+    <br/>
+
+
+<!-- tau_2d_wien parameter -->
+- Choose the 2D transform during the <i>second</i> step which will be applied to the all patches in the 3D group: 
+    <select name="tau2dwien">
+<%
+contents = (('dct','dct'), ('bior','bior 1.5'))
+
+try:
+   sel = str(tau2dwien)
+   if sel is None or sel == 'None':
+     sel = 'dct'
+except Exception:
+   sel = 'dct'
+%>
+
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
+    </select>
+    <br/>
+
+
+<!-- usesdhard parameter -->
+    <label for="usesdhard">- Check if you want to use the standard deviation weighting for the <i>first</i> step:</label>
+<%
+usesdhardChecked = app.checkbox_value(usesdhard, False)
+%>
+%if usesdhardChecked:
+    <input type="checkbox" name="usesdhard" checked/>
+%else:
+    <input type="checkbox" name="usesdhard" />
+%endif
+    <br/>
+
+<!-- usesdwien parameter -->
+    <label for="usesdwien">- Check if you want to use the standard deviation weighting for the <i>second</i> step:</label>
+<%
+usesdwienChecked = app.checkbox_value(usesdwien, False)
+%>
+%if usesdwienChecked:
+    <input type="checkbox" name="usesdwien" checked/>
+%else:
+    <input type="checkbox" name="usesdwien" />
+%endif
+    <br/>
+
+<!-- colorspace parameter -->
+- Choose the color space transform to apply to the original image. RGB means that nothing is done: 
+    <select name="colorspace">
+      <option value="opp">OPP</option>
+      <option value="rgb">RGB</option>
+      <option value="yuv">YUV</option>
+      <option value="ycbcr">YCBCR</option>
+    </select>
+    <br/>
+
+%if x0 and y0 and x1 and y1:
+    <input type="hidden" name="x0" value="${x0}">
+    <input type="hidden" name="y0" value="${y0}">
+    <input type="hidden" name="x" value="${x1}">
+    <input type="hidden" name="y" value="${y1}">
+    <p>
+      <input type="submit" name="action" value="run" />
+    <p/>
+    <img src="${app.work_url + 'input_0.sel.png'}" />
+%else:
+    <p>
+      Now you can run the algorithm on the whole image:
+      <input type="submit" name="action" value="run" />
+    </p>
+    <p>
+      Or you can run it after selecting a subimage, 
+      by clicking on two opposite corners of the sub-image.
+    </p>
+  %if x0 and y0:
+    <input type="hidden" name="x0" value="${x0}">
+    <input type="hidden" name="y0" value="${y0}">
+    <input type="image" style="cursor:crosshair;" name=""
+           src="${app.work_url + 'input.png?xy=%i,%i' % (x0, y0)}" />
+  %else:
+    <input type="image" style="cursor:crosshair;" name=""
+           src="${app.work_url + 'input_0.png'}" />
+  %endif
+%endif
+  </div>
+</form>
+
+<%include file="footer.html" />

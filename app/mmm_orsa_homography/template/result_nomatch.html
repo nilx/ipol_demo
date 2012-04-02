@@ -5,39 +5,37 @@
   See below for a possible explanation.
 </p>
 
-<h2>Input Images</h2>
+<h2>Results</h2>
 
 <div class="gallery" style="height: ${height}px;">
   <ul class="index">
-    <li>
-      <a href="#">
-	first image
-	<span>
-	  <img src="${app.work_url + 'input_0.png'}" />
-        </span>
-      </a>
-    </li>
-    <li>
-      <a href="#">
-	second image
-	<span>
-	  <img src="${app.work_url + 'input_1.png'}" />
-	</span>
-      </a>
-    </li>
+    <li><a href="#">
+%if 'outliers' in app.cfg['info']:
+      outliers (${app.cfg['info']['outliers']})
+%else:
+      outliers
+%endif
+      <span>
+	    <img src="${app.work_url + 'outliers.png'}" />
+      </span>
+    </a></li>
+    <li><a href="#">
+	  first image
+	  <span>
+	    <img src="${app.work_url + 'input_0.png'}" />
+      </span>
+    </a></li>
+    <li><a href="#">
+	  second image
+	  <span>
+	    <img src="${app.work_url + 'input_1.png'}" />
+	  </span>
+    </a></li>
   </ul>
 </div>
 
-<h2>Output Matches</h2>
-
-<span>
-  <img src="${app.work_url + 'outliers.png'}" />
-</span>
-
 <ul>
-  <li>
-    <a href="${app.work_url + 'match.txt'}">correspondences</a>
-  </li>
+  <li><a href="${app.work_url + 'match.txt'}">correspondences</a></li>
 </ul>
 
 <h2>Program Output</h2>

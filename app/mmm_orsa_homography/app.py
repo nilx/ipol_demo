@@ -1,5 +1,6 @@
 """
-Image registration with a contrario RANSAC variant
+Automatic homographic registration of a pair of images, with a contrario
+elimination of outliers
 """
 
 from lib import base_app, image, http, build
@@ -49,9 +50,10 @@ class app(base_app):
         # store common file path in variables
         tgz_file = self.dl_dir + "OrsaHomography.tar.gz"
         tgz_url = "http://www.ipol.im/pub/algo/mmm_orsa_homography/" + \
-            "OrsaHomography.tar.gz"
+            "OrsaHomography_20120323.tar.gz"
         build_dir = (self.src_dir
-                     + os.path.join("OrsaHomography", "build") + os.path.sep)
+                     + os.path.join("OrsaHomography_20120323", "build")
+                     + os.path.sep)
         exe = build_dir + os.path.join("demo","demo_orsa_homography")
         prog = self.bin_dir + "demo_orsa_homography"
         log_file = self.base_dir + "build.log"
@@ -96,6 +98,40 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
+    def rectangle(self, action=None,
+                  x=None, y=None, x0=None, y0=None):
+        """
+        rectangle selection 
+        """
+        height = max(image(self.work_dir + 'input_0.png').size[1],
+                     image(self.work_dir + 'input_1.png').size[1])
+        if not x0: # draw first corner
+            x = int(x)
+            y = int(y)
+            # draw a cross at the first corner
+            img = image(self.work_dir + 'input_0.png')
+            img.draw_cross((x, y), size=4, color="white")
+            img.draw_cross((x, y), size=2, color="red")
+            img.save(self.work_dir + 'input_crop.png')
+            return self.tmpl_out("params.html", height=height, x0=x, y0=y)
+        else: # second corner selection
+            x0 = int(x0)
+            y0 = int(y0)
+            x1 = int(x)
+            y1 = int(y)
+            # draw rectangle
+            img = image(self.work_dir + 'input_0.png')
+            img.draw_line([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)],
+                          color="red")
+            img.save(self.work_dir + 'input_crop.png')
+            # reorder the corners
+            (x0, x1) = (min(x0, x1), max(x0, x1))
+            (y0, y1) = (min(y0, y1), max(y0, y1))
+            return self.tmpl_out("params.html", height=height,
+                                 x0=x0, y0=y0, x1=x1, y1=y1)
+
+    @cherrypy.expose
+    @init_app
     def wait(self, **kwargs):
         """
         params handling and run redirection
@@ -104,11 +140,23 @@ class app(base_app):
             self.cfg['param']['precision'] = kwargs['precision']
         if 'SiftRatio' in kwargs:
             self.cfg['param']['siftratio'] = kwargs['SiftRatio']
+        im0 = 'input_0.png'
+        if 'rectangle' in kwargs:
+            try:
+                self.cfg['param']['x0'] = int(kwargs['x0'])
+                self.cfg['param']['y0'] = int(kwargs['y0'])
+                self.cfg['param']['x1'] = int(kwargs['x1'])
+                self.cfg['param']['y1'] = int(kwargs['y1'])
+            except ValueError:
+                return self.error(errcode='badparams',
+                                  errmsg="Incorrect parameters.")
+            im0 = 'input_crop.png'
+
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        height = max(image(self.work_dir + 'input_0.png').size[1],
+        height = max(image(self.work_dir + im0).size[1],
                      image(self.work_dir + 'input_1.png').size[1])
-        return self.tmpl_out("wait.html", height=height)
+        return self.tmpl_out("wait.html", height=height, im0=im0)
 
     @cherrypy.expose
     @init_app
@@ -139,6 +187,12 @@ class app(base_app):
             ar.add_file("input_1.orig.png", info="uploaded #2")
             ar.add_file("input_0.png", info="input #1")
             ar.add_file("input_1.png", info="input #2")
+            if 'x0' in self.cfg['param']:
+                ar.add_info({"crop": {'x0': self.cfg['param']['x0'],
+                                      'y0': self.cfg['param']['y0'],
+                                      'x1': self.cfg['param']['x1'],
+                                      'y1': self.cfg['param']['y1']}
+                             })
             if 'precision' in self.cfg['param']:
                 ar.add_info({"precision": self.cfg['param']['precision']})
             if 'siftratio' in self.cfg['param']:
@@ -162,34 +216,45 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-        precision = "0"
+        cmd = ['demo_orsa_homography',
+               self.work_dir + 'input_0.png',
+               self.work_dir + 'input_1.png',
+               "match.txt",
+               "matchOrsa.txt",
+               "inliers.png",
+               "outliers.png",
+               "panorama.png",
+               "registered_0.png",
+               "registered_1.png"]
         if 'precision' in self.cfg['param']:
             try:
                 float(self.cfg['param']['precision'])
                 precision = str(self.cfg['param']['precision'])
+                cmd[1:1] = ['-p', precision]
             except ValueError:
                 pass
-        SiftRatio = "0.6"
         if 'siftratio' in self.cfg['param']:
             try:
                 float(self.cfg['param']['siftratio'])
                 SiftRatio = str(self.cfg['param']['siftratio'])
+                cmd[1:1] = ['-s', SiftRatio]
             except ValueError:
                 pass
+        if 'x0' in self.cfg['param']:
+            x = int(self.cfg['param']['x0'])
+            y = int(self.cfg['param']['y0'])
+            w = int(self.cfg['param']['x1'])-x
+            h = int(self.cfg['param']['y1'])-y
+            geom = str(w)+'x'+str(h)+'+'+str(x)+'+'+str(y)
+            cmd[1:1] = ['-c', geom]
+        print
+        print self.work_dir
+        for i in cmd:
+            print i
+        print
+
         stdout = open(self.work_dir + 'stdout.txt', 'w')
-        proc = self.run_proc(['demo_orsa_homography',
-                              self.work_dir + 'input_0.png',
-                              self.work_dir + 'input_1.png',
-                              precision,
-                              "match.txt",
-                              "matchOrsa.txt",
-                              "inliers.png",
-                              "outliers.png",
-                              "panorama.png",
-                              "registered_0.png",
-                              "registered_1.png",
-                              SiftRatio],
-                             stdout=stdout, stderr=stdout)
+        proc = self.run_proc(cmd, stdout=stdout, stderr=stdout)
         try:
             self.wait_proc(proc, timeout)
         except RuntimeError:
@@ -207,6 +272,11 @@ class app(base_app):
         """
         display the algo results
         """
+        inliers = len( open(self.work_dir + 'matchOrsa.txt', 'r').readlines() )
+        outliers = len( open(self.work_dir + 'match.txt', 'r').readlines() )
+        outliers -= inliers
+        self.cfg['info']['inliers'] = inliers
+        self.cfg['info']['outliers'] = outliers
         height = max(image(self.work_dir + 'input_0.png').size[1],
                      image(self.work_dir + 'input_1.png').size[1])
         if error_nomatch:

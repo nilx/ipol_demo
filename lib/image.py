@@ -151,7 +151,7 @@ class image(object):
         """
         if isinstance(src, PIL.Image.Image):
             self.im = src
-        if isinstance(src, str):
+        if isinstance(src, basestring):
             _deinterlace_png(src)
             self.im = PIL.Image.open(src)
 

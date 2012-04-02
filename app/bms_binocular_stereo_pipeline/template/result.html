@@ -97,7 +97,19 @@
     <a href="${app.work_url + 'rect_0.png'}">first image</a>,
     <a href="${app.work_url + 'rect_1.png'}">second image</a>
   </li>
-  <li>exact floating-point maps: 
+  <li>disparity range:
+    ${app.cfg['param']['disp_min']},
+    ${app.cfg['param']['disp_max']}.
+    <form action="${app.base_url + 'params'}" method="get">
+      <div class="action">
+        You can run the pipeline with a different disparity range.
+        <input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="submit" value="run" />
+      </div>
+    </form>
+  </li>
+  <li>floating-point disparity maps: 
     <a href="${app.work_url + 'disp1_0.tif'}">AC pixel disparity</a>,
     <a href="${app.work_url + 'disp2_0.tif'}">self-sim. filter disparity</a>,
     <a href="${app.work_url + 'disp3_0.tif'}">subpixel disparity</a>,

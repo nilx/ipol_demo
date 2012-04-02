@@ -9,7 +9,11 @@
       <a href="#">
 	first image
 	<span>
+%if im0:
+	  <img src="${app.work_url + im0}" />
+%else:
 	  <img src="${app.work_url + 'input_0.png'}" />
+%endif
 	</span>
       </a>
     </li>

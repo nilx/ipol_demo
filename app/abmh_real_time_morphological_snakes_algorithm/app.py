@@ -13,11 +13,9 @@ from lib import image
 import math
 import os.path
 import time
-#import string
 
 import json
 import subprocess 
-#from lib import config
 
 
 
@@ -26,7 +24,7 @@ class app(base_app):
     """ A Real Time Morphological Snakes Algorithm app """
 
     title = 'A Real Time Morphological Snakes Algorithm'
-
+    
     old_work_dir = ''
 
     input_nb = 1
@@ -97,12 +95,12 @@ class app(base_app):
         # Store common file path in variables
         tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'abmh_real_time_morphological_snakes_algorithm/' \
-            + 'MorphologicalSnakes.zip'
-            
-        tgz_file = self.dl_dir + 'MorphologicalSnakes.zip'
+            + 'MorphologicalSnakes_20111228.zip'
+
+        tgz_file = self.dl_dir + 'MorphologicalSnakes_20111228.zip'
         progs = ['morphological_snake']
         
-        sub_dir = 'MorphologicalSnakes/source'
+        sub_dir = 'MorphologicalSnakes_20111228/source'
         src_bin = dict([(self.src_dir + os.path.join(sub_dir, prog),
                          self.bin_dir + prog) for prog in progs])
         log_file = self.base_dir + 'build.log'
@@ -182,8 +180,6 @@ class app(base_app):
         lnargs = []
         
         ptrad = 3
-        #ptcolor = '#00FF00'
-        #circle_sigma = param['sigma'] # * ptrad
 
         if len(poly) > 0 :
 
@@ -197,7 +193,6 @@ class app(base_app):
                                           for (x, y) in poly])]
             ## ...........
 
-            #lncolor = '#FF0000'
             lnargs = ['-stroke', '#FF0000', '-fill', 'none']
 
             lnargs += ['-draw', ('polyline ' + ' '.join(['%(x)i,%(y)i '
@@ -431,7 +426,8 @@ class app(base_app):
 
         if int(kwargs['iterations']) > 0:
             self.cfg['param']['iterations'] = int( kwargs['iterations'] )
-
+        else: 
+            self.cfg['param']['iterations'] = (-1)*int( kwargs['iterations'] )
 
         self.cfg['param']['snake_structure'] = int( kwargs['structure'] )
         self.cfg['param']['snake_balloon'] = int( kwargs['balloon'] )
@@ -447,6 +443,8 @@ class app(base_app):
             self.cfg['param']['poly'] = self.check_poly( kwargs['poly'], 
                                          kwargs['point.x'], kwargs['point.y'], \
                                          self.cfg['param'])
+
+        self.cfg.save()        
 
         self.draw_poly( self.cfg['param'] )
 
@@ -521,6 +519,8 @@ class app(base_app):
             self.cfg['param']['poly'] = json.dumps( lst )
 
 
+        self.cfg.save()
+
         self.draw_poly( self.cfg['param'] )
 
         return self.tmpl_out('params.html')
@@ -545,9 +545,15 @@ class app(base_app):
 
         self.cfg['param']['snake_structure'] = int( kwargs['structure'] )
         self.cfg['param']['snake_balloon'] = int( kwargs['balloon'] )
-        self.cfg['param']['iterations'] = int( kwargs['iterations'] )
+
+        if int(kwargs['iterations']) > 0:
+            self.cfg['param']['iterations'] = int( kwargs['iterations'] )
+        else: 
+            self.cfg['param']['iterations'] = (-1)*int( kwargs['iterations'] )
+
         self.cfg['param']['sigma'] = float( kwargs['sigma'] )
 
+        self.cfg.save()
         http.refresh(self.base_url + 'run?key=%s' % self.key)            
         return self.tmpl_out("wait.html")
 
@@ -566,6 +572,7 @@ class app(base_app):
             run_time = time.time()
             self.run_algo(stdout=open(self.work_dir + 'stdout.txt', 'w'))
             self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -618,13 +625,11 @@ class app(base_app):
         
        
         animate_inc = 20
-        #niter = self.cfg['param']['iterations'] # + animate_inc
         niter = int( (self.cfg['param']['iterations']/animate_inc) ) + 1
 
         nn = 0
         oimg = ''
 
-        #for nn in range(1, niter, animate_inc) :        
         for ii in range(0, niter) :
             
             nn = ii * animate_inc
@@ -647,7 +652,6 @@ class app(base_app):
                '-R', str(self.cfg['param']['snake_balloon_diff_radius']),  \
                '-P', str(self.cfg['param']['snake_edge_detector_threshold'])], \
                      stdout=stdout, stderr=stdout )
-##                '-E', self.cfg['param']['snake_edge_balloon_threshold'] ],
 
 
         self.wait_proc( morpho_snake, timeout )
@@ -695,6 +699,8 @@ class app(base_app):
              ' -R ' + str(self.cfg['param']['snake_balloon_diff_radius']) +   \
              ' -P ' + str(self.cfg['param']['snake_edge_detector_threshold'])
 
+
+        self.cfg.save()
         return
 
 
@@ -710,4 +716,3 @@ class app(base_app):
         return self.tmpl_out('result.html',
             displaysize=image(self.work_dir + 'output_0.png').size,
             stdout=open(self.work_dir + 'stdout.txt', 'r').read())
-
