@@ -3,11 +3,10 @@ Total Variation Deconvolution using Split-Bregman ipol demo web app
 """
 
 from lib import base_app, build, http, image
-from lib.misc import ctime, prod
+from lib.misc import ctime
 from lib.base_app import init_app
 from lib.config import cfg_open
 import shutil
-import tarfile
 import cherrypy
 from cherrypy import TimeoutError
 import os.path
@@ -64,44 +63,31 @@ class app(base_app):
         """
         
         # store common file path in variables
-        tgz_urls = ['http://www.ipol.im/pub/algo/' + f + '.tar.gz' for f in \
-            ['g_tv_denoising/tvreg', 'g_tv_deconvolution/imutils-src']]
-        tgz_files = [self.dl_dir 
-            + tgz_name for tgz_name in ['tvreg.tar.gz', 'imutils-src.tar.gz']]
-        src_bin = dict([(os.path.join(self.src_dir, subdir, prog),
-                         os.path.join(self.bin_dir, prog))
-                        for (subdir, prog) in [
-                            ('tvreg','tvrestore'),
-                            ('imutils-src','imblur'), 
-                            ('imutils-src','imdiff')]])
-        log_file = self.base_dir + 'build.log'        
-        
-        # get the latest source archives
-        for tgz_url, tgz_file in zip(tgz_urls, tgz_files):
-            build.download(tgz_url, tgz_file)
-            
+        archive = 'tvdeconv_20120331'
+        tgz_url = 'http://www.ipol.im/pub/algo/' \
+            + 'g_tv_deconvolution/' + archive + '.tar.gz'
+        tgz_file = self.dl_dir + archive + '.tar.gz'
+        progs = ['tvdeconv', 'imblur',  'imdiff']
+        src_bin = dict([(self.src_dir 
+            + os.path.join(archive, prog),
+            self.bin_dir + prog) for prog in progs])
+        log_file = self.base_dir + 'build.log'
+
+        # get the latest source archive
+        build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
         if all([(os.path.isfile(bin_file)
                  and ctime(tgz_file) < ctime(bin_file))
-                for bin_file in src_bin.values() for tgz_file in tgz_files]):
+                for bin_file in src_bin.values()]):
             cherrypy.log('not rebuild needed',
                          context='BUILD', traceback=False)
         else:
-            # extract the archives
-            build.extract(tgz_files[0], self.src_dir)
-            tarfile.open(tgz_files[1]).extractall(self.src_dir)
-            
+            # extract the archive
+            build.extract(tgz_file, self.src_dir)
             # build the programs
-            build.run("make -C %s %s"
-                % (os.path.join(self.src_dir, 'tvreg'), 'tvrestore')
-                + " --makefile=makefile.gcc"
-                + " CXX='ccache c++' -j4", stdout=log_file)
-            for p in ['imblur', 'imdiff']:
-                build.run("make -C %s %s"
-                    % (os.path.join(self.src_dir, 'imutils-src'), p)
-                    + " --makefile=makeimutils.gcc"
-                    + " CXX='ccache c++' -j4", stdout=log_file)
-            
+            build.run('make -j4 -C %s -f makefile.gcc %s'
+                % (self.src_dir + archive, ' '.join(progs)),
+                stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
@@ -271,15 +257,14 @@ class app(base_app):
         timeout = False
         
         # Check that the image dimensions are not too large
-        img = image(self.work_dir + 'input_0_sel.png')
-        (sizeX, sizeY) = img.size
-        cropsize = (min(sizeX, 450), min(sizeY, 450))
+        im = image(self.work_dir + 'input_0_sel.png')
+        cropsize = (min(im.size[0], 450), min(im.size[1], 450))
         
-        if (sizeX, sizeY) != cropsize:
-            (x0, y0) = (int(math.floor((sizeX - cropsize[0])/2)),
-                int(math.floor((sizeY - cropsize[1])/2)))
-            img.crop((x0, y0, x0 + cropsize[0], y0 + cropsize[1]))
-            img.save(self.work_dir + 'input_0_sel.png')
+        if im.size != cropsize:
+            (x0, y0) = (int(math.floor((im.size[0] - cropsize[0])/2)),
+                int(math.floor((im.size[1] - cropsize[1])/2)))
+            im.crop((x0, y0, x0 + cropsize[0], y0 + cropsize[1]))
+            im.save(self.work_dir + 'input_0_sel.png')
 
         # Compute lambda from empirical formula
         r = float(self.cfg['param']['kernelsize'])
@@ -295,37 +280,35 @@ class app(base_app):
         files = ['input_0_sel', 'tvdeconv']
         
         if self.cfg['param']['action'] == self.default_param['action']:
-            self.wait_proc(self.run_proc(['tvrestore', 'K:' + Kopt,
+            self.wait_proc(self.run_proc(['tvdeconv', 'K:' + Kopt,
                     'lambda:' + str(self.cfg['param']['lambda']),
-                    'maxiter:' + self.default_param['maxiter'],
                     'input_0_sel.png', 'tvdeconv.png'],
-                    stdout=stdout, stderr=None), timeout*0.9)
+                    stdout=stdout, stderr=stdout), timeout*0.9)
         else:
             files += ['blurry', 'diff_blurry', 'diff_tvdeconv']
             self.wait_proc(self.run_proc(['imblur', 'K:' + Kopt,
-                    'noise:Gaussian:' + str(self.cfg['param']['noiselevel']),
+                    'noise:gaussian:' + str(self.cfg['param']['noiselevel']),
                     'input_0_sel.png', 'blurry.png'],
-                    stdout=stdout, stderr=None), timeout*0.1)            
-            self.wait_proc([self.run_proc(['tvrestore', 'K:' + Kopt,
+                    stdout=stdout, stderr=stdout), timeout*0.1)
+            self.wait_proc([self.run_proc(['tvdeconv', 'K:' + Kopt,
                     'lambda:' + str(self.cfg['param']['lambda']),
-                    'maxiter:' + self.default_param['maxiter'],
                     'blurry.png', 'tvdeconv.png'],
                     stdout=stdout, stderr=stdout),
                 self.run_proc(['imdiff', '-mpsnr',
                     'input_0_sel.png', 'blurry.png'],
                     stdout=open(self.work_dir 
-                    + 'psnr_blurry.txt', 'w'), stderr=None),
+                    + 'psnr_blurry.txt', 'w'), stderr=stdout),
                 self.run_proc(['imdiff', '-D40', 'input_0_sel.png', 
                     'blurry.png', 'diff_blurry.png'],
-                    stdout=None, stderr=None)], timeout*0.8)
+                    stdout=None, stderr=stdout)], timeout*0.8)
             self.wait_proc(
                 [self.run_proc(['imdiff', '-mpsnr',
                     'input_0_sel.png', 'tvdeconv.png'],
                     stdout=open(self.work_dir 
-                    + 'psnr_tvdeconv.txt', 'w'), stderr=None),
+                    + 'psnr_tvdeconv.txt', 'w'), stderr=stdout),
                 self.run_proc(['imdiff', '-D40', 'input_0_sel.png', 
                     'tvdeconv.png', 'diff_tvdeconv.png'],
-                    stdout=None, stderr=None)], timeout*0.1)
+                    stdout=None, stderr=stdout)], timeout*0.1)
             
             # Read the psnr_*.txt files
             for m in ['blurry', 'tvdeconv']:
@@ -334,19 +317,17 @@ class app(base_app):
                 f.close()
         
         # Resize for visualization (always zoom by at least 2x)
-        (sizeX, sizeY) = image(self.work_dir + 'input_0_sel.png').size        
-        zoomfactor = max(2, int(math.ceil(480.0/max(sizeX, sizeY))))
-        (sizeX, sizeY) = (zoomfactor*sizeX, zoomfactor*sizeY)
+        zoomfactor = max(2, int(math.ceil(480.0/max(cropsize[0], cropsize[1]))))
+        cropsize = (zoomfactor*cropsize[0], zoomfactor*cropsize[1])
 
         files.append('input_0_sel')
 
         for filename in files:
             im = image(self.work_dir + filename + '.png')
-            im.resize((sizeX, sizeY), method='nearest')
+            im.resize(cropsize, method='nearest')
             im.save(self.work_dir + filename + '_zoom.png')
         
         self.cfg['param']['zoomfactor'] = zoomfactor
-        self.cfg['param']['displayheight'] = max(200, zoomfactor*cropsize[1])
+        self.cfg['param']['displayheight'] = max(200, cropsize[1])
         self.cfg['param']['stdout'] = \
             open(self.work_dir + 'stdout.txt', 'r').read()
-    
