@@ -173,6 +173,7 @@ with a contrario elimination of outliers"""
         except TimeoutError:
             return self.error(errcode='timeout')
         except NoMatchError:
+            self.cfg['info']['run_time'] = time.time() - run_time
             http.redir_303(self.base_url +
                            'result?key=%s&error_nomatch=1' % self.key)
         except RuntimeError:
