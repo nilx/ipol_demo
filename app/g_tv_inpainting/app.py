@@ -28,8 +28,11 @@ class app(base_app):
     input_ext = '.png'                  # expected extension
     is_test = False    
     default_param = {'lambda': 1.0e+3,  # default parameters
-             'pensize': 7,
+             'pensize': 5,
              'pencolor':'yellow'}
+    pencolors = {'yellow'   : [255, 255, 0], 
+            'blue'          : [0, 0, 255], 
+            'black'         : [0, 0, 0]}
 
     def __init__(self):
         """
@@ -58,11 +61,11 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'tvinpaint_20120331'
+        archive = 'tvinpaint_20120408'
         tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_tv_inpainting/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
-        progs = ['tvinpaint']
+        progs = ['tvinpaint', 'randmask']
         src_bin = dict([(self.src_dir 
             + os.path.join(archive, prog),
             self.bin_dir + prog) for prog in progs])
@@ -117,25 +120,22 @@ class app(base_app):
     def rendermask(self):
         """
         Render the drawing commandlist into the mask 
-        """
+        """        
         
-        pencolors = {'yellow'   : [255, 255, 0], 
-                     'blue'     : [0, 0, 255], 
-                     'black'    : [0, 0, 0]}
         commandlist = self.readcommandlist()
         size = image(self.work_dir + 'input_0.png').size
         self.cfg['param']['viewbox_width'] = size[0]
         self.cfg['param']['viewbox_height'] = size[1]
         
-        mask = Image.new('P', size, 1)   # Create a grayscale image
+        mask = Image.new('P', size, 0)   # Create a grayscale image
         draw = ImageDraw.Draw(mask)
     
         for (t, x, y) in commandlist:
-            draw.ellipse((x - t, y - t, x + t + 1, y + t + 1), fill=0)
+            draw.ellipse((x - t, y - t, x + t + 1, y + t + 1), fill=255)
         
-        mask.putpalette(pencolors[self.cfg['param']['pencolor']] 
-            + [128,128,128] + [0,0,0]*254)
-        mask.save(self.work_dir + 'mask.gif', transparency=1)
+        mask.putpalette([128,128,128] + [0,0,0]*254
+            + self.pencolors[self.cfg['param']['pencolor']])
+        mask.save(self.work_dir + 'mask.gif', transparency=0)
         
     
     @cherrypy.expose
@@ -153,12 +153,81 @@ class app(base_app):
                     commandlist.pop()
             elif kwargs['action'] == 'clear':
                 commandlist = []
+            elif kwargs['action'] == 'random text':
+                self.wait_proc(self.run_proc(['randmask', 'text', 
+                self.work_dir + 'input_0.png', 'mask.png'],
+                stdout=None, stderr=None), None)
+                
+                if os.path.isfile(self.work_dir + 'maskcommands.txt'):
+                    os.remove(self.work_dir + 'maskcommands.txt')
+                
+                mask = Image.open(self.work_dir + 'mask.png')
+                mask = mask.convert('L')
+                mask = mask.convert('P')
+                mask.putpalette([128,128,128] + [0,0,0]*254 
+                    + self.pencolors[self.cfg['param']['pencolor']])
+                mask.save(self.work_dir + 'mask.gif', transparency=0)
+                                
+                return self.tmpl_out('params.html')
+            elif kwargs['action'] == 'random dots':
+                self.wait_proc(self.run_proc(['randmask', 'dots:3', 
+                self.work_dir + 'input_0.png', 'mask.png'],
+                stdout=None, stderr=None), None)
+                
+                if os.path.isfile(self.work_dir + 'maskcommands.txt'):
+                    os.remove(self.work_dir + 'maskcommands.txt')
+                
+                mask = Image.open(self.work_dir + 'mask.png')
+                mask = mask.convert('L')
+                mask = mask.convert('P')
+                mask.putpalette([128,128,128] + [0,0,0]*254 
+                    + self.pencolors[self.cfg['param']['pencolor']])
+                mask.save(self.work_dir + 'mask.gif', transparency=0)
+                                
+                return self.tmpl_out('params.html')
+            elif kwargs['action'] == 'random scribble':
+                self.wait_proc(self.run_proc(['randmask', 'scribble:1', 
+                self.work_dir + 'input_0.png', 'mask.png'],
+                stdout=None, stderr=None), None)
+                
+                if os.path.isfile(self.work_dir + 'maskcommands.txt'):
+                    os.remove(self.work_dir + 'maskcommands.txt')
+                
+                mask = Image.open(self.work_dir + 'mask.png')
+                mask = mask.convert('L')
+                mask = mask.convert('P')
+                mask.putpalette([128,128,128] + [0,0,0]*254 
+                    + self.pencolors[self.cfg['param']['pencolor']])
+                mask.save(self.work_dir + 'mask.gif', transparency=0)
+                                
+                return self.tmpl_out('params.html')
         elif 'pencolor_yellow' in kwargs:
             self.cfg['param']['pencolor'] = 'yellow'
+            
+            mask = Image.open(self.work_dir + 'mask.gif')
+            mask.putpalette([128,128,128] + [0,0,0]*254 
+                + self.pencolors[self.cfg['param']['pencolor']])
+            mask.save(self.work_dir + 'mask.gif', transparency=0)
+            
+            return self.tmpl_out('params.html')
         elif 'pencolor_blue' in kwargs:
             self.cfg['param']['pencolor'] = 'blue'
+            
+            mask = Image.open(self.work_dir + 'mask.gif')
+            mask.putpalette([128,128,128] + [0,0,0]*254 
+                + self.pencolors[self.cfg['param']['pencolor']])
+            mask.save(self.work_dir + 'mask.gif', transparency=0)
+            
+            return self.tmpl_out('params.html')
         elif 'pencolor_black' in kwargs:
             self.cfg['param']['pencolor'] = 'black'
+            
+            mask = Image.open(self.work_dir + 'mask.gif')
+            mask.putpalette([128,128,128] + [0,0,0]*254 
+                + self.pencolors[self.cfg['param']['pencolor']])
+            mask.save(self.work_dir + 'mask.gif', transparency=0)
+            
+            return self.tmpl_out('params.html')
         else:
             commandlist.append((int(kwargs['pensize']), \
                 int(kwargs['x']), int(kwargs['y'])))
@@ -192,8 +261,9 @@ class app(base_app):
             self.cfg['param'] = cfg_open(old_work_dir 
                 + 'index.cfg', 'rb')['param']
             # Also need to clone maskcommands.txt to keep the mask
-            shutil.copy(old_work_dir + 'maskcommands.txt',
-                self.work_dir + 'maskcommands.txt')
+            if os.path.isfile(old_work_dir + 'maskcommands.txt'):
+                shutil.copy(old_work_dir + 'maskcommands.txt',
+                    self.work_dir + 'maskcommands.txt')
         
         # Set undefined parameters to default values
         self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
@@ -223,20 +293,20 @@ class app(base_app):
         
         # Extract alpha
         alpha = mask.copy()
-        alpha.putpalette([255, 255, 255] + [0, 0, 0]*255)
+        alpha.putpalette([0, 0, 0]*255 + [255, 255, 255])
         alpha = alpha.convert('L')
         
         # Extract mask palette for display
         lut = mask.resize((256, 1))
         lut.putdata(range(256))
-        lut = lut.convert("RGB").getdata()
+        lut = lut.convert('RGB').getdata()
         
         # Save binary PNG version of the mask
-        mask.putpalette([255, 255, 255] + [0, 0, 0]*255)
+        mask.putpalette([0, 0, 0]*255 + [255, 255, 255])
         mask.save(self.work_dir + 'mask.png')
         
         # Save image + mask composited version for display
-        img.paste(lut[0], alpha)
+        img.paste(lut[255], alpha)
         img.save(self.work_dir + 'composite.png')
         
         # Save another composite where mask is gray for computation
