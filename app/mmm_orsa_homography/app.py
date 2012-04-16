@@ -1,6 +1,6 @@
 """
-Automatic homographic registration of a pair of images, with a contrario
-elimination of outliers
+Automatic Homographic Registration of a Pair of Images, with A Contrario
+Elimination of Outliers
 """
 
 from lib import base_app, image, http, build
@@ -23,8 +23,8 @@ class NoMatchError(RuntimeError):
 class app(base_app):
     """ template demo app """
     
-    title = """Automatic homographic registration of a pair of images,
-with a contrario elimination of outliers"""
+    title = """Automatic Homographic Registration of a Pair of Images, with
+A Contrario Elimination of Outliers"""
 
     input_nb = 2 # number of input images
     input_max_pixels = 1600 * 1200 # max size (in pixels) of an input image
