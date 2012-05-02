@@ -23,16 +23,16 @@
 
 <h2>Results</h2>
 
-<div class="gallery" style="height: ${height}px;">
+<div class="gallery" style="width:${width}px; height:${height}px;">
   <ul class="index">
     <li><a href="#">Panorama
-	    <span><img src="${app.work_url + 'panorama.png'}" /></span>
+	    <span style="width:${width}px; height:${height}px; background-color:#fff;"><img src="${app.work_url + 'panorama.png'}" /></span>
     </a></li>
     <li><a href="#">Reg. image 1
-	    <span><img src="${app.work_url + 'registered_0.png'}" /></span>
+	    <span style="width:${width}px; height:${height}px; background-color:#fff;"><img src="${app.work_url + 'registered_0.png'}" /></span>
     </a></li>
     <li><a href="#">Reg. image 2
-        <span><img src="${app.work_url + 'registered_1.png'}" /></span>
+        <span style="width:${width}px; height:${height}px; background-color:#fff;"><img src="${app.work_url + 'registered_1.png'}" /></span>
     </a></li>
     <li>
 %if 'inliers' in app.cfg['info']:
@@ -40,7 +40,7 @@
 %else:
       <a href="#">inliers
 %endif
-	    <span><img src="${app.work_url + 'inliers.png'}" /></span>
+	    <span style="width:${width}px; height:${height}px; background-color:#fff;"><img src="${app.work_url + 'inliers.png'}" /></span>
     </a></li>
     <li>
 %if 'outliers' in app.cfg['info']:
@@ -48,17 +48,17 @@
 %else:
       <a href="#">outliers
 %endif
-	    <span><img src="${app.work_url + 'outliers.png'}" /></span>
+	    <span style="width:${width}px; height:${height}px; background-color:#fff;"><img src="${app.work_url + 'outliers.png'}" /></span>
     </a></li>
     <li><a href="#">first image
 %if 'x0' in app.cfg['param']:
-        <span><img src="${app.work_url + 'input_crop.png'}" /></span>
+        <span style="width:${width}px; height:${height}px; background-color:#fff;"><img src="${app.work_url + 'input_crop.png'}" /></span>
 %else:
-        <span><img src="${app.work_url + 'input_0.png'}" /></span>
+        <span style="width:${width}px; height:${height}px; background-color:#fff;"><img src="${app.work_url + 'input_0.png'}" /></span>
 %endif
     </a></li>
     <li><a href="#">second image
-	    <span><img src="${app.work_url + 'input_1.png'}" /></span>
+	    <span style="width:${width}px; height:${height}px; background-color:#fff;"><img src="${app.work_url + 'input_1.png'}" /></span>
     </a></li>
   </ul>
 </div>

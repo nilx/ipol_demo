@@ -93,9 +93,11 @@ A Contrario Elimination of Outliers"""
         """
         if newrun:
             self.clone_input()
+        width  = max(image(self.work_dir + 'input_0.png').size[0],
+                     image(self.work_dir + 'input_1.png').size[0])
         height = max(image(self.work_dir + 'input_0.png').size[1],
                      image(self.work_dir + 'input_1.png').size[1])
-        return self.tmpl_out("params.html", height=height)
+        return self.tmpl_out("params.html", width=width, height=height)
 
     @cherrypy.expose
     @init_app
@@ -104,6 +106,8 @@ A Contrario Elimination of Outliers"""
         """
         rectangle selection 
         """
+        width  = max(image(self.work_dir + 'input_0.png').size[0],
+                     image(self.work_dir + 'input_1.png').size[0])
         height = max(image(self.work_dir + 'input_0.png').size[1],
                      image(self.work_dir + 'input_1.png').size[1])
         if not x0: # draw first corner
@@ -114,7 +118,8 @@ A Contrario Elimination of Outliers"""
             img.draw_cross((x, y), size=4, color="white")
             img.draw_cross((x, y), size=2, color="red")
             img.save(self.work_dir + 'input_crop.png')
-            return self.tmpl_out("params.html", height=height, x0=x, y0=y)
+            return self.tmpl_out("params.html", width=width, height=height,
+                                 x0=x, y0=y)
         else: # second corner selection
             x0 = int(x0)
             y0 = int(y0)
@@ -128,7 +133,7 @@ A Contrario Elimination of Outliers"""
             # reorder the corners
             (x0, x1) = (min(x0, x1), max(x0, x1))
             (y0, y1) = (min(y0, y1), max(y0, y1))
-            return self.tmpl_out("params.html", height=height,
+            return self.tmpl_out("params.html", width=width, height=height,
                                  x0=x0, y0=y0, x1=x1, y1=y1)
 
     @cherrypy.expose
@@ -155,9 +160,11 @@ A Contrario Elimination of Outliers"""
 
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
+        width  = max(image(self.work_dir + im0).size[0],
+                     image(self.work_dir + 'input_1.png').size[0])
         height = max(image(self.work_dir + im0).size[1],
                      image(self.work_dir + 'input_1.png').size[1])
-        return self.tmpl_out("wait.html", height=height, im0=im0)
+        return self.tmpl_out("wait.html", width=width, height=height, im0=im0)
 
     @cherrypy.expose
     @init_app
@@ -279,9 +286,13 @@ A Contrario Elimination of Outliers"""
         outliers -= inliers
         self.cfg['info']['inliers'] = inliers
         self.cfg['info']['outliers'] = outliers
+        width  = max(image(self.work_dir + 'input_0.png').size[0],
+                     image(self.work_dir + 'input_1.png').size[0])
         height = max(image(self.work_dir + 'input_0.png').size[1],
                      image(self.work_dir + 'input_1.png').size[1])
         if error_nomatch:
-            return self.tmpl_out("result_nomatch.html", height=height)
+            return self.tmpl_out("result_nomatch.html",
+                                 width=width, height=height)
         else:
-            return self.tmpl_out("result.html", height=height)
+            return self.tmpl_out("result.html",
+                                 width=width, height=height)

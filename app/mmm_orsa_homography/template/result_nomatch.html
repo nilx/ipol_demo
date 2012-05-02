@@ -23,7 +23,7 @@
 
 <h2>Results</h2>
 
-<div class="gallery" style="height: ${height}px;">
+<div class="gallery" style="width:${width}px; height:${height}px;">
   <ul class="index">
     <li><a href="#">
 %if 'outliers' in app.cfg['info']:
@@ -31,19 +31,19 @@
 %else:
       outliers
 %endif
-      <span>
+      <span style="width:${width}px; height:${height}px; background-color:#fff;">
 	    <img src="${app.work_url + 'outliers.png'}" />
       </span>
     </a></li>
     <li><a href="#">
 	  first image
-	  <span>
+	  <span style="width:${width}px; height:${height}px; background-color:#fff;">
 	    <img src="${app.work_url + 'input_0.png'}" />
       </span>
     </a></li>
     <li><a href="#">
 	  second image
-	  <span>
+	  <span style="width:${width}px; height:${height}px; background-color:#fff;">
 	    <img src="${app.work_url + 'input_1.png'}" />
 	  </span>
     </a></li>
