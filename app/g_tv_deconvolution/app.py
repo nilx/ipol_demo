@@ -1,5 +1,5 @@
 """
-Total Variation Deconvolution using Split-Bregman ipol demo web app
+Total Variation Deconvolution using Split Bregman ipol demo web app
 """
 
 from lib import base_app, build, http, image
@@ -15,10 +15,10 @@ import math
 
 
 class app(base_app):
-    """ Total Variation Deconvolution using Split-Bregman app """
+    """ Total Variation Deconvolution using Split Bregman app """
 
     title = \
-    'Total Variation Deconvolution using Split-Bregman'
+    'Total Variation Deconvolution using Split Bregman'
 
     input_nb = 1
     input_max_pixels = 700 * 700        # max size (in pixels) of input image
@@ -63,7 +63,7 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'tvdeconv_20120408'
+        archive = 'tvdeconv_20120502'
         tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_tv_deconvolution/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
