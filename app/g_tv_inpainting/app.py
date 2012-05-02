@@ -19,7 +19,7 @@ import ImageDraw
 class app(base_app):
     """ TV Inpainting app """
 
-    title = 'Total Variation Inpainting using Split-Bregman'
+    title = 'Total Variation Inpainting using Split Bregman'
 
     input_nb = 1
     input_max_pixels = 500 * 500        # max size (in pixels) of input image
@@ -61,7 +61,7 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'tvinpaint_20120408'
+        archive = 'tvinpaint_20120502'
         tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_tv_inpainting/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
