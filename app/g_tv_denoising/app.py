@@ -1,5 +1,5 @@
 """
-Total Variation Deconvolution using Split-Bregman ipol demo web app
+Total Variation Deconvolution using Split Bregman ipol demo web app
 """
 
 from lib import base_app, build, http, image
@@ -15,10 +15,10 @@ import math
 
 
 class app(base_app):
-    """ Total Variation Denoising using Split-Bregman app """
+    """ Total Variation Denoising using Split Bregman app """
 
     title = \
-    'Rudin-Osher-Fatemi Total Variation Denoising using Split-Bregman'
+    'Rudin-Osher-Fatemi Total Variation Denoising using Split Bregman'
 
     input_nb = 1
     input_max_pixels = 700 * 700        # max size (in pixels) of input image
@@ -62,7 +62,7 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'tvdenoise_20120331'
+        archive = 'tvdenoise_20120502'
         tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_tv_denoising/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
@@ -258,7 +258,7 @@ class app(base_app):
         files = ['input_0_sel', 'denoised', 'diff']
         
         if self.cfg['param']['action'] == self.default_param['action']:
-            self.wait_proc(self.run_proc(['tvdenoise', noisearg,
+            self.wait_proc(self.run_proc(['tvdenoise', '-n', noisearg,
                 'input_0_sel.png', 'denoised.png'],
                 stdout=stdout, stderr=stdout), timeout*0.925)
             self.wait_proc(self.run_proc(['imdiff', darg, 'input_0_sel.png',
@@ -269,7 +269,7 @@ class app(base_app):
             self.wait_proc(self.run_proc(['imnoise', noisearg,
                 'input_0_sel.png', 'noisy.png'],
                 stdout=stdout, stderr=None), timeout*0.075)
-            self.wait_proc([self.run_proc(['tvdenoise', noisearg,
+            self.wait_proc([self.run_proc(['tvdenoise', '-n', noisearg,
                     'noisy.png', 'denoised.png'],
                     stdout=stdout, stderr=stdout),
                 self.run_proc(['imdiff', '-mrmse',
