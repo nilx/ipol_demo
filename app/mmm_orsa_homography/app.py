@@ -51,9 +51,9 @@ A Contrario Elimination of Outliers"""
         # store common file path in variables
         tgz_file = self.dl_dir + "OrsaHomography.tar.gz"
         tgz_url = "http://www.ipol.im/pub/algo/mmm_orsa_homography/" + \
-            "OrsaHomography_20120330.tar.gz"
+            "OrsaHomography_20120515.tar.gz"
         build_dir = (self.src_dir
-                     + os.path.join("OrsaHomography_20120330", "build")
+                     + os.path.join("OrsaHomography_20120515", "build")
                      + os.path.sep)
         exe = build_dir + os.path.join("demo","demo_orsa_homography")
         prog = self.bin_dir + "demo_orsa_homography"
