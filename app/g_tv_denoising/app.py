@@ -62,7 +62,7 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'tvdenoise_20120502'
+        archive = 'tvdenoise_20120516'
         tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_tv_denoising/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
