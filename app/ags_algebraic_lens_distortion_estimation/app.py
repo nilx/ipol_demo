@@ -83,7 +83,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        tgz_url = 'https://edit.ipol.im/edit/algo/ags_algebraic_lens_distortion_estimation/' \
+        tgz_url = 'http://www.ipol.im/pub/algo/ags_algebraic_lens_distortion_estimation/' \
             + 'algebraic_lens_distortion_model_estimation_basic_march_2012.tar.gz'
 
         tgz_file = self.dl_dir + \
