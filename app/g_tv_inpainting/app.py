@@ -61,7 +61,7 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'tvinpaint_20120502'
+        archive = 'tvinpaint_20120516'
         tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_tv_inpainting/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
