@@ -55,7 +55,7 @@ class app(base_app):
         prog_file = self.bin_dir + prog_filename
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download('http://www.ipol.im/data/algo/l_bm3d/' + \
+        build.download('http://www.ipol.im/pub/algo/l_bm3d/' + \
                        zip_filename, tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
