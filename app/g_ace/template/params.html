@@ -1,0 +1,57 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+<form action="${app.base_url + 'wait'}" method="get">
+
+<fieldset>
+<div style="position:relative; width:6em; top:-1em; 
+background-color: #FFF; padding:.2em .5em; margin:0px">Parameters</div>
+
+<input type="hidden" name="key" value="${app.key}" />
+
+<div style="float:left; width:18em; text-align:right;">
+&alpha;, enhancement strength&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="alpha" name="alpha" value="${app.cfg['param']['alpha']}" />
+</div>
+<div id="slider1" style="width:16em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#alpha', '#slider1', 1, 8, 1);
+});
+</script>
+</fieldset>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+    <p>Run the algorithm: <input type="submit" name="action" value="run" /><p/>
+
+    %if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
+        <p>Or you can run it after selecting a subimage by clicking two 
+        opposite corners of the subimage.</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0.png'}" /></p>
+    %elif app.cfg['param']['x'] == None or app.cfg['param']['y'] == None:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <p>Please select the second corner of the subimage:</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" /></p>
+    %else:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <input type="hidden" name="x" value="${app.cfg['param']['x']}" />
+        <input type="hidden" name="y" value="${app.cfg['param']['y']}" />
+        <p>The algorithm will run on this selected subimage:</p>
+        <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+    %endif
+</form>
+
+
+<%include file="footer.html" />
