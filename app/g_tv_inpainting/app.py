@@ -61,7 +61,7 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'tvinpaint_20120516'
+        archive = 'tvinpaint_20120701'
         tgz_url = 'http://www.ipol.im/pub/algo/' \
             + 'g_tv_inpainting/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
@@ -143,8 +143,14 @@ class app(base_app):
     def editmask(self, **kwargs):
         """
         Edit the inpainting mask
-        """      
+        """
         
+        generate_options = {
+            'random text' : 'text',
+            'random dots' : 'dots:3',
+            'random scribble' : 'scribble:3',
+            'random Bernoulli' : 'Bernoulli:0.5'
+            }
         commandlist = self.readcommandlist()
         
         if 'action' in kwargs:
@@ -153,42 +159,11 @@ class app(base_app):
                     commandlist.pop()
             elif kwargs['action'] == 'clear':
                 commandlist = []
-            elif kwargs['action'] == 'random text':
-                self.wait_proc(self.run_proc(['randmask', 'text', 
-                self.work_dir + 'input_0.png', 'mask.png'],
-                stdout=None, stderr=None), None)
-                
-                if os.path.isfile(self.work_dir + 'maskcommands.txt'):
-                    os.remove(self.work_dir + 'maskcommands.txt')
-                
-                mask = Image.open(self.work_dir + 'mask.png')
-                mask = mask.convert('L')
-                mask = mask.convert('P')
-                mask.putpalette([128,128,128] + [0,0,0]*254 
-                    + self.pencolors[self.cfg['param']['pencolor']])
-                mask.save(self.work_dir + 'mask.gif', transparency=0)
-                                
-                return self.tmpl_out('params.html')
-            elif kwargs['action'] == 'random dots':
-                self.wait_proc(self.run_proc(['randmask', 'dots:3', 
-                self.work_dir + 'input_0.png', 'mask.png'],
-                stdout=None, stderr=None), None)
-                
-                if os.path.isfile(self.work_dir + 'maskcommands.txt'):
-                    os.remove(self.work_dir + 'maskcommands.txt')
-                
-                mask = Image.open(self.work_dir + 'mask.png')
-                mask = mask.convert('L')
-                mask = mask.convert('P')
-                mask.putpalette([128,128,128] + [0,0,0]*254 
-                    + self.pencolors[self.cfg['param']['pencolor']])
-                mask.save(self.work_dir + 'mask.gif', transparency=0)
-                                
-                return self.tmpl_out('params.html')
-            elif kwargs['action'] == 'random scribble':
-                self.wait_proc(self.run_proc(['randmask', 'scribble:1', 
-                self.work_dir + 'input_0.png', 'mask.png'],
-                stdout=None, stderr=None), None)
+            elif kwargs['action'] in generate_options.keys():
+                self.wait_proc(self.run_proc(['randmask', 
+                    generate_options[kwargs['action']],
+                    self.work_dir + 'input_0.png', 'mask.png'],
+                    stdout=None, stderr=None), None)
                 
                 if os.path.isfile(self.work_dir + 'maskcommands.txt'):
                     os.remove(self.work_dir + 'maskcommands.txt')
