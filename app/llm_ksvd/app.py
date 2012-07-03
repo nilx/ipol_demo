@@ -15,8 +15,8 @@ import time
 class app(base_app):
     """ K-SVD app """
 
-    title = "An implementation and detailed analysis of the \
-K-SVD image denoising algorithm"
+    title = "An Implementation and Detailed Analysis of the \
+K-SVD Image Denoising Algorithm"
 
     input_nb = 1
     input_max_pixels = 1200 * 1200 # max size (in pixels) of an input image
