@@ -20,8 +20,6 @@ class app(base_app):
     is_listed = True
     is_built = True
 
-    xlink_algo = \
-            "http://www.ipol.im/pub/algo/sms_robust_optical_flow_estimation/"
     xlink_src = \
 "http://serdis.dis.ulpgc.es/~asalgado/brox2004.zip"    
 #"http://www.ipol.im/pub/algo/sms_brox_optical_flow_estimation/brox2004.zip"
@@ -102,20 +100,8 @@ class app(base_app):
         app setup
         """
         # setup the parent class
-        print("I'm initing!")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
-        self.xlink_algo = app.xlink_algo
-
-        # select the base_app steps to expose
-        # index() is generic
-        #app_expose(base_app.index)
-        #app_expose(base_app.input_select)
-        #app_expose(base_app.input_upload)
-        # params() is modified from the template
-        #app_expose(base_app.params)
-        # run() and result() must be defined here
-
 
     def build_algo(self):
         """
@@ -139,14 +125,9 @@ class app(base_app):
             build.run("make -C %s" % (self.src_dir +"brox2004"),
                                   stdout=log_file)
             # save into bin dir
-            #if os.path.isdir(self.bin_dir):
-            #        shutil.rmtree(self.bin_dir)
-            #try:
             shutil.copy(self.src_dir +
                     os.path.join("brox2004",
                         "main"), prog_file)
-            #except:
-            #   print("some error occurred copying files")
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
@@ -174,13 +155,9 @@ class app(base_app):
                          (self.src_dir +"imscript"),
                             stdout=log_file)
             # save into bin dir
-            #try:
             for f in glob.glob(os.path.join(self.src_dir,
                             "imscript", "bin", "*")):
                 shutil.copy(f, self.bin_dir)
-            #except:
-            #   print("some error occurred copying files")
-            # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
 
@@ -227,9 +204,6 @@ class app(base_app):
                      errmsg='The parameters must be numeric.')
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         
-        #print "\n\n" + self.work_dir + '/a.png'  "\n"
-        #print str(image(self.work_dir + '/a.png').size[1]) + "\n\n"
-        
         self.cfg['meta']['height'] = image(self.work_dir + 'a.png').size[1]
         self.cfg['meta']['colorscheme'] = 'ipoln'
         self.cfg['meta']['colorparam'] = '1'
@@ -262,7 +236,7 @@ class app(base_app):
             ar.add_file("stuff_rof.png", info="")
             if (self.cfg['meta']['hastruth']):
                 ar.add_file("t.tiff", info="")
-            #ar.add_file(".png", info="output")
+
             ar.add_info({"alpha": self.cfg['param']['alpha'],
                          "gamma": self.cfg['param']['gamma']})
 
@@ -276,9 +250,6 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-        #print "\n\n"
-        #print self.cfg['param']
-        #print "\n\n"
 
         nprocs      = self.cfg['param']['nprocs']
         alpha       = self.cfg['param']['alpha']
@@ -305,7 +276,7 @@ class app(base_app):
              str(outer_iter),
              str(verbose)
             ])
-        #q = self.run_proc(['zero_stuff.sh'])
+
         self.wait_proc(p, timeout=self.timeout)
         p = self.run_proc(['view_jzach.sh', 'ipoln', '1'])
         self.wait_proc(p, timeout=self.timeout)
@@ -319,7 +290,7 @@ class app(base_app):
         """
         print("RECOLOR KWARGS = " + str(kwargs))
         cs = kwargs['colorscheme']
-        ##cp = kwargs['colorparam']
+
         self.cfg['meta']['colorscheme'] = cs
         self.cfg['meta']['colorwheel'] = True
         p = self.run_proc(['view_jzach.sh', cs, '1'])
@@ -344,21 +315,6 @@ class app(base_app):
         msg = f + self.work_dir
         msg = "-"
         return msg
-#       print("PIPIU! \"%s\"" % f)
-#       print("work_dir = " + self.work_dir)
-#       fname,fexte = os.path.splitext(f)
-#       print("fname = " + fname)
-#       print("fexte = " + fexte)
-#       assert fexte == ".png"
-#       tiffcorr = self.work_dir + fname + ".tiff"
-#       print("tiffcorr = " + tiffcorr)
-#       if os.path.isfile(tiffcorr):
-#           f = fname + ".tiff"
-#       print("f = " + f)
-#       imgstatsargs = [self.bin_dir + 'imgstats', self.work_dir + f]
-#       print("imgstatsargs = " + str(imgstatsargs))
-#       imgstats = subprocess.check_output(imgstatsargs)
-#       return imgstats.rstrip()
 
     @cherrypy.expose
     def input_select(self, **kwargs):
@@ -384,11 +340,6 @@ class app(base_app):
             shutil.copy(idir + "t.tiff", self.work_dir + "t.tiff")
             shutil.copy(idir + "t.png", self.work_dir + "t.png")
 
-        #fnames = input_dict[input_id]['files'].split()
-        #for i in range(len(fnames)):
-        #    shutil.copy(self.input_dir + fnames[i],
-        #                self.work_dir + 'input_%i' % i)
-        #msg = self.process_input()
         self.log("input selected : %s" % input_id)
         self.cfg['meta']['original'] = False
         self.cfg['meta']['height'] = image(self.work_dir + '/a.png').size[1]
@@ -539,8 +490,6 @@ class app(base_app):
         """
         return a string containing the running time of the algorithm
         """
-        #return subprocess.check_output([self.bin_dir+'cat',\
-        #   self.work_dir+'stuff_'+a+'.time'])
         return subprocess.Popen([self.bin_dir+'cat',
                    self.work_dir+'stuff_'+a+'.time'],
                   stdout=subprocess.PIPE).communicate()[0]
