@@ -20,8 +20,6 @@ class app(base_app):
     is_listed = True
     is_built = True
 
-    xlink_algo = \
-            "http://www.ipol.im/pub/algo/smf_tvl1_optical_flow_estimation/"
     xlink_src = \
 "http://www.ipol.im/pub/algo/smf_tvl1_optical_flow_estimation/tvl1flow_3.tar.gz"
     xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript_dec2011.tar.gz"
@@ -60,7 +58,6 @@ class app(base_app):
         print("I'm initing!")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
-        self.xlink_algo = app.xlink_algo
 
         # select the base_app steps to expose
         # index() is generic
