@@ -104,8 +104,8 @@ testex tvl1flow
 
 
 #jzach 1 a.png b.png $TAU $LAMBDA $THETA $NSCALES 0.5 $NITER ${P}.tiff 0
-echo /usr/bin/time -f "stufftime %e s" tvl1flow $NPROCS a.png b.png $TAU $LAMBDA $THETA $NSCALES 0.5 $NWARPS $EPSILON ${P}.tiff 0
-/usr/bin/time -f "stufftime %e s" tvl1flow $NPROCS a.png b.png $TAU $LAMBDA $THETA $NSCALES 0.5 $NWARPS $EPSILON ${P}.tiff 0  2> ${P}.stime
+echo /usr/bin/time -f "stufftime %e s" tvl1flow a.png b.png ${P}.tiff $NPROCS $TAU $LAMBDA $THETA $NSCALES 0.5 $NWARPS $EPSILON 0
+/usr/bin/time -f "stufftime %e s" tvl1flow a.png b.png ${P}.tiff $NPROCS $TAU $LAMBDA $THETA $NSCALES 0.5 $NWARPS $EPSILON 0  2> ${P}.stime
 cat ${P}.stime | /bin/grep stufftime  | cut -c11- > ${P}.time
 
 iion ${P}.tiff ${P}.uv

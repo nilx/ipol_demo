@@ -23,7 +23,7 @@ class app(base_app):
     xlink_algo = \
             "http://www.ipol.im/pub/algo/smf_tvl1_optical_flow_estimation/"
     xlink_src = \
-"http://www.ipol.im/pub/algo/smf_tvl1_optical_flow_estimation/tvl1flow_1.tar.gz"
+"http://www.ipol.im/pub/algo/smf_tvl1_optical_flow_estimation/tvl1flow_3.tar.gz"
     xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
@@ -45,11 +45,11 @@ class app(base_app):
                'changeable': False, 'htmlname': '&theta;', 'doc': ' '}
     parconfig['tau'] = {'type': float, 'default': 0.25,
              'changeable': False, 'htmlname': '&tau;', 'doc': ' '}
-    parconfig['epsilon'] = {'type':float, 'default': 0.0001,
+    parconfig['epsilon'] = {'type':float, 'default': 0.01,
              'changeable': False, 'htmlname': '&epsilon;', 'doc':''}
     parconfig['nwarps'] = {'type':int, 'default': 5,
             'changeable': False, 'htmlname': 'M', 'doc':' '}
-    parconfig['nprocs'] = {'type':int, 'default': 0,
+    parconfig['nprocs'] = {'type':int, 'default': 8,
             'changeable': False, 'htmlname': 'openmp', 'doc':' '}
 
     def __init__(self):
@@ -77,8 +77,8 @@ class app(base_app):
         program build/update
         """
         ## store common file path in variables
-        tgz_file = self.dl_dir + "tvl1flow_1.tar.gz"
-        prog_file = self.bin_dir + "tvl1flow_1"
+        tgz_file = self.dl_dir + "tvl1flow_3.tar.gz"
+        prog_file = self.bin_dir + "tvl1flow"
         log_file = self.base_dir + "build.log"
         ## get the latest source archive
         build.download(app.xlink_src, tgz_file)
@@ -91,14 +91,14 @@ class app(base_app):
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s" % (self.src_dir +"tvl1flow_1"),
+            build.run("make -C %s" % (self.src_dir +"tvl1flow_3"),
                                   stdout=log_file)
             # save into bin dir
             #if os.path.isdir(self.bin_dir):
             #        shutil.rmtree(self.bin_dir)
             #try:
             shutil.copy(self.src_dir +
-                    os.path.join("tvl1flow_1",
+                    os.path.join("tvl1flow_3",
                         "tvl1flow"), prog_file)
             #except:
             #   print("some error occurred copying files")
