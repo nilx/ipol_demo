@@ -107,7 +107,7 @@ testex hs_uniform.sh
 #jzach 1 a.png b.png $TAU $LAMBDA $THETA $NSCALES 0.5 $NITER ${P}.tiff 0
 #echo /usr/bin/time -f "stufftime %e s" tvl1flow $NPROCS a.png b.png $TAU $LAMBDA $THETA $NSCALES 0.5 $NWARPS $EPSILON ${P}.tiff 0
 export OMP_NUM_THREADS=$NPROCS
-/usr/bin/time -f "stufftime %e s" hs_uniform.sh j a.png b.png ${P}.tiff $ALPHA $EPSIL $NITER $NWARP $NSCAL $SSTEP 2> ${P}.stime
+/usr/bin/time -f "stufftime %e s" hs_uniform.sh j3 a.png b.png ${P}.tiff $ALPHA $EPSIL $NITER $NWARP $NSCAL $SSTEP 2> ${P}.stime
 cat ${P}.stime | /bin/grep stufftime  | cut -c11- > ${P}.time
 
 iion ${P}.tiff ${P}.uv

@@ -58,6 +58,11 @@ case "$METHOD" in
 	echo "running javier's PHS (zfactor = $ZFACT)"
 	phs $FILEA $FILEB $FILEF 4 5 $ALPHA $NSCAL $ZFACT $NWARP $EPSIL $NITER 1
 	;;
+"j3")
+	ZFACT=$SSTEP
+	echo "running javier's PHS (zfactor = $ZFACT)"
+	phs $FILEA $FILEB $FILEF 8 $ALPHA $NSCAL $ZFACT $NWARP $EPSIL $NITER 0
+	;;
 "e")
 	ZFACT=`echo "1.0/$SSTEP" | gp -f -q`
 	echo "running enric's PHS"

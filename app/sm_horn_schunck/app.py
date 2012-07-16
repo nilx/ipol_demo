@@ -20,13 +20,12 @@ class app(base_app):
     is_listed = True
     is_built = True
 
-    xlink_algo = "http://www.ipol.im/pub/algo/sm_horn_schunck/"
-    xlink_src = "http://www.ipol.im/pub/algo/sm_horn_schunck/phs_1.tar.gz"
+    xlink_src = "http://www.ipol.im/pub/algo/sm_horn_schunck/phs_3.tar.gz"
     xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}
-    parconfig['alpha'] = {'type': float, 'default': 10,
+    parconfig['alpha'] = {'type': float, 'default': 15,
                           'changeable': True,
                           'htmlname': '&alpha;',
                           'archived' : True,
@@ -34,7 +33,7 @@ class app(base_app):
                           'doc': '(weight of the regularization term, e.g. \
                           &alpha;=1 discontinuous flow, \
                           &alpha;=40 smooth flow)'}
-    parconfig['epsil'] = {'type': float, 'default': 0.001,
+    parconfig['epsil'] = {'type': float, 'default': 0.01,
                           'changeable': False,
                           'htmlname': '&epsilon;',
                           'archived' : False,
@@ -64,7 +63,7 @@ class app(base_app):
                           'archived' : True,
                           'order' : 6,
                           'doc': 'scale factor'}
-    parconfig['nprocs'] = {'type': int, 'default': 4,
+    parconfig['nprocs'] = {'type': int, 'default': 8,
                           'changeable': False,
                            'htmlname': 'N<sub><small>procs</small></sub>',
                           'archived' : False,
@@ -79,7 +78,6 @@ class app(base_app):
         print("I'm initing!")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
-        self.xlink_algo = app.xlink_algo
 
         # select the base_app steps to expose
         # index() is generic
@@ -96,8 +94,8 @@ class app(base_app):
         program build/update
         """
         ## store common file path in variables
-        tgz_file = self.dl_dir + "phs_1.tar.gz"
-        prog_file = self.bin_dir + "phs_1"
+        tgz_file = self.dl_dir + "phs_3.tar.gz"
+        prog_file = self.bin_dir + "phs"
         log_file = self.base_dir + "build.log"
         ## get the latest source archive
         build.download(app.xlink_src, tgz_file)
@@ -110,14 +108,14 @@ class app(base_app):
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s" % (self.src_dir +"phs_1"),
+            build.run("make -C %s" % (self.src_dir +"phs_3"),
                                                    stdout=log_file)
             # save into bin dir
             #if os.path.isdir(self.bin_dir):
             #        shutil.rmtree(self.bin_dir)
             try:
                 shutil.copy(self.src_dir +
-                           os.path.join("phs_1", "phs"), prog_file)
+                           os.path.join("phs_3", "horn_schunck_pyramidal"), prog_file)
             except IOError, e:
                 print("Unable to copy file. %s" % e)
             # cleanup the source dir
@@ -394,7 +392,8 @@ class app(base_app):
 
         ra = self.upload_given_file('a', kwargs['file_a'])
         rb = self.upload_given_file('b', kwargs['file_b'])
-        rt = self.upload_given_file('t.tiff', kwargs['file_t'])
+        rt = False
+        #rt = self.upload_given_file('t.tiff', kwargs['file_t'])
 
         if not ra:
             return self.error(errcode='badparams',
