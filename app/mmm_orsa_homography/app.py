@@ -1,6 +1,6 @@
 """
-Automatic homographic registration of a pair of images, with a contrario
-elimination of outliers
+Automatic Homographic Registration of a Pair of Images, with A Contrario
+Elimination of Outliers
 """
 
 from lib import base_app, image, http, build
@@ -23,7 +23,8 @@ class NoMatchError(RuntimeError):
 class app(base_app):
     """ template demo app """
     
-    title = "Image registration with a contrario RANSAC variant"
+    title = """Automatic Homographic Registration of a Pair of Images, with
+A Contrario Elimination of Outliers"""
 
     input_nb = 2 # number of input images
     input_max_pixels = 1600 * 1200 # max size (in pixels) of an input image
@@ -50,9 +51,9 @@ class app(base_app):
         # store common file path in variables
         tgz_file = self.dl_dir + "OrsaHomography.tar.gz"
         tgz_url = "http://www.ipol.im/pub/algo/mmm_orsa_homography/" + \
-            "OrsaHomography_20120323.tar.gz"
+            "OrsaHomography_20120515.tar.gz"
         build_dir = (self.src_dir
-                     + os.path.join("OrsaHomography_20120323", "build")
+                     + os.path.join("OrsaHomography_20120515", "build")
                      + os.path.sep)
         exe = build_dir + os.path.join("demo","demo_orsa_homography")
         prog = self.bin_dir + "demo_orsa_homography"
@@ -92,9 +93,11 @@ class app(base_app):
         """
         if newrun:
             self.clone_input()
+        width  = max(image(self.work_dir + 'input_0.png').size[0],
+                     image(self.work_dir + 'input_1.png').size[0])
         height = max(image(self.work_dir + 'input_0.png').size[1],
                      image(self.work_dir + 'input_1.png').size[1])
-        return self.tmpl_out("params.html", height=height)
+        return self.tmpl_out("params.html", width=width, height=height)
 
     @cherrypy.expose
     @init_app
@@ -103,6 +106,8 @@ class app(base_app):
         """
         rectangle selection 
         """
+        width  = max(image(self.work_dir + 'input_0.png').size[0],
+                     image(self.work_dir + 'input_1.png').size[0])
         height = max(image(self.work_dir + 'input_0.png').size[1],
                      image(self.work_dir + 'input_1.png').size[1])
         if not x0: # draw first corner
@@ -113,7 +118,8 @@ class app(base_app):
             img.draw_cross((x, y), size=4, color="white")
             img.draw_cross((x, y), size=2, color="red")
             img.save(self.work_dir + 'input_crop.png')
-            return self.tmpl_out("params.html", height=height, x0=x, y0=y)
+            return self.tmpl_out("params.html", width=width, height=height,
+                                 x0=x, y0=y)
         else: # second corner selection
             x0 = int(x0)
             y0 = int(y0)
@@ -127,7 +133,7 @@ class app(base_app):
             # reorder the corners
             (x0, x1) = (min(x0, x1), max(x0, x1))
             (y0, y1) = (min(y0, y1), max(y0, y1))
-            return self.tmpl_out("params.html", height=height,
+            return self.tmpl_out("params.html", width=width, height=height,
                                  x0=x0, y0=y0, x1=x1, y1=y1)
 
     @cherrypy.expose
@@ -154,9 +160,11 @@ class app(base_app):
 
         # no parameter
         http.refresh(self.base_url + 'run?key=%s' % self.key)
+        width  = max(image(self.work_dir + im0).size[0],
+                     image(self.work_dir + 'input_1.png').size[0])
         height = max(image(self.work_dir + im0).size[1],
                      image(self.work_dir + 'input_1.png').size[1])
-        return self.tmpl_out("wait.html", height=height, im0=im0)
+        return self.tmpl_out("wait.html", width=width, height=height, im0=im0)
 
     @cherrypy.expose
     @init_app
@@ -172,6 +180,7 @@ class app(base_app):
         except TimeoutError:
             return self.error(errcode='timeout')
         except NoMatchError:
+            self.cfg['info']['run_time'] = time.time() - run_time
             http.redir_303(self.base_url +
                            'result?key=%s&error_nomatch=1' % self.key)
         except RuntimeError:
@@ -277,9 +286,13 @@ class app(base_app):
         outliers -= inliers
         self.cfg['info']['inliers'] = inliers
         self.cfg['info']['outliers'] = outliers
+        width  = max(image(self.work_dir + 'input_0.png').size[0],
+                     image(self.work_dir + 'input_1.png').size[0])
         height = max(image(self.work_dir + 'input_0.png').size[1],
                      image(self.work_dir + 'input_1.png').size[1])
         if error_nomatch:
-            return self.tmpl_out("result_nomatch.html", height=height)
+            return self.tmpl_out("result_nomatch.html",
+                                 width=width, height=height)
         else:
-            return self.tmpl_out("result.html", height=height)
+            return self.tmpl_out("result.html",
+                                 width=width, height=height)

@@ -11,7 +11,7 @@
     </select><br \>
     Choose the SIFT ratio (higher=more matches).
     <select name="SiftRatio">
-      %for _p in ['0.6','0.8','1']:
+      %for _p in ['0.6','0.8','1','1.1']:
       <option value="${_p}">${_p}</option>
       %endfor
     </select><br />
@@ -53,21 +53,21 @@
 
 <h2>Input Images</h2>
 
-<div class="gallery" style="height: ${height}px;">
+<div class="gallery" style="width:${width}px; height:${height}px;">
   <ul class="index">
     <li>
       <a href="#">
-	first image
-	<span>
-	  <img src="${app.work_url + 'input_0.png'}" />
+	second image
+	<span style="width:${width}px; height:${height}px; background-color:#fff;">
+	  <img src="${app.work_url + 'input_1.png'}" />
 	</span>
       </a>
     </li>
     <li>
       <a href="#">
-	second image
-	<span>
-	  <img src="${app.work_url + 'input_1.png'}" />
+	first image
+	<span style="width:${width}px; height:${height}px; background-color:#fff;">
+	  <img src="${app.work_url + 'input_0.png'}" />
 	</span>
       </a>
     </li>

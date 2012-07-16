@@ -18,8 +18,8 @@ class app(base_app):
     """ Non-uniformity correction of infrared images by midway equalization app
 """
 
-    title = "Non-uniformity correction of infrared images by midway \
-equalization"
+    title = "Non-Uniformity Correction of Infrared Images by Midway \
+Equalization"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -52,12 +52,12 @@ equalization"
         program build/update
         """
        # store common file path in variables
-        tgz_file = self.dl_dir + "srcmire_1.tar.gz"
+        tgz_file = self.dl_dir + "srcmire_2.tar.gz"
         prog_file = self.bin_dir + "demo_MIRE"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("https://edit.ipol.im/edit/algo/" 
-                        + "glmt_mire/srcmire_1.tar.gz", tgz_file)
+        build.download("http://www.ipol.im/pub/algo/" 
+                        + "glmt_mire/srcmire_2.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
             and ctime(tgz_file) < ctime(prog_file)):
@@ -68,13 +68,13 @@ equalization"
             build.extract(tgz_file, self.src_dir)
             # build the program
                       
-            build.run("make OMP=1 -j4 -C %s %s " % (self.src_dir + "srcmire_1"\
+            build.run("make OMP=1 -j4 -C %s %s " % (self.src_dir + "srcmire_2"\
 ,os.path.join("demo_MIRE")),stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir + "srcmire_1/demo_MIRE" , prog_file)
+            shutil.copy(self.src_dir + "srcmire_2/demo_MIRE" , prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
             
@@ -84,7 +84,7 @@ equalization"
         #program build/update
         #"""
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/edit/algo/" \
+        tgz_url = "http://www.ipol.im/pub/algo/" \
             + "glmt_mire/simplest_color_balance.tar.gz"
         tgz_file = self.dl_dir + "simplest_color_balance.tar.gz"
         progs = ["balance"]
@@ -301,6 +301,9 @@ equalization"
             ar = self.make_archive()
             ar.add_file("input_0.orig.png", info="uploaded image")
             ar.add_file("input_0.sel.png", info="selected subimage")
+            ar.add_file("input_0.sel_normalized.png", info="selected \
+subimage after normalization (simplest color balance)")
+            ar.add_file("output.png", info="processed image")
             ar.save()
 
         return self.tmpl_out("run.html")
