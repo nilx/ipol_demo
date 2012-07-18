@@ -3,29 +3,63 @@
 <script type="text/javascript">
 <!--
 <%include file="js/createlinkedslider.js" />
+
+function spritecoords(s)
+{
+    var n = Math.max(Math.round(parseFloat(s)*2) - 2, 0);
+    return '0px ' + (-148*n) + 'px';
+}
+
+$(document).ready(function() 
+{
+    createLinkedSlider('#alpha', '#slider1', 1, 8, 0.5);
+    
+    $('#slopepreview').css('height', '148px');
+    $('#slopepreview').css('background-image', 
+        'url(\'http://dev.ipol.im/~getreuer/images/ace-slopes.png\')');
+    $('#slopepreview').css('background-position', 
+                spritecoords($('#alpha').attr('value')));
+    
+    // Update slope preview image with alpha slider
+    $('#alpha').blur(function()
+        {
+            var value = $('#alpha').attr('value');
+            var valueClamped = Math.min(Math.max(value, 
+                $('#slider1').slider('option', 'min')), 
+                $('#slider1').slider('option', 'max'));
+            $('#slider1').slider('value', valueClamped);
+            $('#slopepreview').css('background-position', 
+                spritecoords(valueClamped));
+
+            if(value != valueClamped)
+                $('#alpha').val(valueClamped.toFixed(numDigits));
+        });
+    $('#slider1').slider('option', 'slide',
+        function(event, ui) { 
+            $('#alpha').val(ui.value.toFixed(1)); 
+            $('#slopepreview').css('background-position', 
+                spritecoords(ui.value));
+        });
+});
+
 // -->
 </script>
 
 <form action="${app.base_url + 'wait'}" method="get">
 
 <fieldset>
-<div style="position:relative; width:6em; top:-1em; 
-background-color: #FFF; padding:.2em .5em; margin:0px">Parameters</div>
 
 <input type="hidden" name="key" value="${app.key}" />
-
-<div style="float:left; width:18em; text-align:right;">
+<div style="float:left; width:16em; text-align:right;">
 &alpha;, enhancement strength&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
-size="7" id="alpha" name="alpha" value="${app.cfg['param']['alpha']}" />
+size="7" id="alpha" name="alpha" value="${app.cfg['param']['alpha']}" /> <br />
+<div id="slider1" style="width:16em; margin-top:4px; margin-left:1em; font-size:10pt;"></div>
 </div>
-<div id="slider1" style="width:16em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+<div style="
+float:left; width:237px; margin-left:2em; text-align:center">
+<div id="slopepreview" name="slopepreview" style="width:237px;"></div>
+<div style="font-size:85%"><i>Slope function</i></div></div>
 
-<script type="text/javascript">
-$(document).ready(function() 
-{
-    createLinkedSlider('#alpha', '#slider1', 1, 8, 1);
-});
-</script>
 </fieldset>
 
 <div style="clear:both; font-size:8pt">&nbsp;</div>

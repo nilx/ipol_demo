@@ -18,7 +18,7 @@ class app(base_app):
     """ Automatic Color Enhancement (ACE) app """
 
     title = \
-    'Automatic Color Enhancement (ACE) and its fast implementation'
+    'Automatic Color Enhancement (ACE) and its Fast Implementation'
 
     input_nb = 1
     input_max_pixels = 700 * 700        # max size (in pixels) of input image
@@ -58,7 +58,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        archive = 'ace_20120610'
+        archive = 'ace_20120718'
         tgz_url = 'http://dev.ipol.im/~getreuer/code/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
         progs = ['ace', 'histeq']
