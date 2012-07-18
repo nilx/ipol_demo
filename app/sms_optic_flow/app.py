@@ -20,9 +20,11 @@ class app(base_app):
     is_listed = True
     is_built = True
 
+    xlink_algo = \
+            "http://www.ipol.im/pub/algo/sms_optical_flow"
     xlink_src = \
-"http://serdis.dis.ulpgc.es/~asalgado/brox2004.zip"    
-#"http://www.ipol.im/pub/algo/sms_brox_optical_flow_estimation/brox2004.zip"
+            "http://www.ipol.im/pub/algo/sms_optic_flow/sms_optic_flow_1.0.zip"
+
     xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript_dec2011.tar.gz"
     
 # Se usa los mismos ficheros de entrada que la demo
@@ -102,14 +104,18 @@ class app(base_app):
         # setup the parent class
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
+        self.xlink_algo = app.xlink_algo
+
+
 
     def build_algo(self):
         """
         program build/update
         """
         ## store common file path in variables
-        tgz_file = self.dl_dir + "brox2004.zip"
+        tgz_file = self.dl_dir + "sms_optic_flow_1.0.zip"
         prog_file = self.bin_dir + "brox2004"
+        
         log_file = self.base_dir + "build.log"
         ## get the latest source archive
         build.download(app.xlink_src, tgz_file)
@@ -122,11 +128,12 @@ class app(base_app):
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the program
-            build.run("make -C %s" % (self.src_dir +"brox2004"),
+            build.run("make -C %s" % (self.src_dir + \
+                                      "sms_optic_flow_1.0/spatial"),
                                   stdout=log_file)
             # save into bin dir
             shutil.copy(self.src_dir +
-                    os.path.join("brox2004",
+                    os.path.join("sms_optic_flow_1.0/spatial",
                         "main"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -158,6 +165,8 @@ class app(base_app):
             for f in glob.glob(os.path.join(self.src_dir,
                             "imscript", "bin", "*")):
                 shutil.copy(f, self.bin_dir)
+
+            # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
 
@@ -179,12 +188,18 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             shutil.rmtree(self.input_dir)
             shutil.move(self.src_dir + "flowpairs", self.input_dir)
+
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
         return
 
     def build(self):
         self.build_algo()
         self.build_demo()
         self.grab_input()
+        
+        # cleanup the download dir
+        shutil.rmtree(self.dl_dir)
         return
 
     @cherrypy.expose
@@ -203,7 +218,7 @@ class app(base_app):
             return self.error(errcode='badparams',
                      errmsg='The parameters must be numeric.')
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        
+
         self.cfg['meta']['height'] = image(self.work_dir + 'a.png').size[1]
         self.cfg['meta']['colorscheme'] = 'ipoln'
         self.cfg['meta']['colorparam'] = '1'
@@ -276,7 +291,6 @@ class app(base_app):
              str(outer_iter),
              str(verbose)
             ])
-
         self.wait_proc(p, timeout=self.timeout)
         p = self.run_proc(['view_jzach.sh', 'ipoln', '1'])
         self.wait_proc(p, timeout=self.timeout)
@@ -290,7 +304,6 @@ class app(base_app):
         """
         print("RECOLOR KWARGS = " + str(kwargs))
         cs = kwargs['colorscheme']
-
         self.cfg['meta']['colorscheme'] = cs
         self.cfg['meta']['colorwheel'] = True
         p = self.run_proc(['view_jzach.sh', cs, '1'])
@@ -315,6 +328,7 @@ class app(base_app):
         msg = f + self.work_dir
         msg = "-"
         return msg
+
 
     @cherrypy.expose
     def input_select(self, **kwargs):
@@ -493,4 +507,3 @@ class app(base_app):
         return subprocess.Popen([self.bin_dir+'cat',
                    self.work_dir+'stuff_'+a+'.time'],
                   stdout=subprocess.PIPE).communicate()[0]
-
