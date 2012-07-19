@@ -20,83 +20,76 @@ class app(base_app):
     is_listed = True
     is_built = True
 
-    xlink_algo = \
-            "http://www.ipol.im/pub/algo/sms_optical_flow"
     xlink_src = \
             "http://www.ipol.im/pub/algo/sms_optic_flow/sms_optic_flow_1.0.zip"
 
     xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript_dec2011.tar.gz"
-    
-# Se usa los mismos ficheros de entrada que la demo
-# "smf_tvl1_optical_flow_estimation"    
-    xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"      
+    xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}
 
-#*   This program reads the following parameters from the console and
- #*   then computes the optical flow:
- #*   -processors  number of threads used with the OpenMP library
-    parconfig['nprocs'] = {'type':int, 'default': 0,
-            'changeable': False, 'htmlname': 'openmp', 'doc':' '} 
+#   This program reads the following parameters from the console and
+#   then computes the optical flow:
 
- #*   -alpha       smoothing parameter
+#   -processors  number of threads used with the OpenMP library
+    parconfig['nprocs'] = {'type':int, 'default': 0,
+            'changeable': False, 'htmlname': 'openmp', 'doc':' '}
+
+#   -alpha       smoothing parameter
     parconfig['alpha'] = {'type': float,
             'default': 18.0, 'changeable': True,
             'htmlname': '&alpha;',
             'doc': 'smoothness term weight' }
 
- #*   -gamma       gradient constancy parameter
+#   -gamma       gradient constancy parameter
     parconfig['gamma'] = {'type': float,
             'default': 7.0, 'changeable': True,
             'htmlname': '&gamma;',
             'doc': 'gradient constancy parameter' }
 
- #*   -nscales     number of scales for the pyramidal approach
+#   -nscales     number of scales for the pyramidal approach
     parconfig['nscales'] = {'type': int,
              'default': 100, 'changeable': False,
              'htmlname': 'N',
              'doc': 'number of scales for the pyramidal approach'
-            } 
+            }
 
- #*   -zoom_factor reduction factor for creating the scales
+#   -zoom_factor reduction factor for creating the scales
     parconfig['zoom_factor'] = {'type': float,
              'default': 0.75, 'changeable': False,
              'htmlname': '&nu',
              'doc': 'reduction factor for creating the scales'
-            } 
+            }
 
- #*   -TOL         stopping criterion threshold for the iterative process
+#   -TOL         stopping criterion threshold for the iterative process
     parconfig['tol'] = {'type': float,
              'default': 0.0001, 'changeable': False,
              'htmlname': 'TOL',
              'doc': 'stopping criterion threshold for the iterative process'
-            } 
-            
- #*   -inner_iter  number of inner iterations
+            }
+
+#   -inner_iter  number of inner iterations
     parconfig['inner_iter'] = {'type': int,
              'default': 1, 'changeable': False,
              'htmlname': 'inner',
              'doc': 'number of inner iterations'
-            } 
-            
- #*   -outer_iter  number of outer iterations
+            }
+
+#   -outer_iter  number of outer iterations
     parconfig['outer_iter'] = {'type': int,
              'default': 15, 'changeable': False,
              'htmlname': 'outer',
              'doc': 'number of outer iterations'
-            } 
-            
- #*   -verbose     switch on/off messages
+            }
+
+#   -verbose     switch on/off messages
     parconfig['verbose'] = {'type': int,
              'default': 0, 'changeable': False,
              'htmlname': 'v',
              'doc': 'switch on/off messages'
-            } 
+            }
 
 
- 
- 
-            
     def __init__(self):
         """
         app setup
@@ -104,7 +97,6 @@ class app(base_app):
         # setup the parent class
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
-        self.xlink_algo = app.xlink_algo
 
 
 
@@ -115,7 +107,7 @@ class app(base_app):
         ## store common file path in variables
         tgz_file = self.dl_dir + "sms_optic_flow_1.0.zip"
         prog_file = self.bin_dir + "brox2004"
-        
+
         log_file = self.base_dir + "build.log"
         ## get the latest source archive
         build.download(app.xlink_src, tgz_file)
@@ -197,9 +189,6 @@ class app(base_app):
         self.build_algo()
         self.build_demo()
         self.grab_input()
-        
-        # cleanup the download dir
-        shutil.rmtree(self.dl_dir)
         return
 
     @cherrypy.expose
@@ -279,7 +268,7 @@ class app(base_app):
         print('ENTERING run_algo')
         for k in app.parconfig:
             print(k + ' = ' + str(self.cfg['param'][k]))
-            
+
         p = self.run_proc(['run_jzach_noview.sh',
              str(nprocs),
              str(alpha),
