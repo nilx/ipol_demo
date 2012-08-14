@@ -14,7 +14,7 @@ import time
 class app(base_app):
     """ demo app """
     
-    title = "Non-parametric sub-pixel local point spread function estimation"
+    title = "Non-parametric Sub-pixel Local Point Spread Function Estimation"
     input_nb = 1 # number of input images
     input_max_pixels = 4000000 # max size (in pixels) of an input image
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
