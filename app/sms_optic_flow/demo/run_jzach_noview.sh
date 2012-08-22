@@ -117,8 +117,8 @@ testex brox2004
 #cat ${P}.stime | /bin/grep stufftime  | cut -c11- > ${P}.time
 
 
-echo /usr/bin/time -f "stufftime %e s" brox2004 a.png b.png ${P}.tiff $NPROCS ${ALPHA} ${GAMMA} ${NSCALES} ${ZOOM_FACTOR} ${TOL} ${INNER} ${OUTER} ${VERBOSE}
-/usr/bin/time -f "stufftime %e s" brox2004 a.png b.png ${P}.tiff $NPROCS ${ALPHA} ${GAMMA} ${NSCALES} ${ZOOM_FACTOR} ${TOL} ${INNER} ${OUTER} ${VERBOSE}  2> ${P}.stime 
+echo /usr/bin/time -f "stufftime %e s" brox2004 a.png b.png ${P}.tiff ${ALPHA} ${GAMMA} ${NSCALES} ${ZOOM_FACTOR} ${TOL} ${INNER} ${OUTER} ${VERBOSE}
+/usr/bin/time -f "stufftime %e s" brox2004 a.png b.png ${P}.tiff ${ALPHA} ${GAMMA} ${NSCALES} ${ZOOM_FACTOR} ${TOL} ${INNER} ${OUTER} ${VERBOSE}  2> ${P}.stime 
 cat ${P}.stime | /bin/grep stufftime  | cut -c11- > ${P}.time
 
 iion ${P}.tiff ${P}.uv

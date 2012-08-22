@@ -20,11 +20,10 @@ class app(base_app):
     is_listed = True
     is_built = True
 
-    xlink_src = \
-            "http://www.ipol.im/pub/algo/sms_optic_flow/sms_optic_flow_1.0.zip"
+    xlink_src = "http://www.ipol.im/pub/algo/sms_optic_flow/sms_optic_flow_2.0.tar.gz"
 
-    xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript_dec2011.tar.gz"
-    xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
+    xlink_src_demo = "http://www.ipol.im/pub/algo/sms_optic_flow/imscript_dec2011.tar.gz"
+    xlink_input = "http://www.ipol.im/pub/algo/sms_optic_flow/flowpairs.tar.gz"
 
     parconfig = {}
 
@@ -32,6 +31,7 @@ class app(base_app):
 #   then computes the optical flow:
 
 #   -processors  number of threads used with the OpenMP library
+#   XXX : not used(!) in the 2.0 version of the program, which has OMP disabled
     parconfig['nprocs'] = {'type':int, 'default': 0,
             'changeable': False, 'htmlname': 'openmp', 'doc':' '}
 
@@ -105,7 +105,7 @@ class app(base_app):
         program build/update
         """
         ## store common file path in variables
-        tgz_file = self.dl_dir + "sms_optic_flow_1.0.zip"
+        tgz_file = self.dl_dir + "sms_optic_flow_2.0.tar.gz"
         prog_file = self.bin_dir + "brox2004"
 
         log_file = self.base_dir + "build.log"
@@ -121,11 +121,11 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the program
             build.run("make -C %s" % (self.src_dir + \
-                                      "sms_optic_flow_1.0/spatial"),
+                                      "sms_optic_flow_2.0/spatial"),
                                   stdout=log_file)
             # save into bin dir
             shutil.copy(self.src_dir +
-                    os.path.join("sms_optic_flow_1.0/spatial",
+                    os.path.join("sms_optic_flow_2.0/spatial",
                         "main"), prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
