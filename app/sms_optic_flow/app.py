@@ -20,10 +20,10 @@ class app(base_app):
     is_listed = True
     is_built = True
 
-    xlink_src = "http://www.ipol.im/pub/algo/sms_optic_flow/sms_optic_flow_2.0.tar.gz"
+    xlink_src = "http://www.ipol.im/pub/algo/sms_optic_flow/sms_optic_flow_2.0.zip"
 
     xlink_src_demo = "http://www.ipol.im/pub/algo/sms_optic_flow/imscript_dec2011.tar.gz"
-    xlink_input = "http://www.ipol.im/pub/algo/sms_optic_flow/flowpairs.tar.gz"
+    xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}
 
