@@ -1,10 +1,10 @@
 <%include file="header.html" />
 
-<p> 
+<p>
 The algorithm is run in 2 steps:
 <ol>
 <li> a Gaussian noise is added to the input image;</li>
-<li> the NL_PCA algorithm is used to denoise the image.</li> 
+<li> the NL_Bayes algorithm is used to denoise the image.</li> 
 </ol>
 </p>
 
@@ -31,34 +31,66 @@ selected[sigmaSel] = 'selected'
     </select>
     <br/>
 
-<!-- singlestep parameter -->
-    <label for="singlestep">Check if you want to use the single step algorithm:</label>
+    <select name="usearea1">
 <%
-try:
-   singlestepChecked = (str(singlestep) == 'on')
-except Exception:
-   singlestepChecked = False
-%>
-%if singlestepChecked:
-    <input type="checkbox" name="singlestep" checked/>
-%else:
-    <input type="checkbox" name="singlestep" />
-%endif
-    <br/>
+contents = ((0,'Do not use'), (1,'Use'))
 
-    <label for="computebias">Check if you want to compute the bias image:</label>
-<%
 try:
-   computebiasChecked = (str(computebias) == 'on')
+   sel = int(usearea1)
 except Exception:
-   computebiasChecked = False
+   sel = 1
 %>
-%if computebiasChecked:
-    <input type="checkbox" name="computebias" checked/>
-%else:
-    <input type="checkbox" name="computebias" />
-%endif
-    <br/><br/>
+
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
+    </select>
+
+the homogeneous area criteria in the first step of the algorithm and 
+
+    <select name="usearea2">
+<%
+contents = ((0,'do not use'), (1,'use'))
+
+try:
+   sel = int(usearea2)
+except Exception:
+   sel = 0
+%>
+
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
+    </select>
+it in the second step.
+
+     </br>
+
+    <select name="computebias">
+<%
+contents = ((1,'Compute'), (0,'Do not compute'))
+
+try:
+   sel = int(computebias)
+except Exception:
+   sel = 0
+%>
+
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
+    </select>
+ the bias image.
+<br/><br/>
 
 
 %if x0 and y0 and x1 and y1:

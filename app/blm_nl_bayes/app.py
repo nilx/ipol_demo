@@ -1,5 +1,5 @@
 """
-NL_PCA denoising ipol demo web app
+NL_Bayes denoising ipol demo web app
 """
 
 from lib import base_app, build, http, image
@@ -13,9 +13,9 @@ import os.path
 import time
 
 class app(base_app):
-    """ NL_PCA app """
+    """ NL_Bayes app """
 
-    title = "Study and analysis of NL-PCA"
+    title = """Implementation of the "Non-Local Bayes" Image Denoising Algorithm"""
 
     input_nb = 1
     input_max_pixels = 1200 * 1200 # max size (in pixels) of an input image
@@ -46,15 +46,15 @@ class app(base_app):
         """
         program build/update
         """
-        zip_filename = 'nl_pca_src.zip'
-        src_dir_name = 'NL-PCA'
-        prog_filename = 'NL_PCAdenoising'
+        zip_filename = 'nl_bayes_src.zip'
+        src_dir_name = 'NL_Bayes'
+        prog_filename = 'NL_Bayes'
         # store common file path in variables
         tgz_file = self.dl_dir + zip_filename
         prog_file = self.bin_dir + prog_filename
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download('http://www.ipol.im/pub/algo/blm_nlm_pca/' + \
+        build.download('http://dev.ipol.im/~colom/ipol_demo_src/' + \
                        zip_filename, tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
@@ -120,7 +120,7 @@ class app(base_app):
     @init_app
     def params(self, newrun=False, msg=None, \
                x0=None, y0=None, x1=None, y1=None, \
-               sigma=None, singlestep=None, computebias=None):
+               sigma=None, usearea1=None, usearea2=None, computebias=None):
         """
         configure the algo execution
         """
@@ -134,13 +134,15 @@ class app(base_app):
         return self.tmpl_out("params.html",
                              msg=msg, x0=x0, y0=y0, x1=x1, y1=y1, \
                              sigma=sigma, \
-                             singlestep=singlestep, computebias=computebias)
+                             usearea1=usearea1, \
+                             usearea2=usearea2, \
+                             computebias=computebias)
 
 
     @cherrypy.expose
     @init_app
-    def rectangle(self, action=None, sigma=None, singlestep=None,
-                  computebias=None, \
+    def rectangle(self, action=None, sigma=None, \
+                  usearea1=None, usearea2=None, computebias=None, \
                   x=None, y=None, x0=None, y0=None):
         """
         params handling 
@@ -152,8 +154,10 @@ class app(base_app):
                 try:
                     self.cfg['param'] = {
                                          'sigma': sigma,
-                                         'singlestep': singlestep,
+                                         'usearea1': usearea1,
+                                         'usearea2': usearea2,
                                          'computebias': computebias}
+                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect standard"
@@ -163,12 +167,14 @@ class app(base_app):
                 try:
                     self.cfg['param'] = {
                                          'sigma': sigma,
-                                         'singlestep': singlestep,
+                                         'usearea1': usearea1,
+                                         'usearea2': usearea2,
                                          'computebias': computebias,
                                          'x0' : int(x0),
                                          'y0' : int(y0),
                                          'x1' : int(x),
                                          'y1' : int(y)}
+                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect parameters.")
@@ -195,7 +201,8 @@ class app(base_app):
                 img.draw_cross((x, y), size=2, color="red")
                 img.save(self.work_dir + 'input.png')
                 return self.tmpl_out("params.html", sigma=sigma, \
-                                      singlestep=singlestep, \
+                                      usearea1=usearea1, \
+                                      usearea2=usearea2, \
                                       computebias=computebias, x0=x, y0=y)
             else:
                 # second corner selection
@@ -212,12 +219,14 @@ class app(base_app):
                 try:
                     self.cfg['param'] = {
                                          'sigma': sigma,
-                                         'singlestep': singlestep,
+                                         'usearea1': usearea1,
+                                         'usearea2': usearea2,
                                          'computebias': computebias,
                                          'x0' : x0,
                                          'y0' : y0,
                                          'x1' : x1,
                                          'y1' : y1}
+                    self.cfg.save()
                 except ValueError:
                     return self.error(errcode='badparams',
                                       errmsg="Incorrect parameters.")
@@ -244,7 +253,8 @@ class app(base_app):
         """
         # read the parameters
         sigma = self.cfg['param']['sigma']
-        singlestep = self.cfg['param']['singlestep']
+        usearea1 = self.cfg['param']['usearea1']
+        usearea2 = self.cfg['param']['usearea2']
         computebias = self.cfg['param']['computebias']
 
         # run the algorithm
@@ -252,10 +262,11 @@ class app(base_app):
             run_time = time.time()
             print 'run_time1'
             print run_time
-            self.run_algo(sigma, singlestep, computebias)
+            self.run_algo(sigma, usearea1, usearea2, computebias)
             print 'time.time()'
             print time.time()
             self.cfg['info']['run_time'] = time.time() - run_time
+            self.cfg.save()
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -269,9 +280,9 @@ class app(base_app):
             ar = self.make_archive()
             ar.add_file("input_0.orig.png", info="uploaded image")
             ar.add_file("input_0.sel.png", info="selected subimage")
-            ar.add_file("input_1.png", info="noisy image")
-            ar.add_file("output_1.png", info="denoised image")
-            ar.add_file("output_2.png", info="difference image")
+            ar.add_file("noisy.png", info="noisy image")
+            ar.add_file("denoised.png", info="denoised image")
+            ar.add_file("diff.png", info="difference image")
 
             try:
                 test = str(computebias)            
@@ -281,26 +292,22 @@ class app(base_app):
 
             if computebiasParam == 1:
                 ar.add_file("bias.png", info="bias image")
+                ar.add_file("basic_bias.png", info="basic bias image")
                 ar.add_file("diff_bias.png", info="difference bias image")
 
             ar.add_info({"sigma": sigma})
-            ar.add_info({"singlestep": singlestep})
+            ar.add_info({"usearea1": usearea1})
+            ar.add_info({"usearea2": usearea2})
             ar.add_info({"computebias": computebias})
 
             ar.save()
         return self.tmpl_out("run.html")
 
-    def run_algo(self, sigma, singlestep, computebias, timeout=False):
+    def run_algo(self, sigma, usearea1, usearea2, computebias, timeout=False):
         """
         the core algo runner
         could also be called by a batch processor
         """
-
-        try:
-            test = str(singlestep)            
-            singlestepParam = 0 if test != 'None' else 1
-        except StandardError:
-            singlestepParam = 1
 
         try:
             test = str(computebias)            
@@ -308,10 +315,12 @@ class app(base_app):
         except StandardError:
             computebiasParam = 1
 
-        procOptions = ['NL_PCAdenoising', 'input_0.sel.png', '%d' % sigma, \
-                       'input_1.png', 'output_1.png', 'basic.png', \
-                       'output_2.png', 'bias.png', 'diff_bias.png', \
-                       '%d' % singlestepParam, '%d' % computebiasParam]
+        procOptions = ['NL_Bayes', 'input_0.sel.png', '%d' % sigma, \
+                       'noisy.png', 'denoised.png', 'basic.png', \
+                       'diff.png', 'bias.png', 'basic_bias.png', \
+                       'diff_bias.png', \
+                       '%d' % usearea1, '%d' % usearea2, \
+                       '%d' % computebiasParam]
 
         # Run
         procDesc = self.run_proc(procOptions)
@@ -328,7 +337,8 @@ class app(base_app):
 
         # read the parameters
         sigma = self.cfg['param']['sigma']
-        singlestep = self.cfg['param']['singlestep']
+        usearea1 = self.cfg['param']['usearea1']
+        usearea2 = self.cfg['param']['usearea2']
         computebias = self.cfg['param']['computebias']
 
         try:
@@ -351,7 +361,10 @@ class app(base_app):
         (sizeX, sizeY) = image(self.work_dir + 'input_0.sel.png').size
         zoom_factor = None
         return self.tmpl_out("result.html", sigma=sigma, \
-                             singlestep=singlestep, computebias=computebias, \
+                             usearea1=usearea1, 
+                             usearea2=usearea2,
+                             computebias=computebias, \
                              x0=x0, y0=y0, x1=x1, y1=y1, \
-                             sizeX=sizeX, sizeY=sizeY, zoom_factor=zoom_factor)
+                             sizeX=sizeX, sizeY=sizeY, \
+                             zoom_factor=zoom_factor)
 
