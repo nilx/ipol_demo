@@ -15,6 +15,7 @@ class app(base_app):
     """ selective_contrast_adjustment app """
 
     title = "Selective Contrast Adjustment"
+    xlink_article = 'http://www.ipol.im/'
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image

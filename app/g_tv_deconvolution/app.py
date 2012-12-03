@@ -19,6 +19,7 @@ class app(base_app):
 
     title = \
     'Total Variation Deconvolution using Split Bregman'
+    xlink_article = 'http://www.ipol.im/pub/art/2012/g-tvdc/'
 
     input_nb = 1
     input_max_pixels = 700 * 700        # max size (in pixels) of input image
@@ -55,8 +56,6 @@ class app(base_app):
         base_app.result.im_func.exposed = True
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/g-tvdc/'
 
     def build(self):
         """

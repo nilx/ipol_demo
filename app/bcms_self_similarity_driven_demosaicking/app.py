@@ -17,6 +17,7 @@ class app(base_app):
     """ self-similarity driven demosaicking app """
 
     title = "Self-Similarity Driven Demosaicking"
+    xlink_article = 'http://www.ipol.im/pub/art/2011/bcms-ssdd/'
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -42,8 +43,6 @@ class app(base_app):
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/bcms-ssdd/'
 
     def build(self):
         """

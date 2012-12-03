@@ -16,6 +16,7 @@ class app(base_app):
     
     title = "Blind subpixel Point Spread Function" \
         " estimation from scaled image pairs"
+    xlink_article = 'http://www.ipol.im/pub/pre/H3/'
     
     input_nb = 2 # number of input images
     input_max_pixels = 5000000 # max size (in pixels) of an input image
@@ -40,8 +41,6 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
-
-        self.xlink_algo = 'http://www.ipol.im/pub/pre/H3/'
 
     def build(self):
         """

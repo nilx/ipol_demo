@@ -16,6 +16,7 @@ class app(base_app):
     """ mcm_amss app """
 
     title = "Finite Difference Schemes for MCM and AMSS"
+    xlink_article = 'http://www.ipol.im/pub/art/2011/cm_fds/'
 
     input_nb = 1
     input_max_pixels = 480000 # max size (in pixels) of an input image
@@ -42,8 +43,6 @@ class app(base_app):
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/cm_fds/'
 
     def build(self):
         """

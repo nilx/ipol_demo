@@ -25,6 +25,7 @@ class app(base_app):
     
     title = """Automatic Homographic Registration of a Pair of Images, with
 A Contrario Elimination of Outliers"""
+    xlink_article = 'http://www.ipol.im/pub/art/2012/mmm-oh/'
 
     input_nb = 2 # number of input images
     input_max_pixels = 1600 * 1200 # max size (in pixels) of an input image
@@ -43,8 +44,6 @@ A Contrario Elimination of Outliers"""
         # select the base_app steps to expose
         # index() is generic
         app_expose(base_app.index)
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/mmm-oh/'
 
     def build(self):
         """

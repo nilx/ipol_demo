@@ -23,6 +23,7 @@ class app(base_app):
     """ Algebraic Lens Distortion Model Estimation app """
 
     title = 'Algebraic Lens Distortion Model Estimation'
+    xlink_article = 'http://www.ipol.im/pub/art/2010/ags-alde/'
 
     input_nb = 1
     input_max_pixels = 1048576          # max size (in pixels) input image
@@ -75,9 +76,6 @@ class app(base_app):
         base_app.result.im_func.exposed = True
         ## Generate a new timestamp
         timestamp = int(100*time.time())        
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2010/ags-alde/'
-
 
     def build(self):
         """

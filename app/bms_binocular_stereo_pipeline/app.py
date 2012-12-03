@@ -25,6 +25,8 @@ class app(base_app):
     """ template demo app """
     
     title = "Binocular Stereo Pipeline"
+    xlink_article = 'http://www.ipol.im/'
+
 
     input_nb = 2 # number of input images
     input_max_pixels = 640 * 480 # max size (in pixels) of an input image

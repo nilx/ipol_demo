@@ -16,7 +16,8 @@ from math import ceil
 class app(base_app):
     """ non-local means denoising app """
 
-    title = "Non-local Means Denoising"
+    title = "Non-Local Means Denoising"
+    xlink_article = 'http://www.ipol.im/pub/art/2011/bcm_nlm/'
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -42,8 +43,6 @@ class app(base_app):
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/bcm_nlm/'
 
     def build(self):
         """

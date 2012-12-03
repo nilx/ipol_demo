@@ -14,12 +14,15 @@ class app(base_app):
     """ template demo app """
     
     title = "f(x)=ax+b"
+    xlink_article = 'http://www.ipol.im/'
+
     input_nb = 1 # number of input images
     input_max_pixels = 500000 # max size (in pixels) of an input image
     input_max_weight = 1 * 1024 * 1024 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'   # input image expected extension (ie file format)
     is_test = True       # switch to False for deployment
+
 
     def __init__(self):
         """
@@ -37,8 +40,6 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
-
-        self.xlink_algo = 'http://www.ipol.im/'
 
     def build(self):
         """

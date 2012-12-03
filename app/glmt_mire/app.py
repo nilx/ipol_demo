@@ -20,6 +20,7 @@ class app(base_app):
 
     title = "Non-Uniformity Correction of Infrared Images by Midway \
 Equalization"
+    xlink_article = 'http://www.ipol.im/pub/art/2012/glmt-mire/'
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -45,8 +46,6 @@ Equalization"
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/glmt-mire/'
 
     def build(self):
       

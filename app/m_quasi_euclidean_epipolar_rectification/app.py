@@ -23,6 +23,7 @@ class app(base_app):
     """ template demo app """
     
     title = "Quasi-Euclidean Epipolar Rectification"
+    xlink_article = 'http://www.ipol.im/pub/art/2011/m_qer/'
 
     input_nb = 2 # number of input images
     input_max_pixels = 1024 * 1024 # max size (in pixels) of an input image
@@ -41,8 +42,6 @@ class app(base_app):
         # select the base_app steps to expose
         # index() is generic
         app_expose(base_app.index)
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/m_qer/'
 
     def build(self):
         """

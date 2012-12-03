@@ -24,6 +24,7 @@ class app(base_app):
     """ A Real Time Morphological Snakes Algorithm app """
 
     title = 'A Real Time Morphological Snakes Algorithm'
+    xlink_article = 'http://www.ipol.im/pub/art/2012/abmh-rtmsa/'
     
     old_work_dir = ''
 
@@ -85,9 +86,6 @@ class app(base_app):
         base_app.result.im_func.exposed = True
         ## Generate a new timestamp
         timestamp = int(100*time.time())        
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/abmh-rtmsa/'
-
 
     def build(self):
         """

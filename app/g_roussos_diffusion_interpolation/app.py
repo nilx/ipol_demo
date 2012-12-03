@@ -19,6 +19,7 @@ class app(base_app):
     """ Roussos-Maragos Image Interpolation app """
 
     title = 'Roussos-Maragos Tensor-Driven Diffusion for Image Interpolation'
+    xlink_article = 'http://www.ipol.im/pub/art/2011/g_rmdi/'
 
     input_nb = 1
     input_max_pixels = 1048576          # max size (in pixels) input image
@@ -53,8 +54,6 @@ class app(base_app):
         base_app.result.im_func.exposed = True
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/g_rmdi/'
 
     def build(self):
         """

@@ -17,6 +17,7 @@ class app(base_app):
     """ BM3D app """
 
     title = "An analysis and implementation of the BM3D image denoising method"
+    xlink_article = 'http://www.ipol.im/pub/art/2012/l-bm3d/'
 
     input_nb = 1
     input_max_pixels = 1200 * 1200 # max size (in pixels) of an input image
@@ -42,8 +43,6 @@ class app(base_app):
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/l-bm3d/'
 
     def build(self):
         """

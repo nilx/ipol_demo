@@ -15,6 +15,7 @@ class app(base_app):
     """ demo app """
     
     title = "SURF : Speeded Up Robust Features"
+    xlink_article = 'http://www.ipol.im/pub/pre/H2/'
 
     input_nb = 2
     input_max_pixels = None
@@ -39,8 +40,6 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
-
-        self.xlink_algo = 'http://www.ipol.im/pub/pre/H2/'
 
     def build(self):
 

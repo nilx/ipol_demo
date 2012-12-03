@@ -17,6 +17,7 @@ class app(base_app):
 
     title = "An Implementation and Detailed Analysis of the \
 K-SVD Image Denoising Algorithm"
+    xlink_article = 'http://www.ipol.im/pub/art/2012/llm-ksvd/'
 
     input_nb = 1
     input_max_pixels = 1200 * 1200 # max size (in pixels) of an input image
@@ -42,8 +43,6 @@ K-SVD Image Denoising Algorithm"
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/llm-ksvd/'
 
     def build(self):
         """

@@ -15,6 +15,8 @@ class app(base_app):
     """ demo app """
     
     title = "Non-parametric Sub-pixel Local Point Spread Function Estimation"
+    xlink_article = 'http://www.ipol.im/pub/art/2012/admm-nppsf/'
+
     input_nb = 1 # number of input images
     input_max_pixels = 4000000 # max size (in pixels) of an input image
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
@@ -38,8 +40,6 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/admm-nppsf/'
 
     def build(self):
         """

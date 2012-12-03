@@ -16,6 +16,8 @@ class app(base_app):
     """ template demo app """
 
     title = "TV-L1 Optical Flow Estimation"
+    xlink_article = 'http://www.ipol.im/pub/pre/26/'
+
     is_test = False
     is_listed = True
     is_built = True
@@ -58,8 +60,6 @@ class app(base_app):
         print("I'm initing!")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
-
-        self.xlink_algo = 'http://www.ipol.im/pub/pre/26/'
 
         # select the base_app steps to expose
         # index() is generic

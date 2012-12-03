@@ -15,7 +15,9 @@ import glob
 class app(base_app):
     """ template demo app """
 
-    title = "Horn-Schunck optical flow"
+    title = "Horn-Schunck Optical Flow with a Multi-Scale Strategy"
+    xlink_article = 'http://www.ipol.im/pub/pre/20/'
+
     is_test = False           # switch to False for deployment
     is_listed = True
     is_built = True
@@ -78,8 +80,6 @@ class app(base_app):
         print("I'm initing!")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
-
-        self.xlink_algo = 'http://www.ipol.im/pub/pre/20/'
 
         # select the base_app steps to expose
         # index() is generic

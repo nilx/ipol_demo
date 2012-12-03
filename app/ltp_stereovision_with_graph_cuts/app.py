@@ -44,6 +44,7 @@ class app(base_app):
     """ template demo app """
     
     title = "Computing Visual Correspondence with Occlusions using Graph Cuts"
+    xlink_article = 'http://www.ipol.im/'
 
     input_nb = 2 # number of input images
     input_max_pixels = 1024*1024 # max size (in pixels) of an input image
@@ -68,8 +69,6 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/lmps_rpe/'
 
     def __build_rectify(self):
         """

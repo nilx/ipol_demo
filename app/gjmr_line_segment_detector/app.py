@@ -25,6 +25,8 @@ class app(base_app):
 
     # IPOL demo system configuration
     title = "LSD: a Line Segment Detector"
+    xlink_article = 'http://www.ipol.im/pub/art/2012/gjmr-lsd/'
+
     input_nb = 1          # number of input images
     input_max_pixels = 100000000  # max size (in pixels) of an input image
     input_max_weight = 3 * input_max_pixels  # max size (in bytes)
@@ -51,8 +53,6 @@ class app(base_app):
         # params() is modified from the template
         app_expose(base_app.params)
         # run() and result() must be defined here
-
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/gjmr-lsd/'
 
     #---------------------------------------------------------------------------
     # Download and compile LSD program.

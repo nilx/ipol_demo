@@ -18,6 +18,7 @@ class app(base_app):
 
     title = "DCT image denoising: a simple and effective image denoising \
 algorithm "
+    xlink_article = 'http://www.ipol.im/pub/art/2011/ys-dct/'
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -44,7 +45,6 @@ algorithm "
         # result() is modified from the template
         base_app.result.im_func.exposed = True
 
-        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/ys-dct/'
 
     def build(self):
         """
