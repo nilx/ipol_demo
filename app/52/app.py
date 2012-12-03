@@ -17,8 +17,7 @@ import math
 class app(base_app):
     """ SPLE denoising """
 
-    title = \
-    'SURE guided Piecewise Linear Estimation (S-PLE) for Image Denoising' 
+    title = 'The Implementation of SURE Guided Piecewise Linear Image Denoising'
     xlink_article = 'http://www.ipol.im/pub/pre/52/'
 
     input_nb = 1
