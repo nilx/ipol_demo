@@ -27,16 +27,17 @@ class app(base_app):
     input_ext = '.png'                  # expected extension
     is_test = False
     default_param = {
-	'orientations': '18',
-	'patchsize': '8', 
+        'orientations': '18',
+        'patchsize': '8', 
         'noiselevel': '10',
-	'overlap': '7',
-	'iteration': '2',
+        'overlap': '7',
+        'iteration': '2',
         'action': 'Denoise',
         'x0': None,
         'y0': None,
         'x' : None,
         'y' : None}
+    xlink_algo = 'http://www.ipol.im/pub/pre/52/'
 
     def __init__(self):
         """
@@ -242,7 +243,7 @@ class app(base_app):
                     + self.cfg['param']['rmse_denoised'] + ')')
             
             ar.add_file('diff.png', info='denoised difference')
-	    ar.add_file('patchmap.png', info='patch map')
+            ar.add_file('patchmap.png', info='patch map')
             ar.save()
 
         return self.tmpl_out('run.html')
@@ -263,7 +264,7 @@ class app(base_app):
         
         if self.cfg['param']['action'] == self.default_param['action']:
             self.wait_proc(self.run_proc([ 'denoiseSPLE', 'input_0_sel.png', str(self.cfg['param']['noiselevel']),
-		str(self.cfg['param']['iteration']), 'denoised.png' ],
+                str(self.cfg['param']['iteration']), 'denoised.png' ],
                 stdout=stdout, stderr=stdout), timeout*0.925)
             self.wait_proc(self.run_proc(['imdiff', darg, 'input_0_sel.png',
                 'denoised.png', 'diff.png'],
@@ -283,12 +284,12 @@ class app(base_app):
                     + 'rmse_denoised.txt', 'w'), stderr=None),
                 self.run_proc(['imdiff', darg, 'input_0_sel.png', 
                     'denoised.png', 'diff.png'],
-                    stdout=None, stderr=stdout),	
+                    stdout=None, stderr=stdout),        
                 self.run_proc(['imdiff', '-mrmse',
                     'input_0_sel.png', 'noisy.png'],
                     stdout=open(self.work_dir 
                     + 'rmse_noisy.txt', 'w'), stderr=stdout)], timeout*0.10)
-		
+                
             
             # Read the rmse_*.txt files
             for m in ['noisy', 'denoised']:
