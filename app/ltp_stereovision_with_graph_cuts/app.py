@@ -69,6 +69,8 @@ class app(base_app):
         app_expose(base_app.params)
         # run() and result() must be defined here
 
+        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/lmps_rpe/'
+
     def __build_rectify(self):
         """
         build/update of rectify program

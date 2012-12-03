@@ -81,6 +81,8 @@ class app(base_app):
         # result() is modified from the template
         base_app.result.im_func.exposed = True
 
+        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/lmps_rpe/'
+
     def build(self):
         """
         program build/update

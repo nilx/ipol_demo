@@ -44,6 +44,8 @@ A Contrario Elimination of Outliers"""
         # index() is generic
         app_expose(base_app.index)
 
+        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/mmm-oh/'
+
     def build(self):
         """
         program build/update

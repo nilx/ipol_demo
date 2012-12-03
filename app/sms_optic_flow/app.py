@@ -98,6 +98,7 @@ class app(base_app):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
 
+        self.xlink_algo = 'http://www.ipol.im/pub/pre/21/'
 
 
     def build_algo(self):

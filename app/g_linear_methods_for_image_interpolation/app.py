@@ -78,6 +78,8 @@ class app(base_app):
         # Generate a new timestamp
         self.timestamp = int(100*time.time())        
 
+        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/g_lmii/'
+
     def build(self):
         """
         Program build/update

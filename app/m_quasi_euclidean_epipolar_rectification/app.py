@@ -42,6 +42,8 @@ class app(base_app):
         # index() is generic
         app_expose(base_app.index)
 
+        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/m_qer/'
+
     def build(self):
         """
         program build/update

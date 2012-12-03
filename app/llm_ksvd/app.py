@@ -43,6 +43,8 @@ K-SVD Image Denoising Algorithm"
         # result() is modified from the template
         base_app.result.im_func.exposed = True
 
+        self.xlink_algo = 'http://www.ipol.im/pub/art/2012/llm-ksvd/'
+
     def build(self):
         """
         program build/update

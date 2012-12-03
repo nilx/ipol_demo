@@ -16,7 +16,6 @@ class app(base_app):
     """ NL_Bayes app """
 
     title = """Implementation of the "Non-Local Bayes" Image Denoising Algorithm"""
-    xlink_algo = "http://www.ipol.im/pub/pre/16/"
 
     input_nb = 1
     input_max_pixels = 1200 * 1200 # max size (in pixels) of an input image
@@ -42,6 +41,8 @@ class app(base_app):
         base_app.params.im_func.exposed = True
         # result() is modified from the template
         base_app.result.im_func.exposed = True
+
+        self.xlink_algo = 'http://www.ipol.im/pub/pre/16/'
 
     def build(self):
         """

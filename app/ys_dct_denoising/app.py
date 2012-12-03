@@ -44,6 +44,8 @@ algorithm "
         # result() is modified from the template
         base_app.result.im_func.exposed = True
 
+        self.xlink_algo = 'http://www.ipol.im/pub/art/2011/ys-dct/'
+
     def build(self):
         """
         program build/update
