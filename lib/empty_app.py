@@ -36,8 +36,7 @@ class empty_app(object):
         # the demo ID is the folder name
         self.base_dir = os.path.abspath(base_dir) + os.path.sep
         self.id = os.path.basename(base_dir)
-        if not self.xlink_algo:
-            self.xlink_algo = "http://www.ipol.im/pub/algo/%s/" % self.id
+        self.xlink_algo = "http://www.ipol.im/pub/algo/%s/" % self.id
 
         # TODO: better key initialization
         self.key = ''
