@@ -16,7 +16,7 @@ matters, inadequate content, user requests, or other reasons.
 %if adminmode:
 <!-- ADMIN MODE: INDEX REBUILD BUTTON-->
   <div class="action" >
-     <form style="float:left" action="" method="post">
+     <form style="float:left" action="${app.base_url}archive_admin/" method="post">
      <input type="hidden" name="rebuildIndexNow" value="True" />
      <input type="submit" value="rebuild the archive index now" />
      </form>
@@ -64,7 +64,7 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
 <!-- ADMIN MODE: ENTRY DELETE BUTTON -->
    <tr> <td>
          <div class="action" >
-            <form style="float:left" action="" method="post">
+            <form style="float:left" action="${app.base_url}archive_admin/" method="post">
                <input type="hidden" name="deleteThisKey" value="${bucket['meta']['key'] | h}" />
                <input type="submit" value="delete this entry" />
             </form>

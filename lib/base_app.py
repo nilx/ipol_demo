@@ -358,7 +358,7 @@ class base_app(empty_app):
     #
     
     @cherrypy.expose
-    def archive(self, page=-1, key=None, public=1):
+    def archive(self, page=-1, key=None, adminmode=False, public=True):
         """
         lists the archive content
         """
@@ -371,7 +371,8 @@ class base_app(empty_app):
                                              key=key,
                                              path=self.archive_dir)]
             return self.tmpl_out("archive_details.html",
-                                 bucket=buckets[0])
+                                 bucket=buckets[0],
+                                 adminmode=adminmode)
         else:
             # select a page from the archive index
             nbpublic = archive.index_count(self.archive_index,
@@ -409,14 +410,15 @@ class base_app(empty_app):
                                  bucket_list=buckets,
                                  page=page, nbpage=nbpage,
                                  nbpublic=nbpublic, nbtotal=nbtotal,
-                                 firstdate=firstdate)
+                                 firstdate=firstdate,
+                                 adminmode=adminmode)
 
     #
     # ARCHIVE ADMIN
     #
 
     @cherrypy.expose
-    def archive_admin(self, page=-1, key=None, public=1, deleteThisKey=None, rebuildIndexNow=None):
+    def archive_admin(self, page=-1, key=None, deleteThisKey=None, rebuildIndexNow=None):
         """
         lists the archive content
         """
@@ -450,51 +452,4 @@ class base_app(empty_app):
            archive.index_rebuild(self.archive_index, self.archive_dir)
 
         # USUAL ARCHIVE BEHAVIOR
-        if key:
-            # select one archive
-            buckets = [{'url' : self.archive_url + archive.key2url(key),
-                        'files' : files, 'meta' : meta, 'info' : info}
-                       for (key, (files, meta, info))
-                       in archive.index_read(self.archive_index,
-                                             key=key,
-                                             path=self.archive_dir)]
-            return self.tmpl_out("archive_details.html",
-                                 bucket=buckets[0], adminmode=True)
-        else:
-            # select a page from the archive index
-            nbpublic = archive.index_count(self.archive_index,
-                                           path=self.archive_dir,
-                                           public=True)
-            nbtotal = nbpublic
-            nbtotal += archive.index_count(self.archive_index,
-                                           path=self.archive_dir,
-                                           public=False)
-            if nbtotal:
-                firstdate = archive.index_first_date(self.archive_index,
-                                                     path=self.archive_dir)
-            else:
-                firstdate = 'never'
-            limit = 20
-            if public:
-                nbpage = nbpublic
-            else:
-                nbpage = nbtotal - nbpublic
-            nbpage = int(math.ceil(nbpage / float(limit)))
-            page = int(page)
-            if page == -1:
-                page = nbpage - 1
-            offset = limit * page
-            public = bool(int(public))
-
-            buckets = [{'url' : self.archive_url + archive.key2url(key),
-                        'files' : files, 'meta' : meta, 'info' : info}
-                       for (key, (files, meta, info))
-                       in archive.index_read(self.archive_index,
-                                             limit=limit, offset=offset,
-                                             public=public,
-                                             path=self.archive_dir)]
-            return self.tmpl_out("archive_index.html",
-                                 bucket_list=buckets,
-                                 page=page, nbpage=nbpage,
-                                 nbpublic=nbpublic, nbtotal=nbtotal,
-                                 firstdate=firstdate, adminmode=True)
+        return self.archive(page=page, key=key, adminmode=True)
