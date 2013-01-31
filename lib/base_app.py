@@ -358,7 +358,7 @@ class base_app(empty_app):
     #
     
     @cherrypy.expose
-    def archive(self, page=-1, key=None, public=1):
+    def archive(self, page=-1, key=None, adminmode=False):
         """
         lists the archive content
         """
@@ -371,42 +371,76 @@ class base_app(empty_app):
                                              key=key,
                                              path=self.archive_dir)]
             return self.tmpl_out("archive_details.html",
-                                 bucket=buckets[0])
+                                 bucket=buckets[0],
+                                 adminmode=adminmode)
         else:
             # select a page from the archive index
-            nbpublic = archive.index_count(self.archive_index,
+            nbtotal = archive.index_count(self.archive_index,
                                            path=self.archive_dir,
                                            public=True)
-            nbtotal = nbpublic
-            nbtotal += archive.index_count(self.archive_index,
-                                           path=self.archive_dir,
-                                           public=False)
             if nbtotal:
                 firstdate = archive.index_first_date(self.archive_index,
                                                      path=self.archive_dir)
             else:
                 firstdate = 'never'
             limit = 20
-            if public:
-                nbpage = nbpublic 
-            else:
-                nbpage = nbtotal - nbpublic
-            nbpage = int(math.ceil(nbpage / float(limit)))
+            nbpage = int(math.ceil(nbtotal / float(limit)))
             page = int(page)
             if page == -1:
                 page = nbpage - 1
             offset = limit * page
-            public = bool(int(public))
 
             buckets = [{'url' : self.archive_url + archive.key2url(key),
                         'files' : files, 'meta' : meta, 'info' : info}
                        for (key, (files, meta, info))
                        in archive.index_read(self.archive_index,
                                              limit=limit, offset=offset,
-                                             public=public,
+                                             public=True,
                                              path=self.archive_dir)]
             return self.tmpl_out("archive_index.html",
                                  bucket_list=buckets,
                                  page=page, nbpage=nbpage,
-                                 nbpublic=nbpublic, nbtotal=nbtotal,
-                                 firstdate=firstdate)
+                                 nbtotal=nbtotal,
+                                 firstdate=firstdate,
+                                 adminmode=adminmode)
+
+    #
+    # ARCHIVE ADMIN
+    #
+
+    @cherrypy.expose
+    def archive_admin(self, page=-1, key=None, deleteThisKey=None, rebuildIndexNow=None):
+        """
+        lists the archive content
+        """
+        # ATTEND TO DELETE COMMAND
+        if deleteThisKey and deleteThisKey!='':
+           # make sure the other key is not set
+           key=None
+
+           # make sure that the target directory is inside the archive
+           # just to avoid any .. path to be erased
+           entrydir = os.path.abspath(os.path.join(self.archive_dir, archive.key2url(deleteThisKey)))
+           # these two strings must be the same
+           ard1 = os.path.abspath(self.archive_dir)
+           ard2 = os.path.commonprefix( ( ard1, entrydir) )
+
+           # proceed to delete the entry then continue as always
+           # the bucket directory must exist and must be a subdir of archive
+           if ard1==ard2 and ard1!=entrydir and os.path.isdir(entrydir):
+              print "REMOVING ARCHIVE ENTRY: " + entrydir
+              # REMOVE THE DIRECTORY
+              from shutil import rmtree
+              rmtree(entrydir)
+
+              # REMOVE THE ENTRY FROM THE DATABASE BACKEND
+              archive.index_delete(self.archive_index, deleteThisKey)
+           else:
+              print "IGNORING BOGUS ENTRY REMOVAL: " + entrydir
+
+        # ATTEND TO REBUILD-INDEX COMMAND
+        if rebuildIndexNow:
+           archive.index_rebuild(self.archive_index, self.archive_dir)
+
+        # USUAL ARCHIVE BEHAVIOR
+        return self.archive(page=page, key=key, adminmode=True)

@@ -3,7 +3,7 @@
 <div class="archive_index">
 
 <p>
-${nbpublic} public archives out of ${nbtotal} online experiments with
+${nbtotal} public archives of online experiments with
 original images since ${firstdate}.<br />
 This archive is not moderated.
 In case of copyright infringement or similar problem, please
@@ -13,6 +13,16 @@ Some archived content may be deleted by the editorial board for size
 matters, inadequate content, user requests, or other reasons.
 </p>
 
+%if adminmode:
+<!-- ADMIN MODE: INDEX REBUILD BUTTON-->
+  <div class="action" >
+     <form style="float:left" action="${app.base_url}archive_admin/" method="post">
+     <input type="hidden" name="rebuildIndexNow" value="True" />
+     <input type="submit" value="rebuild the archive index now" />
+     </form>
+  </div>
+  </br>
+%endif
 <p>
 <%include file="archive_pages.html" />
 </p>
@@ -50,6 +60,17 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
 	%endfor
       </td>
     </tr>
+%if adminmode:
+<!-- ADMIN MODE: ENTRY DELETE BUTTON -->
+   <tr> <td>
+         <div class="action" >
+            <form style="float:left" action="${app.base_url}archive_admin/" method="post">
+               <input type="hidden" name="deleteThisKey" value="${bucket['meta']['key'] | h}" />
+               <input type="submit" value="delete this entry" />
+            </form>
+         </div>
+   </td> </tr>
+%endif
   </table>
 
   <table class="thumbnails">

@@ -343,3 +343,16 @@ def index_add(indexdb, bucket, path=None):
             return index_add(indexdb, bucket)
         else:
             raise
+
+def index_delete(indexdb, key, path=None):
+    """
+    delete an archive bucket from the index
+    """
+    try:
+        db = sqlite3.connect(indexdb)
+        c = db.cursor()
+        c.execute("delete from buckets where key=?", (key, ))
+        db.commit()
+        c.close()
+    except sqlite3.Error:
+        raise
