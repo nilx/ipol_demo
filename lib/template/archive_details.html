@@ -9,6 +9,17 @@ Some archived content may be deleted by the editorial board for size
 matters, inadequate content, user requests, or other reasons.
 </p>
 
+%if adminmode:
+<!-- ADMIN MODE: ENTRY DELETE BUTTON -->
+      <div class="action" >
+         <form style="float:left" action="archive_admin" method="post">
+            <input type="hidden" name="deleteThisKey" value="${bucket['meta']['key'] | h}" />
+            <input type="submit" value="delete this entry" />
+         </form>
+      </div>
+      </br>
+%endif
+
 <%
 images = filter(lambda i : i.is_file and i.has_tn, bucket['files'])
 non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
