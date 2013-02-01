@@ -1,0 +1,65 @@
+<%include file="header.html" />
+
+<p>
+<b>Input parameters</b>
+</p>
+
+<form action="${app.base_url + 'crop'}" method="get">
+    <input type="hidden" name="key" value="${app.key}" />
+
+    <%
+    if 'param' in app.cfg and 'ps' in app.cfg['param']:
+         ps=app.cfg['param']['ps']
+    else:
+         ps=5
+    %>
+    <input type="text" name="ps" value="${ps}" size="4" /> 
+    <label for="ps"> ps : patch size ((2ps+1) x (2ps+1)) </label>
+    <br>
+
+    <%
+    if 'param' in app.cfg and 't' in app.cfg['param']:
+         t=app.cfg['param']['t']
+    else:
+         t=0.1
+    %>
+    <input type="text" name="t" value="${t}" size="4" /> 
+    <label for="t"> t : tolerance  </label>
+    <br>
+
+    <%
+    if 'param' in app.cfg and 'o' in app.cfg['param']:
+         o=app.cfg['param']['o']
+    else:
+         o=128
+    %>
+    <input type="text" name="o" value="${o}" size="4" />
+    <label for="o"> o : output image size (o x o) </label>
+    <br>
+
+    <p>Run the <b>accelerated version</b> of Efros-Leung synthesis <input type="submit" name="action" value="run" /> <b>or</b> run the original Efros-Leung synthesis <input type="submit" name="action" value="run_orig" /> <p/>
+
+    %if x0 and y0 and x1 and y1:
+    <input type="hidden" name="x0" value="${x0}" />
+    <input type="hidden" name="y0" value="${y0}" />
+    <input type="hidden" name="x1" value="${x1}" />
+    <input type="hidden" name="y1" value="${y1}" />
+    <p>The algorithm will run on this selected subimage:</p>
+    <img src="${app.work_url + 'input_selection.png'}" alt="" />
+    %elif x0 and y0:
+    <input type="hidden" name="x0" value="${x0}" />
+    <input type="hidden" name="y0" value="${y0}" />
+    <p>Please select the second corner of the subimage:</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+              src="${app.work_url + 'input_corner.png'}" /></p>
+    %else:
+    <p>Or you can run it after <b>selecting a subimage</b> by clicking two
+      opposite corners of the image.</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+              src="${app.work_url + 'input_0.png'}" /></p>
+    %endif
+
+</form>
+
+
+<%include file="footer.html" />
