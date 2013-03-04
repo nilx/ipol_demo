@@ -1,0 +1,58 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
+</p>
+
+<p>
+The algorithm result is displayed hereafter.
+</p>
+
+<p>
+<div style="float: left; margin-right:1em">
+  <b>Input Image</b><br />
+  <img src="${app.work_url + 'input.png'}" alt="" vspace=15 />
+</div>
+<div style="float: left; margin-right:1em">
+  <b>Output Image</b><br />
+  <img src="${app.work_url + 'output.png'}" alt="" vspace=15 />
+</div>
+</p>
+
+<p>
+<div style="float: left; margin-right:1em">
+  <b>Position Map</b> <br />
+  <img src="${app.work_url + 'map.png'}" alt="" vspace=15 />
+</div>
+<div style="float: left; margin-right:1em">
+  <b>Copy Map</b> <br />
+  <img src="${app.work_url + 'copy_map.png'}" alt="" vspace=15 />
+</div>
+</p>
+
+<hr style="clear: both; visibility: hidden;" />
+
+<div>
+  <form style="display:inline" action="${app.base_url}" method="get">
+    <input style="display:inline" type="submit" value="New Input" />
+  </form>
+</div>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value="0">
+    <input type="submit" value="New parameters" />
+  </div>
+</form>
+
+
+
+<h2>Program Output</h2>
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+<br />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
+
