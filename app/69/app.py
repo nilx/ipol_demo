@@ -15,12 +15,11 @@ class app(base_app):
     """ demo app """
     
     title = "SURF : Speeded Up Robust Features"
-    xlink_article = 'http://www.ipol.im/pub/pre/H2/'
 
     input_nb = 2
     input_max_pixels = None
     input_max_method = 'zoom'
-    input_dtype = '1x8i'
+    input_dtype = '3x8i'
     input_ext = '.png'
     is_test = False
 
@@ -117,8 +116,12 @@ class app(base_app):
             ar.add_file("input_1.orig.png", info="second uploaded image")
             ar.add_file("input_0.png", info="first uploaded image")
             ar.add_file("input_1.png", info="second uploaded image")
-            ar.add_file("output_SURF.png", info="SURF matches")
-            ar.add_file("output_SIFT.png", info="SIFT matches")
+            ar.add_file("output_orsa_line_surf.png", info="SURF matches(orsa)")
+            ar.add_file("output_line_surf.png", info="SURF matches")
+            ar.add_file("output_descriptor_surf.png", info="SURF descriptors")
+            ar.add_file("output_orsa_line_sift.png", info="SIFT matches(orsa)")
+            ar.add_file("output_line_sift.png", info="SIFT matches")
+            ar.add_file("output_descriptor_sift.png", info="SIFT descriptors")
             ar.add_file("match_SURF.txt", compress=True)
             ar.save()
 
@@ -132,9 +135,9 @@ class app(base_app):
         """
         #Launch code
         surf = self.run_proc(['surf', '-m', 'match_SURF.txt',
-                              '-s', 'output_SIFT.png',
+                              '-s',
                               '-i', 'keypoint1.txt', 'keypoint2.txt',
-                              'input_0.png', 'input_1.png','output_SURF.png'],
+                              'input_0.png', 'input_1.png'],
                              stdout=stdout, stderr=stdout)
         self.wait_proc(surf, timeout)
         return
@@ -145,5 +148,5 @@ class app(base_app):
         """
         display the algo results
         """
-        height = 10 + image(self.work_dir+'output_SURF.png').size[1]
+        height = 10 + image(self.work_dir+'output_orsa_line_surf.png').size[1]
         return self.tmpl_out("result.html", height=height)
