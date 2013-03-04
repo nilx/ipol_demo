@@ -1,5 +1,5 @@
 """
-Blind PSF Estimation demo interaction
+Recovering the Subpixel PSF from Two Photographs at Different Distances
 """
 
 from lib import base_app, build, http, image
@@ -14,10 +14,10 @@ import time
 class app(base_app):
     """ demo app """
     
-    title = "Blind subpixel Point Spread Function" \
-        " estimation from scaled image pairs"
-    xlink_article = 'http://www.ipol.im/pub/pre/H3/'
-    
+    title = "Recovering the Subpixel PSF from Two Photographs"\
+            " at Different Distances"
+           
+    xlink_article = 'http://www.ipol.im/pub/pre/77/'
     input_nb = 2 # number of input images
     input_max_pixels = 5000000 # max size (in pixels) of an input image
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
@@ -47,13 +47,12 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_file = self.dl_dir + "blind_psf_estim.tar.gz"
-        prog_file = self.bin_dir + "blind_psf_estim"
+        tgz_file = self.dl_dir + "two_photos_psf_estim.tar.gz"
+        prog_file = self.bin_dir + "two_photos_psf_estim"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/algo/" +
-                       "damm_blind_psf_estimation_from_scaled_image_pairs/" +
-                       "blind_psf_estim.tar.gz", tgz_file)
+        build.download("http://www.ipol.im/pub/pre/77/two-photos-psf-estim.tar.gz", tgz_file) 
+
         # test if the dest file is missing, or too old
         # dont rebuild the file
         if  (os.path.isfile(prog_file)
@@ -64,21 +63,21 @@ class app(base_app):
             #extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the program
-            build.run("make OMP=1 -j4 -C %s blind_psf_estim" 
-                      % (self.src_dir + "blind_psf_estim"), stdout=log_file)
+            build.run("make OMP=1 -j4 -C %s two_photos_psf_estim" 
+                      % (self.src_dir + "two-photos-psf-estim"), stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir + os.path.join("blind_psf_estim", 
-                        "blind_psf_estim"), prog_file) 
+            shutil.copy(self.src_dir + os.path.join("two-photos-psf-estim", 
+                        "two_photos_psf_estim"), prog_file) 
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
 
     @cherrypy.expose
     @init_app
-    def wait(self, s="3", k="13", t="1"):
+    def wait(self, s="3", k="13", t="0"):
         """
         params handling and run redirection
         """
@@ -132,9 +131,9 @@ class app(base_app):
             ar.add_file("input_0.png", info="uploaded #1")
             ar.add_file("input_1.png", info="uploaded #2")
             ar.add_file("psf_kernel.txt", info="psf_kernel.txt", compress=True)
-            ar.add_file("psf_kernel.png", info="psf_kernel.png", compress=False)
+            ar.add_file("psf_kernel.png", info="psf_kernel.png")
             ar.add_file("int_kernel.txt", compress=True)
-            ar.add_file("int_kernel.png", compress=False)
+            ar.add_file("int_kernel.png")
             ar.add_file("stdout.txt", compress=True)
             ar.add_info({"s": s, "k": k, "t":t})
             ar.add_info({"run time" : self.cfg['info']['run_time']})
@@ -148,7 +147,7 @@ class app(base_app):
         this one needs no parameter
         """
         
-        p = self.run_proc(['blind_psf_estim',
+        p = self.run_proc(['two_photos_psf_estim',
                            '-s', str(s),
                            '-k', str(k),
 			   '-t', str(t),
