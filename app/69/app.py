@@ -14,7 +14,7 @@ import shutil
 class app(base_app):
     """ demo app """
     
-    title = "SURF : Speeded Up Robust Features"
+    title = "An Analysis and Implementation of the SURF Method, and its Comparison to SIFT"
 
     input_nb = 2
     input_max_pixels = None
@@ -22,6 +22,7 @@ class app(base_app):
     input_dtype = '3x8i'
     input_ext = '.png'
     is_test = False
+    xlink_article = "http://www.ipol.im/pub/pre/69/"
 
     def __init__(self):
         """
@@ -51,22 +52,21 @@ class app(base_app):
         if not os.path.isdir(self.bin_dir):
             os.mkdir(self.bin_dir)
         # store common file path in variables
-        surf_tgz_file = self.dl_dir + "demo_SURF_src.tar.gz"
-        surf_tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "or_speeded_up_robust_features/demo_SURF_src.tar.gz"
+        surf_zip_file = self.dl_dir + "demo_SURF_src.zip"
+        surf_zip_url = "http://www.ipol.im/pub/pre/69/demo_SURF_src.zip"
         surf_prog_file = self.bin_dir + "surf"
         surf_log_file = self.base_dir + "build_surf.log"
         # get the latest source archive
-        build.download(surf_tgz_url, surf_tgz_file)
+        build.download(surf_zip_url, surf_zip_file)
         # SURF
         # test if the dest file is missing, or too old
         if (os.path.isfile(surf_prog_file)
-            and ctime(surf_tgz_file) < ctime(surf_prog_file)):
+            and ctime(surf_zip_file) < ctime(surf_prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
             # extract the archive
-            build.extract(surf_tgz_file, self.src_dir)
+            build.extract(surf_zip_file, self.src_dir)
             # build the program
             build.run("make -j4 -C %s" %
                       (self.src_dir + "demo_SURF_src"),
