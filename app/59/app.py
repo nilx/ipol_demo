@@ -23,6 +23,7 @@ class app(base_app):
     input_dtype = '3x8i'                # input image expected data type
     input_ext = '.png'                  # expected extension
     is_test = False
+    xlink_article = 'http://www.ipol.im/pub/pre/59/'
 
     def __init__(self):
         """
