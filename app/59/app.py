@@ -43,6 +43,50 @@ class app(base_app):
         base_app.result.im_func.exposed = True
 
 
+    def build(self):
+        """
+        program build/update
+        """
+        # store common file path in variables
+        tgz_file = self.dl_dir + "efros_leung_v1.0.tar.gz"
+        prog_file = self.bin_dir + "efros_leung"
+	prog_file_ac = self.bin_dir + "efrosLeung_accel"
+        log_file = self.base_dir + "build.log"
+
+        # get the latest source archive
+        build.download("http://www.ipol.im/pub/pre/59/" +
+                       "efros_leung_v1.0.tar.gz", tgz_file)
+
+        # test if the dest file is missing, or too old
+        # dont rebuild the file
+        if  (os.path.isfile(prog_file)
+            and os.path.isfile(prog_file_ac)
+	    and ctime(tgz_file) < ctime(prog_file)
+	    and ctime(tgz_file) < ctime(prog_file_ac)) :
+            cherrypy.log("Not rebuild needed",
+            context='BUILD', traceback=False)
+        else:
+            #extract the archive
+            build.extract(tgz_file, self.src_dir)
+            # build the program
+            build.run("make -C %s"
+                      % (self.src_dir + "efros_leung_v1.0/efros_leung_orig/src/" ), stdout=log_file)
+            # build the program
+            build.run("make -C %s"
+                      % (self.src_dir + "efros_leung_v1.0/efros_leung_accel/src/" ), stdout=log_file)
+
+            # save into bin dir
+            if os.path.isdir(self.bin_dir):
+                shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
+            shutil.copy(self.src_dir + os.path.join("efros_leung_v1.0/efros_leung_orig/src/",
+                        "efros_leung"), prog_file)
+            shutil.copy(self.src_dir + os.path.join("efros_leung_v1.0/efros_leung_accel/src/",
+                        "efrosLeung_accel"), prog_file_ac)
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
+        return
+
 
     @cherrypy.expose
     @init_app
