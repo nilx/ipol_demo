@@ -15,7 +15,7 @@ import glob
 class app(base_app):
     """ template demo app """
 
-    title = "Combined Local Global Optical Flow v3"
+    title = "CLG Optical Flow"
     is_test = True       # switch to False for deployment
     is_listed = True
     is_built = True
@@ -98,6 +98,9 @@ class app(base_app):
             build.run("cmake .", stdout=log_file, cwd=srcdir);
             build.run("make", stdout=log_file, cwd=srcdir)
             # save into bin dir
+            if os.path.isdir(self.bin_dir):
+                shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
             shutil.copy(srcdir + "/bin/test_clgof", prog_file)
 #           #except:
 #           #   print("some error occurred copying files")
