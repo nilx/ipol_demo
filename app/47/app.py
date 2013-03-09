@@ -82,6 +82,7 @@ class app(base_app):
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                     shutil.rmtree(self.bin_dir)
+            os.mkdir(self.bin_dir)
             try:
                 shutil.copy(self.src_dir +
                            os.path.join("filter_pca-0.9.2",
