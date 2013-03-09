@@ -63,25 +63,25 @@ class app(base_app):
         program build/update
         """
         ### store common file path in variables
-        tgz_file = self.dl_dir + "filter_pca-0.9.2.tar.gz"
+        zip_file = self.dl_dir + "filter_pca-0.9.2.zip"
         prog_file = self.bin_dir + "filter_pca.exe"
         log_file = self.base_dir + "build.log"
         ## get the latest source archive
-        build.download(app.xlink_src, tgz_file)
+        build.download(app.xlink_src, zip_file)
         ## test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
-            and ctime(tgz_file) < ctime(prog_file)):
+            and ctime(zip_file) < ctime(prog_file)):
             cherrypy.log("no rebuild needed",
                       context='BUILD', traceback=False)
         else:
             # extract the archive
-            build.extract(tgz_file, self.src_dir)
+            build.extract(zip_file, self.src_dir)
             # build the program
             build.run("make -C %s" % (self.src_dir +"filter_pca-0.9.2"),
                                                    stdout=log_file)
             # save into bin dir
-            #if os.path.isdir(self.bin_dir):
-            #        shutil.rmtree(self.bin_dir)
+            if os.path.isdir(self.bin_dir):
+                    shutil.rmtree(self.bin_dir)
             try:
                 shutil.copy(self.src_dir +
                            os.path.join("filter_pca-0.9.2",
