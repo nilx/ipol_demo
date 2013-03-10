@@ -1,0 +1,230 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.<br />
+  You can run again this algorithm with new data.
+</p>
+
+<div class="action">
+  Restart with new input data or different parameters
+  <form style="display:inline;"
+	action="${app.base_url}" method="get">
+    <input type="submit" value="new input" />
+  </form>
+  <form style="display:inline;"
+	action="${app.base_url + 'params'}" method="get">
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="s1" value="${s1}">
+    <input type="hidden" name="s2" value="${s2}">
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="different parameters" />
+  </form>
+</div>
+
+<hr />
+
+<h2>Results (smin=${s1}, smax=${s2})</h2>
+    
+<p>
+    Histogram scale is set to the histogram size of the input image.
+    Black bars in the histograms indicate overflows and truncated bins.
+    The contrast change between the original and processed images is also displayed.
+The color code for the contrast change functions is as follows: identity transform (red), algorithm transform (blue),  
+    'empirical' transform (transform that better approximates the cumulative histograms of both images, green). 
+    See the paper for a detailed explanation. 
+    </p>
+
+<div class="gallery" style="height:${sizeY}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	Original
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'input_0.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'input_0_hist.png'}" /> </td>
+      <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'identity.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span> 
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=2 (RGB)
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N2.png'}" /> </td>
+      <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N2_hist.png'}" /> </td>
+      <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN2RGB.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=3 (RGB)
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N3.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N3_hist.png'}" /> </td>
+      <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN3RGB.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=4 (RGB)
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N4.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N4_hist.png'}" /> </td>
+      <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN4RGB.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=5 (RGB)
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N5.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N5_hist.png'}" /> </td>
+      <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN5RGB.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	N=10 (RGB)
+	<span>
+	  <table >
+	  <tr>
+	  <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_N10.png'}" /> </td>
+	  <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_N10_hist.png'}" /> </td>
+      <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN10RGB.png'}" /> </td>
+	  </tr>
+	  </table> 
+	</span>
+      </a>
+    </li>
+    <li>
+    <a href="#">
+	HE (RGB)
+	<span>
+    <table >
+    <tr>
+    <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_2_HE.png'}" /> </td>
+    <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_2_HE_hist.png'}" /> </td>
+    <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsHERGB.png'}" /> </td>
+    </tr>
+    </table> 
+	</span>
+    </a>
+    </li>
+    <li>
+    <a href="#">
+	N=2 (I)
+	<span>
+    <table >
+    <tr>
+    <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N2.png'}" /> </td>
+    <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N2_hist.png'}" /> </td>
+    <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN2.png'}" /> </td>
+    </tr>
+    </table> 
+	</span>
+    </a>
+    </li>
+    <li>
+    <a href="#">
+	N=3 (I)
+	<span>
+    <table >
+    <tr>
+    <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N3.png'}" /> </td>
+    <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N3_hist.png'}" /> </td>
+    <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN3.png'}" /> </td>
+    </tr>
+    </table> 
+	</span>
+    </a>
+    </li>
+    <li>
+    <a href="#">
+	N=4 (I)
+	<span>
+    <table >
+    <tr>
+    <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N4.png'}" /> </td>
+    <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N4_hist.png'}" /> </td>
+    <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN4.png'}" /> </td>
+    </tr>
+    </table> 
+	</span>
+    </a>
+    </li>
+    <li>
+    <a href="#">
+	N=5 (I)
+	<span>
+    <table >
+    <tr>
+    <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N5.png'}" /> </td>
+    <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N5_hist.png'}" /> </td>
+    <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN5.png'}" /> </td>
+    </tr>
+    </table> 
+	</span>
+    </a>
+    </li>
+    <li>
+    <a href="#">
+	N=10 (I)
+	<span>
+    <table >
+    <tr>
+    <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_N10.png'}" /> </td>
+    <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_N10_hist.png'}" /> </td>
+    <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsN10.png'}" /> </td>
+    </tr>
+    </table> 
+	</span>
+    </a>
+    </li>
+    <li>
+    <a href="#">
+	HE (I)
+	<span>
+    <table >
+    <tr>
+    <td style="vertical-align:top"> Image <br/> <img src="${app.work_url + 'output_1_HE.png'}" /> </td>
+    <td style="vertical-align:top"> Histograms: R, G, B, I <br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'output_1_HE_hist.png'}" /> </td>
+    <td style="vertical-align:top"> Contrast change<br/> <img style="background-color: white; border: black 1px solid; padding:10px" src="${app.work_url + 'pointsHE.png'}" /> </td>
+    </tr>
+    </table> 
+	</span>
+    </a>
+    </li>
+  </ul>
+</div>
+
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
