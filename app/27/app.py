@@ -16,8 +16,8 @@ import PIL.ImageDraw
 class app(base_app):
     """ piecewise affine equalization app """
 
-    title = "Color and contrast enhancement by controlled \
-    piecewise affine histogram equalization"
+    title = "Color and Contrast Enhancement by Controlled Piecewise Affine Histogram Equalization"
+    xlink_article = 'http://www.ipol.im/pub/art/2012/lps-pae/'
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -49,9 +49,8 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/edit/algo/" \
-            + "mps_piecewise_affine_equalization/piecewise_eq.tar.gz"
-        tgz_file = self.dl_dir + "piecewise_eq.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2012/lps-pae/piecewise_eq.tgz"
+        tgz_file = self.dl_dir + "piecewise_eq.tgz"
         progs = ["piecewise_equalization"]
         src_bin = dict([(self.src_dir + 
                          os.path.join("piecewise_eq", prog),
