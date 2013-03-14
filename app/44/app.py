@@ -15,7 +15,7 @@ import glob
 class app(base_app):
     """ template demo app """
 
-    title = "CLG Optical Flow"
+    title = "An Implementation of Combined Local-Global Optical Flow"
     is_test = False       # switch to False for deployment
     is_listed = True
     is_built = True
