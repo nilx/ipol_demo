@@ -25,6 +25,8 @@ class app(base_app):
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
 
+    xlink_article = 'http://www.ipol.im/pub/pre/84/'
+
     def __init__(self):
         """
         app setup
