@@ -34,7 +34,7 @@ class app(base_app):
         base_app.__init__(self, base_dir)
 
         # select the base_app steps to expose
-        # index() and input_xxx() are generic
+        # index() and input_xxx() are generic 
         base_app.index.im_func.exposed = True
         base_app.input_select.im_func.exposed = True
         base_app.input_upload.im_func.exposed = True
@@ -48,12 +48,11 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/edit/algo/" \
-            + "mps_screened_poisson_equation/screened_poisson.tar.gz"
-        tgz_file = self.dl_dir + "screened_poisson.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/pre/84/screened_ipol.tgz"
+        tgz_file = self.dl_dir + "screened_ipol.tgz"
         prog = "screened_poisson"
         bin_file = self.bin_dir + prog
-        build_file = self.src_dir + os.path.join("screened_poisson", prog)
+        build_file = self.src_dir + os.path.join("screened_ipol", prog)
         log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download(tgz_url, tgz_file)
@@ -67,7 +66,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -C %s %s"
-                      % (self.src_dir + "screened_poisson", prog),
+                      % (self.src_dir + "screened_ipol", prog),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
