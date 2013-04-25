@@ -16,7 +16,7 @@ import PIL
 class app(base_app):
     """ screened Poisson equation app """
 
-    title = "Screened Poisson Equation"
+    title = "Screened Poisson Equation for Image Contrast Enhancement"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -112,8 +112,8 @@ class app(base_app):
 #self.cfg['param'] = {'l' : L}
 #self.cfg['param'] = {'s' : s}
 #self.cfg.save()
-        self.cfg['param']['l']=L
-        self.cfg['param']['s']=s
+        self.cfg['param']['l'] = L
+        self.cfg['param']['s'] = s
 
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
@@ -208,5 +208,5 @@ class app(base_app):
         sizeY = max(image(self.work_dir + 'input_0.png').size[1],
                     3 * 128 + 4 * 20)
 
-        return self.tmpl_out("result.html", L=L,s=s,
+        return self.tmpl_out("result.html", L=L, s=s,
                              sizeX=sizeX, sizeY=sizeY)
