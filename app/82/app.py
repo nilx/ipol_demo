@@ -25,7 +25,7 @@ class app(base_app):
     is_test = False
 
     xlink_article = "http://www.ipol.im/pub/pre/82/"
-    xlink_src = "http://www.ipol.im/pub/pre/82/sift_20130403.tar.gz"
+    xlink_src = "http://www.ipol.im/pub/pre/82/sift_20130403.zip"
 
 
     def __init__(self):
@@ -46,7 +46,7 @@ class app(base_app):
         """
         program build/update
         """
-        zip_filename = 'sift_20130403.tgz'
+        zip_filename = 'sift_20130403.zip'
         src_dir_name = 'sift_20130403/'
         prog_filename = 'sift'
         prog_filename2 = 'matching'
