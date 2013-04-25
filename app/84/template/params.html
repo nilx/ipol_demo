@@ -1,0 +1,50 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+
+<h2>Algorithm Parameters</h2>
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+  
+  <div style="float:left;padding-right:25px">
+  <label for="L"><i>&lambda;</i>(range: (0.0, 1.5])=</label>  
+  <input type="text" name="L" value="0.0001" size="10" /> <br />
+  <div style="clear:both"> </div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>                              
+
+<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
+  <div style="float:left;padding-right:25px">
+    s: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="s_selector" name="s" value="${s}" />
+</div>
+<div id="slider_s" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+    { createLinkedSlider('#s_selector', '#slider_s', 0.0, 1.0, 0.1); });
+</script>
+<div style="clear:both"> </div>
+
+<!-- end of code for slider -->
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+                      
+    <input type="submit" value="run" />
+  </div>
+</form>
+                      
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+                      
+<h2>Input Image</h2>
+
+<img src="${app.work_url + 'input_0.png'}" alt="" /> 
+
+<%include file="footer.html" />
