@@ -1,0 +1,197 @@
+<%include file="header-jquery.html" />
+<%include file="css_style.html" />
+
+
+<%
+paradic = dict(eval(str(app.cfg['param']['paradic'])))
+hght = int(app.cfg['param']['hght'])
+wdth = int(app.cfg['param']['wdth'])
+
+def rnd():
+   import random
+   return random.randint(0,100000)
+%>
+
+
+
+<%include file="anatomy_overview.html"/>
+<%include file="params_tab.html"/>
+
+
+
+<!-- BEGIN TEMP MATCHING-->
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div class="toggleable" id="ress" style="max-height:30em; overflow:auto;">
+    <fieldset style="padding-top:0.0ex" >
+      <legend style="font-weight:bold;"> Matching </legend>
+
+
+<%
+    if ( int(paradic['flag_match']) == 1):
+        radioRelative = "checked"
+        radioAbsolute  = "unchecked"
+        C_match_MAX = 1
+    else:
+        radioRelative = "unchecked"
+        radioAbsolute= "checked"
+        C_match_MAX = 200
+    endif
+%>
+        <label for="flag_match"> Matching (Absolute or Relative)  : </label> </br>
+              <input type="radio" name="flag_match" value="1" ${radioRelative} /> Relative threshold for matching </br>
+              <input type="radio" name="flag_match" value="0" ${radioAbsolute} /> Absolute threshold for matching</br>
+        
+<%try:
+   C_match = float(paradic['C_match'])
+except Exception:
+   C_match = 0.6
+%>
+<div style="float:left;padding-right:25px">
+    C_match <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="C_match" name="C_match" value="${C_match}" />
+</div>
+<div id="C_match_slider" name="C_match_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#C_match', '#C_match_slider',0, ${C_match_MAX}  , 0.005); 
+    });
+    </script>
+    </br> Threshold on distance ratio ( distance to nearest neighbor / distance to second nearest neighbor)
+<div style="clear:both"> </div> 
+        
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="show" value="antmy_descr_match">
+    <tr><td><button type="submit" style="width:50%;" name="action" value="cust_matching">  Match keypoints </button></td></tr>
+
+    </fieldset>
+
+</div></form>  
+
+<!-- END TEMP MATCHING-->
+
+
+
+
+
+<style type="text/css">
+
+#content .gallery {
+    position: relative;
+    width: 83%;
+    height: 400px; 
+    font-size: 1em;   
+ }
+ 
+#content .gallery span{ 
+    background-color:white;
+ }
+</style>
+
+
+<h1> <strong> Select a keypoint with a single-click on the left image</strong></h1>
+In the following
+<ul>
+<li> index 1 refers to the selected keypoint in image 1 </li>
+<li> indices 2a and 2b refer respectively to the first and second nearest neighbors in image 2 </li>
+</ul>
+
+
+
+
+
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div id="imbottom"  style="width:100%;" >
+ <input type="hidden" name="key" value="${app.key}">
+ <input type="hidden" name="action" value="detail">
+ <input type="hidden" name="show" value="antmy_descr_match">
+ <input type="hidden" name="newrun" value="True">
+ <input type="image" src="${app.work_url + 'OUTonepair.png?rnd=${rnd()}'}" style=" width:100%; background:url(${app.work_url + 'OUTmatches.png'});  background-size:100%;"  alt="map of keypoint">
+</div> 
+</form>
+
+
+<h2> Computing the keypoint reference orientation </h2>
+
+
+The orientation histogram (on the left) is computed from the gradient orientations at all the samples inside the patch P_ori (right). 
+
+
+<div class="gallery" >
+<ul class="index">
+
+<li><a> Orientation 1 <span style="width:100%;">
+<img src="${app.work_url + 'detail_im1_ori_hist.png'}?rnd=${rnd()}"  style="width:49%; float:top;"  alt="Orientation 1" />
+<img src="${app.work_url + 'detail_im1_thumbnail_ori_hist.png'}?rnd=${rnd()}"  style="min-width:49%; width:49%;" alt="Ori thumbnail 1" />
+</span></a></li>
+
+<li><a> Orientation 2a <span style="width:100%;">
+<img src="${app.work_url + 'detail_im2a_ori_hist.png'}?rnd=${rnd()}"  style="width:49% "  alt="orientation 2a" />
+<img src="${app.work_url + 'detail_im2a_thumbnail_ori_hist.png'}?rnd=${rnd()}" style="width:49%"  alt="Ori thumbnail 2a" />
+</span></a></li>
+
+<li><a> Orientation 2b <span style="width:100%;">
+<img src="${app.work_url + 'detail_im2b_ori_hist.png'}?rnd=${rnd()}"  style="width:49%"  alt="Orientation 2b" />
+<img src="${app.work_url + 'detail_im2b_thumbnail_ori_hist.png'}?rnd=${rnd()}"  style="width:49%" alt="Ori thumbnail 2b" />
+</span></a></li>
+
+</ul>
+</div>
+
+
+
+<h2> Computating of the keypoint feature vector  </h2>
+
+The feature vector is composed of an array of (n_hist X n_hist) of histograms with n_ori bins each (left) computed from the normalized patch P_descr (right)
+
+
+<div class="gallery">
+<ul class="index">
+
+<li><a> Feature 1 <span style="width:100%;">
+<img src="${app.work_url + 'detail_im1_weighted_hists.png'}?rnd=${rnd()}"  style="width:49%" alt="key feature vector 1" />
+<img src="${app.work_url + 'detail_im1_thumbnail_weighted_hists.png'}?rnd=${rnd()}" style="width:49%" alt="thumbnail 1" />
+</span></a></li>
+
+<li><a> Feature 2a <span style="width:100%;">
+<img src="${app.work_url + 'detail_im2a_weighted_hists.png'}?rnd=${rnd()}"  style="width:49%"  alt="key feature 2a" />
+<img src="${app.work_url + 'detail_im2a_thumbnail_weighted_hists.png'}?rnd=${rnd()}" style="width:49%"  alt="thumbnail 2a" />
+</span></a></li>
+
+<li><a> Feature 2b <span style="width:100%;">
+<img src="${app.work_url + 'detail_im2b_weighted_hists.png'}?rnd=${rnd()}"  style="width:49%"  alt="key feature 2b" />
+<img src="${app.work_url + 'detail_im2b_thumbnail_weighted_hists.png'}?rnd=${rnd()}"  style="width:49%" alt="thumbnail 2b" />
+</span></a></li>
+
+</ul></div>
+
+
+
+
+
+<h2> Downloadable files </h2>
+<ul>
+<li>First image: <a href="${app.work_url}input_0.png">input_0.png</a></li>
+<li>Second image: <a href="${app.work_url}input_1.png">input_1.png</a></li>
+<li>Detected keypoints in the first image: <a href="${app.work_url}keys_im0.txt">keys_im0.txt</a></li>
+<li>Detected keypoints in the second image: <a href="${app.work_url}keys_im1.txt">keys_im1.txt</a></li>
+<li>List of the matching keypoints: <a href="${app.work_url}matches.txt">matches.txt</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<%include file="footer.html" />
