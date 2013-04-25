@@ -1,0 +1,90 @@
+
+<%
+''' loading the sift parameters '''
+pardic = dict(eval(str(app.cfg['param']['paradic'])))
+hght = int(app.cfg['param']['hght'])
+wdth = int(app.cfg['param']['wdth'])
+%>
+
+<%
+def rnd():
+   import random
+   return random.randint(0,100000)
+%>
+
+
+
+
+<p> ${hght}
+
+Maps of candidate keypoints at each step of the algorithm.<br/>
+
+Each circle represents a candidate keypoint. The circle radius equals 0.8 times the keypoint scale sigma. <br/>
+<br/><br/>
+Maps are displayed in the same order than in the SIFT algorithm:
+
+<ul>
+<li> A - All the DoG discrete extrema </li>
+<li> B - The candidate keypoints passing the preliminary threshold on DoG (0.8 C_DoG) </li>
+<li> C - The candidate keypoints after extrema interpolation  </li>
+<li> D - The candidate keypoints passing the threshold on DoG (C_DoG)  </li>
+<li> E - The candidate keypoints passing the threshold on the edge response (C_edge) </li>
+<li> F - All SIFT keypoints (with their respective orientation)  </li>
+<li> G - The matching keypoints  </li>
+</ul>
+
+</p>
+
+
+
+
+<!-- <div class="gallerytab" style="height:900px;" >  -->
+<!-- <div class="gallerytab" style="height:900px;" > -->
+<div class="gallerytab" style="height:${str(hght+40)}px;width " >
+<ul class="index">
+%for kypts in ['_NES','_DoGSoftThresh','_ExtrInterp','_DoGThresh','_OnEdgeResp','']:
+    %for im in ['0','1']:
+        <li  style="width:50%"> <a>    A im1
+<!--             <span style="width:85%;" > -->
+            <span>
+            <img src="${app.work_url + 'extra%s_im%s'%(kypts,im,)+'.png'}?rnd=${rnd()}" />
+<!--            <p class="caption"> All the DoG discrete extrema  </p>-->
+            </span>
+        </a> </li>
+    %endfor
+%endfor
+    </ul>
+</div>
+
+
+
+
+<p> Maps of rejected keypoints (discarded by the extrema interpolation and discarded by the edge filter </p>
+
+
+
+<div class="gallerytab" style="height:${str(hght+40)}px;" >
+<ul class="index">
+%for kypts in ['_OnEdgeRespREJ','_ExtrInterpREJ']:
+    %for im in ['0','1']:
+        <li  style="width:50%"> <a>    A im1
+            <span>
+            <img src="${app.work_url + 'extra%s_im%s'%(kypts,im,)+'.png'}?rnd=${rnd()}" />
+<!--             <p class="caption">  a </p> -->
+            </span>
+        </a> </li>
+    %endfor
+%endfor
+    </ul>
+</div>
+
+
+
+keys with multiple principal orientations
+The candidate discarded during extrema interpolation
+Maps of the keypoints that have multiple reference orientations 
+
+
+
+
+

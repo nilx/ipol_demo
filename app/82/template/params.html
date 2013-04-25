@@ -1,0 +1,37 @@
+<%include file="header.html" />
+
+
+<%include file="css_style.html" />
+<form action="${app.base_url + 'wait'}" method="get">
+ <div class="action">
+ <fieldset style="padding-top:0.0ex" > 
+   <input type="hidden" name="key" value="${app.key}">
+   <input type="hidden" name="show" value="basic">
+   To run the SIFT method on the two images and matches the extracted points
+   <button type="submit" name="action" value="std_sift_matching"> The SIFT Method </button> 
+ </fieldset>
+ </div>
+</form>
+<form action="${app.base_url + 'wait'}" method="get">
+ <div class="action">
+ <fieldset style="padding-top:0.0ex" >
+   <input type="hidden" name="key" value="${app.key}">
+   <input type="hidden" name="show" value="antmy_detect">   
+   To examine all steps of the algorithm run with this pair of images (slower)
+   <button type="submit" name="action" value="cust_sift_matching"> The Anatomy of the SIFT Method </button>
+ </fieldset>
+ </div>
+</form>
+
+
+<div class="gallerytab" style="height:1000px; width:100%" >
+<ul class="index">
+
+<li  style="width:50%"> <a>  Input 0
+ <span><img src="${app.work_url + 'input_0.png'}"  style="width:100%" /></span>
+</a> </li>           
+ <li  style="width:50%"> <a>  Input 1
+ <span><img src="${app.work_url + 'input_1.png'}" style="width:100%" /></span>
+</a> </li>            
+
+<%include file="footer.html" />

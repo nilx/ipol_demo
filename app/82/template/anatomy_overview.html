@@ -1,0 +1,26 @@
+
+<div style="position:fixed;border:1px solid lightgray;background:white;padding:10px;top:0px;right:0px;z-index:102">
+
+<form action="${app.base_url + 'result'}" method="get">
+
+<input type="hidden" name="key" value="${app.key}">
+<h2> The Anatomy of the SIFT Method </h2>
+<ul>
+<li> <button type="submit" style="width:100%" name="show" value="antmy_detect"> Examine keypoints detection </button> </li>
+<li> <button type="submit" style="width:100%" name="show" value="antmy_descr_match"> Examine keypoints description and matching </button> </li>
+<li> <button type="submit" style="width:100%" name="show" value="antmy_gauss_scsp"> Examine Gaussian scale-space computation </li>
+</ul>
+</form>
+
+<form action="${app.base_url + 'wait'}" method="get">
+<input type="hidden" name="key" value="${app.key}">
+<input type="hidden" name="action" value="std_sift_matching">
+<ul>
+<h2> The SIFT Method </h2>
+<li> <button type="submit"  style="width:100%" name="show" value="basic"> Back to standard parameters. </li>
+</ul>
+
+
+</form>
+
+</div>

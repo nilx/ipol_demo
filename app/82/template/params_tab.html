@@ -1,0 +1,360 @@
+
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+</script>
+
+
+
+<%
+paradic = dict(eval(str(app.cfg['param']['paradic'])))
+show = str(app.cfg['param']['show'])
+%>
+
+
+
+<%def name="textareaAuto(name,defaultvalue,tagproperties='')">
+   <%
+   if name in app.cfg['param'] and app.cfg['param'][name] !='':
+      value = app.cfg['param'][name]
+   else:
+      value = defaultvalue
+   endif
+   %>
+   <input type="text" ${tagproperties} id="${name}" name="${name}" value="${value}"  />
+</%def>
+
+
+
+<form action="${app.base_url + 'wait'}" method="get">
+ <input type="hidden" name="key" value="${app.key}">
+ 
+<div style="max-height:30em; overflow:auto;">
+    <fieldset style="padding-top:0.0ex" >
+      <legend style="font-weight:bold;"> Detection </legend>
+ 
+ 
+</br>
+- <b>Digital scale-space discretization</b></br>
+<!--  Number of scales per octave -->
+<%
+try:
+   n_spo = int(paradic['n_spo'])
+except Exception:
+   n_spo = 4
+%>
+<div style="float:left;padding-right:25px">
+    n_spo : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="n_spo" name="n_spo" value="${n_spo}" />
+</div>
+<div id="n_spo_slider" name="n_spo_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#n_spo', '#n_spo_slider', 1, 8, 1); 
+    });
+    </script>
+    </br> Number of scales per octave.
+<div style="clear:both"> </div>
+<!--</br>-->
+   
+ <!--  Number of octaves -->
+<%
+try:
+   n_oct = int(paradic['n_oct'])
+except Exception:
+   n_oct = 4
+%>
+<div style="float:left;padding-right:25px">
+    n_oct : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="n_oct" name="n_oct" value="${n_oct}" />
+</div>
+<div id="n_oct_slider" name="n_oct_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#n_oct', '#n_oct_slider', 1, 18, 1); 
+    });
+    </script>
+    </br> Number of octaves.
+<div style="clear:both"> </div>   
+ 
+    
+ <!--  Sigma min -->
+<%
+try:
+   sigma_min = float(paradic['sigma_min'])
+except Exception:
+   sigma_min = 0.8
+%>
+<div style="float:left;padding-right:25px">
+    sigma_min : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="sigma_min" name="sigma_min" value="${sigma_min}" />
+</div>
+<div id="sigma_min_slider" name="sigma_min_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#sigma_min', '#sigma_min_slider',0.5, 4.0, 0.1); 
+    });
+    </script>
+    </br> Minimal level of blur in the scale-space.
+<div style="clear:both"> </div>      
+    
+    
+    
+  <!--  Delta min -->
+    
+ <div class="action">
+    Minimal intersample distance : <br/>
+<%
+if ( float(paradic['delta_min']) == 0.5):
+    radiozoom1 = "unchecked"
+    radiozoom2 = "checked"
+    radiozoom4 = "unchecked"
+if ( float(paradic['delta_min']) == 0.25):
+    radiozoom1 = "unchecked"
+    radiozoom2 = "unchecked"
+    radiozoom4 = "checked"
+else:
+    radiozoom1 = "checked"
+    radiozoom2 = "unchecked"
+    radiozoom4 = "unchecked"
+endif
+%>
+              <input type="radio" name="delta_min" value="1"    ${radiozoom1} /> No subsampling</br>
+              <input type="radio" name="delta_min" value="0.5"  ${radiozoom2} /> Subsampling by a factor 2</br> 
+              <input type="radio" name="delta_min" value="0.25" ${radiozoom4} /> Subsampling by a factor 4</br>
+   <br/>
+ </div>
+ 
+    
+    
+    
+    
+ 
+ 
+ 
+    
+ <!--  Sigma min -->
+<%
+try:
+   sigma_in = float(paradic['sigma_in'])
+except Exception:
+   sigma_in = 0.8
+%>
+<div style="float:left;padding-right:25px">
+    sigma_in : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="sigma_in" name="sigma_in" value="${sigma_in}" />
+</div>
+<div id="sigma_in_slider" name="sigma_in_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#sigma_in', '#sigma_in_slider',0.0, 1, 0.1); 
+    });
+    </script>
+    </br> Assumed level of blur in the input image (sigma_in) 
+<div style="clear:both"> </div>      
+    
+
+ </br> 
+ - <b> Filtering keypoints </b> </br>
+ 
+ 
+ 
+ <!--  Threshold on Difference of Gaussian -->
+<%
+try:
+   C_DoG = float(paradic['C_DoG'])
+except Exception:
+   C_DoG = 0.8
+%>
+<div style="float:left;padding-right:25px">
+    C_DoG <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="C_DoG" name="C_DoG" value="${C_DoG}" />
+</div>
+<div id="C_DoG_slider" name="C_DoG_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#C_DoG', '#C_DoG_slider',0, 0.2, 0.005); 
+    });
+    </script>
+    </br> Threshold on DoG 
+<div style="clear:both"> </div> 
+ 
+ 
+ 
+ 
+  <!--  Harris  Stephen -->
+<%
+try:
+   C_edge = float(paradic['C_edge'])
+except Exception:
+   C_edge = 0.8
+%>
+<div style="float:left;padding-right:25px">
+    C_edge <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="C_edge" name="C_edge" value="${C_edge}" />
+</div>
+<div id="C_edge_slider" name="C_edge_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#C_edge', '#C_edge_slider',0, 100, 0.1); 
+    });
+    </script>
+    </br> Threshold on principal curvatures ratio.
+<div style="clear:both"> </div>    
+</br>
+
+
+    </fieldset>
+</div>
+
+
+<div style="max-height:30em; overflow:auto;">
+    <fieldset style="padding-top:0.0ex" >
+      <legend style="font-weight:bold;"> Description</legend>
+ 
+ 
+ 
+ <!--  Reference orientation -->
+ </br> 
+ - <b> Reference orientation attribution </b> </br>    
+
+<%
+try:
+   n_bins = int(paradic['n_bins'])
+except Exception:
+   n_bins = 36
+%>
+<div style="float:left;padding-right:25px">
+    n_bins : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="n_bins" name="n_bins" value="${n_bins}" />
+</div>
+<div id="n_bins_slider" name="n_bins_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#n_bins', '#n_bins_slider',4, 50 , 1); 
+    });
+    </script>
+    </br> Number of bins in the orientation histogram
+<div style="clear:both"> </div>    
+    
+
+<%
+try:
+   lambda_ori = int(paradic['lambda_ori'])
+except Exception:
+   lambda_ori = 1.5
+%>
+<div style="float:left;padding-right:25px">
+    lambda_ori : <input type="text" style="font-family:monospace;text-align:right" size="4" id="lambda_ori" name="lambda_ori" value="${lambda_ori}" />
+</div>
+<div id="lambda_ori_slider" name="lambda_ori_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#lambda_ori', '#lambda_ori_slider',0.1, 5 , 0.1); 
+    });
+    </script>
+    </br> The standard deviation of the Gaussian window used for reference orientation attribution is lambda_ori X sigma.
+<div style="clear:both"> </div>    
+    
+    
+<%
+try:
+   t = float(paradic['t'])
+except Exception:
+   t = 0.6
+%>
+<div style="float:left;padding-right:25px">
+    t  : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="t" name="t" value="${t}" />   
+</div>
+<div id="t_slider" name="t_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#t', '#t_slider',0., 0.9 , 0.05); 
+    });
+    </script>
+     </br> Threshold for secondary reference orientations.
+<div style="clear:both"> </div>      
+    
+    </br> 
+  - <b> Feature vector construction </b> </br>
+
+  
+<%
+try:
+   n_hist = int(paradic['n_hist'])
+except Exception:
+   n_hist = 4
+%>
+<div style="float:left;padding-right:25px">
+    n_hist  : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="n_hist" name="n_hist" value="${n_hist}" />
+</div>
+<div id="n_hist_slider" name="n_hist_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"> </div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#n_hist', '#n_hist_slider',1, 10 , 1); 
+    });
+    </script>
+    </br>An array of n_hist X n_hist weighted orientation histograms constitutes the descriptor.
+<div style="clear:both"> </div>      
+    
+  
+    
+    
+    
+ <%
+try:
+   n_ori = int(paradic['n_ori'])
+except Exception:
+   n_ori = 8
+%>
+<div style="float:left;padding-right:25px">
+    n_ori  : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="n_ori" name="n_ori" value="${n_ori}" />
+</div>
+<div id="n_ori_slider" name="n_ori_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#n_ori', '#n_ori_slider',1, 15 , 1); 
+    });
+    </script>
+     </br> Each weighted histogram has n_ori bins.
+<div style="clear:both"> </div>           
+    
+ <%
+try:
+   lambda_descr = float(paradic['lambda_descr'])
+except Exception:
+   lambda_descr = 6
+%>
+<div style="float:left;padding-right:25px">
+    lambda_descr  : <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="lambda_descr" name="lambda_descr" value="${lambda_descr}" />
+</div>
+<div id="lambda_descr_slider" name="lambda_descr_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#lambda_descr', '#lambda_descr_slider',0.2, 15 , 0.05); 
+    });
+    </script>
+     </br> The standard deviation of the Gaussian window used for description is lambda_ori X sigma.
+<div style="clear:both"> </div>      
+ </br>        
+
+    </fieldset>
+</div>
+
+
+
+
+
+
+
+  <div style="height:60px;" >
+<!--   <fieldset style="padding-top:0.0ex" > -->
+  <input type="hidden" name="show" value="${show}">
+  <button type="submit" style="width:100%; height:50px "  name="action" value="cust_sift_matching">  Run SIFT and match keypoints </button>
+<!--   </fieldset> -->
+  </div>
+</form>
+

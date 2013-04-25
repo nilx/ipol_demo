@@ -1,0 +1,176 @@
+<%include file="header-jquery.html" />
+<%include file="css_style.html" />
+
+
+
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+</script>
+
+
+
+<%
+paradic = dict(eval(str(app.cfg['param']['paradic'])))
+
+hght = int(app.cfg['param']['hght'])
+wdth = int(app.cfg['param']['wdth'])
+
+
+def rnd():
+   import random
+   return random.randint(0,100000)
+%>
+
+
+%if wdth >1200:
+<p> Please note that this demo is optimized for image widths smaller than 1200px. </p>
+%endif
+
+
+
+
+
+<form action="${app.base_url + 'wait'}" method="get">
+
+<div style="position:fixed;border:1px solid lightgray;background:white;padding:10px;top:0px;right:0px;z-index:102">
+<input type="hidden" name="key"    value="${app.key}">
+<input type="hidden" name="action" value="cust_sift_matching">
+<h2> The Anatomy of the SIFT Method </h2>
+<ul>
+<li> <button type="submit" style="width:100%" name="show" value="antmy_detect">   Examine the SIFT method.  </button> </li>
+</ul>
+</div>
+</form>
+
+
+
+
+<div>
+<p>
+Matching result:
+</p>
+</div>
+
+
+<div>
+<input type="image" width=100% src="${app.work_url + 'OUTmatches.png'}?rnd=${rnd()}" alt="matches.png">
+</div>
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div class="toggleable" id="ress" style="max-height:30em; overflow:auto;">
+    <fieldset style="padding-top:0.0ex" >
+      <legend style="font-weight:bold;"> Matching </legend>
+
+
+<%
+    if ( int(paradic['flag_match']) == 1):
+        radioRelative = "checked"
+        radioAbsolute  = "unchecked"
+        C_match_MAX = 1
+    else:
+        radioRelative = "unchecked"
+        radioAbsolute= "checked"
+        C_match_MAX = 1000
+    endif
+%>
+        <label for="flag_match"> Matching (Absolute or Relative)  : </label> </br>
+              <input type="radio" name="flag_match" value="1" ${radioRelative} /> Relative threshold for matching </br>
+              <input type="radio" name="flag_match" value="0" ${radioAbsolute} /> Absolute threshold for matching</br>
+        
+<%try:
+   C_match = float(paradic['C_match'])
+except Exception:
+   C_match = 0.6
+%>
+<div style="float:left;padding-right:25px">
+    C_match <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="C_match" name="C_match" value="${C_match}" />
+</div>
+<div id="C_match_slider" name="C_match_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#C_match', '#C_match_slider',0, ${C_match_MAX}  , 0.005); 
+    });
+    </script>
+    </br> Threshold on distance ratio ( distance to nearest neighbor / distance to second nearest neighbor)
+<div style="clear:both"> </div> 
+        
+    <input type="hidden" name="key" value="${app.key}">  
+    <tr><td><button type="submit" name="action" value="cust_matching">  Run matching </button></td></tr>
+
+    </fieldset>
+
+</div></form>  
+    
+<form action="${app.base_url}" method="get">
+<div class="toggleable" id="ress" style="max-height:30em; overflow:auto;">   
+    
+    <fieldset style="padding-top:0.0ex" >
+      <legend style="font-weight:bold;"> Change input </legend>
+    <tr><td><button type="submit">  Run SIFT with another input image </button></td></tr>
+    </fieldset>
+    
+</div>
+</form>
+
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div class="toggleable" id="param.matching" style="max-height:30em; overflow:auto;">
+    <fieldset style="padding-top:0.0ex" >
+      <legend style="font-weight:bold;"> The Anatomy of SIFT </legend>
+      <input type="hidden" name="key" value="${app.key}">  
+      <input type="hidden" name="show" value="antmy_detect">
+      <tr><td><button type="submit" name="action" value="cust_sift_matching">  Examine SIFT with the sames images </button></td></tr>
+    </fieldset>
+</div>      
+</form>
+
+
+
+
+Detected keypoints in each image and the subset of matching keypoints:
+<div class="gallerytab" style="height:${str(hght+100)}px; width:100%;">
+<ul class="index">
+<li style="width:50%"><a> Keys 1
+<span>
+<p> SIFT keypoints in first image </p>
+<img src="${app.work_url + 'keys_im0.png'}?rnd=${rnd()}" style="width:100%;"  />
+</span></a> </li>
+<li style="width:50%"><a> Keys 2
+<span>
+<p> SIFT keypoints in second image </p>
+<img  src="${app.work_url + 'keys_im1.png'}?rnd=${rnd()}"  style="width:100%;" />
+</span></a> </li>       
+<li style="width:50%"><a> Matching 1
+<span>
+<p> The subset of SIFT keypoints that find a match. </p>
+<img src="${app.work_url + 'matching_keys_im0.png'}?rnd=${rnd()}" style="width:100%;"  />
+</span></a> </li>
+<li style="width:50%"><a> Matching 2
+<span>
+<p> The subset of SIFT keypoints that find a match. </p>
+<img src="${app.work_url + 'matching_keys_im1.png'}?rnd=${rnd()}" style="width:100%;"  />
+</span></a> </li>       
+</ul>
+</div>
+
+
+<h2> Downloadable files </h2>
+<ul>
+<li>First image: <a href="${app.work_url}input_0.png">input_0.png</a></li>
+<li>Second image: <a href="${app.work_url}input_1.png">input_1.png</a></li>
+<li>Detected keypoint in the first image: <a href="${app.work_url}keys_im0.txt">keys_im0.txt</a></li>
+<li>Detected keypoint in the second image: <a href="${app.work_url}keys_im1.txt">keys_im1.txt</a></li>
+<li>List of matching keypoints: <a href="${app.work_url}matches.txt">matches.txt</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+<%include file="footer.html" />
