@@ -69,8 +69,9 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
 <!--     Extracting the discrete extrema of the DoG -->
     %for im in ['0','1']:
         <li> <a>  A 
-            <span >
-                <p> Extracting the discrete extrema from the digital DoG </p>
+           <!-- <span style="width:${wdth}px> -->
+            <span>
+                <p> Extracting the discrete extrema from the digital DoG  </br> &nbsp;</p>
                 <img src="${app.work_url + 'extra_NES_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
 <!--              <p class=caption> Extracting the discrete extrema of the DoG (Difference of Gaussians). The circle radius equals the extremum detection scale<p>  -->
             </span>
@@ -82,7 +83,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
     %for im in ['0','1']:
         <li> <a>   B
             <span>
-                <p> Thresholding the 3D discrete extrema </p> 
+                <p> Thresholding the 3D discrete extrema  </br> &nbsp;</p> 
                 <img src="${app.work_url + 'extra_DoGSoftThresh_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% style="background-color:#FFFFFF;"   />
 <!--              <p class=caption> Thresholding the 3D discrete extrema <p>  -->
             </span>
@@ -94,7 +95,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
      %for im in ['0','1']:
         <li> <a>   C
             <span>
-            <p> Refining the extrema positions and scales </p> 
+            <p> Refining the extrema positions and scales  </br> &nbsp;</p> 
             <img src="${app.work_url + 'extra_ExtrInterp_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
 <!--              <p class=caption> Refining the extrema position and scale  <p>  -->
             </span>
@@ -106,7 +107,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
     %for im in ['0','1']:
         <li> <a>   D
             <span>
-                <p> Thresholding the interpolated value </p>
+               <p> Thresholding the interpolated value </br> &nbsp;</p>
             <img src="${app.work_url + 'extra_DoGThresh_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
 <!--              <p class=caption> Thresholding the interpolated value <p>  -->
             </span>
@@ -118,7 +119,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
      %for im in ['0','1']:
         <li> <a>   E 
             <span>
-                <p> Discarding extrema on edges by applying a threshold on the Harris operator.  </p> 
+               <p> Discarding extrema on edges by applying </br> a threshold on the Harris operator.  </p> 
                 <img src="${app.work_url + 'extra_OnEdgeResp_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
 <!--              <p class=caption> Discarding extrema on edges by applying a threshold on the Harris operator.  <p>  -->
             </span>
@@ -130,7 +131,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
      %for im in ['0','1']:
         <li> <a>    SIFT 
             <span>
-                <p>   SIFT keypoints with reference orientations </p>
+                <p>   SIFT keypoints with reference orientations  </br> &nbsp;</p>
                 <img src="${app.work_url + 'keys_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
             </span>
         </a> </li>
@@ -141,7 +142,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
      %for im in ['0','1']:
         <li> <a>    Matching 
             <span >
-                <p>  The subset of SIFT keypoints that find a match. </p>
+                <p>  The subset of SIFT keypoints that find a match.  </br> &nbsp;</p>
             <img src="${app.work_url + 'matching_keys_im%s'%(im,)+'.png'}?rnd=${rnd()}" style="width:100%;" />
             </span>
         </a> </li>

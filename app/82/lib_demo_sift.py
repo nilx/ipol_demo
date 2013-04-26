@@ -426,8 +426,8 @@ def plot_orientation_hist(hist, theta, label, n_bins, t):
     gnu.write('set trange [0:100]\n')
     gnu.write('set parametric \n')
     gnu.write("plot '"+label+"_reformated.data' using ($0):1:($0):xticlabel(2) with boxes notitle lc palette,")
-    gnu.write("     t,"+str(t)+" lc rgb 'blue', ")
-    gnu.write("    "+"%4.2f"%(theta*(float(n_bins)-0.5)/(2*pi))+",t lc rgb 'blue' lt 5;\n")
+    gnu.write("     t,"+str(t)+" lc rgb 'blue' notitle, ")
+    gnu.write("    "+"%4.2f"%(theta*(float(n_bins)-0.5)/(2*pi))+",t lc rgb 'blue' lt 5 notitle;\n")
     #gnu.write("    "+"%4.2f"%(2*pi/(2*pi)*(n_bins-1))+",t lc rgb 'blue' lt 5;\n")
     
     gnu.close()

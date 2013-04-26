@@ -82,18 +82,22 @@ Matching result:
 except Exception:
    C_match = 0.6
 %>
-<div style="float:left;padding-right:25px">
-    C_match <input type="text" style="font-family:monospace;text-align:right"
-    size="4" id="C_match" name="C_match" value="${C_match}" />
+
+<div style="float:left;padding-right:5px;width:6em;">
+    C_match
 </div>
-<div id="C_match_slider" name="C_match_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+   <input type="text" style="float:left;font-family:monospace;text-align:right"
+    size="4" id="C_match" name="C_match" value="${C_match}" />
+<div id="C_match_slider" name="C_match_slider" style="width:250px;margin-left:5px;margin-right:1em;float:left;margin-top:4px;font-size:10pt"></div>
     <script type="text/javascript">
     $(document).ready(function(){
       createLinkedSlider('#C_match', '#C_match_slider',0, ${C_match_MAX}  , 0.005); 
     });
     </script>
-    </br> Threshold on distance ratio ( distance to nearest neighbor / distance to second nearest neighbor)
-<div style="clear:both"> </div> 
+    <div>
+    Threshold on distance ratio ( distance to nearest neighbor / distance to second nearest neighbor)
+    </div>
+<div style="clear:both;margin-bottom:5px;"> </div>
         
     <input type="hidden" name="key" value="${app.key}">  
     <tr><td><button type="submit" name="action" value="cust_matching">  Run matching </button></td></tr>
