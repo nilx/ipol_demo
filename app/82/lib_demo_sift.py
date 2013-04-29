@@ -124,15 +124,15 @@ def draw_one_match(pairdata, image1, image2, d, lambda_ori, lambda_descr, n_hist
 
     # draw 'description patches' and 'reference orientation' arrows
     # keypoint
-    r = (1+1/n_hist)*lambda_descr*sigma1 
+    r = (1+1/float(n_hist))*lambda_descr*sigma1 
     draw_rotatedbox(draw, x1, y1, r, theta1,(255, 140, 0))  
     draw.line([(y1, x1),(y1+r*sin(theta1), x1+r*cos(theta1))], fill=(255, 140, 0))  
     # nearest neighbor
-    r = (1+1/n_hist)*lambda_descr*sigma2a
+    r = (1+1/float(n_hist))*lambda_descr*sigma2a
     draw_rotatedbox(draw, x2a, ofst+y2a, r, theta2a,(255, 140, 0))  
     draw.line([(ofst+y2a, x2a),(ofst+y2a+r*sin(theta2a), x2a+r*cos(theta2a))], fill=(255, 140, 0))
     # second nearest neighbor
-    r = (1+1/n_hist)*lambda_descr*sigma2b
+    r = (1+1/float(n_hist))*lambda_descr*sigma2b
     draw_rotatedbox(draw, x2b, ofst+y2b, r, theta2b,(255, 140, 0))   
     draw.line([(ofst+y2b, x2b),(ofst+y2b+r*sin(theta2b), x2b+r*cos(theta2b))], fill=(255, 140, 0))
     
@@ -171,12 +171,8 @@ def draw_keys(keys, image, imout):
      #  [y,x,sigma] = map(float,key[0:3])
         [x, y, sigma] = [float(x) for x in key[0:3]]
     
-    #    if (max(x,y,sigma) > image.size[0]:
-    #        print "out " +str(x)+str(y)+str(sigma)
-    #        print '0:  ' + str(image.size[0])
-    #        print '1:  ' + str(image.size[1])
-    #        break
-        
+        if max(x,y,sigma) > max(image.size):
+            break
         
         r = radfact*sigma
         coord = [int(x) for x in (y-r, x-r, y+r, x+r)]
