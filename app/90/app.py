@@ -15,7 +15,7 @@ from cherrypy import TimeoutError
 import os
 import stat
 import time
-import numpy as np
+from math import sqrt
 
 
 class app(base_app):
@@ -341,7 +341,6 @@ hod, Estimating a Noise Curve from a Single Image"
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
-            print "Run time error"
             return self.error(errcode='runtime')
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
@@ -380,7 +379,7 @@ hod, Estimating a Noise Curve from a Single Image"
             for i in range(num_stds):
                 mean = float(values[i])
                 tilde_std = float(values[i+num_stds])
-                std = np.sqrt(A + B*mean) / (2.0**scale)
+                std = sqrt(A + B*mean) / (2.0**scale)
                 err = tilde_std - std
                 MSE += err ** 2.0
             #
@@ -391,7 +390,7 @@ hod, Estimating a Noise Curve from a Single Image"
         f.close()
         #
         MSE /= float(num_bins) * num_stds
-        return np.sqrt(MSE)
+        return sqrt(MSE)
 
     @classmethod
     def get_compatible_size(cls, sizeX, sizeY):
@@ -505,7 +504,7 @@ hod, Estimating a Noise Curve from a Single Image"
             for std_str in line[len(line)/2:]:
                 std = float(std_str)
                 D = std**2.0 - (1.0/4)**scale * (1.0/12)                
-                std = np.sqrt(D) if D >= 0 else 0
+                std = sqrt(D) if D >= 0 else 0
                 f.write(str(std) + " ")
             f.write("\n")
         #
@@ -534,7 +533,6 @@ hod, Estimating a Noise Curve from a Single Image"
                        '-A%f' % anoise, '-B%f' % bnoise, \
                        'input_0.sel.png', \
                        'scale_s0.rgb']
-        print procOptions
         # Run
         procDesc1 = self.run_proc(procOptions)
 
@@ -544,7 +542,6 @@ hod, Estimating a Noise Curve from a Single Image"
                        '-t', \
                        'input_0.sel.png', \
                        'scale_s0.png']
-        print procOptions
         # Run
         procDesc2 = self.run_proc(procOptions)
         #
@@ -571,7 +568,6 @@ hod, Estimating a Noise Curve from a Single Image"
                                '-s2', \
                                'scale_s%d.rgb' % ((scale)), \
                                'scale_s%d.rgb' % ((scale+1))]
-                print procOptions
                 procDesc = self.run_proc(procOptions)
                 self.wait_proc(procDesc, timeout*0.8)
 
@@ -602,7 +598,6 @@ if bins == 0 else bins / 2**scale)
                 procOptions.append('-r')
             #
             procOptions.append('scale_s%d.rgb' % scale)
-            print procOptions
 
             # Run
             #pid = self.run_proc(procOptions, stdout=fd, stderr=fd)
@@ -646,7 +641,6 @@ if bins == 0 else bins / 2**scale)
                            'estimation_s%d.txt' % scale, \
                            '%d' % num_channels, \
                            'curve_s%d.png' % scale]
-            print procOptions
             # Run
             procDesc = self.run_proc(procOptions)
             self.wait_proc(procDesc, timeout*0.8)
@@ -666,7 +660,6 @@ if bins == 0 else bins / 2**scale)
         """
         display the algo results
         """
-        print "Display results"
 
         # read parameters
         percentile = self.cfg['param']['percentile']
