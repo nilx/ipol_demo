@@ -21,8 +21,8 @@ from math import sqrt
 class app(base_app):
     """ Ponomarenko et al. noise estimation app """
 
-    title = "Analysis and Extension of the Ponomarenko et al. Met\
-hod, Estimating a Noise Curve from a Single Image"
+    title = "Analysis and Extension of the Percentile Method, " \
+        + "Estimating a Noise Curve from a Single Image"
     input_nb = 1
     input_max_pixels = 5000 * 5000 # max size (in pixels) of an input image
     input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of an input file
@@ -30,6 +30,8 @@ hod, Estimating a Noise Curve from a Single Image"
     input_copy_png = True
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
+
+    xlink_article = 'http://www.ipol.im/pub/pre/90/'
 
     def __init__(self):
         """
