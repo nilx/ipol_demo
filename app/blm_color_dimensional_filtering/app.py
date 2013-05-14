@@ -177,7 +177,7 @@ class app(base_app):
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(stdout=stdout)
+            self.run_algo(stdout=stdout, timeout=30)
             self.cfg['info']['run_time'] = time.time() - run_time
         except TimeoutError:
             return self.error(errcode='timeout') 
