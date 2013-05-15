@@ -71,10 +71,10 @@ case "$1" in
 
     stop)
 	# stop the web service
-	log_daemon_msg "Stopping IPOL demo"
+	log_daemon_msg "Stopping IPOL demo ... "
 	if [ ! -f ${PIDFILE_RUN} ]; then # no pidfile
 	    log_end_msg 0
-	    log_daemon_cont_msg "PID file not found"
+	    log_progress_msg "PID file not found ... "
 	    log_end_msg 0
 	    exit 1
 	fi
@@ -105,6 +105,18 @@ case "$1" in
 	    fi
 	else
 	    echo "probably not running (no PID file)"
+	fi
+	# check if it is running
+	if [ -f ${PIDFILE_BUILD} ]; then
+	    PID=$(cat ${PIDFILE_BUILD})
+	    if [ -f /proc/$PID/stat ]; then
+		echo "building"
+	    else
+		echo "not building"
+		rm ${PIDFILE_BUILD}
+	    fi
+	else
+	    echo "probably not building (no PID file)"
 	fi
     ;;
 
