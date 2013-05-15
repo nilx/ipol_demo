@@ -177,7 +177,7 @@ class app(base_app):
         stdout = open(self.work_dir + 'stdout.txt', 'w')
         try:
             run_time = time.time()
-            self.run_algo(stdout=stdout, timeout=30)
+            self.run_algo(stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
         except TimeoutError:
             return self.error(errcode='timeout') 
@@ -201,7 +201,7 @@ class app(base_app):
 
         return self.tmpl_out("run.html")
 
-    def run_algo(self, stdout=None, timeout=False):
+    def run_algo(self, stdout=None, timeout=30):
         """
         the core algo runner
         could also be called by a batch processor
