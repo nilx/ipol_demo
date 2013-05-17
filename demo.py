@@ -116,6 +116,20 @@ def do_run(demo_dict):
     cherrypy.quickstart(demo_index(demo_dict), config=conf_file)
     return
 
+def get_values_of_o_arguments(argv):
+    """
+    return the -o options on the argument list, and remove them
+    """
+    r = []
+    n = len(argv)
+    for j in range(n):
+        i = n-j-1
+        if i > 1 and argv[i-1] == "-o":
+            r.append(argv[i])
+            del argv[i]
+            del argv[i-1]
+    return r
+
 if __name__ == '__main__':
 
     import sys
@@ -143,7 +157,14 @@ if __name__ == '__main__':
             if demo_app.is_test:
                 demo_dict.pop(demo_id)
 
-    # now handle the command-line options
+    # if there is any "-o" command line option, keep only the mentioned demos
+    demo_only_ids = get_values_of_o_arguments(sys.argv)
+    if len(demo_only_ids) > 0:
+        for demo_id in demo_dict.keys():
+            if not demo_id in demo_only_ids:
+                demo_dict.pop(demo_id)
+
+    # now handle the remaining command-line options
 
     # default behaviour : run
     if len(sys.argv) == 1:
