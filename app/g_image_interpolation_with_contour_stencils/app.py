@@ -61,8 +61,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = 'https://edit.ipol.im/pub/algo/' \
-            + 'g_image_interpolation_with_contour_stencils/src.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2011/g_iics/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['cwinterp', 'imcoarsen', 'imdiff', 'nninterp']
         sub_dir = 'cwinterp-src'

@@ -87,8 +87,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/pub/algo/" \
-            + "lmps_retinex_poisson_equation/retinex_pde.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2011/lmps_rpe/retinex_pde.tar.gz"
         tgz_file = self.dl_dir + "retinex_pde.tar.gz"
         prog_file = self.bin_dir + "retinex_pde"
         log_file = self.base_dir + "build.log"

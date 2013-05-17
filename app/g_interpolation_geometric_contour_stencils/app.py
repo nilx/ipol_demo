@@ -61,8 +61,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = 'https://edit.ipol.im/pub/algo/' \
-            + 'g_interpolation_geometric_contour_stencils/src.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2011/g_igcs/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['sinterp', 'imcoarsen', 'imdiff', 'nninterp']
         sub_dir = 'sinterp-src'
