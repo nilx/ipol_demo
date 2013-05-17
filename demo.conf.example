@@ -16,10 +16,6 @@ engine.autoreload_on = True
 checker.check_skipped_app_config = False
 # rich debug messages
 tools.cgitb.on = True
-# auth tokens for downloads
-download.auth.urlbase = "https://edit.ipol.im/"
-download.auth.username = "<your user name>"
-download.auth.password = "<your password>"
 # input thumbnail size
 input.thumbnail.size = 192
 

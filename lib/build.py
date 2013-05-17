@@ -29,23 +29,6 @@ def download(url, fname):
     if not os.path.isdir(os.path.dirname(fname)):
         os.mkdir(os.path.dirname(fname))
 
-    try:
-        # setup http auth manager, if info provided
-        urlbase = cherrypy.config['download.auth.urlbase']
-        username = cherrypy.config['download.auth.username']
-        password = cherrypy.config['download.auth.password']
-    except KeyError:
-        urlbase = ''
-        username = ''
-        password = ''
-
-    pwd_manager = urllib2.HTTPPasswordMgrWithDefaultRealm()
-    pwd_manager.add_password(None, urlbase, username, password)
-    # open the url
-    auth_handler = urllib2.HTTPBasicAuthHandler(pwd_manager)
-    url_opener = urllib2.build_opener(auth_handler)
-    urllib2.install_opener(url_opener)
-  
     # open the url
     url_handle = urllib2.urlopen(url)
 
