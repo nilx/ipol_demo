@@ -21,7 +21,7 @@ from math import sqrt
 class app(base_app):
     """ Ponomarenko et al. noise estimation app """
 
-    title = "Analysis and Extension of the Percentile Method, " \
+    title = "Analysis and Extension of the Ponomarenko et al Method, " \
         + "Estimating a Noise Curve from a Single Image"
     input_nb = 1
     input_max_pixels = 5000 * 5000 # max size (in pixels) of an input image
@@ -31,7 +31,7 @@ class app(base_app):
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
 
-    xlink_article = 'http://www.ipol.im/pub/pre/90/'
+    xlink_article = 'http://www.ipol.im/pub/pre/45/'
 
     def __init__(self):
         """
@@ -64,7 +64,7 @@ class app(base_app):
         prog_file = self.bin_dir + prog_filename
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download('http://dev.ipol.im/~colom/ipol_demo_src/' + \
+        build.download('http://www.ipol.im/pub/pre/45/' + \
                        zip_filename, tgz_file)
 
         # test if the dest file is missing, or too old
