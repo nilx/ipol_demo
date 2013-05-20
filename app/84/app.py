@@ -164,7 +164,8 @@ class app(base_app):
         """
 
         p = self.run_proc(['screened_poisson', str(L), 
-                           'input_0.png', 'inputSimplest.png', 'output.png', str(s)],
+                           'input_0.png', 'inputSimplest.png', 'output.png', 
+                           str(s)],
                            stdout=None, stderr=None)
         self.wait_proc(p, timeout)
 
