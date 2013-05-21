@@ -47,15 +47,15 @@ class app(base_app):
         """
         program build/update
         """
-        zip_filename = 'nl_bayes_src.zip'
-        src_dir_name = 'NL_Bayes'
+        zip_filename = 'nl_pca_src.zip'
+        src_dir_name = ''
         prog_filename = 'NL_Bayes'
         # store common file path in variables
         tgz_file = self.dl_dir + zip_filename
         prog_file = self.bin_dir + prog_filename
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download('http://dev.ipol.im/~colom/ipol_demo_src/' + \
+        build.download('http://www.ipol.im/pub/pre/16/' + \
                        zip_filename, tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)

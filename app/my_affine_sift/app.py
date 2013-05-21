@@ -50,12 +50,12 @@ class app(base_app):
         # store common file path in variables
         asift_tgz_file = self.dl_dir + "demo_ASIFT_src.tar.gz"
         asift_tgz_url = \
-            "http://www.ipol.im/pub/algo/my_affine_sift/demo_ASIFT_src.tar.gz"
+            "http://www.ipol.im/pub/art/2011/my-asift/demo_ASIFT_src.tar.gz"
         asift_prog_file = self.bin_dir + "asift"
         asift_log_file = self.base_dir + "build_asift.log"
         sift_tgz_file = self.dl_dir + "SIFT_png.tar.gz"
         sift_tgz_url = \
-            "http://www.ipol.im/pub/algo/my_affine_sift/SIFT_png.tar.gz"
+            "http://www.ipol.im/pub/art/2011/my-asift/SIFT_png.tar.gz"
         sift_prog_file = self.bin_dir + "sift"
         sift_log_file = self.base_dir + "build_sift.log"
         # get the latest source archive

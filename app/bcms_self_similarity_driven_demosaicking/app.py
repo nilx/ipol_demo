@@ -49,8 +49,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "bcms_self_similarity_driven_demosaicking/src.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2011/bcms-ssdd/src.tar.gz"
         tgz_file = self.dl_dir + "src.tar.gz"
         progs = ["mosaic", "demosaickingIpol", "imgdiff"]
         src_bin = dict([(self.src_dir + os.path.join("src", prog),

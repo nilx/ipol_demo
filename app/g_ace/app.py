@@ -59,7 +59,8 @@ class app(base_app):
         """
         # Store common file path in variables
         archive = 'ace_20120718'
-        tgz_url = 'http://dev.ipol.im/~getreuer/code/' + archive + '.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2012/g-ace/' \
+            + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
         progs = ['ace', 'histeq']
         src_bin = dict([(self.src_dir + os.path.join(archive, prog),

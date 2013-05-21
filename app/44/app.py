@@ -24,7 +24,7 @@ class app(base_app):
 
     xlink_src = "http://www.ipol.im/pub/pre/44/clg.v4.tgz"
 
-    xlink_src_demo = "http://www.ipol.im/pub/algo/sms_optic_flow/imscript_dec2011.tar.gz"
+    xlink_src_demo = "http://www.ipol.im/pub/pre/21/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}

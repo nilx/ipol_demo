@@ -22,8 +22,8 @@ class app(base_app):
     is_listed = True
     is_built = True
 
-    xlink_src = "http://www.ipol.im/pub/algo/sm_horn_schunck/phs_3.tar.gz"
-    xlink_src_demo = "http://dev.ipol.im/~coco/static/imscript_dec2011.tar.gz"
+    xlink_src = "http://www.ipol.im/pub/pre/20/phs_3.tar.gz"
+    xlink_src_demo = "http://www.ipol.im/pub/pre/20/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}

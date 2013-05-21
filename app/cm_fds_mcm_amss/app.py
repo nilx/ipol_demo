@@ -54,7 +54,7 @@ class app(base_app):
         # store common file path in variables
         mcm_tgz_file = self.dl_dir + "fds_mcm.tar.gz"
         mcm_tgz_url = \
-            "http://www.ipol.im/pub/algo/cm_fds_mcm_amss/fds_mcm.tar.gz"
+            "http://www.ipol.im/pub/art/2011/cm_fds/fds_mcm.tar.gz"
         mcm_prog_file = self.bin_dir + "mcm"
         mcm_log = self.base_dir + "build_mcm.log"
         # get the latest source archive
@@ -80,7 +80,7 @@ class app(base_app):
         # store common file path in variables
         amss_tgz_file = self.dl_dir + "fds_amss.tar.gz"
         amss_tgz_url = \
-            "http://www.ipol.im/pub/algo/cm_fds_mcm_amss/fds_amss.tar.gz"
+            "http://www.ipol.im/pub/art/2011/cm_fds/fds_amss.tar.gz"
         amss_prog_file = self.bin_dir + "amss"
         amss_log = self.base_dir + "build_amss.log"
         # get the latest source archive

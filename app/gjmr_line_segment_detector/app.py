@@ -61,7 +61,7 @@ class app(base_app):
         """"Download and compile LSD program."""
 
         # store common file path in variables
-        lsd_url = "http://www.ipol.im/pub/algo/gjmr_line_segment_detector"
+        lsd_url = "http://www.ipol.im/pub/art/2012/gjmr-lsd"
         tgz_name = "lsd_1.6.zip"
         tgz_file = self.dl_dir + tgz_name
         build_dir = self.src_dir + "lsd_1.6"

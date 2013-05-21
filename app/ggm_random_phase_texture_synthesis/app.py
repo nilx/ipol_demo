@@ -48,8 +48,8 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        zip_url = 'http://www.ipol.im/pub/algo/' \
-        + 'ggm_random_phase_texture_synthesis/random_phase_noise_v1.3.zip'
+        zip_url = 'http://www.ipol.im/pub/art/2011/ggm_rpn/' \
+            + 'random_phase_noise_v1.3.zip'
         zip_file = self.dl_dir + 'random_phase_noise_v1.3.zip'
         prog = 'random_phase_noise'
         bin_file = self.bin_dir + prog

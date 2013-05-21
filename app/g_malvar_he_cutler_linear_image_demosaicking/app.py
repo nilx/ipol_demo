@@ -57,8 +57,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        tgz_url = 'http://www.ipol.im/pub/algo/' \
-            + 'g_malvar_he_cutler_linear_image_demosaicking/src.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2011/g_mhcd/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['dmmalvar', 'dmbilinear', 'mosaic', 'imdiff']
         sub_dir = 'dmmalvar-src'

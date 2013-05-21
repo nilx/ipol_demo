@@ -58,8 +58,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        tgz_url = 'http://www.ipol.im/pub/algo/' \
-            + 'g_gunturk_ap_demosaicking/src.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2011/g_gapd/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['dmgunturk', 'dmha', 'dmbilinear', 'mosaic', 'imdiff']
         sub_dir = 'dmgunturk-src'

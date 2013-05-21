@@ -49,8 +49,7 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_file = self.dl_dir + "MissStereo.tar.gz"
-        tgz_url = "http://www.ipol.im/pub/algo/" + \
-            "m_quasi_euclidean_epipolar_rectification/MissStereo.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2011/m_qer/MissStereo.tar.gz"
         build_dir = (self.src_dir
                      + os.path.join("MissStereo", "build") + os.path.sep)
         src_bin = dict([(build_dir + os.path.join("bin", prog),

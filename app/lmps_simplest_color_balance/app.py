@@ -49,8 +49,8 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "lmps_simplest_color_balance/simplest_color_balance.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2011/llmps-scb/" \
+            + "simplest_color_balance.tar.gz"
         tgz_file = self.dl_dir + "simplest_color_balance.tar.gz"
         prog = "balance"
         bin_file = self.bin_dir + prog

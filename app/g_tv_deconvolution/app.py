@@ -64,8 +64,8 @@ class app(base_app):
         
         # store common file path in variables
         archive = 'tvdeconv_20120607'
-        tgz_url = 'http://www.ipol.im/pub/algo/' \
-            + 'g_tv_deconvolution/' + archive + '.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2012/g-tvdc/' \
+            + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
         progs = ['tvdeconv', 'imblur',  'imdiff']
         src_bin = dict([(self.src_dir 

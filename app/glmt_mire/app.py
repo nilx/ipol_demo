@@ -57,8 +57,8 @@ Equalization"
         prog_file = self.bin_dir + "demo_MIRE"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/algo/" 
-                        + "glmt_mire/srcmire_2.tar.gz", tgz_file)
+        build.download("http://www.ipol.im/pub/art/2012/glmt-mire/" \
+                        + "srcmire_2.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
             and ctime(tgz_file) < ctime(prog_file)):
@@ -85,8 +85,8 @@ Equalization"
         #program build/update
         #"""
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "glmt_mire/simplest_color_balance.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2012/glmt-mire/" \
+            + "simplest_color_balance.tar.gz"
         tgz_file = self.dl_dir + "simplest_color_balance.tar.gz"
         progs = ["balance"]
         src_bin = dict([(self.src_dir + 

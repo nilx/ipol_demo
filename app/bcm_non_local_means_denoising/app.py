@@ -50,8 +50,7 @@ class app(base_app):
         """
 
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "bcm_non_local_means_denoising/nlmeansC.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2011/bcm_nlm/nlmeansC.tar.gz"
         tgz_file = self.dl_dir + "nlmeansC.tar.gz"
         progs = ["nlmeans_ipol", "img_diff_ipol",  "img_mse_ipol"]
         src_bin = dict([(self.src_dir + os.path.join("nlmeansC", prog),

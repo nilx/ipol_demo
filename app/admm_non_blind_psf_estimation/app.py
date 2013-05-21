@@ -51,8 +51,8 @@ class app(base_app):
         pattern_file = self.bin_dir + "pattern_noise.pgm"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/algo/" \
-        "admm_non_blind_psf_estimation/psfestim_1.3.tar.gz", tgz_file)
+        build.download("http://www.ipol.im/pub/art/2012/admm-nppsf/" \
+        "psfestim_1.3.tar.gz", tgz_file)
         # test if the dest file is missing, or too old
         # dont rebuild the file
         if  (os.path.isfile(prog_file)

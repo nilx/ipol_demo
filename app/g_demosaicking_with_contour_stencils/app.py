@@ -63,8 +63,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        tgz_url = 'http://www.ipol.im/pub/algo/' \
-            + 'g_demosaicking_with_contour_stencils/src.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2012/g-dwcs/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['dmcswl1', 'dmbilinear', 'mosaic', 'imdiff']
         sub_dir = 'dmcswl1-src'

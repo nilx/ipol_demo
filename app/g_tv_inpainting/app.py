@@ -62,8 +62,8 @@ class app(base_app):
         
         # store common file path in variables
         archive = 'tvinpaint_20120701'
-        tgz_url = 'http://www.ipol.im/pub/algo/' \
-            + 'g_tv_inpainting/' + archive + '.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2012/g-tvi/' \
+            + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
         progs = ['tvinpaint', 'randmask']
         src_bin = dict([(self.src_dir 

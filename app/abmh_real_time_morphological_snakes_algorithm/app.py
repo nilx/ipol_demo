@@ -92,8 +92,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        tgz_url = 'http://www.ipol.im/pub/algo/' \
-            + 'abmh_real_time_morphological_snakes_algorithm/' \
+        tgz_url = 'http://www.ipol.im/pub/art/2012/abmh-rtmsa/' \
             + 'MorphologicalSnakes_20111228.zip'
 
         tgz_file = self.dl_dir + 'MorphologicalSnakes_20111228.zip'

@@ -52,8 +52,8 @@ algorithm "
         """
 
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "ys_dct_denoising/src_demoDCTdenoising.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2011/ys-dct/" \
+            + "src_demoDCTdenoising.tar.gz"
         tgz_file = self.dl_dir + "src_demoDCTdenoising.tar.gz"
         progs = ["demo_DCTdenoising", "img_diff_ipol",  "img_mse_ipol"]
         src_bin = dict([(self.src_dir + 

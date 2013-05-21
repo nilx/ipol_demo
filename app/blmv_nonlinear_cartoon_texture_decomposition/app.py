@@ -49,8 +49,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/algo/" \
-            + "blmv_nonlinear_cartoon_texture_decomposition/srcB.tar.gz"
+        tgz_url = "http://www.ipol.im/pub/art/2011/blmv_ct/srcB.tar.gz"
         tgz_file = self.dl_dir + "srcB.tar.gz"
         progs = ["cartoonIpol"]
         src_bin = dict([(self.src_dir + os.path.join("srcB", prog),

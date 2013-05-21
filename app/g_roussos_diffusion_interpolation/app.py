@@ -60,8 +60,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = 'http://www.ipol.im/pub/algo/' \
-            + 'g_roussos_diffusion_interpolation/src.tar.gz'
+        tgz_url = 'http://www.ipol.im/pub/art/2011/g_rmdi/src.tar.gz'
         tgz_file = self.dl_dir + 'src.tar.gz'
         progs = ['tdinterp', 'imcoarsen', 'imdiff', 'nninterp']
         sub_dir = 'tdinterp-src'
