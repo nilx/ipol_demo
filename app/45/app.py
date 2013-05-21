@@ -56,7 +56,7 @@ class app(base_app):
         program build/update
         """
         version = 4
-        zip_filename = 'ponomarenko_v%d.zip' % ((version))
+        zip_filename = 'source.zip'
         src_dir_name = 'ponomarenko_v%d' % ((version))
         prog_filename = 'ponomarenko'
         # store common file path in variables
