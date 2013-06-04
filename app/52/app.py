@@ -64,10 +64,10 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'sple_20121125'
+        archive = 'sple_20130528'
         tgz_url = 'http://www.ipol.im/pub/pre/52/' \
-            + archive + '.tar.gz'
-        tgz_file = self.dl_dir + archive + '.tar.gz'
+            + archive + '.tgz'
+        tgz_file = self.dl_dir + archive + '.tgz'
         progs = ['denoiseSPLE', 'imnoise',  'imdiff']
         src_bin = dict([(self.src_dir 
             + os.path.join(archive, prog),
