@@ -46,7 +46,10 @@ case "$1" in
     ;;
 
     start)
-	# start the web service
+        # set memory limits
+        ulimit -s 16384   # 16M stack (guidelines say 8M)
+        ulimit -d 4194304 # 4G data   (guidelines say 1G)
+        # start the web service
 	log_daemon_msg "Starting IPOL demo"
 	log_progress_msg "${SCRIPT} run ... "
 	# start the process in the background as www-data
