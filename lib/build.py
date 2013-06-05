@@ -91,7 +91,16 @@ def extract(fname, target):
     # extract into the target dir
     try:
         ar.extractall(target)
-    except AttributeError:
+    except IOError,AttributeError:
+        # DUE TO SOME ODD BEHAVIOR OF extractall IN Pthon 2.6.1 (OSX 10.6.8)
+        # BEFORE TGZ EXTRACT FAILS INSIDE THE TARGET DIRECTORY A FILE
+        # IS CREATED, ONE WITH THE NAME OF THE PACKAGE
+        # SO WE HAVE TO CLEAN IT BEFORE STARTING OVER WITH ZIP
+        # cleanup/create the target dir
+        if os.path.isdir(target):
+            shutil.rmtree(target)
+        os.mkdir(target)
+
         # zipfile module < 2.6
         for member in content:
             if member.endswith(os.path.sep):
