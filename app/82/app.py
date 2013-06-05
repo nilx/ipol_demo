@@ -444,7 +444,6 @@ class app(base_app):
             for kypts in ['NES', 'DoGSoftThresh', 'ExtrInterp',
                           'ExtrInterpREJ', 'DoGThresh', 'OnEdgeResp',
                           'OnEdgeRespREJ']:
-#                          'DoGThresh','OnEdgeResp','OnEdgeRespREJ', 'DoGSoftThreshREJ','DoGThreshREJ' ]:
                 draw_keys(work_dir+'extra_'+kypts+'_im'+im+'.txt',
                           work_dir+'input_'+im+'.orig.png',
                           work_dir+'extra_'+kypts+'_im'+im+'.png')    
@@ -452,9 +451,7 @@ class app(base_app):
             draw_keys_oriented(work_dir+'extra_OriAssignedMULT_im'+im+'.txt',
                                work_dir+'input_'+im+'.orig.png',
                                work_dir+'extra_OriAssignedMULT_im'+im+'.png')
-            #draw_keys_oriented(work_dir+'extra_im'+im+'.txt', work_dir+'input_'+im+'.orig.png',work_dir+'extra_im'+im+'.png')
         
-        print 'passe illustrate sift out'
             
         return 1
 
@@ -539,20 +536,6 @@ class app(base_app):
                                                 work_dir+"detail_im2b"])
             self.wait_proc(proc, timeout=self.timeout)                                   
             
-            # Interpolate the thumbnails for better visualization.
-            #self.run_proc(['bilin_interp', work_dir+"detail_im1_thumbnail_ori_hist.png",
-                                #work_dir+"detail_im1_thumbnail_ori_histA.png"])
-            #self.run_proc(['bilin_interp', work_dir+"detail_im2a_thumbnail_ori_hist.png",
-                                #work_dir+"detail_im2a_thumbnail_ori_histA.png"])
-            #self.run_proc(['bilin_interp', work_dir+"detail_im2b_thumbnail_ori_hist.png",
-                                #work_dir+"detail_im2b_thumbnail_ori_histA.png"])
-                                
-            #self.run_proc(['bilin_interp', work_dir+"detail_im1_thumbnail_weighted_hists.png",
-                                #work_dir+"detail_im1_thumbnail_weighted_histsA.png"])
-            #self.run_proc(['bilin_interp', work_dir+"detail_im2a_thumbnail_weighted_hists.png",
-                                #work_dir+"detail_im2a_thumbnail_weighted_histsA.png"])
-            #self.run_proc(['bilin_interp', work_dir+"detail_im2b_thumbnail_weighted_hists.png",
-                                #work_dir+"detail_im2b_thumbnail_weighted_histsA.png"])                             
             
         return 1
  

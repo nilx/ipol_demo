@@ -117,18 +117,20 @@ if ( float(paradic['delta_min']) == 0.5):
     radiozoom1 = "unchecked"
     radiozoom2 = "checked"
     radiozoom4 = "unchecked"
-if ( float(paradic['delta_min']) == 0.25):
+elif ( float(paradic['delta_min']) == 1):
+    radiozoom1 = "checked"
+    radiozoom2 = "unchecked"
+    radiozoom4 = "unchecked"
+elif (float(paradic['delta_min']) == 0.25):
     radiozoom1 = "unchecked"
     radiozoom2 = "unchecked"
     radiozoom4 = "checked"
 else:
-    radiozoom1 = "checked"
-    radiozoom2 = "unchecked"
-    radiozoom4 = "unchecked"
+    print 400*'klmjhlkjh'
 endif
 %>
-              <input type="radio" name="delta_min" value="1"    ${radiozoom1} /> No subsampling</br>
-              <input type="radio" name="delta_min" value="0.5"  ${radiozoom2} /> Subsampling by a factor 2</br> 
+<input type="radio" name="delta_min" value="1"    ${radiozoom1} /> No subsampling   </br>
+              <input type="radio" name="delta_min" value="0.5"  ${radiozoom2} /> Subsampling by a factor 2 (standard)</br> 
               <input type="radio" name="delta_min" value="0.25" ${radiozoom4} /> Subsampling by a factor 4</br>
    <br/>
  </div>

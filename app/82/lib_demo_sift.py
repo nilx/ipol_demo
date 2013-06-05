@@ -24,7 +24,7 @@ def draw_matches(pairs, image1, image2, imout):
     image2 = Image.open(image2)
     [w1, h1] = image1.size
     [w2, h2] = image2.size
-    ofst = w1+max(w1, w2)/10   # width of empty band between the two images put side by side
+    ofst = w1+max(w1, w2)/10   # width of empty band between the two images side by side
     [w, h] = [ofst+w2, max(h1, h2)]
     #image = Image.new('RGB',[w,h],"white")
     image = Image.new('RGBA', [w, h])
@@ -199,7 +199,7 @@ def draw_keys_oriented(keys, image, imout):
         key = key.split()
         [x, y, sigma, theta] = [float(x) for x in key[0:4]]
         r = radfact*sigma
-        coord = [int(x) for x in (y-r, x-r, y+r, x+r)]
+        coord = [int(z) for z in (y-r, x-r, y+r, x+r)]
         draw.arc(coord, 0, 360, fill=(0, 255, 0))
         draw.line([(y, x),(y+r*sin(theta), x+r*cos(theta))], fill=(0, 255, 0))
     del draw
@@ -271,13 +271,6 @@ def illustrate_keypoint(keydata, n_bins, t, n_hist, n_ori, label):
     orihist = keydata[6+dim:6+dim+n_bins] # orientation histogram
     plot_featurevec(descr, label+'_weighted_hists', n_hist, n_ori)
     plot_orientation_hist(orihist, theta, label+'_ori_hist', n_bins, t)
-#    
-#    #experimental
-#    lambda_descr = 6
-#    lambda_ori = 1.5
-#    plot_field_ori(label+'_gradient_field_descr.t',(1+1/n_hist)*lambda_descr)
-#    plot_field_ori(label+'_gradient_field_ori.t',3*lambda_ori)
-#    
     return 1
     
     
@@ -364,7 +357,6 @@ def plot_featurevec(descr, label, n_hist, n_ori):
     # plotting commands
     for ij in range(1, 1+n_hist*n_hist):
         gnu.write("plot '"+label+"_reformated.data' using ($0):"+str(ij)+":($0) with boxes notitle lc palette \n")
-        # TODO ajouter le style ' lc rgb variable' qui prend un triplet rgb comme valeur des variables
     gnu.close()
     # Run gnuplot script and clean up.
     system('gnuplot '+label+'plot_featurevec.gnu')
@@ -424,12 +416,8 @@ def plot_orientation_hist(hist, theta, label, n_bins, t):
     gnu.write("plot '"+label+"_reformated.data' using ($0):1:($0):xticlabel(2) with boxes notitle lc palette,")
     gnu.write("     t,"+str(t)+" lc rgb 'blue' notitle, ")
     gnu.write("    "+"%4.2f"%(theta*(float(n_bins)-0.5)/(2*pi))+",t lc rgb 'blue' lt 5 notitle;\n")
-    #gnu.write("    "+"%4.2f"%(2*pi/(2*pi)*(n_bins-1))+",t lc rgb 'blue' lt 5;\n")
-    
     gnu.close()
     system('gnuplot '+label+'plot_orientation_hist.gnu')
-    #remove(label+'plot_orientation_hist.gnu')
-    #remove(label+'_reformated.data')
 
 
 
@@ -568,34 +556,10 @@ def keys_distribution(kA_file, kB_file, plotfilename, n_oct, n_spo):
 
 
    
-
-
-
-
-
-
-    
-#def draw_rotatedbox(draw,x,y,radius,angle,colorvec):
-    #xA = int(x + radius*( (-1)*cos(angle)-(+1)*sin(angle)) )
-    #yA = int(y + radius*( (-1)*sin(angle)+(+1)*cos(angle)) )
-    #xB = int(x + radius*( (+1)*cos(angle)-(+1)*sin(angle)) )
-    #yB = int(y + radius*( (+1)*sin(angle)+(+1)*cos(angle)) )
-    #xC = int(x + radius*( (+1)*cos(angle)-(-1)*sin(angle)) )
-    #yC = int(y + radius*( (+1)*sin(angle)+(-1)*cos(angle)) )
-    #xD = int(x + radius*( (-1)*cos(angle)-(-1)*sin(angle)) )
-    #yD = int(y + radius*( (-1)*sin(angle)+(-1)*cos(angle)) )
-    #draw.line((yA,xA,yB,xB),fill=colorvec)
-    #draw.line((yB,xB,yC,xC),fill=colorvec)
-    #draw.line([(yC,xC),(yD,xD)],fill=colorvec)
-    #draw.line([(yA,xA),(yD,xD)],fill=colorvec)
-    
-    
     
     
     
 def draw_descriptorgrid(draw, x, y, sigma, ori, nhist, lambda_descr):
-    # sigma = 4*sigma    
-    # rgb coordinates at corners of the descriptor grid for linear interpolation in the RGB scale
     # A-B    red - blue
     # D-C    yellow - vert
     A = (255, 0, 0)
@@ -604,21 +568,13 @@ def draw_descriptorgrid(draw, x, y, sigma, ori, nhist, lambda_descr):
     D = (0, 255, 0)
     for i in range(-nhist/2, +nhist/2):
         for j in range(-nhist/2, +nhist/2):
-            #print 'in '+str(i)
             # center of the area covered by an histogram
             Xcenter = (cos(ori)*(1./2 + i)-sin(ori)*(1./2 + j))*3*sigma
             Ycenter = (sin(ori)*(1./2 + i)+cos(ori)*(1./2 + j))*3*sigma
-            #print 'XCENTER '+str(Xcenter)+' YCENTER '+str(Ycenter)
-            #print 'GRID Centers Coordinates'+str((Xcenter,Ycenter))
             # color interpolation
-            #print i
             alpha = (i - (-nhist/2))/float(nhist)
             beta = (j - (-nhist/2))/float(nhist)
-            #print 'alpha '+str(alpha)
-            #print 'beta '+str(beta)
             colorvec = tuple([int(round((1-alpha)*(1-beta)*A[k]+(1-alpha)*beta*B[k] + alpha*(1-beta)*C[k] + alpha*beta*D[k])) for k in range(3)])
-            #print 'COLORVEC'+str(colorvec)
-            
             draw_rotatedbox(draw, x+Xcenter, y+Ycenter, lambda_descr/nhist*sigma, +ori, colorvec)
     radius = 2*lambda_descr*(nhist+1)/nhist*sigma
     draw.line([(y, x),(y+radius*sin(ori), x+radius*cos(ori))], fill=(0, 255, 0))
