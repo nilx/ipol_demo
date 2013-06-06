@@ -48,7 +48,10 @@ case "$1" in
     start)
         # set memory limits
         ulimit -s 16384   # 16M stack (guidelines say 8M)
-        ulimit -d 4194304 # 4G data   (guidelines say 1G)
+        ulimit -v 4194304 # 4G  total (guidelines say 1G)
+        # set process limits
+        # WARNING: this is sh (dash) syntax, NOT bash syntax
+        ulimit -p 1024    # avoid fork bombs
         # start the web service
 	log_daemon_msg "Starting IPOL demo"
 	log_progress_msg "${SCRIPT} run ... "
