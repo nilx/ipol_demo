@@ -81,18 +81,18 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def params(self, newrun=False, msg=None, r=None):
+    def params(self, newrun=False, msg=None):
         """
         configure the algo execution
         """
         if newrun:
             self.clone_input()
 
-        ratio=1.
+        ratio = 1.
         img = image(self.work_dir + 'input_0.png')
-        sizemax=min(img.size[0], img.size[1])
-        npyr=min(4,int(math.floor(math.log(sizemax, 2)))-2)
-        nmax=min(8, int(math.floor(math.log(sizemax, 2)))-2)
+        sizemax = min(img.size[0], img.size[1])
+        npyr = min(4, int(math.floor(math.log(sizemax, 2)))-2)
+        nmax = min(8, int(math.floor(math.log(sizemax, 2)))-2)
 
         return self.tmpl_out("params.html", msg=msg, 
                              ratio=ratio, npyr=npyr, nmax=nmax)
@@ -126,8 +126,8 @@ class app(base_app):
             return
         else:
             img = image(self.work_dir + 'input_0.png')
-            sizemax=min(img.size[0], img.size[1])
-            nmax=min(8, int(math.floor(math.log(sizemax, 2)))-2)
+            sizemax = min(img.size[0], img.size[1])
+            nmax = min(8, int(math.floor(math.log(sizemax, 2)))-2)
             # use a part of the image
             if x0 == None:
                 if x == None:
@@ -182,10 +182,10 @@ class app(base_app):
                                          x0=x0, y0=None, x1=None, y1=None, 
                                          ratio=ratio, npyr=npyr, nmax=nmax)
                 else:
-                    sizemax=min(sx, sy)
-                    nmax=min(8, int(math.floor(math.log(sizemax, 2)))-2)
+                    sizemax = min(sx, sy)
+                    nmax = min(8, int(math.floor(math.log(sizemax, 2)))-2)
                     if int(npyr) > int(nmax):
-                        npyr=nmax
+                        npyr = nmax
                     return self.tmpl_out("params.html",
                                     x0=x0, y0=y0, x1=x1, y1=y1, 
                                     ratio=ratio, npyr=npyr, nmax=nmax)
