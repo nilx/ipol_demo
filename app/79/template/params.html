@@ -1,0 +1,70 @@
+<%include file="header-jquery.html" />
+    
+    <script type="text/javascript">
+    <!--
+    <%include file="js/createlinkedslider.js" />
+    // -->
+    </script>
+
+<form action="${app.base_url + 'crop'}" method="get">
+    <input type="hidden" name="key" value="${app.key}" />    
+    <p>
+      Output/input size ratio:
+      <select name="ratio">
+	%for r in ['1.0', '2.0', '3.0', '4.0', '5.0']:
+        %if ratio == r:
+        <option value="${r}" selected>${r}</option>
+        %else:
+        <option value="${r}">${r}</option>
+        %endif
+	%endfor
+      </select>
+    </p>
+    
+<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
+  <div style="float:left;padding-right:25px">
+    Scales: <input type="text" style="font-family:monospace;text-align:right"
+    size="7" id="npyr_selector" name="npyr" value="${npyr}" />
+</div>
+<div id="slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() 
+                  { createLinkedSlider('#npyr_selector', '#slider', 1, ${nmax}, 1); });
+</script>
+<div style="clear:both"> </div>
+<!-- end of code for slider -->
+
+    
+    
+    <p>Run the algorithm: <input type="submit" name="action" value="run" /><p/>
+
+    %if x0 and y0 and x1 and y1:
+    <input type="hidden" name="x0" value="${x0}" />
+    <input type="hidden" name="y0" value="${y0}" />
+    <input type="hidden" name="x1" value="${x1}" />
+    <input type="hidden" name="y1" value="${y1}" />
+    <p>The algorithm will run on this selected subimage:</p>
+    <img src="${app.work_url + 'input_selection.png'}" alt="" />
+    %elif x0 and y0:
+    <input type="hidden" name="x0" value="${x0}" />
+    <input type="hidden" name="y0" value="${y0}" />
+    <p>Please select the second corner of the subimage:</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+              src="${app.work_url + 'input_corner.png'}" /></p>
+    %elif x0:
+    <p>The selected subimage is too small. Please try again.<br />
+    Select a subimage by clicking two 
+    opposite corners of the subimage (minimum size: 16 x 16).</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+    src="${app.work_url + 'input_0.png'}" /></p>
+    %else:
+    <p>Or you can run it after selecting a subimage by clicking two 
+    opposite corners of the subimage (minimum size: 16 x 16).</p>
+    <p><input type="image" style="cursor:crosshair;" name=""
+              src="${app.work_url + 'input_0.png'}" /></p>
+    %endif
+</form>
+
+
+<%include file="footer.html" />
