@@ -177,12 +177,14 @@ class empty_app(object):
     # SUBPROCESS
     #
 
-    def run_proc(self, args, stdin=None, stdout=None, stderr=None):
+    def run_proc(self, args, stdin=None, stdout=None, stderr=None, env={}):
         """
         execute a sub-process from the 'tmp' folder
         """
         # update the environment
         newenv = os.environ.copy()
+        # add local environment settings
+        newenv.update(env)
         # TODO clear the PATH, hard-rewrite the exec arg0
         # TODO use shell-string execution
         newenv.update({'PATH' : self.bin_dir})
