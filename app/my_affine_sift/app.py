@@ -153,12 +153,14 @@ class app(base_app):
                                'output_ASIFT_V.png', 'output_ASIFT_H.png',
                                'match_ASIFT.txt',
                                'keys_0_ASIFT.txt', 'keys_1_ASIFT.txt'],
-                              stdout=stdout, stderr=stdout)
+                              stdout=stdout, stderr=stdout,
+                              env={'OMP_NUM_THREADS': '4'})
         sift = self.run_proc(['sift', 'input_0.png', 'input_1.png', 
                               'output_SIFT_V.png', 'output_SIFT_H.png',
                               'match_SIFT.txt',
                               'keys_0_SIFT.txt', 'keys_1_SIFT.txt'],
-                             stdout=None, stderr=None)
+                             stdout=None, stderr=None,
+                             env={'OMP_NUM_THREADS': '4'})
         self.wait_proc([asift, sift], timeout)
         return
 
