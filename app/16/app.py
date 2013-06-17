@@ -16,7 +16,7 @@ class app(base_app):
     """ NL_Bayes app """
 
     title = """Implementation of the "Non-Local Bayes" Image Denoising Algorithm"""
-    xlink_article = 'http://www.ipol.im/pub/pre/16/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/16/'
 
     input_nb = 1
     input_max_pixels = 1200 * 1200 # max size (in pixels) of an input image
@@ -47,16 +47,16 @@ class app(base_app):
         """
         program build/update
         """
-        zip_filename = 'nl_pca_src.zip'
+        zip_filename = 'Nl_Bayes.zip'
         src_dir_name = ''
         prog_filename = 'NL_Bayes'
         # store common file path in variables
-        tgz_file = self.dl_dir + zip_filename
+        zip_file = self.dl_dir + zip_filename
         prog_file = self.bin_dir + prog_filename
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download('http://www.ipol.im/pub/pre/16/' + \
-                       zip_filename, tgz_file)
+        build.download('http://www.ipol.im/pub/art/2013/16/' + \
+                       zip_filename, zip_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
             and ctime(tgz_file) < ctime(prog_file)):
@@ -64,7 +64,7 @@ class app(base_app):
                          context='BUILD', traceback=False)
         else:
             # extract the archive
-            build.extract(tgz_file, self.src_dir)
+            build.extract(zip_file, self.src_dir)
             # build the program
             build.run("make OMP=1 -j4 -C %s %s" % (self.src_dir + src_dir_name,
                                              os.path.join(".", prog_filename)),
