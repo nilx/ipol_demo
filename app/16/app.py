@@ -47,8 +47,9 @@ class app(base_app):
         """
         program build/update
         """
-        zip_filename = 'NL_Bayes.zip'
-        src_dir_name = ''
+
+        zip_filename = 'nl-bayes_20130617.zip'
+        src_dir_name = 'nl-bayes_20130617'
         prog_filename = 'NL_Bayes'
         # store common file path in variables
         zip_file = self.dl_dir + zip_filename
