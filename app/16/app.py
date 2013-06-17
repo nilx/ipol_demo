@@ -60,7 +60,7 @@ class app(base_app):
                        zip_filename, zip_file)
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
-            and ctime(tgz_file) < ctime(prog_file)):
+            and ctime(zip_file) < ctime(prog_file)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
