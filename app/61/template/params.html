@@ -1,0 +1,106 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+<form action="${app.base_url + 'wait'}" method="get" style="padding:10px">
+    
+You can run the algorithm in two ways:
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<fieldset>
+<div style="position:relative; width:19em; top:-1em; 
+padding:.2em .5em; background-color:#ffffff; margin:0px">Option 1: guess noise, then denoise</div>
+
+<input type="hidden" name="key" value="${app.key}" />
+    
+  Guess a level (standard deviation) of 
+  additive Gaussian noise: 
+  
+  <div style="clear:both; font-size:8pt">&nbsp;</div>
+<div style="float:left; width:7em; text-align:left;">
+&sigma; &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="sigmaguessed" name="sigmaguessed" value="${app.cfg['param']['sigmaguessed']}" />
+</div>
+<div id="slider2" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#sigmaguessed', '#slider2', 0, 100, 1);
+});
+</script>
+
+<div style="float:left;">
+    <input type="submit" name="action" value="Denoise" />
+</div>    
+    
+</fieldset>    
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+
+<fieldset>
+<div style="position:relative; width:16em; top:-1em; 
+padding:.2em .5em; background-color:#ffffff; margin:0px">Option 2: add noise, then denoise</div>
+
+<input type="hidden" name="key" value="${app.key}" />
+    
+Select a level (standard deviation) of 
+additive Gaussian noise: 
+    
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+    
+<div style="float:left; width:7em; text-align:left;">
+&sigma; &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="sigmaadded" name="sigmaadded" value="${app.cfg['param']['sigmaadded']}" />
+</div>
+<div id="slider1" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#sigmaadded', '#slider1', 0, 100, 1);
+});
+</script>
+    
+<div style="float:left;">
+    <input type="submit" name="action" value="Add noise, then denoise" />
+</div>    
+    
+</fieldset>    
+    
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+    %if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
+        <p>Or you can run it after selecting a subimage by clicking two 
+        opposite corners.</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0.png'}" /></p>
+    %elif app.cfg['param']['x'] == None or app.cfg['param']['y'] == None:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <p>Please select the second corner of the subimage:</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" /></p>
+    %else:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <input type="hidden" name="x" value="${app.cfg['param']['x']}" />
+        <input type="hidden" name="y" value="${app.cfg['param']['y']}" />
+        <p>The algorithm will run on this selected subimage:</p>
+        <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+    %endif
+</form>
+
+
+<%include file="footer.html" />
