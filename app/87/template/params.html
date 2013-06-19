@@ -1,0 +1,111 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+
+$(document).ready(function() 
+{
+    createLinkedSlider('#sigma', '#slider1', 0.5, 10, 0.1);    
+});
+
+// -->
+</script>
+
+<form action="${app.base_url + 'wait'}" method="get">
+
+<fieldset>
+
+<input type="hidden" name="key" value="${app.key}" />
+
+<div>
+    <div style="float:left">
+        <i>&sigma;</i>, Gaussian standard deviation&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+        size="5" id="sigma" name="sigma" value="${app.cfg['param']['sigma']}" />
+    </div>
+    <div id="slider1" style="float:left; width:25em; margin-left:1em; margin-top:3pt; font-size:10pt;"></div>
+</div>
+
+<div style="clear:left;padding-top:1em">
+    <div style="float:left;margin-right:1em">
+        Algorithm:
+    </div>
+    
+    <%def name="entry(v,label)">
+        <input type="radio" name="algo" id="${v}" value="${v}"
+            %if v == app.cfg['param']['algo']:
+                checked
+            %endif
+        ><label for="${v}"> ${label}</label></br>
+    </%def>
+
+    <div style="float:left;margin-right:3em">
+        <div style="margin-bottom:4pt">
+            ${entry('dct', 'DCT')}
+        </div>
+        
+        <div style="margin-bottom:4pt">
+            %for k in [3,4,5]:
+                ${entry('box-%d' % k, 'Box, <i>K</i>=%d' % k)}
+            %endfor
+        </div>
+        <div style="margin-bottom:4pt">
+            %for k in [3,4,5]:
+                ${entry('ebox-%d' % k, 'Extended box, <i>K</i>=%d' % k)}
+            %endfor
+        </div>
+        <div style="margin-bottom:4pt">
+            %for k in [3,4,5]:
+                ${entry('sii-%d' % k, 'SII, <i>K</i>=%d' % k)}
+            %endfor
+        </div>
+    </div>
+    
+    <div style="float:left">
+        <div style="margin-bottom:4pt">
+            %for k in [3,4,5]:
+                ${entry('am-%d' % k, 'Alvarez&ndash;Mazorra, <i>K</i>=%d' % k)}
+            %endfor
+        </div>
+        <div style="margin-bottom:4pt">
+            %for k in [2,3,4]:
+                ${entry('deriche-%d' % k, 'Deriche, <i>K</i>=%d' % k)}
+            %endfor
+        </div>
+        <div style="margin-bottom:4pt">
+            %for k in [3,4,5]:
+                ${entry('vyv-%d' % k, 'VYV, <i>K</i>=%d' % k)}
+            %endfor
+        </div>
+    </div>
+</div>
+
+</fieldset>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+    <p>Run the algorithm: <input type="submit" name="action" value="run" /><p/>
+
+    %if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
+        <p>Or you can run it after selecting a subimage by clicking two 
+        opposite corners of the subimage.</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0.png'}" /></p>
+    %elif app.cfg['param']['x'] == None or app.cfg['param']['y'] == None:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <p>Please select the second corner of the subimage:</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" /></p>
+    %else:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <input type="hidden" name="x" value="${app.cfg['param']['x']}" />
+        <input type="hidden" name="y" value="${app.cfg['param']['y']}" />
+        <p>The algorithm will run on this selected subimage:</p>
+        <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+    %endif
+</form>
+
+
+<%include file="footer.html" />
