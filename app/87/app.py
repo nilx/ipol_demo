@@ -11,8 +11,6 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import time
-from math import ceil
-
 
 class app(base_app):
     """ Gaussian Convolution app """
