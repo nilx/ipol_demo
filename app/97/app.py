@@ -25,7 +25,7 @@ class NoMatchError(RuntimeError):
 class app(base_app):
     """ template demo app """
     
-    title = "Computing Visual Correspondence with Occlusions using Graph Cuts"
+    title = "Kolmogorov and Zabih's Graph Cuts Stereo Matching Algorithm"
 
     input_nb = 2 # number of input images
     input_max_pixels = 512*512 # max size (in pixels) of an input image
@@ -33,6 +33,8 @@ class app(base_app):
     input_dtype = '3x8i' # input image expected data type    
     input_ext = '.png'   # input image expected extension (ie file format)    
     is_test = False      # switch to False for deployment
+
+    xlink_article = "http://www.ipol.im/pub/pre/97/"
 
     def __init__(self):
         """
@@ -57,8 +59,8 @@ class app(base_app):
         """
         # store common file path in variables
         rectify_tgz_file = self.dl_dir + "MissStereo.tar.gz"
-        rectify_tgz_url = "http://www.ipol.im/pub/algo/" + \
-            "m_quasi_euclidean_epipolar_rectification/MissStereo.tar.gz"
+        rectify_tgz_url = "http://www.ipol.im/pub/pre/97/" + \
+            "MissStereo.tar.gz"
         rectify_log_file = self.base_dir + "build_MissStereo.log"
         build_dir = (self.src_dir + os.path.join("MissStereo", "build")
                      + os.path.sep)
@@ -102,8 +104,8 @@ class app(base_app):
         self._build_rectify()
         KZ2_tgz_file = self.dl_dir + "KZ2.tar.gz"
         #*************To be corrected later************
-        KZ2_tgz_url = "https://edit.ipol.im/edit/algo/" \
-            + "ltp_stereovision_with_graph_cuts/KZ2.tar.gz"
+        KZ2_tgz_url = "http://www.ipol.im/pub/pre/97/" \
+            + "KZ2.tar.gz"
         KZ2_prog_file = self.bin_dir + "KZ2"
         KZ2_log_file = self.base_dir + "build_KZ2.log"
         # get the latest source archive
