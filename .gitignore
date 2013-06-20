@@ -1,7 +1,7 @@
 # don't rewrite the deployed conf file
 demo.conf
 
-# ignore compiled Python code
+# compiled Python code
 *.pyc
 
 # download, source and binary files
