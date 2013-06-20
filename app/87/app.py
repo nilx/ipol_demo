@@ -23,6 +23,8 @@ class app(base_app):
     input_dtype = '3x8i'                # input image expected data type
     input_ext = '.png'                  # expected extension
     is_test = False
+    xlink_article = "http://www.ipol.im/pub/pre/87/"
+
     default_param = {'sigma': '5.0',    # default parameters
         'algo' : 'deriche-3',
         'x0': None,
@@ -57,7 +59,7 @@ class app(base_app):
         """
         # Store common file path in variables
         archive = 'gaussian_20130429'
-        tgz_url = 'http://dev.ipol.im/~getreuer/code/' + archive + '.tgz'
+        tgz_url = 'http://www.ipol.im/pub/pre/87/' + archive + '.tgz'
         tgz_file = self.dl_dir + archive + '.tgz'
         progs = ['gaussian_demo']
         src_bin = dict([(self.src_dir + os.path.join(archive, prog),
