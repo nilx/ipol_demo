@@ -26,6 +26,9 @@ class app(base_app):
     input_dtype = '3x8i'                # input image expected data type
     input_ext = '.png'                  # expected extension
     is_test = False
+
+    xlink_article = "http://www.ipol.im/pub/pre/61/"
+
     default_param = {
         'sigmaguessed': '10',
         'sigmaadded': '10',
@@ -62,11 +65,12 @@ class app(base_app):
         """
         
         # store common file path in variables
-        tgz_url = "https://edit.ipol.im/edit/algo/" \
-            + "cds_chambolleTV/chambolleTV.tgz"
-        tgz_file = self.dl_dir + "chambolleTV.tgz"
+        tgz_url = "http://www.ipol.im/pub/pre/61/" \
+            + "CDS_ChambolleTV_sourcecode.tgz"
+        tgz_file = self.dl_dir + "CDS_ChambolleTV_sourcecode.tgz"
         progs = ["chambolle_ipol", "imdiff_ipol"]
-        src_bin = dict([(self.src_dir + os.path.join("chambolleTV", prog),
+        src_bin = dict([(self.src_dir
+                         + os.path.join("CDS_ChambolleTV_sourcecode", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -84,7 +88,8 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "chambolleTV", " ".join(progs)),
+                      % (self.src_dir + "CDS_ChambolleTV_sourcecode",
+                         " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
