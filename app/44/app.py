@@ -16,15 +16,15 @@ class app(base_app):
     """ template demo app """
 
     title = "An Implementation of Combined Local-Global Optical Flow"
+    xlink_article = "http://www.ipol.im/pub/pre/44/"
+
     is_test = False       # switch to False for deployment
     is_listed = True
     is_built = True
 
-    xlink_article = "http://www.ipol.im/pub/pre/44/"
-
     xlink_src = "http://www.ipol.im/pub/pre/44/clg.v4.tgz"
 
-    xlink_src_demo = "http://www.ipol.im/pub/pre/21/imscript_dec2011.tar.gz"
+    xlink_src_demo = "http://www.ipol.im/pub/pre/44/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}
@@ -59,20 +59,8 @@ class app(base_app):
         app setup
         """
         # setup the parent class
-        print("I'm initing!")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
-#       self.xlink_algo = app.xlink_algo
-
-        # select the base_app steps to expose
-        # index() is generic
-        #app_expose(base_app.index)
-        #app_expose(base_app.input_select)
-        #app_expose(base_app.input_upload)
-        # params() is modified from the template
-        #app_expose(base_app.params)
-        # run() and result() must be defined here
-
 
     def build_algo(self):
         """
@@ -110,7 +98,7 @@ class app(base_app):
 
     def build_demo(self):
         """
-        download and built the demo auxiliary programs
+        download and build the demo auxiliary programs
         """
         ## store common file path in variables
         tgz_file = self.dl_dir + "imscript.tar.gz"
@@ -131,13 +119,13 @@ class app(base_app):
                          (self.src_dir +"imscript"),
                             stdout=log_file)
             # save into bin dir
-            #try:
             for f in glob.glob(os.path.join(self.src_dir,
                             "imscript", "bin", "*")):
                 shutil.copy(f, self.bin_dir)
-            #except:
-            #   print("some error occurred copying files")
-            # cleanup the source dir
+            # copy scripts from "demo" dir
+            for f in glob.glob(os.path.join(self.base_dir,
+                            "demo", "*")):
+                shutil.copy(f, self.bin_dir)
             shutil.rmtree(self.src_dir)
         return
 
@@ -159,6 +147,9 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             shutil.rmtree(self.input_dir)
             shutil.move(self.src_dir + "flowpairs", self.input_dir)
+
+            # cleanup the source dir
+            shutil.rmtree(self.src_dir)
         return
 
     def build(self):
@@ -183,8 +174,8 @@ class app(base_app):
         except ValueError:
             return self.error(errcode='badparams',
                      errmsg='The parameters must be numeric.')
-        #self.cfg.save()
         http.refresh(self.base_url + 'run?key=%s' % self.key)
+
         self.cfg['meta']['height'] = image(self.work_dir + '/a.png').size[1]
         self.cfg['meta']['colorscheme'] = 'ipoln'
         self.cfg['meta']['colorparam'] = '1'
@@ -247,7 +238,6 @@ class app(base_app):
              str(sigma),
              str(numit)
             ])
-        #q = self.run_proc(['zero_stuff.sh'])
         self.wait_proc(p, timeout=self.timeout)
         p = self.run_proc(['view_clg.sh', 'ipoln', '1'])
         self.wait_proc(p, timeout=self.timeout)
@@ -261,7 +251,6 @@ class app(base_app):
         """
         print("RECOLOR KWARGS = " + str(kwargs))
         cs = kwargs['colorscheme']
-        ##cp = kwargs['colorparam']
         self.cfg['meta']['colorscheme'] = cs
         self.cfg['meta']['colorwheel'] = True
         p = self.run_proc(['view_clg.sh', cs, '1'])
@@ -283,24 +272,10 @@ class app(base_app):
         the string returned by this function will be used
         as the tooltip text of image "f"
         """
-        print("PIPIU! \"%s\"" % f)
-        print("work_dir = " + self.work_dir)
-        return "-"
-#       print("PIPIU! \"%s\"" % f)
-#       print("work_dir = " + self.work_dir)
-#       fname,fexte = os.path.splitext(f)
-#       print("fname = " + fname)
-#       print("fexte = " + fexte)
-#       assert fexte == ".png"
-#       tiffcorr = self.work_dir + fname + ".tiff"
-#       print("tiffcorr = " + tiffcorr)
-#       if os.path.isfile(tiffcorr):
-#           f = fname + ".tiff"
-#       print("f = " + f)
-#       imgstatsargs = [self.bin_dir + 'imgstats', self.work_dir + f]
-#       print("imgstatsargs = " + str(imgstatsargs))
-#       imgstats = subprocess.check_output(imgstatsargs)
-#       return imgstats.rstrip()
+        msg = f + self.work_dir
+        msg = "-"
+        return msg
+
 
     @cherrypy.expose
     def input_select(self, **kwargs):
@@ -326,11 +301,6 @@ class app(base_app):
             shutil.copy(idir + "t.tiff", self.work_dir + "t.tiff")
             shutil.copy(idir + "t.png", self.work_dir + "t.png")
 
-        #fnames = input_dict[input_id]['files'].split()
-        #for i in range(len(fnames)):
-        #    shutil.copy(self.input_dir + fnames[i],
-        #                self.work_dir + 'input_%i' % i)
-        #msg = self.process_input()
         self.log("input selected : %s" % input_id)
         self.cfg['meta']['original'] = False
         self.cfg['meta']['height'] = image(self.work_dir + '/a.png').size[1]
@@ -470,7 +440,7 @@ class app(base_app):
         """
         display the algo results
         """
-        self.cfg['meta']['height'] = image(self.work_dir + '/a.png').size[1]
+        self.cfg['meta']['height'] = image(self.work_dir + 'a.png').size[1]
         colorwheel = True
         if 'colorwheel' in kwargs:
             colorwheel = "True" == kwargs['colorwheel']
@@ -481,8 +451,6 @@ class app(base_app):
         """
         return a string containing the running time of the algorithm
         """
-        #return subprocess.check_output([self.bin_dir+'cat',\
-        #   self.work_dir+'stuff_'+a+'.time'])
         return subprocess.Popen([self.bin_dir+'cat',
                    self.work_dir+'stuff_'+a+'.time'],
                   stdout=subprocess.PIPE).communicate()[0]

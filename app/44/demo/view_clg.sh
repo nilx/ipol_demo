@@ -5,15 +5,15 @@
 
 # IMPLICIT INPUT FILES
 #  t.tiff (OP)
-#  stuff_tvl1.tiff
-#  stuff_tvl1_fmt.tiff (OP)
+#  stuff_clg.tiff
+#  stuff_clg_fmt.tiff (OP)
 #
 # IMPLICIT OUTPUT FILES
 #
 #  t.method.parameter.png
-#  stuff_tvl1.method.parameter.png
+#  stuff_clg.method.parameter.png
 #  colorwheel.method.parameter.png
-#  stuff_tvl1_fmt.method.parameter.png (OP)
+#  stuff_clg_fmt.method.parameter.png (OP)
 #
 
 set -e
@@ -43,8 +43,7 @@ fi
 
 echo VSTUFF ARGS: $*
 
-
-COLORWHEEL=/tmp/cw.tiff
+COLORWHEEL=$PWD/../../input/colorwheel.tiff
 
 
 if test -f t.tiff; then
