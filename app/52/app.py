@@ -18,7 +18,7 @@ class app(base_app):
     """ SPLE denoising """
 
     title = 'The Implementation of SURE Guided Piecewise Linear Image Denoising'
-    xlink_article = 'http://www.ipol.im/pub/pre/52/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/52/'
 
     input_nb = 1
     input_max_pixels = 800 * 800        # max size (in pixels) of input image
@@ -65,7 +65,7 @@ class app(base_app):
         
         # store common file path in variables
         archive = 'sple_20130528'
-        tgz_url = 'http://www.ipol.im/pub/pre/52/' \
+        tgz_url = 'http://www.ipol.im/pub/art/2013/52/' \
             + archive + '.tgz'
         tgz_file = self.dl_dir + archive + '.tgz'
         progs = ['denoiseSPLE', 'imnoise',  'imdiff']
