@@ -16,7 +16,8 @@ class app(base_app):
     """ template demo app """
 
     title = "Mao-Gilles Stabilization Algorithm"
-
+    is_test = False
+    xlink_article = 'http://www.ipol.im/pub/pre/46/'
 
         # Definition of the parameters and their default values
     parconfig = {}
