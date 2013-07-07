@@ -1,0 +1,40 @@
+<%
+def rnd():
+   import random
+   return random.randint(0,100000)
+%>
+
+
+<%def name="listitem_img(file,title)">
+<li>
+<a href="#">${title}
+   <span>
+      <img src="${app.work_url + file}?rnd=${rnd()}" alt="${title}" title="${title}" />
+   </span>
+</a>
+</li>
+</%def>
+
+
+<%
+   height = app.cfg['param']['image_height'] 
+   gt = app.cfg['param']['ground_truth']
+%>
+
+
+<!-- show the selected input images -->
+
+<h2>Input pair</h2>
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+
+   ${listitem_img('right_image.png', 'second image')}
+   ${listitem_img('left_image.png', 'first image')}
+
+   %if  gt != '':
+     ${listitem_img('ground_truth.png', 'ground truth')}
+##     ${listitem_img('ground_truth_mask.png', 'ground truth mask')}
+   %endif
+
+  </ul>
+</div>

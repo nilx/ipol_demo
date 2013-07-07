@@ -1,0 +1,58 @@
+<form action="${app.base_url + 'input_upload'}" method="post"
+      enctype="multipart/form-data">
+  <div class="action">
+    <h3>Upload Data</h3>
+    <p>
+    Upload your own image files to use as the algorithm input.
+    </p>
+    <div class="upload_input">
+      <div style="float: left; width:13em;">
+         <label for="file_0">Left image</label>
+      </div>
+         <input type="file" name="left_image" id="file_0" size="20" /> <br />
+
+      <div style="float: left; width:13em;">
+         <label for="file_1">Right image</label>
+      </div>
+         <input type="file" name="right_image" id="file_1" size="20" /><br />
+
+      <hr>
+      <div style="float: left; width:13em;">
+         <label for="file_3">Ground Truth data</label>
+      </div>
+         <input type="file" name="ground_truth" id="file_3" size="20" /><br />
+
+
+      <div style="float: left; width:13em;">
+         <label for="file_2">Evaluation mask image</label>
+      </div>
+         <input type="file" name="ground_truth_mask" id="file_2" size="20" /><br />
+
+&nbsp;
+      <input type="submit" value="upload" />
+    </div>
+    <p class="note">
+      %if app.input_max_pixels:
+      Images larger than ${app.input_max_pixels} pixels will be resized.
+      %endif
+      %if app.input_max_weight:
+      Upload size is limited to ${app.input_max_weight / (1024 *
+      1024)}MB per image file
+      %if (app.input_max_weight * app.input_nb) > (10 * 1024 * 1024):
+      and 10MB for the whole upload set
+      %endif
+      .
+      %endif
+      <br />
+      TIFF, JPEG, PNG, GIF, PNM (and 
+      <a href="http://www.ipol.im/meta/demo_input/">other standard formats</a>)
+      are supported.
+      The uploaded files may be re-used for further analysis.
+      <br />
+      Only upload
+      <a href="http://www.ipol.im/meta/demo_input/">suitable images</a>.
+      See <a href="http://www.ipol.im/meta/demo_input/">the copyright
+	and legal conditions</a> for details.
+    </p>
+  </div>
+</form>

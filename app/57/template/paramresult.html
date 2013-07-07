@@ -1,0 +1,13 @@
+<%include file="header-jquery.html" />
+
+
+<%include file="params_form.html" />
+
+%if  app.cfg['param']['run'] == '': 
+<%include file="params_input.html" />
+%else :
+<%include file="result_table.html" />
+%endif
+
+
+<%include file="footer.html" />
