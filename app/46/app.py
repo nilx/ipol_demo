@@ -16,8 +16,7 @@ class app(base_app):
     """ template demo app """
 
     title = "Mao-Gilles Stabilization Algorithm"
-    is_test = False
-    xlink_article = 'http://www.ipol.im/pub/pre/46/'
+
 
         # Definition of the parameters and their default values
     parconfig = {}
@@ -25,28 +24,51 @@ class app(base_app):
                           'changeable': True, 'archived' : False,
                           'order' : 1,
                           'htmlname': 'winsize',
-                          'doc': 'number of frames of sliding window (<149)'}
+                          'doc': 'Number of frames of sliding window',
+                          'min' : 1,
+                          'max' : 149,
+                          'step' : 1,
+                          'slider_id' : 'slider_winsize',
+                          'input_id' : 'winsize_selector'}
     parconfig['nbregman'] = {'type': int, 'default': 4,
                           'changeable': True, 'archived' : False,
                           'order' : 2,
-                          'htmlname': 'Nbregman',
-                          'doc': 'number of iterations of the Bregman loop \
-(<10)'}
+                          'htmlname': 'nbregman',
+                          'doc': 'Number of iterations of the Bregman loop',
+                          'min' : 1,
+                          'max' : 9,
+                          'step' : 1,
+                          'slider_id' : 'slider_nbregman',
+                          'input_id' : 'nbregman_selector'}
     parconfig['nsplitting'] = {'type': int, 'default': 5,
                           'changeable': True, 'archived' : False,
                           'order' : 3,
-                          'htmlname': 'Nsplitting',
-                          'doc': 'number of iterations of the operator \
-splitting loop (<10)'}
+                          'htmlname': 'nsplitting',
+                          'doc': 'Number of iterations of the operator \
+splitting loop',
+                          'min' : 1,
+                          'max' : 9,
+                          'step' : 1,
+                          'slider_id' : 'slider_nsplitting',
+                          'input_id' : 'nsplitting_selector'}
     parconfig['lambd'] = {'type': float, 'default': 0.1,
                           'changeable': True, 'archived' : False,
-              'htmlname': 'lambda', 'doc':'regularization parameter (<1)',
-                          'order' : 4}
+              'htmlname': 'lambd', 'doc':'Regularization parameter (lambda)',
+                          'order' : 4,
+                          'min' : 0.001,
+                          'max' : 0.999,
+                          'step' : 0.001,
+                          'slider_id' : 'slider_lambd',
+                          'input_id' : 'lambd_selector'}
     parconfig['delta'] = {'type': float, 'default': 0.5,
                           'changeable': True, 'archived' : False,
-             'htmlname': 'delta', 'doc':'step for the gradient descent\
-(0.05 < delta < 1)',
-                          'order' : 5}
+             'htmlname': 'delta', 'doc':'Step for the gradient descent (delta)',
+                          'order' : 5,
+                          'min' : 0.001,
+                          'max' : 0.999,
+                          'step' : 0.001,
+                          'slider_id' : 'slider_delta',
+                          'input_id' : 'delta_selector'}
 
     def __init__(self):
         """
@@ -63,11 +85,11 @@ splitting loop (<10)'}
         program build/update
         """
         ### store common file path in variables
-        zip_file = self.dl_dir + "MaoGilles_201306c.zip"
+        zip_file = self.dl_dir + "MaoGilles_201307.zip"
         prog_file = self.bin_dir + "ShiftMaoGilles"
         log_file = self.base_dir + "build.log"
         ### get the latest source archive
-        build.download("http://www.ipol.im/pub/pre/46/MaoGilles_201306c.zip"
+        build.download("http://www.ipol.im/pub/pre/46/MaoGilles_201307.zip"
         , zip_file)
         ### test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
@@ -79,14 +101,14 @@ splitting loop (<10)'}
             build.extract(zip_file, self.src_dir)
             # build the program
             build.run("make OPENMP=1 -C %s" % (self.src_dir
-            +os.path.join("MaoGilles_201306")), stdout=log_file)
+            +os.path.join("MaoGilles_201307")), stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             try:
                 os.mkdir(self.bin_dir)
                 shutil.copy(self.src_dir +
-                           "MaoGilles_201306/ShiftMaoGilles", prog_file)
+                           "MaoGilles_201307/ShiftMaoGilles", prog_file)
             except IOError, e:
                 print("Unable to copy file. %s" % e)
             # cleanup the source dir
@@ -112,7 +134,7 @@ splitting loop (<10)'}
                           errmsg='The parameters must be numeric.')
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
-        self.cfg['meta']['height'] = image(self.work_dir + '/b_000.png').size[1]
+        self.cfg['meta']['height'] = image(self.work_dir+'/b_000.png').size[1] 
         self.cfg['meta']['pos_inview'] = False
         return self.tmpl_out("wait.html")
 
@@ -235,5 +257,5 @@ splitting loop (<10)'}
         """
         display the algo results
         """
-        self.cfg['meta']['height'] = image(self.work_dir + '/b_000.png').size[1]
+        self.cfg['meta']['height'] = image(self.work_dir+'/b_000.png').size[1] 
         return self.tmpl_out("result.html")

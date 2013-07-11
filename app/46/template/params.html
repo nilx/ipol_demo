@@ -1,5 +1,10 @@
-<%include file="header.html" />
+<%include file="header-jquery.html" />
 
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
 <%
 	height = app.cfg['meta']['height']
 	if height < 310:
@@ -12,28 +17,25 @@
 
 <form action="${app.base_url + 'wait'}" method="get">
 		<input type="hidden" name="key" value="${app.key}">
-
-		<%def name="setpar(visible,name,symbol,defval,hint)">
-		%if visible:
-		<tr>
-			<td align="right">
-				<label for="${name}">${symbol} = </label>
-			</td>
-			<td align="left">
-				<input type="text" name="${name}" value="${defval}" size="6" />
-			</td>
-			<td style="font-size:small">${hint}</td>
-		</tr>
-		%else:
-		<input type="hidden" name="${name}" value="${defval}" />
-		%endif
-		</%def>
-
-		<table cellpadding="5" cellspacing="0" border="0" style="margin-left:0px;margin-right:auto">
-
+                <table cellpadding="10" cellspacing="0" border="0" style="margin-left:10px;margin-right:auto">
 		%for k in sorted(app.parconfig):
-		${setpar(app.parconfig[k]['changeable'],k,app.parconfig[k]['htmlname'],app.parconfig[k]['default'],app.parconfig[k]['doc'])}
-		%endfor
+		<tr><td>
+                <div style="float:left;padding-right:25px">
+                ${app.parconfig[k]['doc']} : </td><td> <input type="text" style="font-family:monospace;text-align:right"
+                size="7" id="${app.parconfig[k]['input_id']}" name="${app.parconfig[k]['htmlname']}" value="${app.parconfig[k]['default']}" />
+                </div>
+                </td><td>
+                <div id="${app.parconfig[k]['slider_id']}" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+                </td><td>
+                <script type="text/javascript">
+                // Turn DIV slider into a slider linked to scale
+                $(document).ready(function() 
+                { createLinkedSlider(${app.parconfig[k]['input_id']}, ${app.parconfig[k]['slider_id']}, ${app.parconfig[k]['min']}, ${app.parconfig[k]['max']}, ${app.parconfig[k]['step']}); });
+                </script>
+                <div style="clear:both"> </div>
+                </td></tr> 
+
+                %endfor
 
 		<tr>
 			<td> </td>
@@ -42,11 +44,12 @@
 			</td>
 			<td> </td>
 	</tr>
-		</table>
+		
+</table>
+ 
 
 
 </form>
-
 
 
 <hr />
@@ -55,7 +58,7 @@
 
 <%def name="visual(file,title)">
 <li>
-<a href="${app.base_url}reposition?key=${app.key}&repo=${file}#p">
+<a href="#">
 	${title}
 		<span>
 			<img src="${app.work_url + file}" alt="${title}" />
