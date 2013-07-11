@@ -11,8 +11,6 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import time
-from math import ceil
-
 
 class app(base_app):
     """ Automatic Color Enhancement (ACE) app """
@@ -28,6 +26,11 @@ class app(base_app):
     input_ext = '.png'                  # expected extension
     is_test = False
     default_param = {'alpha': '5.0', # default parameters
+        'omega' : '1/r',
+        'gaussianstd' : '25',
+        'method' : 'interp',
+        'degree' : '9',
+        'numlevels' : '8',
         'x0': None,
         'y0': None,
         'x' : None,
@@ -53,14 +56,14 @@ class app(base_app):
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
 
+
     def build(self):
         """
         Program build/update
         """
         # Store common file path in variables
-        archive = 'ace_20120718'
-        tgz_url = 'http://www.ipol.im/pub/art/2012/g-ace/' \
-            + archive + '.tar.gz'
+        archive = 'ace_20121029'
+        tgz_url = 'http://www.ipol.im/pub/art/2012/g-ace/' + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
         progs = ['ace', 'histeq']
         src_bin = dict([(self.src_dir + os.path.join(archive, prog),
@@ -145,6 +148,13 @@ class app(base_app):
             [(p,kwargs[p]) for p in self.default_param.keys() if p in kwargs])
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
+        
+        self.cfg['param']['gaussianstd'] = \
+            str(max(float(self.cfg['param']['gaussianstd']), 0.5))
+        self.cfg['param']['degree'] = min(max( \
+            int(self.cfg['param']['degree']) | 1, 3), 11)
+        self.cfg['param']['numlevels'] = \
+            min(max(int(self.cfg['param']['numlevels']), 2), 64)
         
         if not 'action' in kwargs:
             # Select a subimage
@@ -231,6 +241,21 @@ class app(base_app):
             ar.add_file("he.png", 
                 info="Histogram equalization")
             ar.add_info({'alpha': self.cfg['param']['alpha']})
+            
+            if str(self.cfg['param']['omega']) == 'G':
+                ar.add_info({'omega': 'Gaussian, standard deviation ' \
+                    + str(self.cfg['param']['gaussianstd'])})
+            else:
+                ar.add_info({'omega': str(self.cfg['param']['omega'])})
+            
+            if self.cfg['param']['method'] == 'poly':
+                ar.add_info({'method': 'degree ' \
+                    + str(self.cfg['param']['degree']) \
+                    + ' polynomial approximation'})
+            else:
+                ar.add_info({'method': 'interpolation with ' \
+                    + str(self.cfg['param']['numlevels']) + ' levels'})
+            
             ar.save()
 
         return self.tmpl_out("run.html")
@@ -244,15 +269,36 @@ class app(base_app):
         """
         
         timeout = False
+        omega_string = str(self.cfg['param']['omega'])
+        
+        if omega_string == 'G':
+            omega_string += ':' + str(self.cfg['param']['gaussianstd'])
+            
+        if self.cfg['param']['method'] == 'poly':
+            method_string = 'poly:' + str(self.cfg['param']['degree'])
+        else:
+            method_string = 'interp:' + str(self.cfg['param']['numlevels'])
+        
         self.wait_proc([self.run_proc(['ace', 
                 '-a', str(self.cfg['param']['alpha']),
+                '-w' + omega_string,
+                '-m' + method_string,
                 'input_0_sel.png', 'ace.png'],
                 stdout=stdout, stderr=stdout),
-                self.run_proc(['histeq', 
+            self.run_proc(['histeq', 
                 'input_0_sel.png', 'he.png'],
                 stdout=None, stderr=stdout)], timeout)
         
         self.cfg['param']['displayheight'] = max(200, \
             image(self.work_dir + 'input_0_sel.png').size[1])
         self.cfg.save()
-        
+    
+    @cherrypy.expose
+    @init_app
+    def result(self, public=None):
+        """
+        Display the algo results
+        SHOULD be defined in the derived classes, to check the parameters
+        """
+        return self.tmpl_out("result.html",
+            stdout = open(self.work_dir + 'stdout.txt', 'r').read())

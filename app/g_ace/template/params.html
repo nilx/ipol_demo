@@ -3,6 +3,12 @@
 <script type="text/javascript">
 <!--
 <%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
 
 function spritecoords(s)
 {
@@ -10,36 +16,38 @@ function spritecoords(s)
     return '0px ' + (-148*n) + 'px';
 }
 
+function select_gaussian()
+{
+    document.getElementById('omega-1').checked = false;
+    document.getElementById('omega-1/r').checked = false;
+    document.getElementById('omega-G').checked = true;
+}
+
+function select_poly()
+{
+    document.getElementById('method-interp').checked = false;
+    document.getElementById('method-poly').checked = true; 
+}
+
+function select_interp()
+{
+    document.getElementById('method-poly').checked = false; 
+    document.getElementById('method-interp').checked = true;
+}
+
 $(document).ready(function() 
 {
     createLinkedSlider('#alpha', '#slider1', 1, 8, 0.5);
-    
-    $('#slopepreview').css('height', '148px');
-    $('#slopepreview').css('background-image', 
-        'url(\'http://dev.ipol.im/~getreuer/images/ace-slopes.png\')');
-    $('#slopepreview').css('background-position', 
-                spritecoords($('#alpha').attr('value')));
-    
-    // Update slope preview image with alpha slider
-    $('#alpha').blur(function()
-        {
-            var value = $('#alpha').attr('value');
-            var valueClamped = Math.min(Math.max(value, 
-                $('#slider1').slider('option', 'min')), 
-                $('#slider1').slider('option', 'max'));
-            $('#slider1').slider('value', valueClamped);
-            $('#slopepreview').css('background-position', 
-                spritecoords(valueClamped));
+    createLinkedSlider('#gaussianstd', '#slider2', 20, 100, 1);
+    createLinkedSlider('#numlevels', '#slider3', 4, 32, 1);
+    createLinkedSlider('#degree', '#slider4', 3, 11, 2);
 
-            if(value != valueClamped)
-                $('#alpha').val(valueClamped.toFixed(numDigits));
-        });
-    $('#slider1').slider('option', 'slide',
-        function(event, ui) { 
-            $('#alpha').val(ui.value.toFixed(1)); 
-            $('#slopepreview').css('background-position', 
-                spritecoords(ui.value));
-        });
+    $('#slider2').slider('option', 'slide',
+        function(event, ui) { select_gaussian(); $('#gaussianstd').val(ui.value.toFixed(0)); });
+    $('#slider3').slider('option', 'slide',
+        function(event, ui) { select_interp(); $('#numlevels').val(ui.value.toFixed(0)); });
+    $('#slider4').slider('option', 'slide',
+        function(event, ui) { select_poly(); $('#degree').val(ui.value.toFixed(0)); });
 });
 
 // -->
@@ -50,16 +58,87 @@ $(document).ready(function()
 <fieldset>
 
 <input type="hidden" name="key" value="${app.key}" />
-<div style="float:left; width:16em; text-align:right;">
+<table style="margin:0px">
+<tr>
+<td>
 &alpha;, enhancement strength&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
-size="7" id="alpha" name="alpha" value="${app.cfg['param']['alpha']}" /> <br />
-<div id="slider1" style="width:16em; margin-top:4px; margin-left:1em; font-size:10pt;"></div>
-</div>
-<div style="
-float:left; width:237px; margin-left:2em; text-align:center">
-<div id="slopepreview" name="slopepreview" style="width:237px;"></div>
-<div style="font-size:85%"><i>Slope function</i></div></div>
+size="5" id="alpha" name="alpha" value="${app.cfg['param']['alpha']}" />
+</td>
+<td>
+<div id="slider1" style="float:left; width:17em; margin-left:1em; margin-top:3pt; font-size:10pt;"></div>
+</td>
+</tr>
+</table>
 
+<p style="margin:0px;clear:both"><a class="toggle" style="cursor:s-resize; text-decoration:underline" onclick="toggle('moreparam');">More</a></p>
+<div style="display:none; border-top:1px solid #ccccff" class="toggleable" id="moreparam">
+<table style="margin:0px;padding:0px;" border="0">
+<tr>
+<td rowspan="3" style="text-align:right; vertical-align:text-top">
+&nbsp;&nbsp;&omega;, spatial weighting&nbsp;
+</td>
+<td><input type="radio" id="omega-1" name="omega" value="1" 
+%if str(app.cfg['param']['omega']) == '1':
+checked
+%endif
+/>
+<label for="omega-1"> 1</label>
+</td></tr>
+<tr><td>
+<input type="radio" id="omega-1/r" name="omega" value="1/r"
+%if str(app.cfg['param']['omega']) != '1' and str(app.cfg['param']['omega']) != 'G':
+checked
+%endif
+ />
+<label for="omega-1/r"> 1/<i>r</i></label>
+</td></tr>
+<tr><td>
+<input type="radio" id="omega-G" name="omega" value="G"
+%if str(app.cfg['param']['omega']) == 'G':
+checked
+%endif
+ />
+<label for="omega-G"> Gaussian, standard deviation
+</td><td>
+</label>
+<input type="edit" id="gaussianstd" name="gaussianstd" style="font-family:monospace; text-align:right;" size="5" value="${app.cfg['param']['gaussianstd']}" onfocus="select_gaussian()" />
+</td><td>
+<div id="slider2" style="float:left; width:17em; margin-left:1em; margin-top:3pt; font-size:8pt;"></div>
+</td>
+</tr>
+<tr style="border-top:1px solid #ccccff">
+<td rowspan="2" style="text-align:right; vertical-align:text-top;padding-top:6pt;">
+method&nbsp;
+</td>
+<td style="vertical-align:text-top;padding-top:6pt;"><input type="radio" id="method-interp" name="method" value="interp" 
+%if app.cfg['param']['method'] != 'poly':
+checked
+%endif
+><label for="method-interp"> Level interpolation,
+# levels: </label>
+</td><td style="padding-top:6pt;">
+<input type="edit" id="numlevels" name="numlevels" style="font-family:monospace;text-align:right" size="5" value="${app.cfg['param']['numlevels']}" onfocus="select_interp()" />
+</td><td style="padding-top:6pt">
+<div id="slider3" style="float:left; width:17em; margin-left:1em; margin-top:3pt; font-size:8pt;"></div>
+</td>
+</tr>
+<tr><td>
+<input type="radio" id="method-poly" name="method" value="poly" 
+%if app.cfg['param']['method'] == 'poly':
+checked
+%endif
+/>
+<label for="method-poly"> Polynomial <i>s<sub>&alpha;</sub></i>, degree: </label>
+</td><td>
+<input type="edit" id="degree" name="degree" 
+value="${app.cfg['param']['degree']}" style="font-family:monospace;text-align:right" size="5" 
+onfocus="select_poly()" />
+</td><td>
+<div id="slider4" style="float:left; width:7em; margin-left:1em; margin-top:3pt; font-size:8pt;"></div>
+</td>
+</tr>
+</table>
+</div>
 </fieldset>
 
 <div style="clear:both; font-size:8pt">&nbsp;</div>
