@@ -1,0 +1,62 @@
+<%include file="header.html" />
+
+<div class="action" style="padding-bottom:3ex">    
+    <form style="float:left" action="${app.base_url}" method="get">
+        <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
+    </form>    
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="msg" value="different parameter" />
+        <input type="submit" value="different parameter" /></p>
+    </form>
+</div>
+
+<p>
+%if app.cfg['param']['zoomfactor'] > 1:
+For visualization, images are displayed with ${app.cfg['param']['zoomfactor']}&times; pixel duplication.
+Images at native resolution can be downloaded here:
+%else:
+The images can be downloaded here:
+%endif
+<a href="${app.work_url + 'composite.png'}">input</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'inpainted.png'}">inpainted</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'input_0.png'}">original</a>.</p>
+
+<p><i>&alpha;</i>&nbsp;=&nbsp;${'%.1e' % float(app.cfg['param']['alpha'])}, 
+<i>&beta;</i>&nbsp;=&nbsp;${'%.1e' % float(app.cfg['param']['beta'])}</p>
+
+<div class="gallery" style="height:${app.cfg['param']['displayheight']}px">
+    <ul class="index">
+    <li>
+        <a href="#">
+        Input
+        <span>
+            <img src="${app.work_url + 'composite_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+        Inpainted
+        <span>
+            <img src="${app.work_url + 'inpainted_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>    
+    <li>
+        <a href="#">
+        Original
+        <span>
+            <img src="${app.work_url + 'input_0_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>    
+    </ul>
+</div>
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
