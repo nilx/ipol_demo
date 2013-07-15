@@ -64,7 +64,7 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'sple_20130528'
+        archive = 'sple_20130711'
         tgz_url = 'http://www.ipol.im/pub/art/2013/52/' \
             + archive + '.tgz'
         tgz_file = self.dl_dir + archive + '.tgz'
