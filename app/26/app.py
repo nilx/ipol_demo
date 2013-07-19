@@ -16,14 +16,14 @@ class app(base_app):
     """ template demo app """
 
     title = "TV-L1 Optical Flow Estimation"
-    xlink_article = 'http://www.ipol.im/pub/pre/26/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/26/'
 
     is_test = False
     is_listed = True
     is_built = True
 
-    xlink_src = "http://www.ipol.im/pub/pre/26/tvl1flow_3.tar.gz"
-    xlink_src_demo = "http://www.ipol.im/pub/pre/26/imscript_dec2011.tar.gz"
+    xlink_src = "http://www.ipol.im/pub/art/2013/26/tvl1flow_3.tar.gz"
+    xlink_src_demo = "http://www.ipol.im/pub/art/2013/26/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}
