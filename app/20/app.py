@@ -16,14 +16,14 @@ class app(base_app):
     """ template demo app """
 
     title = "Horn-Schunck Optical Flow with a Multi-Scale Strategy"
-    xlink_article = 'http://www.ipol.im/pub/pre/20/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/20/'
 
     is_test = False           # switch to False for deployment
     is_listed = True
     is_built = True
 
-    xlink_src = "http://www.ipol.im/pub/pre/20/phs_3.tar.gz"
-    xlink_src_demo = "http://www.ipol.im/pub/pre/20/imscript_dec2011.tar.gz"
+    xlink_src = "http://www.ipol.im/pub/art/2013/20/phs_3.tar.gz"
+    xlink_src_demo = "http://www.ipol.im/pub/art/2013/20/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}
