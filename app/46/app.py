@@ -17,7 +17,7 @@ class app(base_app):
 
     title = "Mao-Gilles Stabilization Algorithm"
     is_test = False
-    xlink_article = 'http://www.ipol.im/pub/pre/46/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/46/'
 
 
         # Definition of the parameters and their default values
@@ -91,7 +91,7 @@ splitting loop',
         prog_file = self.bin_dir + "ShiftMaoGilles"
         log_file = self.base_dir + "build.log"
         ### get the latest source archive
-        build.download("http://www.ipol.im/pub/pre/46/MaoGilles_201307.zip"
+        build.download("http://www.ipol.im/pub/art/2013/46/MaoGilles_201307.zip"
         , zip_file)
         ### test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
