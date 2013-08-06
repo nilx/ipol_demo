@@ -1,0 +1,125 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+// -->
+</script>
+
+<form action="${app.base_url + 'wait'}" method="get" style="padding:10px">
+    
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+
+<fieldset>
+<div style="position:relative; width:16em; top:-1em; 
+padding:.2em .5em; background-color:#ffffff; margin:0px">  </div>
+
+<input type="hidden" name="key" value="${app.key}" />
+    
+    
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+ 
+Subsampling factor
+  <%
+  sfactorsel = int(app.cfg['param']['sfactor'])
+  selected = {2:'', 4:''}
+  selected[sfactorsel] = 'selected'
+  %>
+
+<select name="sfactor">
+  %for s in sorted(selected.keys()):
+  <option value="${s}" ${selected[s]}>${s}</option>
+  %endfor
+</select>
+
+(Note: the image will be cropped so its width and height are multiples of the 
+sampling factor)
+</br>
+
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+  
+<div style="float:left; width:7em; text-align:left;">
+h &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="hfilter" name="hfilter" value="${app.cfg['param']['hfilter']}" />
+</div>
+<div id="slider_hfilter" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#hfilter', '#slider_hfilter', 0.25, 5, 0.25);
+});
+</script>
+ 
+  
+<div style="float:left; width:7em; text-align:left;">
+&mu; &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="lambda" name="lambda" value="${app.cfg['param']['lambda']}" />
+</div>
+<div id="slider_lambda" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#lambda', '#slider_lambda', 0.5, 20, 0.5);
+});
+</script>
+ 
+<div style="float:left; width:7em; text-align:left;">
+&lambda; &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="mu" name="mu" value="${app.cfg['param']['mu']}" />
+</div>
+<div id="slider_mu" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#mu', '#slider_mu', 0.5, 20, 0.5);
+});
+</script>
+  
+  
+  
+  
+  
+    
+<div style="float:left;">
+    <input type="submit" name="action" value="Compute" />
+</div>    
+    
+</fieldset>    
+    
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+    %if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
+        <p>Or you can run it after selecting a subimage by clicking two 
+        opposite corners.</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0.png'}" /></p>
+    %elif app.cfg['param']['x'] == None or app.cfg['param']['y'] == None:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <p>Please select the second corner of the subimage:</p>
+        <p><input type="image" style="cursor:crosshair;" name=""
+            src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" /></p>
+    %else:
+        <input type="hidden" name="x0" value="${app.cfg['param']['x0']}" />
+        <input type="hidden" name="y0" value="${app.cfg['param']['y0']}" />
+        <input type="hidden" name="x" value="${app.cfg['param']['x']}" />
+        <input type="hidden" name="y" value="${app.cfg['param']['y']}" />
+        <p>The algorithm will run on this selected subimage:</p>
+        <img src="${app.work_url + 'input_0_sel.png'}?${app.timestamp}" alt="" />
+    %endif
+</form>
+
+
+<%include file="footer.html" />
