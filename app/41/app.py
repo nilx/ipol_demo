@@ -50,7 +50,7 @@ class app(base_app):
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
-    xlink_article = 'http://www.ipol.im/pub/pre/41/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/41/'
 
     def __init__(self):
         """
@@ -75,7 +75,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/pre/41/selective_ipol.tgz"
+        tgz_url = "http://www.ipol.im/pub/art/2013/41/selective_ipol.tgz"
         tgz_file = self.dl_dir + "selective_ipol.tgz"
         prog_file = self.bin_dir + "poisson_lca"
         log_file = self.base_dir + "build.log"
