@@ -15,7 +15,7 @@ import time
 class app(base_app):
     """ Efros-Leung Texture Synthesis app """
 
-    title = 'Efros-Leung Texture Synthesis'
+    title = 'Exemplar-based Texture Synthesis: the Efros-Leung Algorithm'
 
     input_nb = 1
     input_max_pixels = 256 * 256        # max size (in pixels) of input image
@@ -23,7 +23,7 @@ class app(base_app):
     input_dtype = '3x8i'                # input image expected data type
     input_ext = '.png'                  # expected extension
     is_test = False
-    xlink_article = 'http://www.ipol.im/pub/pre/59/'
+    xlink_article = "http://www.ipol.im/pub/art/2013/59/"
 
     def __init__(self):
         """
@@ -55,7 +55,7 @@ class app(base_app):
         log_file = self.base_dir + "build.log"
 
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/pre/59/" +
+        build.download("http://www.ipol.im/pub/art/2013/59/" +
                        "efros_leung_v1.0.tar.gz", tgz_file)
 
         # test if the dest file is missing, or too old
