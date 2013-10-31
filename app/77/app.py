@@ -15,9 +15,9 @@ class app(base_app):
     """ demo app """
     
     title = "Recovering the Subpixel PSF from Two Photographs"\
-            " at Different Distances"
+            " at Different Distances" 
            
-    xlink_article = 'http://www.ipol.im/pub/pre/77/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/77/'
     input_nb = 2 # number of input images
     input_max_pixels = 5000000 # max size (in pixels) of an input image
     input_max_weight = 3 * 1024 * 1024 # max size (in bytes) of an input file
@@ -47,11 +47,12 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_file = self.dl_dir + "two_photos_psf_estim.tar.gz"
+        tgz_file = self.dl_dir + "two-photos-psf-estim.tar.gz"
         prog_file = self.bin_dir + "two_photos_psf_estim"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/pre/77/two-photos-psf-estim.tar.gz", tgz_file) 
+        build.download("http://www.ipol.im/pub/art/2013/77/"
+                       + "two-photos-psf-estim.tar.gz", tgz_file)
 
         # test if the dest file is missing, or too old
         # dont rebuild the file
