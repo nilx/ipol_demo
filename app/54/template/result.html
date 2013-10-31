@@ -1,0 +1,75 @@
+<%include file="header.html" />
+
+<div class="action" style="padding-bottom:3ex">    
+    <form style="float:left" action="${app.base_url}" method="get">
+        <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
+    </form>    
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="msg" value="different parameter" />
+        <input type="submit" value="different parameter" /></p>
+    </form>
+</div>
+
+<p>Notice that if the image dimensions exceeded 500&times;500, then the image has been cropped.  
+%if app.cfg['param']['zoomfactor'] > 1:
+For visualization, images are displayed with ${app.cfg['param']['zoomfactor']}&times; pixel duplication.  
+%endif
+Results at native resolution can be downloaded here:
+<a href="${app.work_url + 'composite.png'}">input</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'inpainted.png'}">Inpainted</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'patchmap.png'}">patchmap</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'input_0.png'}">original</a>.</p>
+
+<p><i>patch size</i>&nbsp;=&nbsp;${'%i' % int(app.cfg['param']['patchsize'])}<br />
+<i>overlap</i>&nbsp;=&nbsp;${'%i' % int(app.cfg['param']['overlap'])}<br />
+<i>number of factors per model</i>&nbsp;=&nbsp;${'%i' % int(32)} except for the flat (1 factor)<br />
+<i>number of orientations</i>&nbsp;=&nbsp;${'%i' % int(18) }<br />
+<i>number of iterations</i>&nbsp;=&nbsp;${'%i' % int(app.cfg['param']['iteration'])}</p>
+
+<div class="gallery" style="height:${app.cfg['param']['displayheight']}px">
+    <ul class="index">
+    <li>
+        <a href="#">
+        Input
+        <span>
+            <img src="${app.work_url + 'composite_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>
+     <li>
+        <a href="#">
+        Inpainted
+        <span>
+            <img src="${app.work_url + 'inpainted_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>    
+    <li>
+        <a href="#">
+        Original
+        <span>
+            <img src="${app.work_url + 'input_0_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>    
+    <li>
+        <a href="#">
+        Patch Map
+        <span>
+            <img src="${app.work_url + 'patchmap.png'}" alt="" />
+        </span>
+        </a>
+    </li>    
+    </ul>
+</div>
+
+<h2>Algorithm's Log</h2>
+<pre class="stdio">
+${app.cfg['param']['stdout']}
+</pre>
+<hr />
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />
