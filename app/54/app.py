@@ -19,8 +19,9 @@ import ImageDraw
 class app(base_app):
     """ EPLE Inpainting app """
 
-    title = 'Enhanced Piecewise Linear Estimate Inpainting'
+    title = 'E-PLE: an Algorithm for Image Inpainting'
 
+    xlink_article = 'http://www.ipol.im/pub/pre/54/'
     input_nb = 1
     input_max_pixels = 400 * 400        # max size (in pixels) of input image
     input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of input file
@@ -28,11 +29,11 @@ class app(base_app):
     input_ext = '.png'                  # expected extension
     is_test = False    
     default_param = {'patchsize': 8,
-		     'overlap': 7,
-		     'iteration': 1,	
-             	     'pensize': 5,
-	             'maskingratio': 0.5,	
-             	     'pencolor':'yellow'}
+                     'overlap': 7,
+                     'iteration': 1,    
+                     'pensize': 5,
+                     'maskingratio': 0.5,       
+                     'pencolor':'yellow'}
     pencolors = {'yellow'   : [255, 255, 0], 
             'blue'          : [0, 0, 255], 
             'black'         : [0, 0, 0]}
@@ -65,9 +66,8 @@ class app(base_app):
         
         # store common file path in variables
         archive = 'eple_20130131'
-#        tgz_url = 'http://www.ipol.im/pub/algo/' \
-#            + 'w_ple_inpainting/' + archive + '.tgz'
-        tgz_file = self.dl_dir + archive + '.tgz'
+        tgz_url = 'http://www.ipol.im/pub/pre/54/eple_20130131.tgz'
+        tgz_file = self.dl_dir + 'eple_20130131.tgz'
         progs = ['inpaintEPLE', 'randmask']
         src_bin = dict([(self.src_dir 
             + os.path.join(archive, prog),
@@ -75,7 +75,7 @@ class app(base_app):
         log_file = self.base_dir + 'build.log'
 
         # get the latest source archive
-#        build.download(tgz_url, tgz_file)
+        build.download(tgz_url, tgz_file)
         # test if any dest file is missing, or too old
         if all([(os.path.isfile(bin_file)
                  and ctime(tgz_file) < ctime(bin_file))
@@ -136,7 +136,7 @@ class app(base_app):
         for (t, x, y) in commandlist:
             draw.ellipse((x - t, y - t, x + t + 1, y + t + 1), fill=255)
         
-        mask.putpalette([128,128,128] + [0,0,0]*254
+        mask.putpalette([128, 128, 128] + [0, 0, 0] * 254
             + self.pencolors[self.cfg['param']['pencolor']])
         mask.save(self.work_dir + 'mask.gif', transparency=0)
         
@@ -167,7 +167,7 @@ class app(base_app):
                 mask = Image.open(self.work_dir + 'mask.png')
                 mask = mask.convert('L')
                 mask = mask.convert('P')
-                mask.putpalette([128,128,128] + [0,0,0]*254 
+                mask.putpalette([128, 128, 128] + [0, 0, 0] * 254 
                     + self.pencolors[self.cfg['param']['pencolor']])
                 mask.save(self.work_dir + 'mask.gif', transparency=0)
                                 
@@ -183,7 +183,7 @@ class app(base_app):
                 mask = Image.open(self.work_dir + 'mask.png')
                 mask = mask.convert('L')
                 mask = mask.convert('P')
-                mask.putpalette([128,128,128] + [0,0,0]*254 
+                mask.putpalette([128, 128, 128] + [0, 0, 0] * 254 
                     + self.pencolors[self.cfg['param']['pencolor']])
                 mask.save(self.work_dir + 'mask.gif', transparency=0)
                                 
@@ -199,16 +199,16 @@ class app(base_app):
                 mask = Image.open(self.work_dir + 'mask.png')
                 mask = mask.convert('L')
                 mask = mask.convert('P')
-                mask.putpalette([128,128,128] + [0,0,0]*254 
+                mask.putpalette([128, 128, 128] + [0, 0, 0] * 254 
                     + self.pencolors[self.cfg['param']['pencolor']])
                 mask.save(self.work_dir + 'mask.gif', transparency=0)
                                 
                 return self.tmpl_out('params.html')
-	    elif kwargs['action'] == 'Bernoulli mask':
-		if 'maskingratio' in kwargs:
-			maskarg = 'Bernoulli' + ':' + str(kwargs['maskingratio'])
-		else:
-			maskarg = 'Bernoulli:'+str(self.cfg['param']['maskingratio'])
+            elif kwargs['action'] == 'Bernoulli mask':
+                if 'maskingratio' in kwargs:
+                    maskarg = 'Bernoulli' + ':' + str(kwargs['maskingratio'])
+                else:
+                    maskarg = 'Bernoulli:'+str(self.cfg['param']['maskingratio'])
 
                 self.wait_proc(self.run_proc(['randmask', maskarg, 
                 self.work_dir + 'input_0.png', 'mask.png'],
@@ -220,7 +220,7 @@ class app(base_app):
                 mask = Image.open(self.work_dir + 'mask.png')
                 mask = mask.convert('L')
                 mask = mask.convert('P')
-                mask.putpalette([128,128,128] + [0,0,0]*254 
+                mask.putpalette([128, 128, 128] + [0, 0, 0] * 254 
                     + self.pencolors[self.cfg['param']['pencolor']])
                 mask.save(self.work_dir + 'mask.gif', transparency=0)
                                 
@@ -229,7 +229,7 @@ class app(base_app):
             self.cfg['param']['pencolor'] = 'yellow'
             
             mask = Image.open(self.work_dir + 'mask.gif')
-            mask.putpalette([128,128,128] + [0,0,0]*254 
+            mask.putpalette([128, 128, 128] + [0, 0, 0] * 254 
                 + self.pencolors[self.cfg['param']['pencolor']])
             mask.save(self.work_dir + 'mask.gif', transparency=0)
             
@@ -238,7 +238,7 @@ class app(base_app):
             self.cfg['param']['pencolor'] = 'blue'
             
             mask = Image.open(self.work_dir + 'mask.gif')
-            mask.putpalette([128,128,128] + [0,0,0]*254 
+            mask.putpalette([128, 128, 128] + [0, 0, 0] * 254 
                 + self.pencolors[self.cfg['param']['pencolor']])
             mask.save(self.work_dir + 'mask.gif', transparency=0)
             
@@ -247,7 +247,7 @@ class app(base_app):
             self.cfg['param']['pencolor'] = 'black'
             
             mask = Image.open(self.work_dir + 'mask.gif')
-            mask.putpalette([128,128,128] + [0,0,0]*254 
+            mask.putpalette([128, 128, 128] + [0, 0, 0] * 254 
                 + self.pencolors[self.cfg['param']['pencolor']])
             mask.save(self.work_dir + 'mask.gif', transparency=0)
             
@@ -373,12 +373,12 @@ class app(base_app):
                 info="input") 
             ar.add_file("inpainted.png", 
                 info="inpainting result") 
-	    ar.add_file("patchmap.png", 
-		info="patch map")
-	    ar.add_info({"maskingratio": '%.1f' % float(self.cfg['param']['maskingratio'])}) 
-	    ar.add_info({"overlap": '%i' % int(self.cfg['param']['overlap'])})
-	    ar.add_info({"patchsize": '%i' % int(self.cfg['param']['patchsize'])})  
-	    ar.add_info({"iteration": '%i' % int(self.cfg['param']['iteration'])}) 
+            ar.add_file("patchmap.png", 
+                info="patch map")
+            ar.add_info({"maskingratio": '%.1f' % float(self.cfg['param']['maskingratio'])}) 
+            ar.add_info({"overlap": '%i' % int(self.cfg['param']['overlap'])})
+            ar.add_info({"patchsize": '%i' % int(self.cfg['param']['patchsize'])})  
+            ar.add_info({"iteration": '%i' % int(self.cfg['param']['iteration'])}) 
             ar.save()
 
         return self.tmpl_out("run.html")
@@ -397,9 +397,9 @@ class app(base_app):
         size = image(self.work_dir + 'input_0.png').size
         
         # Run eple: EPLE is allowed to iterate just once because of the its speed
-	# PLE, even slower, isn't fit for the demo. 
+        # PLE, even slower, isn't fit for the demo. 
         self.wait_proc(self.run_proc(['inpaintEPLE', 'u0.png', 'mask.png',
-	    'inpainted.png', str(self.cfg['param']['iteration']) ], stdout=stdout, stderr=stdout), timeout)
+            'inpainted.png', str(self.cfg['param']['iteration']) ], stdout=stdout, stderr=stdout), timeout)
         
         zoomfactor = int(max(1, floor(550.0/max(size[0], size[1]))))
         size = (zoomfactor*size[0], zoomfactor*size[1])
