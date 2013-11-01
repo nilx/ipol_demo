@@ -124,6 +124,8 @@ class app(base_app):
                                       "sms_optic_flow_2.0/spatial"),
                                   stdout=log_file)
             # save into bin dir
+            if not os.path.isdir(self.bin_dir):
+                os.mkdir(self.bin_dir)
             shutil.copy(self.src_dir +
                     os.path.join("sms_optic_flow_2.0/spatial",
                         "main"), prog_file)
