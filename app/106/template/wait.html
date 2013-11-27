@@ -1,0 +1,69 @@
+
+
+
+
+<%include file="header.html" />
+
+<center>
+  <img src="http://www.ipol.im/static/demo/running.gif" alt"running..." />
+</center>
+
+
+
+
+<p>
+  The algorithm is running. After 30s or less, your browser should
+  reload this page and display the result.
+</p>
+
+
+  
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+
+
+
+
+
+
+   
+
+
+<%  
+  import PIL.Image 
+  im = PIL.Image.open(app.work_dir + 'input_0.png')  
+  print "width: " + str(im.size[0]) + "  height:  " + str(im.size[1])  
+  height = im.size[1]
+%>  
+
+
+
+
+<h2> Input images </h2>
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+
+
+    <li>
+      <a href="#">
+        First image
+        <span>
+                      
+            <img src="${app.work_url + 'input_0.png'}" alt="" />
+        </span>
+      </a>
+    </li>
+
+
+  </ul>
+</div>
+
+ 
+
+
+
+
+
+
+<%include file="footer.html" />
