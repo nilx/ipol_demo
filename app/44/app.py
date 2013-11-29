@@ -22,37 +22,66 @@ class app(base_app):
     is_listed = True
     is_built = True
 
-    xlink_src = "http://www.ipol.im/pub/pre/44/clg.v4.tgz"
+    xlink_src = "http://www.ipol.im/pub/pre/44/clg_6.1.tgz"
 
     xlink_src_demo = "http://www.ipol.im/pub/pre/44/imscript_dec2011.tar.gz"
     xlink_input = "http://dev.ipol.im/~coco/static/flowpairs.tar.gz"
 
     parconfig = {}
     parconfig['alpha'] = {'type': float,
-            'default': 100.0, 'changeable': True,
+            'default': 200.0, 'changeable': True,
             'htmlname': '&alpha;',
             'doc': 'global regularization parameter\
                    (&alpha;>0. Higher values produce more homogeneus fields, &nbsp;\
                 lower values allow more variating displacement vectors in a given image region)' 
             }
     parconfig['rho'] = {'type': float,
-                        'default': 30.0, 'changeable': True,
+                        'default': 10.0, 'changeable': True,
                         'htmlname': '&rho;',
                         'doc': 'neighborhood size in local approach\
                                (size of Gaussian kernel = 2 &rho; + 1, &nbsp;\
                                &rho; = 0 implies no local smoothing)'
                         }
     parconfig['sigma'] = {'type': float,
-                        'default': 0.5, 'changeable': True,
+                        'default': 0.85, 'changeable': True,
                         'htmlname': '&sigma;',
-                        'doc': 'Gaussian smoothing variance'
+                        'doc': 'Pre-processing Gaussian smoothing variance'
                         }
     parconfig['numit'] = {'type': int,
-             'default': 50, 'changeable': True,
+             'default': 1000, 'changeable': False,
              'htmlname': 'numit',
             'doc': 'number of iterations'
             }
 
+    parconfig['w'] = {'type': float,
+                      'default': 1.9, 'changeable': False,
+                      'htmlname': 'w',
+                      'doc': 'SOR relaxaction factor, between 0 and 2.'
+                      }
+
+    parconfig['numscales'] = {'type': int,
+             'default': 10, 'changeable': False,
+             'htmlname': 'numscales',
+            'doc': 'number of scales'
+            }
+
+    parconfig['zoomfactor'] = {'type': float,
+             'default': 0.65, 'changeable': False,
+             'htmlname': 'zoomfactor',
+            'doc': 'Scale factor, between 0 and 1.'
+            }
+
+    parconfig['coupledmode'] = {'type': int,
+             'default': 1, 'changeable': False,
+             'htmlname': 'coupledmode',
+            'doc': 'Iteration type, 1 for Gauss-Seidel, 0 for SOR.'
+            }
+
+    parconfig['verbose'] = {'type': int,
+             'default': 0, 'changeable': False,
+             'htmlname': 'verbose',
+            'doc': 'shows (1) or hides debug messages.'
+            }
 
     def __init__(self):
         """
@@ -67,7 +96,7 @@ class app(base_app):
         program build/update
         """
         ## store common file path in variables
-        tgz_file = self.dl_dir + "clg.v4.tar.gz"
+        tgz_file = self.dl_dir + "clg_6.1.tar.gz"
         prog_file = self.bin_dir + "test_clgof"
         log_file = self.base_dir + "build.log"
 
@@ -82,19 +111,25 @@ class app(base_app):
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the program
-            srcdir = self.src_dir + "clg.v4"
-            build.run("cmake .", stdout=log_file, cwd=srcdir);
-            build.run("make", stdout=log_file, cwd=srcdir)
+            srcdir  = self.src_dir + "clg_6.1"
+            srcdir1 = self.src_dir + "clg_6.1/build"
+            build.run("cmake ..", stdout=log_file, cwd=srcdir1)
+            build.run("make", stdout=log_file, cwd=srcdir1)
+
+            cherrypy.log("before copy",
+                      context='BUILD', traceback=False)
+
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
             shutil.copy(srcdir + "/bin/test_clgof", prog_file)
-#           #except:
-#           #   print("some error occurred copying files")
-#           # cleanup the source dir
-#           shutil.rmtree(self.src_dir)
+            cherrypy.log("copy ok",
+                          context='BUILD', traceback=False)
+
         return
+
+
 
     def build_demo(self):
         """
@@ -214,7 +249,12 @@ class app(base_app):
             ar.add_info({"alpha": self.cfg['param']['alpha'],
                     "rho": self.cfg['param']['rho'],
                     "sigma": self.cfg['param']['sigma'],
-                        "numit": self.cfg['param']['numit']})
+                    "numit": self.cfg['param']['numit'],
+                    "w": self.cfg['param']['w'],
+                    "numscales": self.cfg['param']['numscales'],
+                    "zoomfactor": self.cfg['param']['zoomfactor'],
+                    "coupledmode": self.cfg['param']['coupledmode'],
+                    "verbose": self.cfg['param']['verbose']})
             ar.save()
         return self.tmpl_out("run.html")
 
@@ -229,6 +269,12 @@ class app(base_app):
         rho = self.cfg['param']['rho']
         sigma = self.cfg['param']['sigma']
         numit = self.cfg['param']['numit']
+        w     = self.cfg['param']['w']
+        numscales = self.cfg['param']['numscales']
+        zoomfactor = self.cfg['param']['zoomfactor']
+        coupledmode = self.cfg['param']['coupledmode']
+        verbose = self.cfg['param']['verbose']
+
         print('ENTERING run_algo')
         for k in app.parconfig:
             print(k + ' = ' + str(self.cfg['param'][k]))
@@ -236,7 +282,12 @@ class app(base_app):
              str(alpha),
              str(rho),
              str(sigma),
-             str(numit)
+             str(numit),
+             str(w),
+             str(numscales),
+             str(zoomfactor),
+             str(coupledmode),
+             str(verbose)
             ])
         self.wait_proc(p, timeout=self.timeout)
         p = self.run_proc(['view_clg.sh', 'ipoln', '1'])

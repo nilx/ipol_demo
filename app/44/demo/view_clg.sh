@@ -71,13 +71,13 @@ echo $COMPUTED_RANGE > computed_range.txt
 case "$VMETHOD" in
 "ipol")
 	#VIEWFLOWPARAM=-$COMPUTED_RANGE
-	VIEWFLOWPARAM=-1
+	VIEWFLOWPARAM=1
 	viewflow $VIEWFLOWPARAM ${P}.tiff ${P}.${S}.png
 	if test $HASTRUTH; then
 		viewflow $VIEWFLOWPARAM t.tiff t.${S}.png
 		viewflow $VIEWFLOWPARAM ${P}_fmt_nonan.tiff ${P}_fmt.${S}.png
 	fi
-	viewflow -1 $COLORWHEEL | downsa v 2 | qeasy 0 255 - cw.${S}.png
+	viewflow 1 $COLORWHEEL | downsa v 2 | qeasy 0 255 - cw.${S}.png
 	;;
 "ipoln")
 	VIEWFLOWPARAM=$COMPUTED_RANGE

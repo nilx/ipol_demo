@@ -10,7 +10,10 @@
 	if height < 390:
 		height = 390
 	hastruth = app.cfg['meta']['hastruth']
-	cahash='?q='+str(app.cfg['param']['alpha'])+str(app.cfg['param']['rho'])+str(app.cfg['param']['sigma'])+str(app.cfg['param']['numit'])
+	cahash='?q='+str(app.cfg['param']['alpha'])+str(app.cfg['param']['rho'])+str(app.cfg['param']['sigma'])
+	cahash += str(app.cfg['param']['numit'])+str(app.cfg['param']['w'])
+        cahash += str(app.cfg['param']['numscales'])+str(app.cfg['param']['zoomfactor'])
+        cahash += str(app.cfg['param']['coupledmode'])+str(app.cfg['param']['verbose'])
 
 	csuf = app.cfg['meta']['colorscheme']+'.'+str(app.cfg['meta']['colorparam'])
 	colorwheel = app.cfg['meta']['colorwheel']
