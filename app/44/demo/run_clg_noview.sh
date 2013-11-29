@@ -43,10 +43,11 @@ usgexit() {
 }
 
 echo STUFF ARGC: $#
+echo STUFF X:
 echo STUFF ARGV: $*
 
 # check input
-if [ $# != "4" ]; then
+if [ $# != "9" ]; then
 	usgexit
 fi
 
@@ -75,6 +76,11 @@ ALPHA=$1
 RHO=$2
 SIGMA=$3
 NUMIT=$4
+W=$5
+NUMSCALES=$6
+ZOOMFACTOR=$7
+COUPLEDMODE=$8
+VERBOSE=$9
 
 export MRANGE=4
 VIEWFLOWPARAM=nan
@@ -86,6 +92,11 @@ echo "ALPHA = ${ALPHA}"
 echo "RHO = ${RHO}"
 echo "SIGMA = ${SIGMA}"
 echo "NUMIT = ${NUMIT}"
+echo "W     = ${W}"
+echo "NUMSCALES = ${NUMSCALES}"
+echo "ZOOMFACTOR = ${ZOOMFACTOR}"
+echo "COUPLEDMODE = ${COUPLEDMODE}"
+echo "VERBOSE = ${VERBOSE}"
 echo "FTYPE = ${FTYPE}"
 echo "P = ${P}"
 
@@ -108,14 +119,14 @@ plambda b.png "x[0] x[1] x[2] + + 3 /" | iion - bgray.png
 # ----------------------------------------------#
 
 #jzach 1 a.png b.png $TAU $LAMBDA $THETA $NSCALES 0.5 $NITER ${P}.tiff 0
-echo /usr/bin/time -f "stufftime %e s" test_clgof a.png b.png $ALPHA $RHO $SIGMA $NUMIT ${P}.tiff
-/usr/bin/time -f "stufftime %e s" test_clgof agray.png bgray.png $ALPHA $RHO $SIGMA $NUMIT ${P}.bad.tiff 2> ${P}.stime
+echo /usr/bin/time -f "stufftime %e s" test_clgof a.png b.png $ALPHA $RHO $SIGMA $NUMIT $W $NUMSCALES $ZOOMFACTOR $COUPLEDMODE $VERBOSE ${P}.tiff
+/usr/bin/time -f "stufftime %e s" test_clgof agray.png bgray.png $ALPHA $RHO $SIGMA $NUMIT $W $NUMSCALES $ZOOMFACTOR $COUPLEDMODE $VERBOSE ${P}.tiff 2> ${P}.stime
 cat ${P}.stime | /bin/grep stufftime  | cut -c11- > ${P}.time
 
 # swap and invert tiff channels (added 11/04/12 by haldo)-------#
 #test_swaptiff ${P}.tiff                                         #
 #echo "TIFF SWAPPING DONE"                                       #
-plambda ${P}.bad.tiff "x[1] x[0] join -1 *" | iion - ${P}.tiff
+#plambda ${P}.bad.tiff "x[1] x[0] join -1 *" | iion - ${P}.tiff
 #---------------------------------------------------------------#
 
 iion ${P}.tiff ${P}.uv
