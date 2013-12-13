@@ -20,19 +20,24 @@ class app(base_app):
     title = \
     "Chambolle's Projection Algorithm for Total Variation Denoising"
 
+    xlink_article = "http://www.ipol.im/pub/pre/61/"
+
     input_nb = 1
     input_max_pixels = 700 * 700        # max size (in pixels) of input image
     input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of input file
     input_dtype = '3x8i'                # input image expected data type
     input_ext = '.png'                  # expected extension
     is_test = False
-
-    xlink_article = "http://www.ipol.im/pub/pre/61/"
-
     default_param = {
         'sigmaguessed': '10',
         'sigmaadded': '10',
         'action': 'Denoise',
+        'lambda1': '0.08',
+        'lambda2': '0.08',
+        'lambda': '0.08',
+        'guesslambda1': 'False',
+        'guesslambda2': 'False',
+        'guesslambda': 'False',
         'x0': None,
         'y0': None,
         'x' : None,
@@ -65,12 +70,10 @@ class app(base_app):
         """
         
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/pre/61/" \
-            + "CDS_ChambolleTV_sourcecode.tgz"
-        tgz_file = self.dl_dir + "CDS_ChambolleTV_sourcecode.tgz"
+        tgz_url = "http://www.ipol.im/pub/pre/61/CDS_ChambolleTV.tgz"
+        tgz_file = self.dl_dir + "CDS_ChambolleTV.tgz"
         progs = ["chambolle_ipol", "imdiff_ipol"]
-        src_bin = dict([(self.src_dir
-                         + os.path.join("CDS_ChambolleTV_sourcecode", prog),
+        src_bin = dict([(self.src_dir + os.path.join("CDS_ChambolleTV", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -88,8 +91,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -j4 -C %s %s"
-                      % (self.src_dir + "CDS_ChambolleTV_sourcecode",
-                         " ".join(progs)),
+                      % (self.src_dir + "CDS_ChambolleTV", " ".join(progs)),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
@@ -149,7 +151,34 @@ class app(base_app):
         # defined by kwargs, the value from default_param is used.
         self.cfg['param'] = dict(self.default_param.items() + 
             [(p,kwargs[p]) for p in self.default_param.keys() if p in kwargs])
-            
+          
+        self.cfg['param']['guesslambda1'] = \
+            str('guesslambda1' in kwargs and \
+                    kwargs['guesslambda1'].lower() in \
+                    ['true', 'on', 'yes', 'checked', '1'])
+        self.cfg['param']['guesslambda2'] = \
+            str('guesslambda2' in kwargs and \
+                    kwargs['guesslambda2'].lower() in \
+                    ['true', 'on', 'yes', 'checked', '1'])
+        
+        if self.cfg['param']['action'] == self.default_param['action']:
+            #denoise
+            if self.cfg['param']['guesslambda1'] == 'True':
+                self.cfg['param']['lambda'] = 0
+                self.cfg['param']['guesslambda'] = 'True'
+            else:
+                self.cfg['param']['lambda'] = self.cfg['param']['lambda1']
+                self.cfg['param']['guesslambda'] = 'False'
+        else:
+            #add noise then denoise
+            if self.cfg['param']['guesslambda2'] == 'True':
+                self.cfg['param']['lambda'] = 0
+                self.cfg['param']['guesslambda'] = 'True'
+            else:
+                self.cfg['param']['lambda'] = self.cfg['param']['lambda2']
+                self.cfg['param']['guesslambda'] = 'False'
+  
+
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
         
@@ -218,9 +247,6 @@ class app(base_app):
             self.cfg['info']['run_time'] = time.time() - run_time
         except TimeoutError:
             return self.error(errcode='timeout') 
-        except RuntimeError:
-            print "Run time error"
-            return self.error(errcode='runtime')
         
         stdout.close()
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
@@ -233,10 +259,14 @@ class app(base_app):
             if self.cfg['param']['action'] == self.default_param['action']:
                 ar.add_info({'sigma (guessed)': \
                             self.cfg['param']['sigmaguessed']})
+                ar.add_info({'lambda': \
+                            self.cfg['param']['lambda']})
                 ar.add_file('input_0_sel.png', info='input image')
                 ar.add_file('denoised.png', info='denoised image')
             else:
                 ar.add_info({'sigma (added)': self.cfg['param']['sigmaadded']})
+                ar.add_info({'lambda': \
+                            self.cfg['param']['lambda']})
                 ar.add_file('input_0_sel.png', info='exact image')
                 ar.add_file('noisy.png', info='input (RMSE '
                     + self.cfg['param']['rmse_noisy'] + ')')
@@ -261,31 +291,54 @@ class app(base_app):
         files = ['input_0_sel', 'denoised', 'diff']
      
         if self.cfg['param']['action'] == self.default_param['action']:
-            self.wait_proc(self.run_proc(['chambolle_ipol', 'input_0_sel.png', 
+            #denoise
+            if self.cfg['param']['lambda'] == 0:
+                #dynamic lambda
+                option = 3
+            else:
+                #fixed lambda
+                option = 4
+                  
+            self.wait_proc(self.run_proc(['chambolle_ipol', str(option), 
+                                          'input_0_sel.png', 
                                         str(self.cfg['param']['sigmaguessed']), 
-                                          '1', 'noisy.png', 'denoised.png'],
-                stdout=stdout, stderr=stdout), timeout*0.925)
+                                        str(self.cfg['param']['lambda']), 
+                                        'noisy.png', 'denoised.png'],
+                stdout=open(self.work_dir + 'guessed_lambda.txt', 'w'), 
+                                         stderr=stdout), timeout*0.925)
             self.wait_proc(self.run_proc(['imdiff_ipol', 
-                                        str(self.cfg['param']['sigmaguessed']),
                                           'input_0_sel.png', 'denoised.png', 
-                                          'diff.png'],
+                                          'diff.png',
+                                          str(self.cfg['param']['sigmaadded'])],
                 stdout=stdout, stderr=stdout), timeout*0.075)
         else:
+            #add noise then denoise
+            if self.cfg['param']['lambda'] == 0:
+                #dynamic lambda
+                option = 1
+            else:
+                #fixed lambda
+                option = 2
+          
             files.append('noisy')
-            self.wait_proc(self.run_proc(['chambolle_ipol', 'input_0_sel.png', 
-                                          str(self.cfg['param']['sigmaadded']), 
-                                          '0', 'noisy.png', 'denoised.png'],
-                stdout=stdout, stderr=stdout), timeout*0.9)
+            self.wait_proc(self.run_proc(['chambolle_ipol', str(option), 
+                                          'input_0_sel.png', 
+                                        str(self.cfg['param']['sigmaadded']), 
+                                        str(self.cfg['param']['lambda']), 
+                                        'noisy.png', 'denoised.png'],
+                stdout=open(self.work_dir + 'guessed_lambda.txt', 'w'), 
+                                         stderr=stdout), timeout*0.9)
+
             self.wait_proc(self.run_proc(['imdiff_ipol', 
-                                          str(self.cfg['param']['sigmaadded']),
                                           'input_0_sel.png',
-                                          'noisy.png', 'diff.png'],
+                                          'noisy.png', 'diff.png',
+                                         str(self.cfg['param']['sigmaadded'])],
                  stdout=open(self.work_dir + 'rmse_noisy.txt', 'w'), 
                  stderr=stdout), timeout*0.05)
             self.wait_proc(self.run_proc(['imdiff_ipol', 
-                                          str(self.cfg['param']['sigmaadded']),
                                           'input_0_sel.png',
-                                          'denoised.png', 'diff.png'],
+                                          'denoised.png', 'diff.png',
+                                          str(self.cfg['param']['sigmaadded'])],
                  stdout=open(self.work_dir + 'rmse_denoised.txt', 'w'), 
                  stderr=stdout), timeout*0.05)
             

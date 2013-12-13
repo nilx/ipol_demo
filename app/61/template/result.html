@@ -95,8 +95,9 @@ Noise standard deviation (added): &sigma; = ${app.cfg['param']['sigmaadded']}
 </ul>
 </div>
 
+  <h2>Additional data</h2>
+  
 %if app.cfg['param']['action'] != app.default_param['action']:
-    <h2>Additional data</h2>
 Difference noisy-original:
 <pre class="stdio">
 ${open(app.work_dir + 'rmse_noisy.txt', 'r').read()}
@@ -107,6 +108,19 @@ ${open(app.work_dir + 'rmse_denoised.txt', 'r').read()}
 </pre>
 
 %endif
+  
+  
+%if float(app.cfg['param']['lambda']) == 0:
+  &lambda; (dynamic computation):
+<pre class="stdio">
+${open(app.work_dir + 'guessed_lambda.txt', 'r').read()}
+</pre>
+
+%else:
+
+    &lambda; =   ${app.cfg['param']['lambda']}
+%endif
+
 
 <hr />
 

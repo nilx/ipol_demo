@@ -11,44 +11,11 @@
 You can run the algorithm in two ways:
 
 <div style="clear:both; font-size:8pt">&nbsp;</div>
-
-<fieldset>
-<div style="position:relative; width:19em; top:-1em; 
-padding:.2em .5em; background-color:#ffffff; margin:0px">Option 1: guess noise, then denoise</div>
-
-<input type="hidden" name="key" value="${app.key}" />
-    
-  Guess a level (standard deviation) of 
-  additive Gaussian noise: 
   
-  <div style="clear:both; font-size:8pt">&nbsp;</div>
-<div style="float:left; width:7em; text-align:left;">
-&sigma; &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
-size="7" id="sigmaguessed" name="sigmaguessed" value="${app.cfg['param']['sigmaguessed']}" />
-</div>
-<div id="slider2" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
-
-<div style="clear:both; font-size:8pt">&nbsp;</div>
-
-<script type="text/javascript">
-$(document).ready(function() 
-{
-    createLinkedSlider('#sigmaguessed', '#slider2', 0, 100, 1);
-});
-</script>
-
-<div style="float:left;">
-    <input type="submit" name="action" value="Denoise" />
-</div>    
-    
-</fieldset>    
-
-<div style="clear:both; font-size:8pt">&nbsp;</div>
-
-
+  
 <fieldset>
 <div style="position:relative; width:16em; top:-1em; 
-padding:.2em .5em; background-color:#ffffff; margin:0px">Option 2: add noise, then denoise</div>
+padding:.2em .5em; background-color:#ffffff; margin:0px">Option 1: add noise, then denoise</div>
 
 <input type="hidden" name="key" value="${app.key}" />
     
@@ -71,12 +38,105 @@ $(document).ready(function()
     createLinkedSlider('#sigmaadded', '#slider1', 0, 100, 1);
 });
 </script>
-    
+
+  
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+  
+<label for="guesslambda2">Check if you want to dinamically compute &lambda;:</label>
+%if str(app.cfg['param']['guesslambda']) == 'True':
+  <input type="checkbox" name="guesslambda2" checked />
+%else:
+  <input type="checkbox" name="guesslambda2" />
+%endif
+<br/>
+  
+else, select the value of &lambda;: 
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+<div style="float:left; width:7em; text-align:left;">
+  &lambda; &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+  size="7" id="lambda2" name="lambda2" value="${app.cfg['param']['lambda']}" />
+</div>
+<div id="slider4" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<script type="text/javascript">
+  $(document).ready(function() 
+                    {
+                    createLinkedSlider('#lambda2', '#slider4', 0.01, 0.99, 0.01);
+                    });
+  </script>
+
 <div style="float:left;">
     <input type="submit" name="action" value="Add noise, then denoise" />
 </div>    
     
+</fieldset>      
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+
+<fieldset>
+<div style="position:relative; width:19em; top:-1em; 
+padding:.2em .5em; background-color:#ffffff; margin:0px">Option 2: guess noise, then denoise</div>
+
+<input type="hidden" name="key" value="${app.key}" />
+    
+  Guess a level (standard deviation) of 
+  additive Gaussian noise. 
+  
+  <div style="clear:both; font-size:8pt">&nbsp;</div>
+<div style="float:left; width:7em; text-align:left;">
+&sigma; &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="sigmaguessed" name="sigmaguessed" value="${app.cfg['param']['sigmaguessed']}" />
+</div>
+<div id="slider2" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#sigmaguessed', '#slider2', 0, 50, 1);
+});
+</script>
+  
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+  
+<label for="guesslambda1">Check if you want to dinamically compute &lambda;:</label>
+%if str(app.cfg['param']['guesslambda']) == 'True':
+  <input type="checkbox" name="guesslambda1" checked />
+%else:
+  <input type="checkbox" name="guesslambda1" />
+%endif
+<br/>
+  
+else, select the value of &lambda;: 
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+<div style="float:left; width:7em; text-align:left;">
+  &lambda; &nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+  size="7" id="lambda1" name="lambda1" value="${app.cfg['param']['lambda']}" />
+</div>
+<div id="slider3" style="width:24em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+<script type="text/javascript">
+  $(document).ready(function() 
+                    {
+                    createLinkedSlider('#lambda1', '#slider3', 0.01, 0.99, 0.01);
+                    });
+  </script>
+
+
+<div style="float:left;">
+    <input type="submit" name="action" value="Denoise" />
+</div>    
+    
 </fieldset>    
+
     
 
 <div style="clear:both; font-size:8pt">&nbsp;</div>
