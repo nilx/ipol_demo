@@ -58,7 +58,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        archive = 'gaussian_20130429'
+        archive = 'gaussian_20131102'
         tgz_url = 'http://www.ipol.im/pub/pre/87/' + archive + '.tgz'
         tgz_file = self.dl_dir + archive + '.tgz'
         progs = ['gaussian_demo']
