@@ -25,8 +25,16 @@ class app(base_app):
     is_test = False
     xlink_article = "http://www.ipol.im/pub/pre/87/"
 
+    algos = ['fir', 'dct',
+            'box-3', 'box-4', 'box-5',
+            'ebox-3', 'ebox-4', 'ebox-5',
+            'sii-3', 'sii-4', 'sii-5',
+            'am-3', 'am-4', 'am-5',
+            'deriche-2', 'deriche-3', 'deriche-4',
+            'vyv-3', 'vyv-4', 'vyv-5']
+    
     default_param = {'sigma': '5.0',    # default parameters
-        'algo' : 'deriche-3',
+        'algo' : 'fir dct',
         'x0': None,
         'y0': None,
         'x' : None,
@@ -103,11 +111,11 @@ class app(base_app):
         """
         Configure the algo execution
         """
-        if newrun:            
+        if newrun:
             old_work_dir = self.work_dir
             self.clone_input()
             # Keep old parameters
-            self.cfg['param'] = cfg_open(old_work_dir 
+            self.cfg['param'] = cfg_open(old_work_dir
                 + 'index.cfg', 'rb')['param']
             # Also need to clone input_0_sel.png in case the user is running
             # with new parameters but on the same subimage.
@@ -117,7 +125,7 @@ class app(base_app):
         # Set undefined parameters to default values
         self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
         # Generate a new timestamp
-        self.timestamp = int(100*time.time())
+        self.timestamp = int(100 * time.time())
         
         # Reset cropping parameters if running with a different subimage
         if msg == 'different subimage':
@@ -137,16 +145,19 @@ class app(base_app):
         Run redirection
         """
         
-        # Read webpage parameters from kwargs, but only those that 
+        # Read webpage parameters from kwargs, but only those that
         # are defined in the default_param dict.  If a parameter is not
         # defined by kwargs, the value from default_param is used.
-        self.cfg['param'] = dict(self.default_param.items() + 
+        self.cfg['param'] = dict(self.default_param.items() +
             [(p,kwargs[p]) for p in self.default_param.keys() if p in kwargs])
         # Generate a new timestamp
-        self.timestamp = int(100*time.time())
+        self.timestamp = int(100 * time.time())
+        
+        if not isinstance(self.cfg['param']['algo'], basestring):
+            self.cfg['param']['algo'] = ' '.join(self.cfg['param']['algo'])
         
         self.cfg['param']['sigma'] = \
-            str(max(float(self.cfg['param']['sigma']), 0.5))        
+            str(max(float(self.cfg['param']['sigma']), 0.5))
         
         if not 'action' in kwargs:
             # Select a subimage
@@ -175,7 +186,7 @@ class app(base_app):
                     # possible if the input image is very large.
                     imgorig = image(self.work_dir + 'input_0.orig.png')
                     
-                    if imgorig.size != img.size:                        
+                    if imgorig.size != img.size:
                         s = float(imgorig.size[0])/float(img.size[0])
                         imgorig.crop(tuple([int(s*v) for v in (x0, y0, x, y)]))
                         img = imgorig
@@ -197,7 +208,7 @@ class app(base_app):
                 img0.save(self.work_dir + 'input_0_sel.png')
             
             self.cfg.save()
-            http.refresh(self.base_url + 'run?key=%s' % self.key)            
+            http.refresh(self.base_url + 'run?key=%s' % self.key)
             return self.tmpl_out("wait.html")
 
 
@@ -215,7 +226,7 @@ class app(base_app):
             self.cfg['info']['run_time'] = time.time() - run_time
             self.cfg.save()
         except TimeoutError:
-            return self.error(errcode='timeout') 
+            return self.error(errcode='timeout')
         except RuntimeError:
             print "Run time error"
             return self.error(errcode='runtime')
@@ -226,12 +237,15 @@ class app(base_app):
         # Archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0_sel.png", 
+            ar.add_file("input_0_sel.png",
                 info="selected subimage")
-            ar.add_file("output.png", 
-                info="Gaussian filtered")
+
+            for algo in self.cfg['param']['algo'].split():
+                ar.add_file('output-' + algo + '.png',
+                    info='output ' + algo)
+            
             ar.add_info({'sigma': self.cfg['param']['sigma']})
-            ar.add_info({'algorithm': self.cfg['param']['algo']})          
+            ar.add_info({'algorithm': self.cfg['param']['algo']})
             ar.save()
 
         return self.tmpl_out("run.html")
@@ -245,24 +259,32 @@ class app(base_app):
         """
         
         timeout = False
-        algo_string = str(self.cfg['param']['algo'])
-        s = algo_string.split('-')
+        p = []
+        algo_list = [algo for algo in self.cfg['param']['algo'].split() \
+                         if algo in self.algos]
+
+        if len(algo_list) == 0:
+            algo_list = self.default_param['algo'].split()
         
-        if len(s) == 2:
-            algo_string = s[0]
-            K = s[1]
-        else:
+        for algo in algo_list:
+            s = algo.split('-')
+            a = s[0]
             K = '3'
+            
+            if len(s) == 2:
+                K = s[1]
+            
+            p.append(self.run_proc(['gaussian_demo',
+                    '-s', str(self.cfg['param']['sigma']),
+                    '-a' + a,
+                    '-K' + K,
+                    'input_0_sel.png', 'output-' + algo + '.png'],
+                    stdout=stdout, stderr=stdout))
         
-        self.wait_proc([self.run_proc(['gaussian_demo', 
-                '-s', str(self.cfg['param']['sigma']),
-                '-a' + algo_string,
-                '-K' + K,
-                'input_0_sel.png', 'output.png'],
-                stdout=stdout, stderr=stdout)], timeout)
-        
-        self.cfg['param']['displayheight'] = max(200, \
+        self.cfg['param']['algo'] = ' '.join(algo_list)
+        self.cfg['param']['displayheight'] = max(50 + 40 * len(algo_list), \
             image(self.work_dir + 'input_0_sel.png').size[1])
+        self.wait_proc(p, timeout)
         self.cfg.save()
     
     @cherrypy.expose

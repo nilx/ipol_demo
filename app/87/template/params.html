@@ -4,10 +4,17 @@
 <!--
 <%include file="js/createlinkedslider.js" />
 
-$(document).ready(function() 
+$(document).ready(function()
 {
-    createLinkedSlider('#sigma', '#slider1', 0.5, 10, 0.1);    
+    createLinkedSlider('#sigma', '#slider1', 0.5, 15, 0.1);
 });
+
+function selectall(s)
+{
+    %for name in app.algos:
+        document.getElementById('${name}').checked = s;
+    %endfor
+}
 
 // -->
 </script>
@@ -17,65 +24,51 @@ $(document).ready(function()
 <fieldset>
 
 <input type="hidden" name="key" value="${app.key}" />
-
+\
 <div>
     <div style="float:left">
         <i>&sigma;</i>, Gaussian standard deviation&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
         size="5" id="sigma" name="sigma" value="${app.cfg['param']['sigma']}" />
     </div>
-    <div id="slider1" style="float:left; width:25em; margin-left:1em; margin-top:3pt; font-size:10pt;"></div>
+    <div id="slider1" style="float:left; width:32em; margin-left:1em; margin-top:3pt; font-size:10pt;"></div>
 </div>
 
 <div style="clear:left;padding-top:1em">
-    <div style="float:left;margin-right:1em">
-        Algorithm:
+    <div style="margin-right:1em; margin-bottom:1ex">
+        Algorithm:&nbsp;&nbsp;
+        <input type="button" value="all" onclick="selectall(true)" />
+        <input type="button" value="none" onclick="selectall(false)" />
     </div>
     
-    <%def name="entry(v,label)">
-        <input type="radio" name="algo" id="${v}" value="${v}"
-            %if v == app.cfg['param']['algo']:
-                checked
-            %endif
-        ><label for="${v}"> ${label}</label></br>
+    <%def name="algo_name_html(v)">
+        %if '-' in v:
+            ${dict([('box','Box'),('ebox','Extended box'),('sii','SII'),('am','Alvarez&ndash;Mazorra'),('deriche','Deriche'),('vyv','Vliet&ndash;Young&ndash;Verbeek')])[v.split('-')[0]]}, <i>K</i>=${v.split('-')[1]}
+        %elif v == 'fir':
+            FIR, <i>tol</i>=10<sup>&minus;2</sup>
+        %elif v == 'dct':
+            DCT
+        %endif
     </%def>
-
-    <div style="float:left;margin-right:3em">
+    
+    <div style="float:left;margin-left:5em;margin-right:3em">
         <div style="margin-bottom:4pt">
-            ${entry('dct', 'DCT')}
-        </div>
-        
-        <div style="margin-bottom:4pt">
-            %for k in [3,4,5]:
-                ${entry('box-%d' % k, 'Box, <i>K</i>=%d' % k)}
-            %endfor
-        </div>
-        <div style="margin-bottom:4pt">
-            %for k in [3,4,5]:
-                ${entry('ebox-%d' % k, 'Extended box, <i>K</i>=%d' % k)}
-            %endfor
-        </div>
-        <div style="margin-bottom:4pt">
-            %for k in [3,4,5]:
-                ${entry('sii-%d' % k, 'SII, <i>K</i>=%d' % k)}
-            %endfor
+        %for i in range(len(app.algos)):
+            %if app.algos[i] in app.cfg['param']['algo'].split():
+            <input type="checkbox" name="algo" id="${app.algos[i]}" value="${app.algos[i]}" checked />
+            %else:
+            <input type="checkbox" name="algo" id="${app.algos[i]}" value="${app.algos[i]}" />
+            %endif
+            <label for="${app.algos[i]}"> ${algo_name_html(app.algos[i])}</label><br />
+            %if i == 10:
         </div>
     </div>
-    
     <div style="float:left">
         <div style="margin-bottom:4pt">
-            %for k in [3,4,5]:
-                ${entry('am-%d' % k, 'Alvarez&ndash;Mazorra, <i>K</i>=%d' % k)}
-            %endfor
+            %elif i < len(app.algos) - 1 and app.algos[i].split('-')[0] != app.algos[i + 1].split('-')[0]:
         </div>
         <div style="margin-bottom:4pt">
-            %for k in [2,3,4]:
-                ${entry('deriche-%d' % k, 'Deriche, <i>K</i>=%d' % k)}
-            %endfor
-        </div>
-        <div style="margin-bottom:4pt">
-            %for k in [3,4,5]:
-                ${entry('vyv-%d' % k, 'VYV, <i>K</i>=%d' % k)}
-            %endfor
+            %endif
+        %endfor
         </div>
     </div>
 </div>
@@ -87,7 +80,7 @@ $(document).ready(function()
     <p>Run the algorithm: <input type="submit" name="action" value="run" /><p/>
 
     %if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
-        <p>Or you can run it after selecting a subimage by clicking two 
+        <p>Or you can run it after selecting a subimage by clicking two
         opposite corners of the subimage.</p>
         <p><input type="image" style="cursor:crosshair;" name=""
             src="${app.work_url + 'input_0.png'}" /></p>

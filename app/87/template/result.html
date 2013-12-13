@@ -1,20 +1,20 @@
 <%include file="header.html" />
 
 
-<p>The algorithm result is displayed hereafter. You can run again this algorithm with new data.</p>
+<p>The algorithm result is displayed hereafter. You can run this algorithm again with new data.</p>
 
-<div class="action" style="padding-bottom:3ex">    
+<div class="action" style="padding-bottom:3ex">
     <form style="float:left" action="${app.base_url}" method="get">
         <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
-    </form>    
-    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+    </form>
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">
         <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
         <input type="hidden" name="newrun" value="1" />
         <input type="hidden" name="msg" value="different parameter" />
         <input type="submit" value="different parameter" /></p>
     </form>
     %if all(app.cfg['param'][p] != None for p in ['x0', 'y0', 'x', 'y']):
-    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">
         <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
         <input type="hidden" name="newrun" value="1" />
         <input type="hidden" name="msg" value="different subimage" />
@@ -22,6 +22,8 @@
     </form>
     %endif
 </div>
+
+<p>&sigma; = ${app.cfg['param']['sigma']}</p>
 
 <div class="gallery" style="height:${app.cfg['param']['displayheight']}px">
     <ul class="index">
@@ -33,14 +35,25 @@
         </span>
         </a>
     </li>
-    <li>
+    
+    <%def name="algo_name_html(v)">
+        %if '-' in v:
+            ${dict([('box','Box'),('ebox','Extended box'),('sii','SII'),('am','Alvarez&ndash;Mazorra'),('deriche','Deriche'),('vyv','Vliet&ndash;Young&ndash;Verbeek')])[v.split('-')[0]]}, <i>K</i>=${v.split('-')[1]}
+        %elif v == 'fir':
+            FIR, <i>tol</i>=10<sup>&minus;2</sup>
+        %elif v == 'dct':
+            DCT
+        %endif
+    </%def>
+    
+    %for algo in app.cfg['param']['algo'].split():
         <a href="#">
-        Output, &sigma; = ${app.cfg['param']['sigma']}
+        ${algo_name_html(algo)}
         <span>
-            <img src="${app.work_url + 'output.png'}" alt="" />
+            <img src="${app.work_url + 'output-' + algo + '.png'}" alt="" />
         </span>
         </a>
-    </li>
+    %endfor
     </ul>
 </div>
 
