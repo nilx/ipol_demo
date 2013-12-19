@@ -101,16 +101,18 @@ class app(base_app):
             # Move corrections and scripts to the base dir
             from_dirs = ('per_corrections', '../scripts')
             for from_dir in from_dirs:
-                dir_from = os.path.join(self.src_dir, src_dir_name, \
+                dir_from = os.path.join(self.src_dir,
+                                        src_dir_name, src_dir_name, \
                                         prog_filename, from_dir)
                 # Put them into bin, to prevent them from deletion
-                dir_to = os.path.join(src_dir_name, self.bin_dir)
+                dir_to = os.path.join(src_dir_name, src_dir_name, self.bin_dir)
                 shutil.move(dir_from, dir_to)
 
             # Give exec permission to the script
             os.chmod(
                      os.path.join(
-                                  src_dir_name, self.bin_dir,
+                                  src_dir_name, src_dir_name, \
+                                  self.bin_dir, \
                                   "scripts", "writeNoiseCurve.sh"
                                  ),
                      stat.S_IREAD | stat.S_IEXEC
