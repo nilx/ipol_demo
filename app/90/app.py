@@ -87,12 +87,14 @@ class app(base_app):
                 # build
                 build.run("make -j4 -C %s %s" %
                        (
-                         os.path.join(self.src_dir, src_dir_name, program),
-                         os.path.join(".", program)
+                         os.path.join(self.src_dir,
+                           src_dir_name, src_dir_name, \
+                           program),
+                           os.path.join(".", program)
                        ), stdout=log_file)
                 # move binary to bin dir
                 shutil.copy(os.path.join(self.src_dir, \
-                                         src_dir_name, \
+                                         src_dir_name, src_dir_name, \
                                          program, program),
                             os.path.join(self.bin_dir, program))
 
