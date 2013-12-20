@@ -25,6 +25,16 @@
 
 <p>&sigma; = ${app.cfg['param']['sigma']}</p>
 
+<%def name="algo_name_html(v)">
+    %if '-' in v:
+        ${dict([('box','Box'),('ebox','Extended box'),('sii','SII'),('am','Alvarez&ndash;Mazorra'),('deriche','Deriche'),('vyv','Vliet&ndash;Young&ndash;Verbeek')])[v.split('-')[0]]}, <i>K</i>=${v.split('-')[1]}
+    %elif v == 'fir':
+        FIR, <i>tol</i>=10<sup>&minus;2</sup>
+    %elif v == 'dct':
+        DCT
+    %endif
+</%def>
+
 <div class="gallery" style="height:${app.cfg['param']['displayheight']}px">
     <ul class="index">
     <li>
@@ -35,27 +45,51 @@
         </span>
         </a>
     </li>
-    
-    <%def name="algo_name_html(v)">
-        %if '-' in v:
-            ${dict([('box','Box'),('ebox','Extended box'),('sii','SII'),('am','Alvarez&ndash;Mazorra'),('deriche','Deriche'),('vyv','Vliet&ndash;Young&ndash;Verbeek')])[v.split('-')[0]]}, <i>K</i>=${v.split('-')[1]}
-        %elif v == 'fir':
-            FIR, <i>tol</i>=10<sup>&minus;2</sup>
-        %elif v == 'dct':
-            DCT
-        %endif
-    </%def>
-    
     %for algo in app.cfg['param']['algo'].split():
+    <li>
         <a href="#">
         ${algo_name_html(algo)}
         <span>
             <img src="${app.work_url + 'output-' + algo + '.png'}" alt="" />
         </span>
         </a>
+    </li>
     %endfor
+    <li>
+        <a href="#">
+        Exact*
+        <span>
+            <img src="${app.work_url + 'output-exact.png'}" alt="" />
+        </span>
+        </a>
+    </li>
     </ul>
 </div>
+<p style="font-size:85%">* &ldquo;Exact&rdquo; is computed with FIR, <i>tol</i>=10<sup>&minus;15</sup>, for &sigma;&nbsp;&le;&nbsp;2 and DCT for &sigma;&nbsp;&gt;&nbsp;2 (using ${app.cfg['param']['exact_algo']} for this experiment).</p>
+
+<h2>Accuracy</h2>
+<table style="margin:0px;margin-top:10px;text-align:center">
+<tr><th>Method</th>
+<th>&nbsp;Max Diff&nbsp;</th>
+<th>&nbsp;RMSE&nbsp;</th>
+<th>&nbsp;PSNR&nbsp;</th></tr>
+%for algo in app.cfg['param']['algo'].split():
+    <tr>
+    <td>
+    ${algo_name_html(algo)}
+    </td>
+    <td>
+    ${'%d' % app.cfg['param'][algo + '_maxdiff']}
+    </td>
+    <td>
+    ${'%.4f' % app.cfg['param'][algo + '_rmse']}
+    </td>
+    <td>
+    ${'%.2f' % app.cfg['param'][algo + '_psnr']}
+    </td>
+    </tr>
+%endfor
+</table>
 
 <h2>stdout</h2>
 <pre class="stdio">

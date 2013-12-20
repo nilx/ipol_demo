@@ -66,10 +66,10 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        archive = 'gaussian_20131102'
-        tgz_url = 'http://www.ipol.im/pub/pre/87/' + archive + '.tgz'
+        archive = 'gaussian_20131215'
+        tgz_url = 'http://www.ipol.im/pub/art/2013/87/' + archive + '.tgz'
         tgz_file = self.dl_dir + archive + '.tgz'
-        progs = ['gaussian_demo']
+        progs = ['gaussian_demo', 'imdiff']
         src_bin = dict([(self.src_dir + os.path.join(archive, prog),
                          self.bin_dir + prog)
                         for prog in progs])
@@ -154,7 +154,7 @@ class app(base_app):
         self.timestamp = int(100 * time.time())
         
         if not isinstance(self.cfg['param']['algo'], basestring):
-            self.cfg['param']['algo'] = ' '.join(self.cfg['param']['algo'])
+          self.cfg['param']['algo'] = ' '.join(self.cfg['param']['algo'])
         
         self.cfg['param']['sigma'] = \
             str(max(float(self.cfg['param']['sigma']), 0.5))
@@ -260,11 +260,27 @@ class app(base_app):
         
         timeout = False
         p = []
-        algo_list = [algo for algo in self.cfg['param']['algo'].split() \
-                         if algo in self.algos]
+        algo_list = [algo for algo in self.cfg['param']['algo'].split() 
+                     if algo in self.algos]
 
         if len(algo_list) == 0:
             algo_list = self.default_param['algo'].split()
+        
+        sigma = float(self.cfg['param']['sigma'])
+        if sigma <= 2.0:
+          exact_algo = 'fir'
+          self.cfg['param']['exact_algo'] = (
+              'FIR, <i>tol</i>=10<sup>&minus;15</sup>,')
+        else:
+          exact_algo = 'dct'
+          self.cfg['param']['exact_algo'] = 'DCT'
+        
+        p.append(self.run_proc(['gaussian_demo',
+                '-s', str(sigma),
+                '-a', exact_algo,
+                '-t1e-15',
+                'input_0_sel.png', 'output-exact.png'],
+                stdout=stdout, stderr=stdout))
         
         for algo in algo_list:
             s = algo.split('-')
@@ -275,16 +291,42 @@ class app(base_app):
                 K = s[1]
             
             p.append(self.run_proc(['gaussian_demo',
-                    '-s', str(self.cfg['param']['sigma']),
+                    '-s', str(sigma),
                     '-a' + a,
                     '-K' + K,
                     'input_0_sel.png', 'output-' + algo + '.png'],
                     stdout=stdout, stderr=stdout))
         
+        self.wait_proc(p, timeout)
+        
+        # Compute metrics
+        self.wait_proc(
+            [self.run_proc(['imdiff',
+                'output-exact.png', 'output-' + algo + '.png'],
+                stdout=open(self.work_dir 
+                    + 'metrics_' + algo + '.txt', 'w'), stderr=stdout)
+                for algo in algo_list], timeout)
+        
+        # Read the metrics_*.txt files
+        for algo in algo_list:
+            try:
+                f = open(self.work_dir 
+                    + 'metrics_' + algo + '.txt', 'r')
+                self.cfg['param'][algo + '_maxdiff'] = \
+                    float(f.readline().split(':',1)[1])
+                self.cfg['param'][algo + '_rmse'] = \
+                    float(f.readline().split(':',1)[1])
+                self.cfg['param'][algo + '_psnr'] = \
+                    float(f.readline().split(':',1)[1])
+                f.close()
+            except:
+                self.cfg['param'][algo + '_maxdiff'] = -1
+                self.cfg['param'][algo + '_rmse'] = -1
+                self.cfg['param'][algo + '_psnr'] = -1
+        
         self.cfg['param']['algo'] = ' '.join(algo_list)
         self.cfg['param']['displayheight'] = max(50 + 40 * len(algo_list), \
             image(self.work_dir + 'input_0_sel.png').size[1])
-        self.wait_proc(p, timeout)
         self.cfg.save()
     
     @cherrypy.expose
