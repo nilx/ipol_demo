@@ -14,7 +14,7 @@ class app(base_app):
     """ template demo app """
     
     title = "Digital Level Layers for Digital Curve Decomposition and Vectorization"
-    xlink_article = 'http://www.ipol.im/pub/art/2013/67/'
+    xlink_article = 'http://www.ipol.im/'
     xlink_src = 'http://www.ipol.im/pub/pre/67/gjknd_1.1.tgz'
     demo_src_filename  = 'gjknd_1.1.tgz'
 
