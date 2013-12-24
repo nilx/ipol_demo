@@ -16,6 +16,7 @@ class app(base_app):
     """ The Flutter Shutter Code Calculator app """
 
     title = "The Flutter Shutter Code Calculator"
+    xlink_article = 'http://www.ipol.im/'
 
     input_nb = 0
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
