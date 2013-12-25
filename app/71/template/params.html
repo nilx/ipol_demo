@@ -1,0 +1,159 @@
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<!--
+<%include file="js/createlinkedslider.js" />
+
+function num2sci(value, numDigits)
+{
+    var exponent = Math.floor(Math.log(value) / Math.log(10));
+    var mantissa = value / Math.pow(10, exponent - numDigits);
+   return Math.round(mantissa + (9*exponent - 1)*Math.pow(10, numDigits));
+}
+
+function sci2str(sci, numDigits)
+{
+    var exponent = Math.floor(sci / (9*Math.pow(10, numDigits)));
+    var mantissa = sci/Math.pow(10, numDigits) - (9*exponent - 1);
+    var value = Math.pow(10, exponent) * mantissa;
+    return value.toFixed(numDigits);
+}
+
+// Create a JQueryUI slider linked with text input with scientific notation
+//
+// inputId      the ID of the text input element
+// sliderId     the ID of the DIV element to turn into a slider
+// valueMin     minimum value
+// valueMax     maximum value
+// numDigits    number of digits after decimal point
+function createLinkedSliderExp(inputId, sliderId, 
+    valueMin, valueMax, numDigits)
+{    
+    var inputObj = $(inputId);
+    // Create JQueryUI slider
+    var sliderObj = $(sliderId).slider({
+        min: num2sci(valueMin, numDigits),         // Minimum value
+        max: num2sci(valueMax, numDigits),         // Maximum value
+        value: num2sci(parseFloat(                 // Initial value
+            inputObj.attr('value')), numDigits),
+        animate: 'fast'});                         // Animation speed
+    
+    // Update slider when input changes
+    inputObj.blur(function()
+        {
+            var value = parseFloat(inputObj.attr('value'));
+            var valueClamped;
+
+            if(value <= 0 || !isFinite(value))
+                valueClamped = sliderObj.slider('option', 'min');
+            else
+            {
+                value = num2sci(value, numDigits);
+                valueClamped = Math.min(Math.max(value, 
+                    sliderObj.slider('option', 'min')), 
+                    sliderObj.slider('option', 'max'));
+            }
+
+            sliderObj.slider('value', valueClamped);
+    
+            if(value != valueClamped)
+                inputObj.val(sci2str(valueClamped, numDigits));
+        });
+
+    // Update input when slider changes
+    sliderObj.slider('option', 'slide',
+        function(event, ui) { inputObj.val(sci2str(ui.value, numDigits)); });
+}
+
+
+function spritecoords(s)
+{
+    var n = Math.max(Math.round((parseFloat(s) - 1)/2), 0);
+    return  '0px ' + (-31*n) + 'px';
+}
+// -->
+</script>
+
+
+<form action="${app.base_url + 'editmask'}" method="get">
+<input type="hidden" id="key" name="key" value="${app.key}" />
+
+
+<p>click on the image to draw the image marker used for segmentation:</p>
+<fieldset>    
+    <input type="submit" id="action" name="action" value="undo" style="float:left" />
+    <input type="submit" id="action" name="action" value="clear" style="float:left; margin-left:3pt" />
+    <div id="penpreview" name="penpreview" style="float:left; margin-left:36px; width:31px; height:31px"></div>
+    <div style="float:left; margin-left:6px; font-size:9pt; text-align:right;">
+        pen size&nbsp;&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+        size="2" id="pensize" name="pensize" value="${app.cfg['param']['pensize']}" /><br />
+        <div id="slider1" style="width:8em; margin-top:2px; font-size:8pt;"></div>
+    </div>
+    <input type="submit" id="pencolor_yellow" name="pencolor_yellow" value="" 
+    style="float:left; margin-left:36px; background:none; background-color:#FFFF00" />
+    <div style="clear:both"></div>
+    <input type="image" style="cursor:crosshair; margin-top:5px;
+    background:url('${app.work_url + 'input_0.png'}')"
+    src="${app.work_url + 'mask.gif'}?${app.timestamp}" 
+    width="${app.cfg['param']['viewbox_width']}"
+    height="${app.cfg['param']['viewbox_height']}" alt="" />
+</fieldset>
+</form>
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div style="float:left; width:8em; text-align:right;">
+<i>&alpha;</i>&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="6" id="lambda" name="lambda" value="${'%.3f' % app.cfg['param']['lambda']}" />
+</div>
+<div id="slider2" style="width:32em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#pensize', '#slider1', 1, 15, 2);
+    createLinkedSliderExp('#lambda', '#slider2', 0.001, 1.0, 3);
+
+    $('#penpreview').css('border', '1px #CCC solid');
+    $('#penpreview').css('background-image', 
+        'url(\'http://dev.ipol.im/~kerautre/images/pen-preview.png\')');
+    $('#penpreview').css('background-position', 
+        spritecoords($('#pensize').attr('value')));
+
+    // Update pen preview image with pensize slider
+    $('#pensize').blur(function()
+        {
+            var value = $('#pensize').attr('value');
+            var valueClamped = Math.min(Math.max(value, 
+                $('#slider1').slider('option', 'min')), 
+                $('#slider1').slider('option', 'max'));
+            $('#slider1').slider('value', valueClamped);
+            $('#penpreview').css('background-position', 
+                spritecoords(valueClamped));
+
+            if(value != valueClamped)
+                $('#pensize').val(Math.round(valueClamped));
+        });
+    $('#slider1').slider('option', 'slide',
+        function(event, ui) { 
+            $('#pensize').val(Math.round(ui.value)); 
+            $('#penpreview').css('background-position', 
+                spritecoords(ui.value));
+        });
+});
+</script>
+<input type="hidden" name="key" value="${app.key}" />
+<BR>
+<p>  Negate the source image (recommanded to extract dark objects on bright background): 
+%if 'negate' in app.cfg['param'] and app.cfg['param']['negate']:
+  <input type="checkbox" name="negate" value="on" size="4" /></p>
+%else : 
+  <input type="checkbox" name="negate" value="off" size="4" /></p> 
+%endif
+
+<p style="clear:both;">Run the algorithm: <input type="submit" name="action" value="run" /><p/>
+  </div>
+
+</form>
+
+<div style="clear:both">&nbsp;</div>
+
+<%include file="footer.html" />
