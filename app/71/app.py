@@ -82,7 +82,7 @@ class app(base_app):
             print ("extract done \n")
                         
             # build the program
-            build.run("cd %s; make " %(self.src_dir+"ctseg") ,stdout=log_file) 
+            build.run("cd %s; make " %(self.src_dir+"ctseg_2") ,stdout=log_file) 
             
             # save into bin dir
             if os.path.isdir(self.bin_dir):
@@ -90,10 +90,10 @@ class app(base_app):
             os.mkdir(self.bin_dir)
 
             for i in range(0, len(prog_bin_files)) :
-                shutil.copy(self.src_dir + os.path.join("ctseg", prog_names[i]), prog_bin_files[i])
+                shutil.copy(self.src_dir + os.path.join("ctseg_2", prog_names[i]), prog_bin_files[i])
 
             for f in script_names :
-                shutil.copy(self.src_dir + os.path.join("ctseg",f), self.bin_dir)
+                shutil.copy(self.src_dir + os.path.join("ctseg_2",f), self.bin_dir)
 
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
