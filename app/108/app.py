@@ -75,7 +75,7 @@ class app(base_app):
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir + "srcflutteropt_1/flutter_optimizer" \
+            shutil.copy(self.src_dir + "source_code_calculator_1/flutter_optimizer" \
 , prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
