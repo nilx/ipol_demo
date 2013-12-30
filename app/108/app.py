@@ -69,7 +69,7 @@ class app(base_app):
             # build the program
 
 
-            build.run("make -j4 -C %s %s " % (self.src_dir+"srcflutteropt_1",
+            build.run("make -j4 -C %s %s " % (self.src_dir+"source_code_calculator_1",
                       os.path.join("flutter_optimizer")),stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
