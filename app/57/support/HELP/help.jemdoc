@@ -27,7 +27,7 @@ This is equivalent to consider larger patches (three times the number of pixels)
 {{<a name="SAD"></a>}}
 == SSD (sum of squared differences) and SAD (sum of absolute differences)
 
-By taking $p=\{1,2\}$ in the following equation, we have respectively the /Sum of Absolute Differences/ (SAD) and the /Sum of Squared Differences/ (SSD) respectively:
+By taking $p=\{1,2\}$ in the following equation, we have the /Sum of Absolute Differences/ (SAD) and the /Sum of Squared Differences/ (SSD) respectively:
 \( 
 \mbox{SSD}(\mathbf p,\mathbf q) := \sum_{\mathbf t \in B(0,r)} | u({\mathbf p} + \mathbf  t), v({\mathbf q} + \mathbf  t)|^p.
 \)
@@ -47,10 +47,10 @@ The /Zero-mean SSD/  adds invariance with respect to additive contrast changes t
    \left| u({\mathbf p} + \mathbf  t) -  v({\mathbf q} + \mathbf t)  +  
     \mu_v({\mathbf q})-  \mu_u({\mathbf p}) \right|^2 ,
     \)
-where %$\overline{ v|_{B({\mathbf q},r)}}$
- $\textstyle  \mu_v({\mathbf q})= \frac{1}{| B(0,r)|} \sum_{\mathbf t \in B(0,r)} v(\mathbf q+\mathbf t) $
- is the precomputed average of pixel values in $v$ over the block centered at $\mathbf q$. 
-The ZSSD cannot be implemented with integral images if expressed in this form, because the pixel value distances are dependent of the position of the pixels. Indeed,
+where 
+ $\textstyle  \mu_u({\mathbf p})= \frac{1}{| B(0,r)|} \sum_{\mathbf t \in B(0,r)} u(\mathbf p+\mathbf t) $
+ is the precomputed average of pixel values in $u$ over the block centered at $\mathbf p$. 
+The ZSSD cannot be implemented with integral images if expressed in this form, because the pixel value distances are dependent on the position of the pixels. Indeed,
 depending on the position, a different pair of means $\mu_{v}$ and $\mu_{u}$ are being subtracted. However, expanding the square we get   
   \( 
    \mbox{ZSSD}(\mathbf p,\mathbf q) := 
@@ -106,7 +106,7 @@ with
   \)
 and where $ \sigma^2\left( u|_{B({\mathbf p},r)}\right) $ is the sample variance of the block centered at $\mathbf p$.
 
-$\mbox{Corr}$ takes values in $(0,1]$, where 1 indicates the maximum correspondence.  For a consistent notation across the different methods $\mbox{NCC}$ is defined as $1 - \mbox{Corr}$.
+$\mbox{Corr}$ takes values in $[-1,1]$, where 1 indicates the maximum correspondence.  For a consistent notation across the different methods $\mbox{NCC}$ is defined as $1 - \mbox{Corr}$.
 The above expression can be written as
   \( 
   \mbox{Corr}(\mathbf p, \mathbf q) := 
@@ -126,13 +126,13 @@ The implementation of this cost must prevent dividing by zero. Under that circum
 == AFF ("affine" similarity measure)
 
 The /"affine" similarity measure/ proposed by [http://dx.doi.org/10.1137/090766371 Delon and Desolneux (2010)] is also invariant to affine contrast changes, but differently from NCC it can distinguish flat patches from those containing edges. It can be seen from the definition of $\mbox{Corr}$ that if one of the patches is flat, then the correlation will be zero independently of the content of the second patch.
-In contrast, the /"affine" similarity measure/ defined below can be  non zero under the same circumstances:
+In contrast, the /"affine" similarity measure/ defined below can be non zero under the same circumstances:
 \(
    \mbox{AFF}(\mathbf p, \mathbf q) := 
 \max \left( \min_{\alpha\ge0, \beta} \left\| U_{{\mathbf p}} - \alpha V_{{\mathbf q}}  - \beta \right\| ,
                  \min_{\alpha\ge0, \beta} \left\|  V_{{\mathbf q}} - \alpha U_{{\mathbf p}}  - \beta \right\|  \right)   ,
 \)
-where $U_{{\mathbf p}}=u|_{B({\mathbf p},r)}$ and $V_{{\mathbf q}}=v|_{B({\mathbf q},r)}$. 
+where $U_{{\mathbf p}}=u|_{B({\mathbf p},r)}$, $V_{{\mathbf q}}=v|_{B({\mathbf q},r)}$ and $\| \cdot \|$ denotes the $L^2$-norm. 
 It can be explicitly computed by the formula
 \(   
 \mbox{AFF}^2(\mathbf p, \mathbf q) :=  \max \left( \sigma^2\left(  u|_{B({\mathbf p},r)} \right)   ,  \sigma^2\left(  v|_{B({\mathbf q},r)} \right)  \right)  \cdot \min \left(1, 1- \mbox{Corr}( {\mathbf p}, {\mathbf q} ) |    \mbox{Corr}( {\mathbf p}, {\mathbf q} ) | \right),
@@ -169,7 +169,6 @@ This matching cost, originally proposed for stereo matching, is designed to be i
 This cost is particularly useful in combination with global block matching methods (Dynamic Programming for instance), where the dissimilarity is accumulated along scanlines, and where the subpixel computations are unaffordable. The insensitivity usually prevents the misclassification of some pixels as occlusions. 
 
 The usefulness of this matching cost for a ``local'' block matching method is less clear, since the minimum SAD/SSD cost may not change. Nevertheless it is worth comparing its performance with subpixel matching.
-\medskip
 
 The matching costs proposed by Birchfield \& Tomasi replace the definition of the pixel value distances with $d^{BT}$. For the case of the SSD we get
 \( 
@@ -228,22 +227,24 @@ This option permits to compute a subpixel disparity map. It is important to note
 
 The output of the block matching methods always contain the following images:
 
-- *disparity*: Represents the computed disparity map using a grayscale coding. For those pairs that have ground truth; next to the disparity map is displayed map of the differences between the computed disparity and the ground truth (titled *METHOD/error*).
+- *disparity*: Represents the computed disparity map using a grayscale coding. 
+Next to this disparity map, another image is displayed for those stereo pairs that provide a ground truth.
+This second image (titled *METHOD/error* ) shows the differences between the computed disparity and the ground truth.
 - *matching cost*: Represents the minimum matching cost for each pixel, using a grayscale coding (black is 0).
-- *back-projection*: Is obtained warping the secondary image using the displacement field $\varepsilon: \mathbf Z^2 \to \mathbf R^2$ computed from the first image to the second image (denoted $u:\mathbf Z^2 \to \mathbf R$ and $v:\mathbf Z^2 \to \mathbf R$ respectively). That is, the backprojection is \( \widetilde v(\mathbf x) = v( \mathbf x + \mathbf \varepsilon(\mathbf x)). \) Warping $v$ using the ground truth displacement field, produces an image that matches (except at the occlusions) the first image. Thus, comparing $\widetilde v$ with $u$ permits to asses the quality of the displacement filed. To facilitate the comparison the image /back-projection\/error/ shows the pixel-wise difference $|u(\mathbf x) - \widetilde v(\mathbf x)|$, shown using a grayscale coding.
+- *back-projection*: Is obtained by warping the secondary image using the displacement field $\varepsilon: \mathbf Z^2 \to \mathbf R^2$ computed from the first image to the second image (denoted $u:\mathbf Z^2 \to \mathbf R$ and $v:\mathbf Z^2 \to \mathbf R$ respectively). That is, the backprojection is \( \widetilde v(\mathbf x) = v( \mathbf x + \mathbf \varepsilon(\mathbf x)). \) Warping $v$ using the ground truth displacement field, produces an image that matches (except at the occlusions) the first image. Thus, comparing $\widetilde v$ with $u$ permits to assess the quality of the displacement field. To facilitate the comparison the image /back-projection\/error/ shows the pixel-wise difference $|u(\mathbf x) - \widetilde v(\mathbf x)|$, shown using a grayscale coding.
 - *first/second image*: The color range of poorly contrasted images is stretched for visualization.
 
 When the ground truth for the stereo pair is available, the errors with respect to it are computed and shown. 
-The errors are shown as images with fixed range from -4 to 4. The following images are also shown as part of the output:
+The errors are shown as images with fixed range from -4 to 4. In this case the following images are also shown as part of the output:
 
 - *ground truth*: Represents the ground truth using a grayscale coding.
-- *evaluation mask*: Is a binary mask indicating which pixels are considered (white) in the computation of the statistics (usually the boundary are not considered). The pixels discarded by the evaluation mask are not shown in the error displays, are not considered in the statistics and are also removed from the non occluded mask (see below). 
+- *evaluation mask*: Is an optional input image that indicates which pixels are considered (white) in the computation of the statistics (usually the boundaries are not considered). The pixels discarded by the evaluation mask are not shown in the error displays, are not considered in the statistics and are also removed from the non-occluded mask (see below). 
 ~~~
 {}{img_left}{eval.png}{alt text}{300px}{}{}
 Evaluation mask example
 ~~~
 
-- *occlusion mask*: Is a binary mask indicating which pixels are occluded (black), and therefore not considered for the computation of the statistics on Non Occluded areas.
+- *occlusion mask*: Is a binary mask indicating which pixels are occluded (black), and therefore not considered for the computation of the statistics on Non Occluded areas. This mask is only present in the default input datasets of the demo.
 ~~~
 {}{img_left}{occ.png}{alt text}{300px}{}{}
 Occlusion mask example
@@ -260,4 +261,4 @@ The errors are computed as the absolute difference between computed disparity va
 - *Density*: It is the percentage of pixels that for which the algorithm has returned a disparity. This quantity does not consider the pixels removed by the evaluation mask.
 - *Percentage of pixels with error > 1 in the Evaluation Mask*: This quantity is computed considering the pixels in the evaluation mask.
 - *Percentage of pixels with error > 1 in Occluded areas*: Considers the occluded pixels (according to the mask) that are in the evaluation mask. Since the occluded regions cannot be seen in one of the images, this quantity evaluates how well the algorithm extrapolates the disparity map. 
-- *Percentage of pixels with error > 1 in NON Occluded areas*: Considers pixels the non occluded that are in the evaluation mask. This quantity is similar to /Eval. Mask/ but is not contaminated by the errors on occluded regions.
+- *Percentage of pixels with error > 1 in NON Occluded areas*: Considers the non-occluded pixels that are in the evaluation mask. This quantity is similar to /Eval. Mask/ but is not contaminated by the errors on occluded regions.

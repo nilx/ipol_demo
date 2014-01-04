@@ -350,10 +350,10 @@ OUTPUT_HELP_link='JavaScript:+Popup(\'input/HELP/help.html#OUTPUT_AND_STATISTICS
      %endif
    %endif
 
-   ${listitem_img(['backflow.png',  'backflow_diff.png' ], 'back-projection', '', subtitles=['back-projection', 'back-projection/error'], anchor_href=OUTPUT_HELP_link)}
+   ${listitem_img(['backflow_%s.png'%w,  'backflow_%s_diff.png'%w ], 'back-projection', '', subtitles=['back-projection', 'back-projection/error'], anchor_href=OUTPUT_HELP_link)}
    %if  gt != '':
-##      ${listitem_img_check(['error_all.png', 'error_all.png'], 'Show |Err| &gt; 1' ,subtitles='superimposed |Error| &gt; 1'  )}
-      ${listitem_img_transparency_multi([['output_%s.png' % w, 'error_all.png'], ['output_%s_all_diff.png' % w, 'error_all.png']], 'Show |Error| &gt; 1' ,subtitles=['superimposed: disp. & |Error| &gt; 1', 'superimposed: Err. & |Error| &gt; 1' ]  )}
+##      ${listitem_img_check(['error_%s_all.png'%w , 'error_%s_all.png'%w ], 'Show |Err| &gt; 1' ,subtitles='superimposed |Error| &gt; 1'  )}
+      ${listitem_img_transparency_multi([['output_%s.png' % w, 'error_%s_all.png'%w ], ['output_%s_all_diff.png' % w, 'error_%s_all.png'%w ]], 'Show |Error| &gt; 1' ,subtitles=['superimposed: disp. & |Error| &gt; 1', 'superimposed: Err. & |Error| &gt; 1' ]  )}
    %endif
    ${listitem_img('left_imagen.png', 'first image', subtitles='first image')}
    ${listitem_img('right_imagen.png', 'second image', subtitles='second image')}

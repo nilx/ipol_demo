@@ -16,7 +16,7 @@ This is equivalent to consider larger patches (three times the number of pixels)
 <p><a name="SSD"></a></p>
 <p><a name="SAD"></a></p>
 <h2>SSD (sum of squared differences) and SAD (sum of absolute differences)</h2>
-<p>By taking <img class="eq" src="eqs/4624996489055938393-130.png" alt="p={1,2}" style="vertical-align: -5px" /> in the following equation, we have respectively the <i>Sum of Absolute Differences</i> (SAD) and the <i>Sum of Squared Differences</i> (SSD) respectively:</p>
+<p>By taking <img class="eq" src="eqs/4624996489055938393-130.png" alt="p={1,2}" style="vertical-align: -5px" /> in the following equation, we have the <i>Sum of Absolute Differences</i> (SAD) and the <i>Sum of Squared Differences</i> (SSD) respectively:</p>
 
 <div class="eqwl"><img class="eqwl" src="eqs/8981065748085942837-130.png" alt="  mbox{SSD}(mathbf p,mathbf q) := sum_{mathbf t in B(0,r)} | u({mathbf p} + mathbf  t), v({mathbf q} + mathbf  t)|^p. " />
 <br /></div><p>But any value of <img class="eq" src="eqs/14336043121-130.png" alt="p" style="vertical-align: -4px" /> will work as well.</p>
@@ -26,10 +26,10 @@ This is equivalent to consider larger patches (three times the number of pixels)
 <p>The <i>Zero-mean SSD</i>  adds invariance with respect to additive contrast changes to the SSD. It is defined by</p>
 
 <div class="eqwl"><img class="eqwl" src="eqs/4828211295962386213-130.png" alt="    mbox{ZSSD}(mathbf p, mathbf q) :=  sum_{mathbf t in B(0,r)}     left| u({mathbf p} + mathbf  t) -  v({mathbf q} + mathbf t)  +       mu_v({mathbf q})-  mu_u({mathbf p}) right|^2 ,     " />
-<br /></div><p>where %<img class="eq" src="eqs/1212315401393931678-130.png" alt="overline{ v|_{B({mathbf q},r)}}" style="vertical-align: -8px" />
-<img class="eq" src="eqs/6933231292030456498-130.png" alt="textstyle  mu_v({mathbf q})= frac{1}{| B(0,r)|} sum_{mathbf t in B(0,r)} v(mathbf q+mathbf t) " style="vertical-align: -11px" />
-is the precomputed average of pixel values in <img class="eq" src="eqs/15104045431-130.png" alt="v" style="vertical-align: -1px" /> over the block centered at <img class="eq" src="eqs/6631745838316983662-130.png" alt="mathbf q" style="vertical-align: -4px" />. 
-The ZSSD cannot be implemented with integral images if expressed in this form, because the pixel value distances are dependent of the position of the pixels. Indeed,
+<br /></div><p>where 
+<img class="eq" src="eqs/3917973275485615264-130.png" alt="textstyle  mu_u({mathbf p})= frac{1}{| B(0,r)|} sum_{mathbf t in B(0,r)} u(mathbf p+mathbf t) " style="vertical-align: -11px" />
+is the precomputed average of pixel values in <img class="eq" src="eqs/14976045044-130.png" alt="u" style="vertical-align: -1px" /> over the block centered at <img class="eq" src="eqs/6631745838316983663-130.png" alt="mathbf p" style="vertical-align: -4px" />. 
+The ZSSD cannot be implemented with integral images if expressed in this form, because the pixel value distances are dependent on the position of the pixels. Indeed,
 depending on the position, a different pair of means <img class="eq" src="eqs/8422673725919766916-130.png" alt="mu_{v}" style="vertical-align: -4px" /> and <img class="eq" src="eqs/8422673725918767041-130.png" alt="mu_{u}" style="vertical-align: -4px" /> are being subtracted. However, expanding the square we get   </p>
 
 <div class="eqwl"><img class="eqwl" src="eqs/9003854934541285920-130.png" alt="     mbox{ZSSD}(mathbf p,mathbf q) :=    mbox{SSD}(mathbf p,mathbf q) -       {|B(0,r)|} left(   mu_v({mathbf q})-  mu_u({mathbf p})  right)^2  " />
@@ -55,7 +55,7 @@ renders the comparison robust to multiplicative contrast changes. The SSD/Norm i
 
 <div class="eqwl"><img class="eqwl" src="eqs/7340947347923238866-130.png" alt="   mbox{Corr}(mathbf p, mathbf q) :=     frac{       frac1{|B(0,r)|}  sum_{mathbf t in B(0,r)}       left( u(mathbf p + mathbf  t) -  mu_u{(mathbf p)}right)        left( v(mathbf q + mathbf  t) -  mu_v{(mathbf q)}right)    }{    sqrt{ sigma^2left(  u|_{B({mathbf p},r)} right)   ,  sigma^2left(  v|_{B({mathbf q},r)} right)  }     } ,   " />
 <br /></div><p>and where <img class="eq" src="eqs/3521252639807881927-130.png" alt=" sigma^2left( u|_{B({mathbf p},r)}right) " style="vertical-align: -8px" /> is the sample variance of the block centered at <img class="eq" src="eqs/6631745838316983663-130.png" alt="mathbf p" style="vertical-align: -4px" />.</p>
-<p><img class="eq" src="eqs/1300343856184772223-130.png" alt="mbox{Corr}" style="vertical-align: -1px" /> takes values in <img class="eq" src="eqs/6203092067393157471-130.png" alt="(0,1]" style="vertical-align: -5px" />, where 1 indicates the maximum correspondence.  For a consistent notation across the different methods <img class="eq" src="eqs/1863325621398195352-130.png" alt="mbox{NCC}" style="vertical-align: -1px" /> is defined as <img class="eq" src="eqs/3349518600888240919-130.png" alt="1 - mbox{Corr}" style="vertical-align: -1px" />.
+<p><img class="eq" src="eqs/1300343856184772223-130.png" alt="mbox{Corr}" style="vertical-align: -1px" /> takes values in <img class="eq" src="eqs/1255166291386171885-130.png" alt="[-1,1]" style="vertical-align: -5px" />, where 1 indicates the maximum correspondence.  For a consistent notation across the different methods <img class="eq" src="eqs/1863325621398195352-130.png" alt="mbox{NCC}" style="vertical-align: -1px" /> is defined as <img class="eq" src="eqs/3349518600888240919-130.png" alt="1 - mbox{Corr}" style="vertical-align: -1px" />.
 The above expression can be written as</p>
 
 <div class="eqwl"><img class="eqwl" src="eqs/4809306182616443819-130.png" alt="    mbox{Corr}(mathbf p, mathbf q) :=    frac{   frac1{|B(0,r)|}  mbox{Prod}(mathbf p,mathbf q) -  mu_u{(mathbf p)}  ,cdot , mu_v{(mathbf q)}     }{     sqrt{ sigma^2left(  u|_{B({mathbf p},r)} right)   ,  sigma^2left(  v|_{B({mathbf q},r)} right)  }   } , " />
@@ -64,10 +64,10 @@ The above expression can be written as</p>
 <p><a name="AFF"></a></p>
 <h2>AFF (&ldquo;affine&rdquo; similarity measure)</h2>
 <p>The <i>&ldquo;affine&rdquo; similarity measure</i> proposed by <a href="http://dx.doi.org/10.1137/090766371">Delon and Desolneux (2010)</a> is also invariant to affine contrast changes, but differently from NCC it can distinguish flat patches from those containing edges. It can be seen from the definition of <img class="eq" src="eqs/1300343856184772223-130.png" alt="mbox{Corr}" style="vertical-align: -1px" /> that if one of the patches is flat, then the correlation will be zero independently of the content of the second patch.
-In contrast, the <i>&ldquo;affine&rdquo; similarity measure</i> defined below can be  non zero under the same circumstances:</p>
+In contrast, the <i>&ldquo;affine&rdquo; similarity measure</i> defined below can be non zero under the same circumstances:</p>
 
 <div class="eqwl"><img class="eqwl" src="eqs/2481437876347511874-130.png" alt="    mbox{AFF}(mathbf p, mathbf q) :=  max left( min_{alphage0, beta} left| U_{{mathbf p}} - alpha V_{{mathbf q}}  - beta right| ,                  min_{alphage0, beta} left|  V_{{mathbf q}} - alpha U_{{mathbf p}}  - beta right|  right)   , " />
-<br /></div><p>where <img class="eq" src="eqs/1817402030919269691-130.png" alt="U_{{mathbf p}}=u|_{B({mathbf p},r)}" style="vertical-align: -8px" /> and <img class="eq" src="eqs/4026789115673513503-130.png" alt="V_{{mathbf q}}=v|_{B({mathbf q},r)}" style="vertical-align: -8px" />. 
+<br /></div><p>where <img class="eq" src="eqs/1817402030919269691-130.png" alt="U_{{mathbf p}}=u|_{B({mathbf p},r)}" style="vertical-align: -8px" />, <img class="eq" src="eqs/4026789115673513503-130.png" alt="V_{{mathbf q}}=v|_{B({mathbf q},r)}" style="vertical-align: -8px" /> and <img class="eq" src="eqs/7073524312761763077-130.png" alt="| cdot |" style="vertical-align: -5px" /> denotes the <img class="eq" src="eqs/6653501418136561567-130.png" alt="L^2" style="vertical-align: -0px" />-norm. 
 It can be explicitly computed by the formula</p>
 
 <div class="eqwl"><img class="eqwl" src="eqs/712087104718767656-130.png" alt="    mbox{AFF}^2(mathbf p, mathbf q) :=  max left( sigma^2left(  u|_{B({mathbf p},r)} right)   ,  sigma^2left(  v|_{B({mathbf q},r)} right)  right)  cdot min left(1, 1- mbox{Corr}( {mathbf p}, {mathbf q} ) |    mbox{Corr}( {mathbf p}, {mathbf q} ) | right), " />
@@ -87,8 +87,7 @@ It can be explicitly computed by the formula</p>
 <p>By BTSAD or BTSSD, we mean an adaptation to SAD or SSD of the <a href="http://dx.doi.org/10.1109/34.677269">Birchfield and Tomasi (1998)</a> sampling insensitive pixel dissimilarity.
 This matching cost, originally proposed for stereo matching, is designed to be insensitive to image sampling. For smooth (non aliased) images this cost is proven to be stable with respect to subpixel translations of the patches, while still evaluating the costs at integer positions. </p>
 <p>This cost is particularly useful in combination with global block matching methods (Dynamic Programming for instance), where the dissimilarity is accumulated along scanlines, and where the subpixel computations are unaffordable. The insensitivity usually prevents the misclassification of some pixels as occlusions. </p>
-<p>The usefulness of this matching cost for a &lsquo;&lsquo;local&rsquo;&rsquo; block matching method is less clear, since the minimum SAD/SSD cost may not change. Nevertheless it is worth comparing its performance with subpixel matching.
-medskip</p>
+<p>The usefulness of this matching cost for a &lsquo;&lsquo;local&rsquo;&rsquo; block matching method is less clear, since the minimum SAD/SSD cost may not change. Nevertheless it is worth comparing its performance with subpixel matching.</p>
 <p>The matching costs proposed by Birchfield & Tomasi replace the definition of the pixel value distances with <img class="eq" src="eqs/372427302169781142-130.png" alt="d^{BT}" style="vertical-align: -1px" />. For the case of the SSD we get</p>
 
 <div class="eqwl"><img class="eqwl" src="eqs/2303322505286995900-130.png" alt="  BTSSD(mathbf p,mathbf q) := sum_{mathbf t in B(0,r)} d^{BT}( I_{L}({mathbf p} + mathbf  t), I_{R}({mathbf q} + mathbf  t)), " />
@@ -121,23 +120,25 @@ contain the maximum and minimum interpolated values of the image in a half pixel
 <h1>Output, Evaluation and Statistics</h1>
 <p>The output of the block matching methods always contain the following images:</p>
 <ul>
-<li><p><b>disparity</b>: Represents the computed disparity map using a grayscale coding. For those pairs that have ground truth; next to the disparity map is displayed map of the differences between the computed disparity and the ground truth (titled <b>METHOD/error</b>).</p>
+<li><p><b>disparity</b>: Represents the computed disparity map using a grayscale coding. 
+Next to this disparity map, another image is displayed for those stereo pairs that provide a ground truth.
+This second image (titled <b>METHOD/error</b> ) shows the differences between the computed disparity and the ground truth.</p>
 </li>
 <li><p><b>matching cost</b>: Represents the minimum matching cost for each pixel, using a grayscale coding (black is 0).</p>
 </li>
-<li><p><b>back-projection</b>: Is obtained warping the secondary image using the displacement field <img class="eq" src="eqs/8083642785274359168-130.png" alt="varepsilon: mathbf Z^2 to mathbf R^2" style="vertical-align: -1px" /> computed from the first image to the second image (denoted <img class="eq" src="eqs/4703415290002371147-130.png" alt="u:mathbf Z^2 to mathbf R" style="vertical-align: -1px" /> and <img class="eq" src="eqs/4461828227276889256-130.png" alt="v:mathbf Z^2 to mathbf R" style="vertical-align: -1px" /> respectively). That is, the backprojection is 
+<li><p><b>back-projection</b>: Is obtained by warping the secondary image using the displacement field <img class="eq" src="eqs/8083642785274359168-130.png" alt="varepsilon: mathbf Z^2 to mathbf R^2" style="vertical-align: -1px" /> computed from the first image to the second image (denoted <img class="eq" src="eqs/4703415290002371147-130.png" alt="u:mathbf Z^2 to mathbf R" style="vertical-align: -1px" /> and <img class="eq" src="eqs/4461828227276889256-130.png" alt="v:mathbf Z^2 to mathbf R" style="vertical-align: -1px" /> respectively). That is, the backprojection is 
 <div class="eqwl"><img class="eqwl" src="eqs/9160990899431494494-130.png" alt=" widetilde v(mathbf x) = v( mathbf x + mathbf varepsilon(mathbf x)). " />
-<br /></div> Warping <img class="eq" src="eqs/15104045431-130.png" alt="v" style="vertical-align: -1px" /> using the ground truth displacement field, produces an image that matches (except at the occlusions) the first image. Thus, comparing <img class="eq" src="eqs/5701205108492383413-130.png" alt="widetilde v" style="vertical-align: -1px" /> with <img class="eq" src="eqs/14976045044-130.png" alt="u" style="vertical-align: -1px" /> permits to asses the quality of the displacement filed. To facilitate the comparison the image <i>back-projection/error</i> shows the pixel-wise difference <img class="eq" src="eqs/1217057553961778145-130.png" alt="|u(mathbf x) - widetilde v(mathbf x)|" style="vertical-align: -5px" />, shown using a grayscale coding.</p>
+<br /></div> Warping <img class="eq" src="eqs/15104045431-130.png" alt="v" style="vertical-align: -1px" /> using the ground truth displacement field, produces an image that matches (except at the occlusions) the first image. Thus, comparing <img class="eq" src="eqs/5701205108492383413-130.png" alt="widetilde v" style="vertical-align: -1px" /> with <img class="eq" src="eqs/14976045044-130.png" alt="u" style="vertical-align: -1px" /> permits to assess the quality of the displacement field. To facilitate the comparison the image <i>back-projection/error</i> shows the pixel-wise difference <img class="eq" src="eqs/1217057553961778145-130.png" alt="|u(mathbf x) - widetilde v(mathbf x)|" style="vertical-align: -5px" />, shown using a grayscale coding.</p>
 </li>
 <li><p><b>first/second image</b>: The color range of poorly contrasted images is stretched for visualization.</p>
 </li>
 </ul>
 <p>When the ground truth for the stereo pair is available, the errors with respect to it are computed and shown. 
-The errors are shown as images with fixed range from -4 to 4. The following images are also shown as part of the output:</p>
+The errors are shown as images with fixed range from -4 to 4. In this case the following images are also shown as part of the output:</p>
 <ul>
 <li><p><b>ground truth</b>: Represents the ground truth using a grayscale coding.</p>
 </li>
-<li><p><b>evaluation mask</b>: Is a binary mask indicating which pixels are considered (white) in the computation of the statistics (usually the boundary are not considered). The pixels discarded by the evaluation mask are not shown in the error displays, are not considered in the statistics and are also removed from the non occluded mask (see below). </p>
+<li><p><b>evaluation mask</b>: Is an optional input image that indicates which pixels are considered (white) in the computation of the statistics (usually the boundaries are not considered). The pixels discarded by the evaluation mask are not shown in the error displays, are not considered in the statistics and are also removed from the non-occluded mask (see below). </p>
 </li>
 </ul>
 <table class="imgtable"><tr><td>
@@ -145,7 +146,7 @@ The errors are shown as images with fixed range from -4 to 4. The following imag
 <td align="left"><p>Evaluation mask example</p>
 </td></tr></table>
 <ul>
-<li><p><b>occlusion mask</b>: Is a binary mask indicating which pixels are occluded (black), and therefore not considered for the computation of the statistics on Non Occluded areas.</p>
+<li><p><b>occlusion mask</b>: Is a binary mask indicating which pixels are occluded (black), and therefore not considered for the computation of the statistics on Non Occluded areas. This mask is only present in the default input datasets of the demo.</p>
 </li>
 </ul>
 <table class="imgtable"><tr><td>
@@ -166,12 +167,12 @@ The errors are computed as the absolute difference between computed disparity va
 </li>
 <li><p><b>Percentage of pixels with error &gt; 1 in Occluded areas</b>: Considers the occluded pixels (according to the mask) that are in the evaluation mask. Since the occluded regions cannot be seen in one of the images, this quantity evaluates how well the algorithm extrapolates the disparity map. </p>
 </li>
-<li><p><b>Percentage of pixels with error &gt; 1 in NON Occluded areas</b>: Considers pixels the non occluded that are in the evaluation mask. This quantity is similar to <i>Eval. Mask</i> but is not contaminated by the errors on occluded regions.</p>
+<li><p><b>Percentage of pixels with error &gt; 1 in NON Occluded areas</b>: Considers the non-occluded pixels that are in the evaluation mask. This quantity is similar to <i>Eval. Mask</i> but is not contaminated by the errors on occluded regions.</p>
 </li>
 </ul>
 <div id="footer">
 <div id="footer-text">
-Page generated 2013-01-22 18:53:05 CET, by <a href="http://jemdoc.jaboc.net/">jemdoc</a>.
+Page generated 2013-12-30 11:39:32 CET, by <a href="http://jemdoc.jaboc.net/">jemdoc</a>.
 </div>
 </div>
 </div>

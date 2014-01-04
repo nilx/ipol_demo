@@ -194,7 +194,7 @@ class app(base_app):
           os.mkdir(self.input_dir)
           # extract the archive
           build.extract(tgz_file, self.input_dir)
-          os.symlink( self.base_dir+'/support/HELP', os.path.join( self.input_dir, 'HELP'))
+          shutil.copytree(self.base_dir+'/support/HELP', os.path.join( self.input_dir, 'HELP'))
 
        return
 
@@ -702,6 +702,36 @@ class app(base_app):
 
 
 
+    def make_archive(self):
+        """
+        create an archive bucket HACK!
+        This overloaded verion of the empty_app function
+        first deletes the entry and its directory so that the 
+        new one is correcly stored.
+        """
+        # First delete the key from the archive if it exist
+        from lib import archive
+        archive.index_delete(self.archive_index, self.key)
+        import shutil,os
+        entrydir = self.archive_dir + archive.key2url(self.key)
+        if os.path.isdir(entrydir):
+           print "DELETING ARCHIVE ENTRY %s"%self.key
+           shutil.rmtree(entrydir)
+
+        # Then insert the new data
+        ar = archive.bucket(path=self.archive_dir,
+                            cwd=self.work_dir,
+                            key=self.key)
+        ar.cfg['meta']['public'] = self.cfg['meta']['public']
+
+        def hook_index():
+            return archive.index_add(self.archive_index,
+                                     bucket=ar,
+                                     path=self.archive_dir)
+        ar.hook['post-save'] = hook_index
+        return ar
+
+
     @cherrypy.expose
     @init_app
     def run(self):
@@ -768,7 +798,7 @@ class app(base_app):
 
             for method in algolist:
                ar.add_file("output_" + method + ".png", info="")
-            ar.add_info({"block_match_method": self.cfg['param']['block_match_method'], "window": self.cfg['param']['windowsize'],  "noise_sigma": self.cfg['param']['noise_sigma']})
+            ar.add_info({"block_match_method": self.cfg['param']['block_match_method'], "window": self.cfg['param']['windowsize'],  "addednoisesigma": self.cfg['param']['addednoisesigma']})
             ar.save()
 
 
