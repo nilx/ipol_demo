@@ -69,14 +69,16 @@ class app(base_app):
             # build the program
 
 
-            build.run("make -j4 -C %s %s " % (self.src_dir+"source_code_calculator_1",
+            build.run("make -j4 -C %s %s " % (self.src_dir+\
+"source_code_calculator_1",\
                       os.path.join("flutter_optimizer")),stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir + "source_code_calculator_1/flutter_optimizer" \
-, prog_file)
+            shutil.copy(self.src_dir +\
+"source_code_calculator_1/flutter_optimizer", \
+prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
