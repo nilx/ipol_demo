@@ -154,7 +154,7 @@ class app(base_app):
         self.timestamp = int(100 * time.time())
         
         if not isinstance(self.cfg['param']['algo'], basestring):
-          self.cfg['param']['algo'] = ' '.join(self.cfg['param']['algo'])
+            self.cfg['param']['algo'] = ' '.join(self.cfg['param']['algo'])
         
         self.cfg['param']['sigma'] = \
             str(max(float(self.cfg['param']['sigma']), 0.5))
@@ -268,12 +268,12 @@ class app(base_app):
         
         sigma = float(self.cfg['param']['sigma'])
         if sigma <= 2.0:
-          exact_algo = 'fir'
-          self.cfg['param']['exact_algo'] = (
+            exact_algo = 'fir'
+            self.cfg['param']['exact_algo'] = (
               'FIR, <i>tol</i>=10<sup>&minus;15</sup>,')
         else:
-          exact_algo = 'dct'
-          self.cfg['param']['exact_algo'] = 'DCT'
+            exact_algo = 'dct'
+            self.cfg['param']['exact_algo'] = 'DCT'
         
         p.append(self.run_proc(['gaussian_demo',
                 '-s', str(sigma),
@@ -319,7 +319,7 @@ class app(base_app):
                 self.cfg['param'][algo + '_psnr'] = \
                     float(f.readline().split(':',1)[1])
                 f.close()
-            except:
+            except Exception:
                 self.cfg['param'][algo + '_maxdiff'] = -1
                 self.cfg['param'][algo + '_rmse'] = -1
                 self.cfg['param'][algo + '_psnr'] = -1
