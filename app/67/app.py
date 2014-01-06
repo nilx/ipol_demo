@@ -13,7 +13,8 @@ import shutil
 class app(base_app):
     """ template demo app """
     
-    title = "Digital Level Layers for Digital Curve Decomposition and Vectorization"
+    title = "Digital Level Layers for Digital Curve Decomposition and " +\
+"Vectorization"
     xlink_article = 'http://www.ipol.im/pub/pre/67/'
     xlink_src = 'http://www.ipol.im/pub/pre/67/gjknd_1.1.tgz'
     demo_src_filename  = 'gjknd_1.1.tgz'
@@ -50,8 +51,9 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_file = self.dl_dir + self.demo_src_filename
-        prog_names = ["dll_decomposition", "dll_sequence", "testBoundaries", "testDecomposition", "testOtsu"];
-        prog_bin_files=[];
+        prog_names = ["dll_decomposition", "dll_sequence", "testBoundaries",
+                      "testDecomposition", "testOtsu"]
+        prog_bin_files = []
         
         for f in prog_names:
             prog_bin_files.append(self.bin_dir+ f)            
@@ -69,15 +71,18 @@ class app(base_app):
             # extract the archive
             build.extract(tgz_file, self.src_dir)
             # build the program
-            build.run("mkdir %s;  " %(self.src_dir+"gjknd_1.1/build")   , stdout=log_file)
-            build.run("cd %s; cmake .. ; make -j 4" %(self.src_dir+"gjknd_1.1/build"),stdout=log_file) 
+            build.run("mkdir %s;  " %(self.src_dir+"gjknd_1.1/build"),
+                      stdout=log_file)
+            build.run("cd %s; cmake .. ; make -j 4" %
+                (self.src_dir+"gjknd_1.1/build"), stdout=log_file)
             
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
             for i in range(0, len(prog_bin_files)) :
-                shutil.copy(self.src_dir + os.path.join("gjknd_1.1/build/src", prog_names[i]), prog_bin_files[i])
+                shutil.copy(self.src_dir + os.path.join("gjknd_1.1/build/src",
+                  prog_names[i]), prog_bin_files[i])
 
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -93,14 +98,14 @@ class app(base_app):
         params handling and run redirection
         """
         if 'b' in kwargs:
-            x= True
+            x = True
         else:
-            x= False
+            x = False
 
         # save and validate the parameters
         try:
-            self.cfg['param']['typeprimitive']= kwargs['typeprimitive']
-            self.cfg['param']['b']=x; 
+            self.cfg['param']['typeprimitive'] = kwargs['typeprimitive']
+            self.cfg['param']['b'] = x 
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
@@ -116,7 +121,7 @@ class app(base_app):
         """
         # read the parameters
         typeprimitive = self.cfg['param']['typeprimitive']
-        b= self.cfg['param']['b']
+        b = self.cfg['param']['b']
         # run the algorithm
         try:
             self.run_algo(typeprimitive)
@@ -126,7 +131,8 @@ class app(base_app):
             return self.error(errcode='runtime')    
         except ValueError:
             return self.error(errcode='badparams',
-                              errmsg="The parameters given produce no contours, please change them.")
+                              errmsg="The parameters given produce no " +\
+"contours, please change them.")
 
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
 
@@ -151,11 +157,13 @@ class app(base_app):
         """
         if self.cfg['param']['b']:
             with open(self.work_dir+"info.txt", "w") as f:
-                p = self.run_proc(['dll_decomposition', '-b','-v',  '-d', typeprimitive,'input_0.png' ],stdout=f)
+                p = self.run_proc(['dll_decomposition', '-b', '-v', '-d', \
+typeprimitive, 'input_0.png' ],stdout = f)
                 self.wait_proc(p, timeout=self.timeout)
         else:
             with open(self.work_dir+"info.txt", "w") as f:
-                p = self.run_proc(['dll_decomposition', '-v', '-d', typeprimitive,'input_0.png' ],stdout=f)
+                p = self.run_proc(['dll_decomposition', '-v', '-d', \
+typeprimitive,'input_0.png' ], stdout=f)
                 self.wait_proc(p, timeout=self.timeout)
         return
 
