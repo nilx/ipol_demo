@@ -16,7 +16,6 @@ class app(base_app):
     """ The Flutter Shutter Code Calculator app """
 
     title = "The Flutter Shutter Code Calculator"
-    xlink_article = 'http://www.ipol.im/pub/pre/108/'
 
     input_nb = 0
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
@@ -48,14 +47,14 @@ class app(base_app):
         """
         program build/update
         """
-        # store common file path in variables
-        tgz_file = self.dl_dir + "source_code_calculator_1.zip"
+       # store common file path in variables
+        tgz_file = self.dl_dir + "source_code_flutter_1.zip"
         prog_file = self.bin_dir + "flutter_optimizer"
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download("http://www.ipol.im/pub/pre/108/" +\
-                       "source_code_calculator_1.zip", \
-                       tgz_file)
+        build.download("http://www.ipol.im/pub/pre/108/"
+                        + "source_code_flutter_1.zip", \
+tgz_file)
 
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_file)
@@ -69,18 +68,24 @@ class app(base_app):
             # build the program
 
 
-            build.run("make -j4 -C %s %s " % (self.src_dir+\
-"source_code_calculator_1",\
+            build.run("make -j4 -C %s %s " % (self.src_dir+ \
+"source_code_flutter_1/source_code_calculator_1",
                       os.path.join("flutter_optimizer")),stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
             os.mkdir(self.bin_dir)
-            shutil.copy(self.src_dir +\
-"source_code_calculator_1/flutter_optimizer", \
-prog_file)
+            shutil.copy(self.src_dir + \
+"source_code_flutter_1/source_code_calculator_1/flutter_optimizer" \
+, prog_file)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
+
+
+
+
+
+
         return
 
 
