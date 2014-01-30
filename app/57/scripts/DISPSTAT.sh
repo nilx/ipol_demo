@@ -58,10 +58,10 @@ then
    # generate transparent error masks all and noocc
    plambda output_${arg1}.tif ground_truth.tif "y[0] x[0] -" | \
        plambda - ground_truth_mask.png "x[0] y[0] 0 > * fabs 1 >" | \
-       plambda - "x 255 * 0 0 x 255 * join3 join" | iion - error_all.png &
+       plambda - "x 255 * 0 0 x 255 * join3 join" | iion - error_${arg1}_all.png &
    plambda output_${arg1}.tif ground_truth.tif "y[0] x[0] -" | \
        plambda - ground_truth_occ.png ground_truth_mask.png "x[0] y[0] 0 > z[0] 0 > * * fabs 1 >" | \
-       plambda - "x 255 * 0 0 x 255 * join3 join" | iion - error_noocc.png &
+       plambda - "x 255 * 0 0 x 255 * join3 join" | iion - error_${arg1}_noocc.png &
 
 
    # compute the density of correct matches (err<=1) in gtmask \cap not occ

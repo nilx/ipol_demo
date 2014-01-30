@@ -72,11 +72,11 @@ viewOF.sh output_${ALGO}.tif output_${ALGO}.png output_${ALGO}_map.png
 
 
 # generate backflow visualization
-backflow output_${ALGO}.tif  right_imagen.tif backflow.tif
-genpreview.sh backflow.tif backflow.png &
-plambda left_imagen.tif backflow.tif "x y - fabs" | genpreview.sh - backflow_diff.png &
-#plambda left_imagen.tif backflow.tif "x y - fabs" | iion - backflow_diff.tif 
-#genpreview.sh backflow_diff.tif backflow_diff.png &
+backflow output_${ALGO}.tif  right_imagen.tif backflow_${ALGO}.tif
+genpreview.sh backflow_${ALGO}.tif backflow_${ALGO}.png &
+plambda left_imagen.tif backflow_${ALGO}.tif "x y - fabs" | genpreview.sh - backflow_${ALGO}_diff.png &
+#plambda left_imagen.tif backflow_${ALGO}.tif "x y - fabs" | iion - backflow_${ALGO}_diff.tif 
+#genpreview.sh backflow_${ALGO}_diff.tif backflow_${ALGO}_diff.png &
 
 
 #generate preview corr for the 92-quantile

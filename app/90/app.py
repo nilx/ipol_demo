@@ -87,37 +87,32 @@ class app(base_app):
                 # build
                 build.run("make -j4 -C %s %s" %
                        (
-                         os.path.join(self.src_dir, src_dir_name, program),
-                         os.path.join(".", program)
+                         os.path.join(self.src_dir,
+                           src_dir_name, src_dir_name, \
+                           program),
+                           os.path.join(".", program)
                        ), stdout=log_file)
                 # move binary to bin dir
                 shutil.copy(os.path.join(self.src_dir, \
-                                         src_dir_name, \
+                                         src_dir_name, src_dir_name, \
                                          program, program),
                             os.path.join(self.bin_dir, program))
 
             # Move corrections and scripts to the base dir
-            dir_from = os.path.join(self.src_dir, src_dir_name,
-                                    prog_filename, 'per_corrections')
-            dir_to = os.path.join(src_dir_name, self.base_dir,
-                                  'per_corrections')
-            if os.path.isdir(dir_to):
-                shutil.rmtree(dir_to)
-            shutil.move(dir_from, dir_to)
-
-            dir_from = os.path.join(self.src_dir, src_dir_name,
-                                    'scripts')
-            dir_to = os.path.join(src_dir_name, self.base_dir,
-                                  'scripts')
-            if os.path.isdir(dir_to):
-                shutil.rmtree(dir_to)
-            shutil.move(dir_from, dir_to)
-
+            from_dirs = ('per_corrections', '../scripts')
+            for from_dir in from_dirs:
+                dir_from = os.path.join(self.src_dir,
+                                        src_dir_name, src_dir_name, \
+                                        prog_filename, from_dir)
+                # Put them into bin, to prevent them from deletion
+                dir_to = os.path.join(src_dir_name, src_dir_name, self.bin_dir)
+                shutil.move(dir_from, dir_to)
 
             # Give exec permission to the script
             os.chmod(
                      os.path.join(
-                                  src_dir_name, self.base_dir,
+                                  src_dir_name, src_dir_name, \
+                                  self.bin_dir, \
                                   "scripts", "writeNoiseCurve.sh"
                                  ),
                      stat.S_IREAD | stat.S_IEXEC
@@ -621,8 +616,6 @@ if bins == 0 else bins / 2**scale)
 
             param_remove_equals = '-r' if \
               removeequals == 1 else '-g%d' % curvefilter
-            #param_remove_outliers = '-h' if \
-              #removeoutliers == 1 else '-g%d' % curvefilter
          
             procOptions = ['percentile', \
                            '-p%.4f' % percentile , \
@@ -631,15 +624,10 @@ if bins == 0 else bins / 2**scale)
                            '-f%d' % operator, \
                            '-g%d' % curvefilter, \
                            param_remove_equals,
-                           #param_remove_outliers,
                            '-c%d' % correction_type, \
-                           '-e%s' % os.path.join(self.base_dir, \
+                           '-e%s' % os.path.join(self.bin_dir, \
                                  'per_corrections'), \
                          'scale_s%d.rgb' % scale]
-            # Run
-            #pid = self.run_proc(procOptions, stdout=fd, stderr=fd)
-            #self.wait_proc(pid, timeout*0.8)
-            #fd.close()
 
             processes.append(self.run_proc(procOptions, stdout=fd, stderr=fd))
             fds.append(fd)
@@ -647,7 +635,7 @@ if bins == 0 else bins / 2**scale)
         # Wait for the parallel processes to end
         self.wait_proc(processes, timeout*0.8)
 
-        # Close the file descriptors
+        # Close file descriptors
         for fd in fds:
             fd.close()
 
@@ -672,7 +660,7 @@ if bins == 0 else bins / 2**scale)
             num_channels = self.get_num_channels(estimation_filename)
 
             # Generate figure
-            procOptions = [os.path.join(self.base_dir, \
+            procOptions = [os.path.join(self.bin_dir, \
                            'scripts', \
                            'writeNoiseCurve.sh'), \
                            'estimation_s%d.txt' % scale, \
@@ -688,7 +676,7 @@ if bins == 0 else bins / 2**scale)
         self.cfg.save()
 
         # Cleanup
-        for i in range(0, scale):
+        for i in range(scale):
             os.unlink(self.work_dir + 'scale_s%d.rgb' % ((i)))
         
     @cherrypy.expose

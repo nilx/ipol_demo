@@ -61,11 +61,11 @@ genpreview_stretch.sh output1_${arg1}.tif output_${arg1}.png ${min_disparity} ${
 ## TODO ADD A SCALE! 
 
 # generate backflow visualization
-plambda output_${arg1}.tif "x[0] 0 join" | backflow - right_imagen.tif backflow.tif
-genpreview.sh backflow.tif backflow.png &
-plambda left_imagen.tif backflow.tif "x y - fabs" | genpreview.sh - backflow_diff.png &
-#plambda left_imagen.tif backflow.tif "x y - fabs" | iion - backflow_diff.tif 
-#genpreview.sh backflow_diff.tif backflow_diff.png &
+plambda output_${arg1}.tif "x[0] 0 join" | backflow - right_imagen.tif backflow_${arg1}.tif
+genpreview.sh backflow_${arg1}.tif backflow_${arg1}.png &
+plambda left_imagen.tif backflow_${arg1}.tif "x y - fabs" | genpreview.sh - backflow_${arg1}_diff.png &
+#plambda left_imagen.tif backflow_${arg1}.tif "x y - fabs" | iion - backflow_${arg1}_diff.tif 
+#genpreview.sh backflow_${arg1}_diff.tif backflow_${arg1}_diff.png &
 
 
 #generate preview corr for the 92-quantile

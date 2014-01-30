@@ -1,0 +1,62 @@
+<%include file="header.html" />
+
+<div class="action" style="padding-bottom:3ex">    
+    <form style="float:left" action="${app.base_url}" method="get">
+        <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
+    </form>    
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+        <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
+        <input type="hidden" name="newrun" value="1" />
+        <input type="hidden" name="msg" value="different parameter" />
+        <input type="submit" value="different parameter" /></p>
+    </form>
+</div>
+
+<p>Notice that if the image dimensions exceeded 500&times;500, then the image has been cropped.  
+%if app.cfg['param']['zoomfactor'] > 1:
+For visualization, images are displayed with ${app.cfg['param']['zoomfactor']}&times; pixel duplication.  
+%endif
+Results at native resolution can be downloaded here:
+<a href="${app.work_url + 'result.png'}">inpainted</a>,&nbsp;&nbsp;
+<a href="${app.work_url + 'input_0.png'}">original</a>.</p>
+
+
+<p><i>&alpha;</i>&nbsp;=&nbsp;${ float(app.cfg['param']['lambda'])}</p>
+<p>Negate image =&nbsp;${app.cfg['param']['negate']}</p>
+
+<div class="gallery" style="height:${app.cfg['param']['displayheight']}px">
+    <ul class="index">
+    <li>
+        <a href="#">
+          Marker
+        <span>
+            <img src="${app.work_url + 'mask_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>    
+    <li>
+        <a href="#">
+        Original
+        <span>
+            <img src="${app.work_url + 'input_0_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>    
+
+    <li>
+        <a href="#">
+	 Segmentation result
+        <span>
+            <img src="${app.work_url + 'result_zoom.png'}" alt="" />
+        </span>
+        </a>
+    </li>    
+
+    </ul>
+</div>
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />

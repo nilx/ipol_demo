@@ -1,0 +1,33 @@
+<%include file="header.html" />
+
+<p>
+  
+We provide an implementation for three models: StraightLine, Circle, Conic.
+You can specify which model is used for the decomposition.
+
+</p>
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    Model use for the decomposition: <BR>
+    <input type="hidden" name="key" value="${app.key}">
+    <SELECT name="typeprimitive">
+      <OPTION>StraightLine</OPTION>
+      <OPTION>Circle</OPTION>
+      <OPTION>Conic</OPTION>
+    </SELECT>
+
+    <BR>
+    Use black background: <input type="checkbox" name="b" value="on" size="4" />
+    <BR>
+    <input type="submit" value="run" />
+  </div>
+</form>
+
+<hr />
+
+<div>
+  <img src="${app.work_url + 'input_0.png'}" alt="" /> 
+</div>
+
+<%include file="footer.html" />

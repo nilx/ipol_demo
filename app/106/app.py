@@ -226,10 +226,6 @@ class app(base_app):
             ar.add_file("output_hough.png", info="Hough", compress=False ) 
             ar.add_file("output_corrected_image.png", info="Output", compress=False ) 
             ar.add_file("input_0.png", info="Input", compress=False ) 
-            ar.add_info( {'od1' : self.cfg['param']['od1'] } ) 
-            ar.add_info( {'od2' : self.cfg['param']['od2'] } ) 
-            ar.add_info( {'od3' : self.cfg['param']['od3'] } ) 
-            ar.add_info( {'od4' : self.cfg['param']['od4'] } ) 
             ar.add_info( {"run time" : self.cfg['info']['run_time']} )
             ar.save()
 
@@ -246,3 +242,4 @@ class app(base_app):
         if error_nomatch:
             return self.tmpl_out("result_nomatch.html")
         else:             return self.tmpl_out("result.html" )
+
