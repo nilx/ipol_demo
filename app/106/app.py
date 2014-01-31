@@ -216,16 +216,16 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive() 
-            ar.add_file("input_0.png", info="", compress=False ) 
             ar.add_info( {'high_threshold_canny' : self.cfg['param']['high_threshold_canny'] } ) 
             ar.add_info( {'initial_distortion_parameter' : self.cfg['param']['initial_distortion_parameter'] } ) 
             ar.add_info( {'final_distortion_parameter' : self.cfg['param']['final_distortion_parameter'] } ) 
             ar.add_info( {'distance_point_line_max_hough' : self.cfg['param']['distance_point_line_max_hough'] } ) 
-            ar.add_info( {'angle_point_orientation_max_difference' : self.cfg['param']['angle_point_orientation_max_difference'] } ) 
-            ar.add_file("output_canny.png", info="Canny", compress=False ) 
-            ar.add_file("output_hough.png", info="Hough", compress=False ) 
-            ar.add_file("output_corrected_image.png", info="Output", compress=False ) 
-            ar.add_file("input_0.png", info="Input", compress=False ) 
+            ar.add_info( {'angle_point_orientation_max_difference' : self.cfg['param']['angle_point_orientation_max_difference'] } )
+            ar.add_file("input_0.png", "input_0.png", info="Input") 
+            ar.add_file("output_canny.png", "output_canny.png", info="Canny") 
+            ar.add_file("output_hough.png", "output_hough.png", info="Hough") 
+            ar.add_file("output_corrected_image.png", "output_corrected_image.png", info="Output corrected")
+            ar.add_file("primitives.txt", "primitives.txt", info="Primitives")             
             ar.add_info( {"run time" : self.cfg['info']['run_time']} )
             ar.save()
 
