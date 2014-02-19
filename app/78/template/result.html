@@ -1,0 +1,127 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed hereafter.
+  It ran in ${"%0.2f" % app.cfg['info']['run_time']}s.
+</p>
+
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Restart this algorithm with new input data.
+    <input type="submit" value="new input" />
+  </div> 
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    Restart this algorithm with other parameters.
+    <input type="hidden" name="key" value="${app.key}" />
+    <input type="hidden" name="newrun" value="1" />
+    <input type="submit" value="new parameters" />
+  </div>
+</form>
+
+<h2>Result</h2>
+<p>
+Radius=${app.cfg['param']['radius']}, alpha=${app.cfg['param']['alpha']},
+dmin=${app.cfg['param']['dmin']}, dmax=${app.cfg['param']['dmax']},
+camera direction:
+%if app.cfg['param']['sense'] == 'r':
+left to right
+%else:
+right to left
+%endif
+</p>
+
+<div class="gallery" style="height: ${height}px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	disparity map
+	<span>
+	  <img src="${app.work_url + 'disparity.png'}" alt="disparity map" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	occlusions
+	<span>
+	  <img src="${app.work_url + 'disparity_occlusion.png'}" alt="occlusions" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	Simple filling
+	<span>
+	  <img src="${app.work_url + 'disparity_occlusion_filled.png'}" alt="simple filling" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	Final map
+	<span>
+	  <img src="${app.work_url + 'disparity_occlusion_filled_smoothed.png'}" alt="final map" />
+	</span>
+      </a>
+    </li>
+
+    <li>
+      <a href="#">
+%if 'norectif' in app.cfg['param']:
+	image 1
+%else:
+    rectified image 1
+%endif
+	<span>
+	  <img src="${app.work_url + 'H_input_0.png'}" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+%if 'norectif' in app.cfg['param']:
+	image 2
+%else:
+    rectified image 2
+%endif
+	<span>
+	  <img src="${app.work_url + 'H_input_1.png'}" />
+	</span>
+      </a>
+    </li>
+%if 'norectif' not in app.cfg['param']:
+    <li>
+      <a href="#">
+	input image 2
+	<span>
+	  <img src="${app.work_url + 'input_1.png'}" alt="input image 2" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	input image 1
+	<span>
+	  <img src="${app.work_url + 'input_0.png'}" alt="input image 1" />
+	</span>
+      </a>
+    </li>
+%endif
+  </ul>
+</div>
+
+<!-- Only the output of rectification may be of interest -->
+%if 'norectif' not in app.cfg['param']:
+<h2>Program Output</h2>
+
+<pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
+%endif
+
+<hr />
+
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />

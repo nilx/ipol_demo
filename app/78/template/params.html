@@ -1,0 +1,68 @@
+<%include file="header.html" />
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div class="action">
+%if 'dmin' in app.cfg['param']:
+  Disparity range:
+  <input type="text" name="dmin" value="${app.cfg['param']['dmin']}" size="3" />
+  <input type="text" name="dmax" value="${app.cfg['param']['dmax']}" size="3" />
+%else:
+<p>
+  Note: As a first step of this algorithm, a <a href='http://www.ipol.im/pub/algo/m_quasi_euclidean_epipolar_rectification/'>rectification algorithm</a> will be run to ensure the apparent motion is horizontal.<br />
+  If the images are already rectified and you want to skip the rectification step, click below: <br />
+&nbsp;&nbsp;<input type="checkbox" name="norectif" value="norectif" /> No epipolar rectification
+%endif
+</p>
+  Radius of guided filter:
+  <input type="text" name="radius" value="${app.cfg['param']['radius']}" size="2" /><br />
+  Alpha (balance color/gradient cost):
+  <input type="text" name="alpha" value="${app.cfg['param']['alpha']}" size="3" />
+<br />
+  Camera motion direction (used for occlusion filling):<br />
+&nbsp;&nbsp;  <input type="radio" name="sense" value="r"
+%if app.cfg['param']['sense'] == 'r':
+         checked
+%endif
+         >Left to right<br />
+&nbsp;&nbsp;  <input type="radio" name="sense" value="l"
+%if app.cfg['param']['sense'] == 'l':
+         checked
+%endif
+         >Right to left<br />
+<input type="hidden" name="key" value="${app.key}" />
+<input type="submit" value="run" />
+</div>
+</form>
+
+<h2>Input</h2>
+
+<div class="gallery" style="height: 1024px;">
+  <ul class="index">
+    <li>
+      <a href="#">
+	first input image
+	<span>
+%if 'norectif' in app.cfg['param']:
+	  <img src="${app.work_url + 'H_input_0.png'}" />
+%else:
+	  <img src="${app.work_url + 'input_0.png'}" />
+%endif
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	second input image
+	<span>
+%if 'norectif' in app.cfg['param']:
+	  <img src="${app.work_url + 'H_input_1.png'}" />
+%else:
+	  <img src="${app.work_url + 'input_1.png'}" />
+%endif
+	</span>
+      </a>
+    </li>
+  </ul>
+</div>
+  
+<%include file="footer.html" />
