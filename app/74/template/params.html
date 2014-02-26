@@ -1,0 +1,83 @@
+<%include file="header.html" />
+
+<p>
+  
+  You can set the parameters to extract the image contours.
+
+  
+</p>
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    Set the choice of bel adjacency:
+    <ul>
+      <li> <input type="radio" name="adjacency" value="interior" checked> interior adjacency </li>
+      <li> <input type="radio" name="adjacency" value="exterior" > exterior adjacency </li>
+    </ul>
+    Set the contour extraction thresholds: <BR>
+    <input type="hidden" name="key" value="${app.key}">
+    <ul>
+      %if ('is3d' not in app.cfg['meta']) or (not app.cfg['meta']['is3d']):
+      <li><input type="radio" name="thresholdtype" value="Auto (Otsu)" checked>  Auto (Otsu algorithm min=0, max=otsu):
+      <li><input type="radio" name="thresholdtype" value="Single interval">  single threshold interval:
+	<ul>
+	  <li><label for="minthreshold"><i>minimal threshold value</i>:</label> 
+            <input type="text" name="minthreshold" value="128" size="4" /> </li>
+	  <li><label for="maxthreshold"><i>maximal threshold value</i>:</label> 
+            <input type="text" name="maxthreshold" value="255" size="4" /> </li>
+	</ul>
+      </li>
+      <li><input type="radio" name="thresholdtype" value="Multiple intervals" > multiple threshold intervals:
+	<ul>
+	  <li><label for="startthreshold"><i>start threshold </i>:</label> 
+	    <input type="text" name="startthreshold" value="25" size="4" /> </li>
+	  <li><label for="endthreshold"><i>start threshold </i>:</label> 
+	    <input type="text" name="endthreshold" value="255" size="4" /> </li>
+	  <li><label for="thresholdstep"><i>threshold step</i>:</label> 
+          <input type="text" name="thresholdstep" value="30" size="4" /> </li>
+
+	</ul>
+      </li>
+      %else:
+      <li>single threshold interval:
+	<ul>
+	  <li><label for="minthreshold"><i>minimal threshold value</i>:</label> 
+            <input type="text" name="minthreshold" value="128" size="4" /> </li>
+	  <li><label for="maxthreshold"><i>maximal threshold value</i>:</label> 
+            <input type="text" name="maxthreshold" value="255" size="4" /> </li>
+	</ul>
+      </li>
+      
+      %endif
+    </ul>
+    
+    <BR>
+    <input type="submit"  name="action" value="run" />
+%if ('is3d' not in app.cfg['meta']) or (not app.cfg['meta']['is3d']):
+
+    %if int(app.cfg['param']['x1']) < 0 or int(app.cfg['param']['y1']) < 0 :
+      <p>Or you can run it after selecting a subimage by clicking two
+         opposite corners of the subimage.</p>
+      <p><input type="image" style="cursor:crosshair;" name="click"
+                src="${app.work_url + 'input_0_selection.png'}" /></p>
+    %elif int(app.cfg['param']['x2']) < 0 or int(app.cfg['param']['y2']) < 0 :
+      <p>Please select the second corner of the subimage:</p>
+      <p><input type="image" style="cursor:crosshair;" name="click"
+          src="${app.work_url + 'input_0_selection.png'}" /></p>
+    %else:
+      <p>The algorithm will run on this selected subimage:</p>
+      <img src="${app.work_url + 'input_0_selection.png'}" />
+    %endif
+%endif
+  </div>
+
+</form>
+
+<hr/>
+%if not (('is3d' not in app.cfg['meta']) or (not app.cfg['meta']['is3d'])):
+<div>
+  <img src="${app.work_url + 'input_0.png'}" alt="" /> 
+</div>
+%endif
+
+<%include file="footer.html" />
