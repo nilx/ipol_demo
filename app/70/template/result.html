@@ -1,0 +1,99 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed  hereafter.
+  The result was obtained with the following parameters:
+<ul>
+%if not app.cfg['param']['autothreshold']:
+  <li>  image  threshold  max <i>tmax</i>: ${app.cfg['param']['tmax']}  </li>
+  <li>  image  threshold  min <i>tmin</i>: ${app.cfg['param']['tmin']}  </li>
+%endif
+<li>  contour min size <i>m</i>: ${app.cfg['param']['m']}  </li>
+<li>  maximal error <i>e</i>: ${app.cfg['param']['e']}  </li>
+<li>  use only width: ${app.cfg['param']['w']}  </li>
+</ul>
+</p>
+
+%if app.cfg['param']['autothreshold']:
+<p> The pgm2freman command uses automatically the following threshold parameters from the otsu algorithm:
+<ul>
+  <li>  image  threshold  min <i>t</i>: 0 </li>
+  <li>  image  threshold  from otsu max <i>tmax</i>: ${app.cfg['param']['tmax']}  </li>
+</ul>
+</p>
+%endif
+
+
+The algorithm can be run with the following commands:
+<pre>
+${app.list_commands}
+</pre>
+
+<BR>
+<BR>
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Restart this algorithm with new data.
+    <input type="submit" value="new input" />
+  </div>
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    Restart this algorithm with new parameters.
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="new parameters" />
+  </div>
+</form>
+
+<hr />
+
+<h2>Result</h2>
+
+<div class="gallery" style="height:${height}px">
+  <ul class="index">
+    <li>
+      <a href="#">input
+	<span>
+	  <img src="${app.work_url + 'input_0.png'}" alt="input" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">output
+	<span>
+	  <img height="${height}px" src="${app.work_url + 'output.png'}" alt="output" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="${app.work_url+'output.eps'}">output.eps </a>
+      </a>
+    </li>
+
+    <li>
+      <a href="${app.work_url+'output.txt'}">contour (result) </a>
+      </a>
+    </li>
+    <li>
+      <a href="${app.work_url+'inputContour.dat'}">contour (input) </a>
+      </a>
+    </li>
+    <li>
+      <a href="${app.work_url+'info.txt'}">computation infos</a>
+      </a>
+    </li>
+    <li>
+      <a href="${app.work_url+'commands.txt'}">commands.txt
+    <span><pre>${app.list_commands}</pre></span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+<hr />
+<%include file="archive_info.html" />
+
+<%include file="footer.html" />

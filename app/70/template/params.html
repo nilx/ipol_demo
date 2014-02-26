@@ -1,0 +1,52 @@
+<%include file="header.html" />
+
+<p>
+  
+  You can set the parameters to extract the image contours: the image
+  thresholds <i>tmin</i>,<i>tmax</i> and the minimal contour size <i>m</i> that you
+  want to extract. <br/> 
+  The contours extracted will be used as input of the
+  Frechet algorithm.
+  
+  More important you can set the parameter
+  associated to the simplification algorithm (Frechet or
+  width) <i>e</i>.  
+
+</p>
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    <input type="hidden" name="key" value="${app.key}">
+	
+    <ul>
+      <li> Step 1 (optional): set the contour extraction threshold parameters:
+	<ul>
+      <li><input type="radio" name="thresholdtype" value="True" checked> automatic threshold(Otsu) </li>
+      <li><input type="radio" name="thresholdtype" value="False" > manual threshold: <i>tmin</i>: 
+     <input type="text" name="tmin" value="0" size="4" /> <i>max</i>: <input type="text" name="tmax" value="128" size="4" /> </li>
+      <li><label for="m"><i>minimal contour size m</i>:</label> 
+        <input type="text" name="m" value="100" size="4" />
+     </ul> 
+     
+      <li> Step 2: set the algorithm parameters   
+
+   <ul>
+     <li><label for="e"><i>maximal error</i>:</label>
+    <input type="text" name="e" value="2" size="4" /></li>
+     <li>
+    Use width only: <input type="checkbox" name="w" value="on" size="4" />
+    </li>
+</ul>
+</li>
+    <input type="submit" value="run" />
+  </div>
+</form>
+
+
+<hr />
+
+<div>
+  <img src="${app.work_url + 'input_0.png'}" alt="" /> 
+</div>
+
+<%include file="footer.html" />
