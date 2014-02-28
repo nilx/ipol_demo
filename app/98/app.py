@@ -28,9 +28,6 @@ class app(base_app):
     is_test = False
     default_param = {
         'sfactor': '2',
-        'hfilter': '1.25',
-        'lambda': '17.5',
-        'mu': '17.5',
         'x0': None,
         'y0': None,
         'x' : None,
@@ -66,7 +63,8 @@ class app(base_app):
         tgz_url = "http://www.ipol.im/pub/pre/98/Pansharpening.zip"
         tgz_file = self.dl_dir + "Pansharpening.zip"
         progs = ["pansharpening_ipol", "imdiff_ipol"]
-        src_bin = dict([(self.src_dir + os.path.join("Pansharpening_code", prog),
+        src_bin = dict([(self.src_dir + \
+                         os.path.join("Pansharpening_code", prog),
                          self.bin_dir + prog)
                         for prog in progs])
         log_file = self.base_dir + "build.log"
@@ -224,16 +222,14 @@ class app(base_app):
         if self.cfg['meta']['original']:
             ar = self.make_archive()                        
             ar.add_info({'sfactor': self.cfg['param']['sfactor']})
-            ar.add_info({'hfilter': self.cfg['param']['hfilter']})
-            ar.add_info({'lambda': self.cfg['param']['lambda']})
-            ar.add_info({'mu': self.cfg['param']['mu']})
             ar.add_file('input_0_sel.png', info='input image')
             ar.add_file('pan.png', info='pan image')
             ar.add_file('pansharpened.png', info='pansharpened image')
             ar.add_file('lowspectral.png', info='lowspectral image')
             ar.add_file('ihs.png', info='IHS image')
             ar.add_file('diffInputIHS.png', info='difference input-IHS')
-            ar.add_file('diffInputPanS.png', info='difference input-pansharpened')
+            ar.add_file('diffInputPanS.png', \
+                        info='difference input-pansharpened')
             ar.save()
 
         return self.tmpl_out('run.html')
@@ -263,32 +259,33 @@ class app(base_app):
                                       'pan.png', 'lowspectral.png',
                                       'ihs.png', 
                                       'pansharpened.png',
-                                      str(self.cfg['param']['sfactor']),
-                                      str(self.cfg['param']['hfilter']),
-                                      str(self.cfg['param']['lambda']),
-                                      str(self.cfg['param']['mu'])], 
+                                      str(self.cfg['param']['sfactor'])], 
                                       stdout=stdout, stderr=stdout), 
                                       timeout)
                                       
         self.wait_proc(self.run_proc(['imdiff_ipol', 'input_0_sel.png', 
                                       'ihs.png', 
                                       'diffInputIHS.png'],
-                                      stdout=open(self.work_dir + 'rmse_IHS.txt', 'w'), 
-                                      stderr=stdout), 
+                                      stdout=open(self.work_dir + \
+                                                  'rmse_IHS.txt', 'w'), 
+                                                  stderr=stdout), 
                                       timeout)
       
         self.wait_proc(self.run_proc(['imdiff_ipol', 'input_0_sel.png', 
                                       'pansharpened.png', 
                                       'diffInputPanS.png'],
-                                      stdout=open(self.work_dir + 'rmse_PanS.txt', 'w'),
+                                      stdout=open(self.work_dir +
+                                                  'rmse_PanS.txt',
+                                                  'w'),
                                       stderr=stdout), 
                                       timeout)
       
         (sizeX, sizeY) = image(self.work_dir + 'input_0_sel.png').size
         self.cfg['param']['displayheight'] = max(300, sizeY)
       
-        #embed lowspectral image in white image of the same size as the original 
-        #(just to improve visualization in gallery format)
+        # embed lowspectral image in white image of
+        # the same size as the original 
+        # (just to improve visualization in gallery format)
         im = PIL.Image.new('RGB', (sizeX, sizeY), "white")
         im0 = PIL.Image.open(self.work_dir + 'lowspectral.png')
         (sizeX0, sizeY0) = im0.size
