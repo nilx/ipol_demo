@@ -50,11 +50,11 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/pre/84/screened_ipol.tgz"
-        tgz_file = self.dl_dir + "screened_ipol.tgz"
+        tgz_url = "http://www.ipol.im/pub/pre/84/screened_poisson.tgz"
+        tgz_file = self.dl_dir + "screened_poisson.tgz"
         prog = "screened_poisson"
         bin_file = self.bin_dir + prog
-        build_file = self.src_dir + os.path.join("screened_ipol", prog)
+        build_file = self.src_dir + os.path.join("screened_poisson", prog)
         log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download(tgz_url, tgz_file)
@@ -68,7 +68,7 @@ class app(base_app):
             build.extract(tgz_file, self.src_dir)
             # build the programs
             build.run("make -C %s %s"
-                      % (self.src_dir + "screened_ipol", prog),
+                      % (self.src_dir + "screened_poisson", prog),
                       stdout=log_file)
             # save into bin dir
             if os.path.isdir(self.bin_dir):
