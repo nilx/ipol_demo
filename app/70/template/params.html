@@ -3,14 +3,15 @@
 <p>
   
   You can set the parameters to extract the image contours: the image
-  thresholds <i>tmin</i>,<i>tmax</i> and the minimal contour size <i>m</i> that you
-  want to extract. <br/> 
-  The contours extracted will be used as input of the
+  thresholds <font color=blue> <i>tmin</i> </font>, <font color=blue> <i>tmax</i> </font> 
+  and the minimal contour size <font color=blue> <i>m</i> </font> that you
+  want to extract.  The contours extracted will be used as input of the
   Frechet algorithm.
-  
-  More important you can set the parameter
-  associated to the simplification algorithm (Frechet or
-  width) <i>e</i>.  
+  <br/>
+
+  <b>More important</b> you can set the parameter associated to the
+  simplification algorithm <font color=red> <i>e</i> </font> (used in the Fr&eacute;chet or
+  width based algorithm) .
 
 </p>
 
@@ -21,17 +22,17 @@
     <ul>
       <li> Step 1 (optional): set the contour extraction threshold parameters:
 	<ul>
-      <li><input type="radio" name="thresholdtype" value="True" checked> automatic threshold(Otsu) </li>
-      <li><input type="radio" name="thresholdtype" value="False" > manual threshold: <i>tmin</i>: 
-     <input type="text" name="tmin" value="0" size="4" /> <i>max</i>: <input type="text" name="tmax" value="128" size="4" /> </li>
-      <li><label for="m"><i>minimal contour size m</i>:</label> 
+      <li><input type="radio" name="thresholdtype" value="True" checked> automatic threshold (Otsu, starting from 0) </li>
+      <li><input type="radio" name="thresholdtype" value="False" > manual threshold: <font color=blue><i>tmin</i></font>: 
+     <input type="text" name="tmin" value="0" size="4" /> <font color=blue><i>tmax</i></font>: <input type="text" name="tmax" value="128" size="4" /> </li>
+      <li><label for="m">minimal contour size<font color=blue> <i> m</i> </font>:</label> 
         <input type="text" name="m" value="100" size="4" />
      </ul> 
      
       <li> Step 2: set the algorithm parameters   
 
    <ul>
-     <li><label for="e"><i>maximal error</i>:</label>
+     <li><label for="e">maximal error <font color="red"> <i>e </i></font>:</label>
     <input type="text" name="e" value="2" size="4" /></li>
      <li>
     Use width only: <input type="checkbox" name="w" value="on" size="4" />

@@ -1,6 +1,7 @@
 """"
 Demonstration of paper:  A near-linear time guaranteed algorithm for digital \
                          curve simplification under the Frechet distance
+demo editor: Bertrand Kerautret
 """
 
 from lib import base_app, build, http, image
@@ -14,8 +15,8 @@ import shutil
 class app(base_app):
     """ template demo app """ 
     
-    title = "A near-linear time guaranteed algorithm for digital curve simpli"+\
-            "fication under the Frechet distance"
+    title = "A Near-Linear Time Guaranteed Algorithm for Digital Curve Simpli"+\
+            "fication Under the Fr&eacute;chet Distance"
     xlink_article = 'http://www.ipol.im/pub/pre/70/'
     xlink_src =  'http://www.ipol.im/pub/pre/70/FrechetAndConnectedCompDemo.tgz'
     demo_src_filename  = 'FrechetAndConnectedCompDemo.tgz'
@@ -23,7 +24,7 @@ class app(base_app):
 
     input_nb = 1 # number of input images
     input_max_pixels = 500000 # max size (in pixels) of an input image
-    input_max_weight = 1 * 1024 * 1024 # max size (in bytes) of an input file
+    input_max_weight = 1 * 2048 * 2048 # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'   # input image expected extension (ie file format)
     is_test = False      # switch to False for deployment
@@ -145,17 +146,15 @@ class app(base_app):
         """
         algo execution
         """
-        # read the parameters
-        tmin = self.cfg['param']['tmin']
-        tmax = self.cfg['param']['tmax']
-
+  
         m = self.cfg['param']['m']
         e = self.cfg['param']['e']
-        w = self.cfg['param']['w']        
-        autothreshold = self.cfg['param']['autothreshold'] 
+
         # run the algorithm
+        self.list_commands = ""
+
         try:
-            self.run_algo(tmin, tmax, m, e, w, autothreshold)
+            self.run_algo({})
         except TimeoutError:
             return self.error(errcode='timeout') 
         except RuntimeError:
@@ -171,93 +170,123 @@ class app(base_app):
         if self.cfg['meta']['original']:
             ar = self.make_archive()
             ar.add_file("input_0.png", "original.png", info="uploaded")
-            ar.add_file("output.png", info="output")
+            ar.add_file("output.png", info="result.png")
             ar.add_file("commands.txt", info="commands")
-            ar.add_file("inputContour.dat", info="polygon input")
-            ar.add_file("output.txt", info="polygon result")
-            ar.add_file("info.txt", info="computation info ")
-            ar.add_info({"tmin": tmin, "tmax": tmax, "m": m, "e": e, \
-                        "width only": w})
+            ar.add_file("inputContour.txt", info="input polygons")
+            ar.add_file("output.txt", info="output polygons")
+            ar.add_file("algoLog.txt", info="algorithm log")
+            ar.add_info({"tmin": self.cfg['param']['tmin'], 
+            			 "tmax": self.cfg['param']['tmax'], "m": m, "e": e, \
+                        "width only": self.cfg['param']['w']})
             ar.save()
 
         return self.tmpl_out("run.html")
 
-    def run_algo(self, tmin, tmax, m, e, w, autothreshold):
+    def run_algo(self, params):
         """
         the core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
-        self.list_commands = ""
     
         ##  -------
         ## process 1: transform input file 
         ## ---------
-        command_args = ['convert.sh', 'input_0.png', 'tmp.pgm' ]
-        p = self.run_proc(command_args)
-        self.wait_proc(p, timeout=self.timeout)
-        self.saveCommand(command_args)
+        command_args = ['convert.sh', 'input_0.png', 'inputNG.pgm' ]
+        self.runCommand(command_args)
 
         ##  -------
         ## process 2: extract contour files 
         ## ---------
-        f = open(self.work_dir+"inputContour.dat", "w") 
-        fInfo = open(self.work_dir+"info.txt", "w")
-        command_args = ['pgm2freeman']
-        command_args += ['-min_size', str(m), '-image', 'tmp.pgm']
-        command_args += ['-outputSDPAll' ]
-        if not autothreshold:
-            command_args += ['-maxThreshold', str(tmax)]
-            command_args += ['-minThreshold', str(tmin)]
+        f = open(self.work_dir+"inputContour.txt", "w") 
+        fInfo = open(self.work_dir+"algoLog.txt", "w")
+        command_args = ['pgm2freeman']+\
+				       ['-min_size', str(self.cfg['param']['m']), '-image',\
+				        'inputNG.pgm']+\
+        			   ['-outputSDPAll' ]
+        if not self.cfg['param']['autothreshold']:
+            command_args += ['-maxThreshold', str(self.cfg['param']['tmax'])]+ \
+           					['-minThreshold', str(self.cfg['param']['tmin'])]
 
+        cmd = self.runCommand(command_args, f, fInfo, \
+                              comp = ' > inputContour.txt')
 
-        p = self.run_proc(command_args, stdout=f, \
-                            stderr=fInfo, \
-                            env={'LD_LIBRARY_PATH' : self.bin_dir} )
-        self.wait_proc(p, timeout=self.timeout)
-        if os.path.getsize(self.work_dir+"inputContour.dat") == 0: 
+        if os.path.getsize(self.work_dir+"inputContour.txt") == 0: 
             raise ValueError
-        f.close()
         fInfo.close()
-        fInfo = open(self.work_dir+"info.txt", "r") 
-
-        # Recover otsu max value from output
-        if autothreshold:
+        fInfo = open(self.work_dir+"algoLog.txt", "r") 
+        
+        #Recover otsu max value from output
+        if self.cfg['param']['autothreshold']:
             lines = fInfo.readlines()
             line_cases = lines[0].replace(")", " ").split()
             self.cfg['param']['tmax'] = int(line_cases[17])
 
-        command_args += ['>', 'inputContour.dat']
-        self.saveCommand(command_args)
+        contoursList = open (self.work_dir+"tmp.dat", "w")
+        contoursList.write("# Polygon contour obtained from the pgm2freeman"+\
+        					" program with the following options: \n"+\
+       						"# "+ cmd + "\n"+\
+       					   "# Each line corresponds to an resulting polygon. "+\
+        	               "All vertices (xi yi) are given in the same line: "+\
+        	               " x0 y0 x1 y1 ... xn yn \n")
+        index = 0
+        f.close()
+        f = open(self.work_dir+"inputContour.txt", "r") 
 
+        for contour in f:
+            contoursList.write("# contour number: "+ str(index) + "\n")
+            contoursList.write(contour+"\n")
+            index = index + 1
+        contoursList.close()
+        f.close()
+        shutil.copy(self.work_dir+'tmp.dat', self.work_dir+'inputContour.txt')
+        
+        
         ##  -------
         ## process 3: apply algorithm
         ## ---------
-        command_args = ['frechetSimplification']
-        command_args +=  ['-error', str(e), '-sdp','inputContour.dat' ]
-        command_args += ['-allContours']
-        f = open(self.work_dir+"info.txt", "a")
-        if w: 
+        command_args = ['frechetSimplification'] + \
+        			   ['-error', str(self.cfg['param']['e']), '-sdp',
+        			   'inputContour.txt' ]+\
+   					   ['-allContours']
+        f = open(self.work_dir+"algoLog.txt", "a")
+        if self.cfg['param']['w']: 
             command_args += ['-w']
-        p = self.run_proc(command_args, env={'LD_LIBRARY_PATH' : self.bin_dir})
-        self.wait_proc(p, timeout=self.timeout)        
-        self.saveCommand(command_args)
-
-        ##  -------
+        
+        cmd = self.runCommand(command_args)
+        contoursList = open (self.work_dir+"tmp.dat", "w")
+        contoursList.write("# Set of resulting polygins obtained from the " +\
+        		            "frechetSimplification algorithm. \n"+\
+        		            "# Each line corresponds to an resulting polygon."+\
+        					" All vertices (xi yi) are given in the same line:"+
+        					"  x0 y0 x1 y1 ... xn yn \n"+\
+        					"# Command to reproduce the result of the "+\
+				        	"algorithm:\n")
+        contoursList.write("#"+ cmd+'\n')
+        f = open (self.work_dir+"output.txt", "r")
+        index = 0
+        for line in f:
+            contoursList.write("# contour number: "+ str(index) + "\n")
+            contoursList.write(line+"\n")
+            index = index +1
+        contoursList.close()
+        f.close()
+        shutil.copy(self.work_dir+'tmp.dat', self.work_dir+'output.txt')
+        
+        
+        ## ---------
         ## process 4: converting to output result
         ## ---------
-        command_args = ['convert.sh', '-background', '#FFFFFF', '-flatten']
-        command_args += ['output.eps', 'output.png']
-        p = self.run_proc(command_args)
-        self.wait_proc(p, timeout=self.timeout)
-        self.saveCommand(command_args)   
+        command_args = ['convert.sh', '-background', '#FFFFFF', '-flatten', \
+                        'output.eps', 'output.png']
+        self.runCommand(command_args)   
 
         ## ----
         ## Final step: save command line
-        #----
-        f_commands = open(self.work_dir+"commands.txt", "w")
-        f_commands.write(self.list_commands)
-        f_commands.close()
+        ## ----
+        f = open(self.work_dir+"commands.txt", "w")
+        f.write(self.list_commands)
+        f.close()
         return
 
     @cherrypy.expose
@@ -266,17 +295,30 @@ class app(base_app):
         """
         display the algo results
         """
-        return self.tmpl_out("result.html", 
-                             height=image(self.work_dir
-                                          + 'input_0.png').size[1])
+        resultHeight = image(self.work_dir + 'input_0.png').size[1]
+        imageHeightResized = min (600, resultHeight) 
+        resultHeight = max(200, resultHeight)
+        return self.tmpl_out("result.html", height=resultHeight, \
+        					 heightImageDisplay=imageHeightResized)
 
 
-    def saveCommand(self, command):
+    def runCommand(self, command, stdOut=None, stdErr=None, comp=None):
         """
-        Simple transform to update the attribute list_commands
+        Run command and update the attribute list_commands
         """
+        p = self.run_proc(command, stderr=stdErr, stdout=stdOut, \
+        				  env={'LD_LIBRARY_PATH' : self.bin_dir})
+        self.wait_proc(p, timeout=self.timeout)
+        index = 0
+        # transform convert.sh in it classic prog command (equivalent) 
+        for arg in command:
+            if arg == "convert.sh" :
+                command[index] = "convert"
+            index = index + 1
         command_to_save = ' '.join(['"' + arg + '"' if ' ' in arg else arg
                  for arg in command ])
+        if comp is not None:
+            command_to_save += comp
         self.list_commands +=  command_to_save + '\n'
-
+        return command_to_save
 

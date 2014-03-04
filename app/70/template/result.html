@@ -5,11 +5,11 @@
   The result was obtained with the following parameters:
 <ul>
 %if not app.cfg['param']['autothreshold']:
-  <li>  image  threshold  max <i>tmax</i>: ${app.cfg['param']['tmax']}  </li>
-  <li>  image  threshold  min <i>tmin</i>: ${app.cfg['param']['tmin']}  </li>
+  <li>  image  threshold  max <font color="blue"><i>tmax</i></font>: ${app.cfg['param']['tmax']}  </li>
+  <li>  image  threshold  min <font color="blue"><i>tmin</i></font>: ${app.cfg['param']['tmin']}  </li>
 %endif
-<li>  contour min size <i>m</i>: ${app.cfg['param']['m']}  </li>
-<li>  maximal error <i>e</i>: ${app.cfg['param']['e']}  </li>
+<li>  contour min size <font color=red><i>m</i></font>: ${app.cfg['param']['m']}  </li>
+<li>  maximal error <font color=red><i>e</i></font>: ${app.cfg['param']['e']}  </li>
 <li>  use only width: ${app.cfg['param']['w']}  </li>
 </ul>
 </p>
@@ -54,16 +54,16 @@ ${app.list_commands}
 <div class="gallery" style="height:${height}px">
   <ul class="index">
     <li>
-      <a href="#">input
+      <a href="${app.work_url+'input_0.png'}">input.png
 	<span>
-	  <img src="${app.work_url + 'input_0.png'}" alt="input" />
+	  <img height="${heightImageDisplay}" src="${app.work_url + 'input_0.png'}" alt="input" />
 	</span>
       </a>
     </li>
     <li>
-      <a href="#">output
+      <a href="${app.work_url+'output.png'}">output.png
 	<span>
-	  <img height="${height}px" src="${app.work_url + 'output.png'}" alt="output" />
+	  <img  height="${heightImageDisplay}" src="${app.work_url + 'output.png'}" alt="output" />
 	</span>
       </a>
     </li>
@@ -71,21 +71,20 @@ ${app.list_commands}
       <a href="${app.work_url+'output.eps'}">output.eps </a>
       </a>
     </li>
-
     <li>
-      <a href="${app.work_url+'output.txt'}">contour (result) </a>
+      <a href="${app.work_url+'inputContour.txt'}">input polygons</a>
       </a>
     </li>
     <li>
-      <a href="${app.work_url+'inputContour.dat'}">contour (input) </a>
+      <a href="${app.work_url+'output.txt'}">output polygons</a>
       </a>
     </li>
     <li>
-      <a href="${app.work_url+'info.txt'}">computation infos</a>
+      <a href="${app.work_url+'algoLog.txt'}">algorithm log</a>
       </a>
     </li>
     <li>
-      <a href="${app.work_url+'commands.txt'}">commands.txt
+   <a href="${app.work_url+'commands.txt'}">commands.txt
     <span><pre>${app.list_commands}</pre></span>
       </a>
     </li>
