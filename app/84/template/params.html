@@ -4,6 +4,74 @@
 <!--
 <%include file="js/createlinkedslider.js" />
 // -->
+function num2sci(value, numDigits)
+{
+    var exponent = Math.floor(Math.log(value) / Math.log(10));
+    var mantissa = value / Math.pow(10, exponent - numDigits);
+    return Math.round(mantissa + (9*exponent - 1)*Math.pow(10, numDigits));
+}
+
+function sci2str(sci, numDigits)
+{
+    var exponent = Math.floor(sci / (9*Math.pow(10, numDigits)));
+    var mantissa = sci/Math.pow(10, numDigits) - (9*exponent - 1);
+    var value = Math.pow(10, exponent) * mantissa;
+    return value.toExponential(numDigits);
+}
+
+// Create a JQueryUI slider linked with text input with scientific notation
+//
+// inputId      the ID of the text input element
+// sliderId     the ID of the DIV element to turn into a slider
+// valueMin     minimum value
+// valueMax     maximum value
+// numDigits    number of digits after decimal point
+function createLinkedSliderExp(inputId, sliderId, 
+    valueMin, valueMax, numDigits)
+{    
+    var inputObj = $(inputId);
+    // Create JQueryUI slider
+    var sliderObj = $(sliderId).slider({
+        min: num2sci(valueMin, numDigits),         // Minimum value
+        max: num2sci(valueMax, numDigits),         // Maximum value
+        value: num2sci(parseFloat(                 // Initial value
+            inputObj.attr('value')), numDigits),
+        animate: 'fast'});                         // Animation speed
+    
+    // Update slider when input changes
+    inputObj.blur(function()
+        {
+            var value = parseFloat(inputObj.attr('value'));
+            var valueClamped;
+
+            if(value <= 0 || !isFinite(value))
+                valueClamped = sliderObj.slider('option', 'min');
+            else
+            {
+                value = num2sci(value, numDigits);
+                valueClamped = Math.min(Math.max(value, 
+                    sliderObj.slider('option', 'min')), 
+                    sliderObj.slider('option', 'max'));
+            }
+
+            sliderObj.slider('value', valueClamped);
+    
+            if(value != valueClamped)
+                inputObj.val(sci2str(valueClamped, numDigits));
+        });
+
+    // Update input when slider changes
+    sliderObj.slider('option', 'slide',
+        function(event, ui) { inputObj.val(sci2str(ui.value, numDigits)); });
+}
+
+
+function spritecoords(s)
+{
+    var n = Math.max(Math.round((parseFloat(s) - 1)/2), 0);
+    return '0px ' + (-31*n) + 'px';
+}
+// -->
 </script>
 
 
@@ -12,25 +80,50 @@
 <form action="${app.base_url + 'wait'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
+                                  
+                                 
+<p style="clear:both;margin-bottom:5px">
+  &lambda;: tradeoff parameter.  
+  It can't be zero because in this case the algorithm would just perform a simplest color balance.</p>
   
-  <div style="float:left;padding-right:25px">
-  <label for="L"><i>&lambda;</i>(range: (0.0, 1.5])=</label>  
-  <input type="text" name="L" value="0.0001" size="10" /> <br />
-  <div style="clear:both"> </div>
-
-<div style="clear:both; font-size:8pt">&nbsp;</div>                              
-
-<!-- code for slider (from Pascal Getreuer:  http://www.math.ucla.edu/~getreuer/jqslider.html -->
-  <div style="float:left;padding-right:25px">
-    s: <input type="text" style="font-family:monospace;text-align:right"
-    size="7" id="s_selector" name="s" value="${s}" />
+<div style="float:left; width:8em; text-align:right;">
+<i>&lambda;</i>&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="L" name="L" value="${L}" />
 </div>
-<div id="slider_s" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<div id="slider2" style="width:32em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
 <script type="text/javascript">
-// Turn DIV slider into a slider linked to scale
 $(document).ready(function() 
-    { createLinkedSlider('#s_selector', '#slider_s', 0.0, 1.0, 0.1); });
+{
+    createLinkedSliderExp('#L', '#slider2', 1e-6, 1.5, 1);
+});
 </script>
+                                 
+                                 
+<br \>                                 
+<br \>                                 
+
+  
+<p style="clear:both;margin-bottom:5px">
+  s: percentage of saturation for the simplest color balance.  
+  We apply a simplest color balance to the input image to stretch as much as possible the range of the
+  image before processing it. Finally we apply a simplest color balance to the output of the algorithm.</p>
+
+  
+<div style="float:left; width:8em; text-align:right;">
+<i>s %</i>&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
+size="7" id="s_selector" name="s" value="${s}" />
+</div>
+<div id="slider_s" style="width:32em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
+<script type="text/javascript">
+$(document).ready(function() 
+{
+    createLinkedSlider('#s_selector', '#slider_s', 0.0, 1.0, 0.1);
+});
+</script>
+                      
+                      
+                      
+                      
 <div style="clear:both"> </div>
 
 <!-- end of code for slider -->

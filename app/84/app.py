@@ -85,7 +85,7 @@ class app(base_app):
     #
     @cherrypy.expose
     @init_app
-    def params(self, newrun=False, msg=None, L="0.0001", s="0.1"):
+    def params(self, newrun=False, msg=None, L="1.0e-4", s="0.1"):
         """
         configure the algo execution
         """
@@ -96,7 +96,7 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def wait(self, L="0.0001", s="0.1"):
+    def wait(self, L="1.0e-4", s="0.1"):
         """
         params handling and run redirection
         """

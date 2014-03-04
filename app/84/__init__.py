@@ -1,5 +1,5 @@
 """
-simplest color balance ipol demo web app
+screened Poisson equation ipol demo web app
 """
 
 from .app import app
