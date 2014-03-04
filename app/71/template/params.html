@@ -1,7 +1,6 @@
 <%include file="header-jquery.html" />
 
 <script type="text/javascript">
-<!--
 <%include file="js/createlinkedslider.js" />
 
 function num2sci(value, numDigits)
@@ -83,7 +82,7 @@ function spritecoords(s)
 <fieldset>    
     <input type="submit" id="action" name="action" value="undo" style="float:left" />
     <input type="submit" id="action" name="action" value="clear" style="float:left; margin-left:3pt" />
-    <div id="penpreview" name="penpreview" style="float:left; margin-left:36px; width:31px; height:31px"></div>
+    <canvas id="penpreviewCanvas" name="penpreviewCanvas" style="border: 1px solid; float:left; margin-left:36px;" width="31px" height="31px" > </canvas>
     <div style="float:left; margin-left:6px; font-size:9pt; text-align:right;">
         pen size&nbsp;&nbsp;&nbsp;<input type="text" style="font-family:monospace; text-align:right;"
         size="2" id="pensize" name="pensize" value="${app.cfg['param']['pensize']}" /><br />
@@ -107,17 +106,24 @@ size="6" id="lambda" name="lambda" value="${'%.3f' % app.cfg['param']['lambda']}
 </div>
 <div id="slider2" style="width:32em; float:left; margin-left:1em; margin-top:4px; font-size:10pt;"></div>
 <script type="text/javascript">
+  function fillDisk(radius){
+    var canvas = document.getElementById('penpreviewCanvas');
+    var ctx =  canvas.getContext('2d');
+    ctx.fillStyle = '#FF0';
+    ctx.strokeStyle = '#000';
+    ctx.beginPath();
+    ctx.clearRect(0,0,31,31);
+    ctx.arc(15, 15, radius, 0, Math.PI*2, false);
+    ctx.fill(); 
+    ctx.stroke(); 
+  }
+
 $(document).ready(function() 
 {
-    createLinkedSlider('#pensize', '#slider1', 1, 15, 2);
+    createLinkedSlider('#pensize', '#slider1', 1, 20, 2);
     createLinkedSliderExp('#lambda', '#slider2', 0.001, 1.0, 3);
 
-    $('#penpreview').css('border', '1px #CCC solid');
-    $('#penpreview').css('background-image', 
-        'url(\'http://dev.ipol.im/~kerautre/images/pen-preview.png\')');
-    $('#penpreview').css('background-position', 
-        spritecoords($('#pensize').attr('value')));
-
+    fillDisk($('#pensize').attr('value'));
     // Update pen preview image with pensize slider
     $('#pensize').blur(function()
         {
@@ -126,18 +132,16 @@ $(document).ready(function()
                 $('#slider1').slider('option', 'min')), 
                 $('#slider1').slider('option', 'max'));
             $('#slider1').slider('value', valueClamped);
-            $('#penpreview').css('background-position', 
-                spritecoords(valueClamped));
-
             if(value != valueClamped)
                 $('#pensize').val(Math.round(valueClamped));
-        });
+            fillDisk(value);
+ });
     $('#slider1').slider('option', 'slide',
         function(event, ui) { 
             $('#pensize').val(Math.round(ui.value)); 
-            $('#penpreview').css('background-position', 
-                spritecoords(ui.value));
+            fillDisk($('#pensize').attr('value'));
         });
+
 });
 </script>
 <input type="hidden" name="key" value="${app.key}" />

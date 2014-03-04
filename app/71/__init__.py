@@ -1,5 +1,5 @@
 """
-Interactive segmentation based on component-trees ipol demo web app
+Demo of Interactive segmentation based on component-trees
 """
 
 from .app import app

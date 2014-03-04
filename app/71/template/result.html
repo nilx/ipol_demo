@@ -12,46 +12,48 @@
     </form>
 </div>
 
-<p>Notice that if the image dimensions exceeded 500&times;500, then the image has been cropped.  
-%if app.cfg['param']['zoomfactor'] > 1:
-For visualization, images are displayed with ${app.cfg['param']['zoomfactor']}&times; pixel duplication.  
-%endif
-Results at native resolution can be downloaded here:
-<a href="${app.work_url + 'result.png'}">inpainted</a>,&nbsp;&nbsp;
-<a href="${app.work_url + 'input_0.png'}">original</a>.</p>
+<p>The following parameters were used to obtain this result:</p>
 
 
 <p><i>&alpha;</i>&nbsp;=&nbsp;${ float(app.cfg['param']['lambda'])}</p>
 <p>Negate image =&nbsp;${app.cfg['param']['negate']}</p>
 
-<div class="gallery" style="height:${app.cfg['param']['displayheight']}px">
+<p>Notice that if the image height exceeded 600 pixels, then the image is scaled and the results
+ at native resolution are given in the result links.</p>
+
+
+<div class="gallery" style="height:${app.cfg['param']['resultheight']}px">
     <ul class="index">
     <li>
-        <a href="#">
+        <a href="${app.work_url + 'mask.png'}">
           Marker
         <span>
-            <img src="${app.work_url + 'mask_zoom.png'}" alt="" />
+            <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'mask.png'}" alt="" />
         </span>
         </a>
     </li>    
     <li>
-        <a href="#">
+        <a href="${app.work_url + 'input_0.png'}">
         Original
         <span>
-            <img src="${app.work_url + 'input_0_zoom.png'}" alt="" />
+            <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'input_0.png'}" alt="" />
         </span>
         </a>
     </li>    
 
     <li>
-        <a href="#">
+        <a href="${app.work_url + 'result.png'}">
 	 Segmentation result
         <span>
-            <img src="${app.work_url + 'result_zoom.png'}" alt="" />
+            <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'result.png'}" alt="" />
         </span>
         </a>
     </li>    
-
+     <li>
+        <a href="${app.work_url+'commands.txt'}">commands.txt
+        <span><pre>${app.list_commands}</pre></span>
+        </a>
+    </li>
     </ul>
 </div>
 
