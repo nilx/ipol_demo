@@ -172,9 +172,8 @@ class app(base_app):
             ar.add_file("input_0.png", "original.png", info="uploaded")
             ar.add_file("output.png", info="result.png")
             ar.add_file("commands.txt", info="commands")
-            ar.add_file("inputContour.txt", info="input polygons")
-            ar.add_file("output.txt", info="output polygons")
-            ar.add_file("algoLog.txt", info="algorithm log")
+            ar.add_file("inputPolygon.txt", info="input polygons")
+            ar.add_file("outputPolygon.txt", info="output polygons")
             ar.add_info({"tmin": self.cfg['param']['tmin'], 
             			 "tmax": self.cfg['param']['tmax'], "m": m, "e": e, \
                         "width only": self.cfg['param']['w']})
@@ -198,7 +197,7 @@ class app(base_app):
         ##  -------
         ## process 2: extract contour files 
         ## ---------
-        f = open(self.work_dir+"inputContour.txt", "w") 
+        f = open(self.work_dir+"inputPolygon.txt", "w") 
         fInfo = open(self.work_dir+"algoLog.txt", "w")
         command_args = ['pgm2freeman']+\
 				       ['-min_size', str(self.cfg['param']['m']), '-image',\
@@ -209,9 +208,9 @@ class app(base_app):
            					['-minThreshold', str(self.cfg['param']['tmin'])]
 
         cmd = self.runCommand(command_args, f, fInfo, \
-                              comp = ' > inputContour.txt')
+                              comp = ' > inputPolygon.txt')
 
-        if os.path.getsize(self.work_dir+"inputContour.txt") == 0: 
+        if os.path.getsize(self.work_dir+"inputPolygon.txt") == 0: 
             raise ValueError
         fInfo.close()
         fInfo = open(self.work_dir+"algoLog.txt", "r") 
@@ -231,7 +230,7 @@ class app(base_app):
         	               " x0 y0 x1 y1 ... xn yn \n")
         index = 0
         f.close()
-        f = open(self.work_dir+"inputContour.txt", "r") 
+        f = open(self.work_dir+"inputPolygon.txt", "r") 
 
         for contour in f:
             contoursList.write("# contour number: "+ str(index) + "\n")
@@ -239,7 +238,7 @@ class app(base_app):
             index = index + 1
         contoursList.close()
         f.close()
-        shutil.copy(self.work_dir+'tmp.dat', self.work_dir+'inputContour.txt')
+        shutil.copy(self.work_dir+'tmp.dat', self.work_dir+'inputPolygon.txt')
         
         
         ##  -------
@@ -247,7 +246,7 @@ class app(base_app):
         ## ---------
         command_args = ['frechetSimplification'] + \
         			   ['-error', str(self.cfg['param']['e']), '-sdp',
-        			   'inputContour.txt' ]+\
+        			   'inputPolygon.txt' ]+\
    					   ['-allContours']
         f = open(self.work_dir+"algoLog.txt", "a")
         if self.cfg['param']['w']: 
@@ -255,7 +254,7 @@ class app(base_app):
         
         cmd = self.runCommand(command_args)
         contoursList = open (self.work_dir+"tmp.dat", "w")
-        contoursList.write("# Set of resulting polygins obtained from the " +\
+        contoursList.write("# Set of resulting polygons obtained from the " +\
         		            "frechetSimplification algorithm. \n"+\
         		            "# Each line corresponds to an resulting polygon."+\
         					" All vertices (xi yi) are given in the same line:"+
@@ -271,7 +270,7 @@ class app(base_app):
             index = index +1
         contoursList.close()
         f.close()
-        shutil.copy(self.work_dir+'tmp.dat', self.work_dir+'output.txt')
+        shutil.copy(self.work_dir+'tmp.dat', self.work_dir+'outputPolygon.txt')
         
         
         ## ---------

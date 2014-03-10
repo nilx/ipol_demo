@@ -1,33 +1,30 @@
 <%include file="header.html" />
 
-<p>
-  The algorithm result is displayed  hereafter.
-  The result was obtained with the following parameters:
-<ul>
-%if not app.cfg['param']['autothreshold']:
-  <li>  image  threshold  max <font color="blue"><i>tmax</i></font>: ${app.cfg['param']['tmax']}  </li>
-  <li>  image  threshold  min <font color="blue"><i>tmin</i></font>: ${app.cfg['param']['tmin']}  </li>
-%endif
-<li>  contour min size <font color=red><i>m</i></font>: ${app.cfg['param']['m']}  </li>
-<li>  maximal error <font color=red><i>e</i></font>: ${app.cfg['param']['e']}  </li>
-<li>  use only width: ${app.cfg['param']['w']}  </li>
-</ul>
-</p>
+<p> The input contours of the algorithm were obtained using the <i>pgm2freeman</i> command with the following parameters:
 
+<ul>
+
+
+ <li>  image  threshold  max <font color="blue"><i>tmax</i></font>: ${app.cfg['param']['tmax']} 
 %if app.cfg['param']['autothreshold']:
-<p> The pgm2freman command uses automatically the following threshold parameters from the otsu algorithm:
-<ul>
-  <li>  image  threshold  min <i>t</i>: 0 </li>
-  <li>  image  threshold  from otsu max <i>tmax</i>: ${app.cfg['param']['tmax']}  </li>
+(determined automatically by the Otsu algorithm)   
+%endif
+</li>
+<li>  image  threshold  min <font color="blue"><i>tmin</i></font>: ${app.cfg['param']['tmin']}  </li>
+<li>  minimal contour size <font color="blue"><i>m</i></font>: ${app.cfg['param']['m']}  </li>
 </ul>
 </p>
-%endif
+
+<p> The main algorithm was applied with the following parameters:
+<ul>
+
+<li>  maximal error <font color=red><i>e</i></font>: ${app.cfg['param']['e']}  </li>
+<li>  use only width <font color=red><i>w</i></font>: ${app.cfg['param']['w']}  </li>
+</ul>
+</p>
 
 
-The algorithm can be run with the following commands:
-<pre>
-${app.list_commands}
-</pre>
+
 
 <BR>
 <BR>
@@ -51,6 +48,9 @@ ${app.list_commands}
 
 <h2>Result</h2>
 
+<p>You can download the result in <a href="${app.work_url+'output.eps'}">eps</a> format, or download the  <a href="${app.work_url+'inputPolygon.txt'}">input </a> and <a href="${app.work_url+'outputPolygon.txt'}">output</a>  polygons.</p>
+
+
 <div class="gallery" style="height:${height}px">
   <ul class="index">
     <li>
@@ -67,29 +67,23 @@ ${app.list_commands}
 	</span>
       </a>
     </li>
-    <li>
-      <a href="${app.work_url+'output.eps'}">output.eps </a>
-      </a>
-    </li>
-    <li>
-      <a href="${app.work_url+'inputContour.txt'}">input polygons</a>
-      </a>
-    </li>
-    <li>
-      <a href="${app.work_url+'output.txt'}">output polygons</a>
-      </a>
-    </li>
-    <li>
-      <a href="${app.work_url+'algoLog.txt'}">algorithm log</a>
-      </a>
-    </li>
-    <li>
-   <a href="${app.work_url+'commands.txt'}">commands.txt
-    <span><pre>${app.list_commands}</pre></span>
-      </a>
-    </li>
   </ul>
 </div>
+
+
+
+<h2>
+  <a class="toggle" href="#commands" onclick="toggle('commands');">
+    Additional Info
+  </a>
+</h2>
+<div id="commands" style="display:none"> 
+The algorithm can be run with the following commands:
+<pre class="stdio"> ${app.list_commands} </pre>
+
+</div>
+
+
 
 
 <hr />
