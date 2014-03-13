@@ -17,11 +17,6 @@ def rnd():
 
 
 
-
-
-
-
-
 <%include file="anatomy_overview.html" />
 <%include file="params_tab.html"/>
 
@@ -33,35 +28,9 @@ def rnd():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <h1> Maps of the candidate keypoints at each step of the algorithm. </h1> </a>
-Maps of candidate keypoints at each step of the algorithm. Each circle represents a candidate keypoint. The circle radius equals the keypoint detection scale sigma.
-
-
+Each circle represents a candidate keypoint whose radius equals the keypoint detected scale &sigma;. </br></br>
+Candidate keypoints at each step of the algorithm.
 
 
 <div class="gallerytab" style="height:${str(min(hght+200,1000))}px;">
@@ -71,7 +40,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
         <li> <a>  A 
            <!-- <span style="width:${wdth}px> -->
             <span>
-                <p> Extracting the discrete extrema from the digital DoG  </br> &nbsp;</p>
+                <p>  DoG discrete extrema </p>
                 <img src="${app.work_url + 'extra_NES_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
 <!--              <p class=caption> Extracting the discrete extrema of the DoG (Difference of Gaussians). The circle radius equals the extremum detection scale<p>  -->
             </span>
@@ -83,7 +52,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
     %for im in ['0','1']:
         <li> <a>   B
             <span>
-                <p> Thresholding the 3D discrete extrema  </br> &nbsp;</p> 
+                <p>  Discrete extrema after thresholding the DoG value </p> 
                 <img src="${app.work_url + 'extra_DoGSoftThresh_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% style="background-color:#FFFFFF;"   />
 <!--              <p class=caption> Thresholding the 3D discrete extrema <p>  -->
             </span>
@@ -95,7 +64,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
      %for im in ['0','1']:
         <li> <a>   C
             <span>
-            <p> Refining the extrema positions and scales  </br> &nbsp;</p> 
+            <p> Candidate keypoints after refinement of 3D extrema position </p> 
             <img src="${app.work_url + 'extra_ExtrInterp_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
 <!--              <p class=caption> Refining the extrema position and scale  <p>  -->
             </span>
@@ -107,7 +76,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
     %for im in ['0','1']:
         <li> <a>   D
             <span>
-               <p> Thresholding the interpolated value </br> &nbsp;</p>
+               <p> Candidate keypoints after thresholding the interpolated DoG value </p>
             <img src="${app.work_url + 'extra_DoGThresh_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
 <!--              <p class=caption> Thresholding the interpolated value <p>  -->
             </span>
@@ -119,7 +88,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
      %for im in ['0','1']:
         <li> <a>   E 
             <span>
-               <p> Discarding extrema on edges by applying </br> a threshold on the Harris operator.  </p> 
+               <p> Candidate keypoints after discarding those laying on edges  </p> 
                 <img src="${app.work_url + 'extra_OnEdgeResp_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
 <!--              <p class=caption> Discarding extrema on edges by applying a threshold on the Harris operator.  <p>  -->
             </span>
@@ -131,7 +100,7 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
      %for im in ['0','1']:
         <li> <a>    SIFT 
             <span>
-                <p>   SIFT keypoints with reference orientations  </br> &nbsp;</p>
+                <p> Final SIFT keypoints with assigned reference orientation </p>
                 <img src="${app.work_url + 'keys_im%s'%(im,)+'.png'}?rnd=${rnd()}" width=100% />
             </span>
         </a> </li>
@@ -142,45 +111,19 @@ Maps of candidate keypoints at each step of the algorithm. Each circle represent
      %for im in ['0','1']:
         <li> <a>    Matching 
             <span >
-                <p>  The subset of SIFT keypoints that find a match.  </br> &nbsp;</p>
+                <p>  Matching SIFT keypoints </p>
             <img src="${app.work_url + 'matching_keys_im%s'%(im,)+'.png'}?rnd=${rnd()}" style="width:100%;" />
             </span>
         </a> </li>
     %endfor 
  
- 
-
 
 
     </ul>
 </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<p> Rejected keypoints (Interpolation - filter on edges) </p>
-
-
-
-keys with multiple principal orientations
-The candidate discarded during extrema interpolation
-Maps of the keypoints that have multiple reference orientations 
-
+<p> Rejected candidate keypoints </p>
 
 <div class="gallerytab" style="height:${str(min(hght+200,1000))}px;" >
 <ul class="index">
@@ -188,7 +131,7 @@ Maps of the keypoints that have multiple reference orientations
 ##    %for im in ['0','1']:
 ##        <li style="width:50%"><a>   B (rejected)
 ##            <span>
-##                <p> Discarded candidates with low DoG absolute value at the discrete extrema.  </p>
+##                <p> Discarded candidates with low absolute DoG value at the discrete extrema.  </p>
 ##                <img src="${app.work_url + 'extra_DoGSoftThreshREJ_im%s'%(im,)+'.png'}?rnd=${rnd()}"  style="width:100%"/>
 ##            </span>
 ##        </a> </li>
@@ -198,7 +141,7 @@ Maps of the keypoints that have multiple reference orientations
     %for im in ['0','1']:
         <li style="width:50%"><a>   C (rejected)
             <span>
-                <p> Candidate keypoints discarded during extrema position refinement.  </p>
+                <p> Candidate keypoints discarded during DoG extrema position refinement.  </p>
                 <img src="${app.work_url + 'extra_ExtrInterpREJ_im%s'%(im,)+'.png'}?rnd=${rnd()}"  style="width:100%"/>
             </span>
         </a> </li>
@@ -218,7 +161,7 @@ Maps of the keypoints that have multiple reference orientations
     %for im in ['0','1']:
         <li  style="width:50%"> <a>  E (rejected)
             <span> 
-                <p > Discarded candidate keypoints on edges. </p>
+                <p > Candidate keypoints discarded due to laying on a edge. </p>
                 <img src="${app.work_url + 'extra_OnEdgeRespREJ_im%s'%(im,)+'.png'}?rnd=${rnd()}"  style="width:100%"/>
             </span>
         </a> </li>
@@ -238,13 +181,6 @@ Maps of the keypoints that have multiple reference orientations
 
 <p> Keypoints with multiple orientations </p>
 
-
-
-keys with multiple principal orientations
-The candidate discarded during extrema interpolation
-Maps of the keypoints that have multiple reference orientations 
-
-
 <div class="gallerytab" style="height:${str(min(hght+200,1000))}px;" >
 <ul class="index">
  
@@ -257,9 +193,6 @@ Maps of the keypoints that have multiple reference orientations
         </a> </li>
     %endfor
     
-  
-
-
 
     </ul>
 </div>
@@ -267,17 +200,7 @@ Maps of the keypoints that have multiple reference orientations
 
 
 
-
-
-
-
-
-
-
-
-
-
-<h2> Downloadable files </h2>
+<h2> Algorithm output </h2>
 <ul>
 <li>First image: <a href="${app.work_url}input_0.png">input_0.png</a></li>
 <li>Second image: <a href="${app.work_url}input_1.png">input_1.png</a></li>

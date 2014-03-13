@@ -39,50 +39,52 @@ n_spo =  int(paradic['n_spo'])
 <%include file="params_tab.html" /> 
 
 
-<h1> Gaussian scalespace and DoG </h1> 
+<h1> Gaussian and DoG scalespaces </h1> 
 
 
 
 
-
-The digital images of the Gaussian scalespace and Difference of Gaussians:
-<p> First image : </p>
+The digital images of the Gaussian and Difference of Gaussians scalespaces.
+<p> First image: </p>
 
 <div class="gallerytab" style="height:700px;" style="width:100%;" >
 <ul class="index">
 %for o in range(n_oct_true):
     %for s in range(1,1+n_spo):
     <li style="width:50%" ><a>  
-        <span> <img src="${app.work_url + 'DoG_im0'+ '_o%03i'%(o,)+'_s%03i'%(s,)+'.png'}?rnd=${rnd()}" width="${min(wdth,600)}px" />  
-        <p class=caption > DoG  Scale ${str(s)} Octave ${str(o)} </p>
-    </span>
-    </a></li>
-    <li style="width:50%" ><a>  
-        <span> <img src="${app.work_url + 'scalespace_im0'+ '_o%03i'%(o,)+'_s%03i'%(s,)+'.png'}?rnd=${rnd()}" width="${min(wdth,600)}px"/>
-        <p class=caption > Scalespace  Scale ${str(s)} Octave ${str(o)} </p>
+        <span><p > Gaussian Scalespace - Scale ${str(s)} Octave ${str(o)} </p>
+         <img src="${app.work_url + 'scalespace_im0'+ '_o%03i'%(o,)+'_s%03i'%(s,)+'.png'}?rnd=${rnd()}" width="${min(wdth,600)}px"/>
         </span>
+    </a></li>
+    <li style="width:50%" ><a>
+        <span><p> DoG Scalespace - Scale ${str(s)} Octave ${str(o)} </p>
+         <img src="${app.work_url + 'DoG_im0'+ '_o%03i'%(o,)+'_s%03i'%(s,)+'.png'}?rnd=${rnd()}" width="${min(wdth,600)}px" />
+    </span>
     </a></li>
     %endfor
 %endfor
 </ul>
 </div>
 
-<p> Second image : </p>
+<p> Second image: </p>
 
 <div class="gallerytab" style="height:1000px;" style="width:100%;"  >
 <ul class="index">
 %for o in range(n_oct_true):
     %for s in range(1,1+n_spo):
-    <li style="width:50%" ><a>  
-        <span> <img src="${app.work_url + 'DoG_im1'+ '_o%03i'%(o,)+'_s%03i'%(s,)+'.png'}?rnd=${rnd()}"  width="${min(wdth,600)}px" />  
-        <p class=caption > DoG  Scale ${str(s)} Octave ${str(o)} </p>
-    </span>
-    </a></li>
     <li style="width:50%" ><a> 
-        <span> <img src="${app.work_url + 'scalespace_im1'+ '_o%03i'%(o,)+'_s%03i'%(s,)+'.png'}?rnd=${rnd()}" width="${min(wdth,600)}px" />
-        <p class=caption > Scalespace  Scale ${str(s)} Octave ${str(o)} </p>
+        <span> 
+         <p> Gaussian Scalespace -  Scale ${str(s)} Octave ${str(o)} </p>
+         <img src="${app.work_url + 'scalespace_im1'+ '_o%03i'%(o,)+'_s%03i'%(s,)+'.png'}?rnd=${rnd()}" width="${min(wdth,600)}px" />
         </span>
     </a></li>
+    <li style="width:50%" ><a>
+     <span>
+        <p> DoG Scalespace -  Scale ${str(s)} Octave ${str(o)} </p>
+        <img src="${app.work_url + 'DoG_im1'+ '_o%03i'%(o,)+'_s%03i'%(s,)+'.png'}?rnd=${rnd()}"  width="${min(wdth,600)}px" />
+     </span>
+    </a></li>
+
 
     %endfor
 %endfor

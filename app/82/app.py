@@ -10,13 +10,13 @@ import cherrypy
 import os.path
 import shutil
 
-from .lib_demo_sift import draw_keys, draw_keys_oriented, \
-    draw_matches, find_nearest_keypoint, illustrate_pair, \
-    draw_one_match, Image
+from .lib_demo_sift import draw_keys, draw_keys_oriented,  \
+    draw_matches, find_nearest_keypoint,\
+    illustrate_pair, draw_one_match, Image 
 
 class app(base_app):
     """ demo app """
-    title = "The Anatomy of the SIFT Method"
+    title = "Anatomy of the SIFT Method"
     input_nb = 2
     input_max_pixels = None
     input_max_method = 'zoom'
@@ -25,8 +25,8 @@ class app(base_app):
     is_test = False
 
     xlink_article = "http://www.ipol.im/pub/pre/82/"
-    xlink_src = "http://www.ipol.im/pub/pre/82/sift_20130403.zip"
-
+    xlink_src = \
+     "http://dev.ipol.im/~reyotero/sift_anatomy_code/sift_anatomy_20140311.zip"
 
     def __init__(self):
         """
@@ -46,11 +46,11 @@ class app(base_app):
         """
         program build/update
         """
-        zip_filename = 'sift_20130403.zip'
-        src_dir_name = 'sift_20130403/'
-        prog_filename = 'sift'
-        prog_filename2 = 'matching'
-        prog_filename3 = 'extract_thumbnail_bis'
+        zip_filename = 'sift_anatomy_20140311.zip'
+        src_dir_name = 'sift_anatomy_20140311/'
+        prog_filename = 'sift_cli'
+        prog_filename2 = 'match_cli'
+        prog_filename3 = 'demo_extract_patch'
         # store common file path in variables
         tgz_file = self.dl_dir + zip_filename
         prog_file = self.bin_dir + prog_filename
@@ -74,12 +74,18 @@ class app(base_app):
             os.mkdir(self.bin_dir)
 
             # copy all the programs to the bin dir
-            shutil.copy(self.src_dir + os.path.join(os.path.join(src_dir_name,'bin'),
-                     prog_filename), os.path.join(self.bin_dir, prog_filename) )
-            shutil.copy(self.src_dir + os.path.join(os.path.join(src_dir_name,'bin'),
-                     prog_filename2), os.path.join(self.bin_dir, prog_filename2) )
-            shutil.copy(self.src_dir + os.path.join(os.path.join(src_dir_name,'bin'),
-                     prog_filename3), os.path.join(self.bin_dir, prog_filename3) )
+            shutil.copy(self.src_dir +
+                    os.path.join(os.path.join(src_dir_name,'bin'),
+                     prog_filename), os.path.join(self.bin_dir,
+                         prog_filename) )
+            shutil.copy(self.src_dir +
+                    os.path.join(os.path.join(src_dir_name,'bin'),
+                     prog_filename2), os.path.join(self.bin_dir,
+                         prog_filename2) )
+            shutil.copy(self.src_dir +
+                    os.path.join(os.path.join(src_dir_name,'bin'),
+                     prog_filename3), os.path.join(self.bin_dir,
+                         prog_filename3) )
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
@@ -120,15 +126,11 @@ class app(base_app):
                 'lambda_descr',
                 'flag_match',
                 'C_match']
-        
         if ('paradic' in self.cfg['param']):       
-            self.cfg['param']['paradic'] = dict(eval(str(self.cfg['param']['paradic'])))  # deserialization !!
+            self.cfg['param']['paradic'] = \
+                    dict(eval(str(self.cfg['param']['paradic']))) 
         else:
             self.load_standard_parameters()
-        
-
-                
-        
 
         # PROCESS ALL THE INPUTS
         for prp in kwargs.keys():
@@ -144,15 +146,12 @@ class app(base_app):
                 elif (prp == 'y'):
                     self.cfg['param']['y'] = kwargs[prp]
                 else:
-                    self.cfg['param']['paradic'][prp] = kwargs[prp]         
+                    self.cfg['param']['paradic'][prp] = kwargs[prp]
         self.cfg.save()
-        
-
-       
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html")
-    
-    
+   
+
     @cherrypy.expose
     @init_app
     def result(self, **kwargs):
@@ -180,6 +179,9 @@ class app(base_app):
 
 
     def load_standard_parameters(self):
+        """
+        Load default parameters of the method
+        """
         paradic = {'x':'0',
                 'y':'0',
                 'n_oct':'8',
@@ -187,7 +189,7 @@ class app(base_app):
                 'sigma_min':'0.8',
                 'delta_min':'0.5',
                 'sigma_in':'0.5',
-                'C_DoG':'0.03',
+                'C_DoG':'0.015',
                 'C_edge':'10',
                 'n_bins':'36',
                 'lambda_ori':'1.5',
@@ -206,27 +208,23 @@ class app(base_app):
     @init_app
     def run(self):
         """
-          Accepted value for 'ACTION' flag
-                std_sift_matching   :  run SIFT and MATCHING with default settings,
-                cust_sift_matching  :  run SIFT and MATCHING with customized settings,
-                cust_matching       :  run MATCHING with customized settings.
-                
-          Each action also runs the appropriate illustration routines.
-          Accepted value for 'SHOW' flag
-                result              :  standard results,
-                antmy_detect        :  Anatomy of SIFT, keypoint detection,
-                antmy_descr_match   :  Anatomy of SIFT, keypoint description and matching,
-                antmy_gauss_scsp    :  Anatomy of SIFT, Gaussian scale-space.
+   Accepted value for 'ACTION' flag
+         std_sift_matching   :  run SIFT and MATCHING with default settings,
+         cust_sift_matching  :  run SIFT and MATCHING with customized settings
+         cust_matching       :  run MATCHING with customized settings.
+   Each action also runs the appropriate illustration routines.
+   Accepted value for 'SHOW' flag
+         result              :  standard results,
+         antmy_detect        :  Anatomy of SIFT, keypoint detection,
+         antmy_descr_match   :  Anatomy of SIFT, description and matching,
+         antmy_gauss_scsp    :  Anatomy of SIFT, Gaussian scale-space.
         """
-        
-        
         # read (x,y) - Set SIFT parameters
         action = self.cfg['param']['action']
-        x = self.cfg['param']['x'] # Expressed en PIL coordinates system  y|  x-
+        x = self.cfg['param']['x'] # Expressed en PIL coordinates system y| x-
         y = self.cfg['param']['y']
         
-        # hack 1
-        # read image size and store them in 'param' dict to control html rendering
+        # read image size and store in 'param' dict to control html rendering
         work_dir = self.work_dir
         [w1, h1] = Image.open(work_dir+'input_0.orig.png').size
         [w2, h2] = Image.open(work_dir+'input_1.orig.png').size
@@ -235,11 +233,7 @@ class app(base_app):
         wpair = int(w1+w2+max(w1, w2)/10)
         self.cfg['param']['hght'] = hght
         self.cfg['param']['wdth'] = wdth
-
         self.cfg.save()
-        
-        
-        # hack 2
         # Convert x y provided by the form <input type=image ..; > 
         # We assume that the width of the html body is assumed width is 920px
         x = x*wpair/920
@@ -247,16 +241,6 @@ class app(base_app):
         self.cfg['param']['x'] = x
         self.cfg['param']['y'] = y
         self.cfg.save()
-        
-        
-        print 30*'r'
-        print 'x='+str(x)
-        print 'y='+str(y)
-        print 'wpair='+str(wpair)
-        print 30*'='
-        
-        
-        
         if (action == 'std_sift_matching'):
             try:
                 self.load_standard_parameters()
@@ -265,11 +249,11 @@ class app(base_app):
                 self.illustrate_std_sift()
                 self.illustrate_matching()
             except TimeoutError:
-                return self.error(errcode='timeout', errmsg="Try again with simpler images.")
+                return self.error(errcode='timeout',
+                        errmsg="Try again with simpler images.")
             except RuntimeError:
-                return self.error(errcode='runtime', errmsg="Runtime error in std_sift_matching.")
-            
-        
+                return self.error(errcode='runtime',
+                        errmsg="Runtime error in std_sift_matching.")
         elif (action == "cust_sift_matching"):
             try:
                 self.run_sift()
@@ -281,27 +265,30 @@ class app(base_app):
                 self.illustrate_matching()
                 self.detail_matching()
             except TimeoutError:
-                return self.error(errcode='timeout', errmsg="Try with simpler images.")
+                return self.error(errcode='timeout',
+                        errmsg="Try with simpler images.")
             except RuntimeError:
-                return self.error(errcode='runtime', errmsg="Runtime error in cust_sift_matching.")
-        
+                return self.error(errcode='runtime',
+                        errmsg="Runtime error in cust_sift_matching.")
         elif (action == "cust_matching"):   
             try:
                 self.run_matching()
                 self.illustrate_matching()
             except TimeoutError:
-                return self.error(errcode='timeout', errmsg="Try with simpler images.")
+                return self.error(errcode='timeout',
+                        errmsg="Try with simpler images.")
             except RuntimeError:
-                return self.error(errcode='runtime', errmsg="Runtime error in cust_matching.")
+                return self.error(errcode='runtime',
+                        errmsg="Runtime error in cust_matching.")
         else:
             try:
                 self.detail_matching()
             except TimeoutError:
-                return self.error(errcode='timeout', errmsg="Try with simpler images.")
+                return self.error(errcode='timeout',
+                        errmsg="Try with simpler images.")
             except RuntimeError:
-                return self.error(errcode='runtime', errmsg="Runtime error in else (you know).")
-            
-        
+                return self.error(errcode='runtime',
+                        errmsg="Runtime error in else (you know).")
         ## archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
@@ -314,21 +301,11 @@ class app(base_app):
             ar.add_file("keys_im1.txt", compress=True)
             ar.add_file("OUTmatches.txt", compress=True)
             ar.save()
-        
-
 
         self.cfg.save()
-
-
-
-    
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
         return self.tmpl_out("run.html")
 
-        
-        
-
-        
 
 
     def run_std_sift(self):
@@ -340,11 +317,10 @@ class app(base_app):
             image = 'input_'+str(i)+'.png'
             label = 'im'+str(i)
             f = open(self.work_dir+'keys_'+label+'.txt','w')
-            sift = self.run_proc(['sift', image], stdout=f)
+            sift = self.run_proc(['sift_cli', image], stdout=f)
             self.wait_proc(sift, timeout=self.timeout)
         return 1
-    
-    
+
     def run_sift(self):
         """
         Run the SIFT algorithm on each of the two images
@@ -355,7 +331,7 @@ class app(base_app):
             image = 'input_'+str(i)+'.png'
             label = 'im'+str(i)
             f = open(self.work_dir+'keys_'+label+'.txt','w')
-            sift = self.run_proc(['sift', image, label,
+            sift = self.run_proc(['sift_cli', image, label,
                                   str(paradic['n_oct']),
                                   str(paradic['n_spo']),
                                   str(paradic['sigma_min']),
@@ -372,8 +348,8 @@ class app(base_app):
                                   stdout=f)                
             self.wait_proc(sift, timeout=self.timeout)   
         return 1
-    
-    
+
+
     def run_matching(self):  
         """
         Run the matching algorithm on a pair of keypoint.
@@ -383,15 +359,16 @@ class app(base_app):
                    C_match    , threshold
         extra argument :
                    n_hist n_ori to read the feature fector and
-                                to save in ASCII files the keypoints feature vectors,
-                   n_bins       to save in ASCII files the keypoints orientation histograms
+                                to save in ASCII files the keypoints
+                                feature vectors,
+                   n_bins       to save in ASCII files the
+                                keypoints orientation histograms
         """
         paradic = dict(eval(str(self.cfg['param']['paradic'])))
         print 'in run_matching()   n_bins = ' +str(paradic['n_bins'])
-        
-        
+
         f = open(self.work_dir+'matches.txt','w')
-        matching = self.run_proc(['matching', 'keys_im0.txt',
+        matching = self.run_proc(['match_cli', 'keys_im0.txt',
                                               'keys_im1.txt',
                                               str(paradic['flag_match']),
                                               str(paradic['C_match']),
@@ -400,7 +377,7 @@ class app(base_app):
                                               str(paradic['n_bins'])],
                                               stdout=f)
         self.wait_proc(matching, timeout=self.timeout)
-        return 1          
+        return 1
 
 
     def illustrate_matching(self):
@@ -409,9 +386,16 @@ class app(base_app):
         Draw matches on the pair of images.
         """
         work_dir = self.work_dir
-        draw_keys_oriented(work_dir+'matching_keys_im0.txt', work_dir+'input_0.orig.png', work_dir+'matching_keys_im0.png')
-        draw_keys_oriented(work_dir+'matching_keys_im1.txt', work_dir+'input_1.orig.png', work_dir+'matching_keys_im1.png')
-        draw_matches(work_dir+'matches.txt', work_dir+'input_0.orig.png', work_dir+'input_1.orig.png', work_dir+'OUTmatches.png')
+        draw_keys_oriented(work_dir+'matching_keys_im0.txt',
+                work_dir+'input_0.orig.png',
+                work_dir+'matching_keys_im0.png')
+        draw_keys_oriented(work_dir+'matching_keys_im1.txt',
+                work_dir+'input_1.orig.png',
+                work_dir+'matching_keys_im1.png')
+        draw_matches(work_dir+'matches.txt',
+                work_dir+'input_0.orig.png',
+                work_dir+'input_1.orig.png',
+                work_dir+'OUTmatches.png')
         return 1
 
 
@@ -420,26 +404,31 @@ class app(base_app):
         Draw detected keypoints in each image.
         """
         work_dir = self.work_dir
-        draw_keys_oriented(work_dir+'keys_im0.txt', work_dir+'input_0.orig.png', work_dir+'keys_im0.png')
-        draw_keys_oriented(work_dir+'keys_im1.txt', work_dir+'input_1.orig.png', work_dir+'keys_im1.png')
+        draw_keys_oriented(work_dir+'keys_im0.txt',
+                work_dir+'input_0.orig.png',
+                work_dir+'keys_im0.png')
+        draw_keys_oriented(work_dir+'keys_im1.txt',
+                work_dir+'input_1.orig.png',
+                work_dir+'keys_im1.png')
         return 1
-        
+
 
     def illustrate_sift(self):
         """
         Draw keypoints at each stage on each image
-         TODO Plot the distribution of detections along scales
         """
-        
+
         print 'passe illustrate sift in'
-        
+
         work_dir = self.work_dir
-        draw_keys_oriented(work_dir+'keys_im0.txt', work_dir+'input_0.orig.png', work_dir+'keys_im0.png')
-        draw_keys_oriented(work_dir+'keys_im1.txt', work_dir+'input_1.orig.png', work_dir+'keys_im1.png')
-        
+        draw_keys_oriented(work_dir+'keys_im0.txt',
+                work_dir+'input_0.orig.png',
+                work_dir+'keys_im0.png')
+        draw_keys_oriented(work_dir+'keys_im1.txt',
+                work_dir+'input_1.orig.png',
+                work_dir+'keys_im1.png')
         print 'passe illustrate sift in'
-        
-        
+
         for im in ['0','1']:
             for kypts in ['NES', 'DoGSoftThresh', 'ExtrInterp',
                           'ExtrInterpREJ', 'DoGThresh', 'OnEdgeResp',
@@ -447,12 +436,11 @@ class app(base_app):
                 draw_keys(work_dir+'extra_'+kypts+'_im'+im+'.txt',
                           work_dir+'input_'+im+'.orig.png',
                           work_dir+'extra_'+kypts+'_im'+im+'.png')    
-             
+
             draw_keys_oriented(work_dir+'extra_OriAssignedMULT_im'+im+'.txt',
                                work_dir+'input_'+im+'.orig.png',
                                work_dir+'extra_OriAssignedMULT_im'+im+'.png')
-        
-            
+
         return 1
 
 
@@ -470,23 +458,25 @@ class app(base_app):
         y = float(self.cfg['param']['y'])
         
         # sift parameters
-        n_bins = int(paradic['n_bins'])  # number of bins in the orientation histogram
+        # number of bins in the orientation histogram
+        n_bins = int(paradic['n_bins']) 
         n_hist = int(paradic['n_hist'])  
-        n_ori  = int(paradic['n_ori'])   # descriptor of n_hist X n_hist weighted histograms with n_ori
+        # descriptor of n_hist X n_hist weighted histograms with n_ori
+        n_ori  = int(paradic['n_ori']) 
         delta_min = float(paradic['delta_min'])
         sigma_min = float(paradic['sigma_min'])
         sigma_in  = float(paradic['sigma_in'])
         lambda_ori   = float(paradic['lambda_ori'])
         lambda_descr = float(paradic['lambda_descr'])
-        t      = float(paradic['t'])  #threshold defining reference orientations
+        #threshold defining reference orientations
         n_spo  = int(paradic['n_spo'])
         
         # Read feature vectors from output files
         if (os.path.getsize(work_dir+'OUTmatches.txt') > 0 ):
             pairdata = find_nearest_keypoint(work_dir+'OUTmatches.txt', y, x)
         
-            # Plot the weighted histograms and the orientation histograms for each key
-            illustrate_pair(pairdata, n_bins, t, n_hist, n_ori, work_dir)
+            illustrate_pair(pairdata, n_bins, n_hist, n_ori, work_dir)
+
             
             # Read keys coordinates.
             d = 6+n_bins+n_hist*n_hist*n_ori # size of keydata inside pairdata
@@ -495,51 +485,54 @@ class app(base_app):
             [o1, s1] = [float(x) for x in pairdata[4+v:4+v+2]]
             [x2a, y2a, sigma2a, theta2a]  = [float(x) for x in pairdata[d:d+4]]
             [o2a, s2a] = [float(x) for x in pairdata[d+4+v:d+4+v+2]]
-            [x2b, y2b, sigma2b, theta2b] = [float(x) for x in pairdata[2*d:2*d+4]]
+            [x2b, y2b, sigma2b, theta2b] = \
+                    [float(x) for x in pairdata[2*d:2*d+4]]
             [o2b, s2b] = [float(x) for x in pairdata[2*d+4+v:2*d+4+v+2]]
             
-            draw_one_match(pairdata, work_dir+'input_0.png', work_dir+'input_1.png', d, lambda_ori, lambda_descr, n_hist, work_dir+'OUTonepair.png')
+            draw_one_match(pairdata,
+                    work_dir+'input_0.png',
+                    work_dir+'input_1.png',
+                    d,
+                    lambda_ori,
+                    lambda_descr,
+                    n_hist,
+                    work_dir+'OUTonepair.png')
                 
             
             # Extract thumbnails.
             # keypoint 1 (image 1)
-            print ' '.join(['extract_thumbnail_bis', work_dir+'input_0.png',
-                                                str(x1), str(y1), str(sigma1), str(theta1), str(o1), str(s1),
-                                                str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
-                                                str(lambda_ori), str(lambda_descr), str(n_hist),
-                                                work_dir+"detail_im1"])
-            proc = self.run_proc(['extract_thumbnail_bis', work_dir+'input_0.png',
-                                                str(x1), str(y1), str(sigma1), str(theta1), str(o1), str(s1),
-                                                str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
-                                                str(lambda_ori), str(lambda_descr), str(n_hist),
-                                                work_dir+"detail_im1"])
+            print ' '.join(['demo_extract_patch', work_dir+'input_0.png',
+    str(x1), str(y1), str(sigma1), str(theta1), str(o1), str(s1),
+    str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
+    str(lambda_ori), str(lambda_descr), str(n_hist),
+    work_dir+"detail_im1"])
+            proc = self.run_proc(['demo_extract_patch', work_dir+'input_0.png',
+     str(x1), str(y1), str(sigma1), str(theta1), str(o1), str(s1),
+     str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
+     str(lambda_ori), str(lambda_descr), str(n_hist),
+     work_dir+"detail_im1"])
             self.wait_proc(proc, timeout=self.timeout)
                                                 
             # keypoint 2a (nearest neighbor in image 2)
-            print ' '.join(['extract_thumbnail_bis', work_dir+'input_1.png',
-                                                str(x2a), str(y2a), str(sigma2a), str(theta2a), str(o2a), str(s2a),
-                                                str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
-                                                str(lambda_ori), str(lambda_descr), str(n_hist),
-                                                work_dir+"detail_im2a"])
-            proc = self.run_proc(['extract_thumbnail_bis', work_dir+'input_1.png',
-                                                str(x2a), str(y2a), str(sigma2a), str(theta2a), str(o2a), str(s2a),
-                                                str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
-                                                str(lambda_ori), str(lambda_descr), str(n_hist),
-                                                work_dir+"detail_im2a"])
-            self.wait_proc(proc, timeout=self.timeout)                                   
+            print ' '.join(['demo_extract_patch', work_dir+'input_1.png',
+     str(x2a), str(y2a), str(sigma2a), str(theta2a), str(o2a), str(s2a),
+     str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
+     str(lambda_ori), str(lambda_descr), str(n_hist),
+     work_dir+"detail_im2a"])
+            proc = self.run_proc(['demo_extract_patch', work_dir+'input_1.png',
+     str(x2a), str(y2a), str(sigma2a), str(theta2a), str(o2a), str(s2a),
+     str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
+     str(lambda_ori), str(lambda_descr), str(n_hist),
+     work_dir+"detail_im2a"])
+            self.wait_proc(proc, timeout=self.timeout)      
                                                 
             # keypoint 2b (second nearest neighbor in image 2)
-            proc = self.run_proc(['extract_thumbnail_bis', work_dir+'input_1.png',
-                                                str(x2b), str(y2b), str(sigma2b), str(theta2b), str(o2b), str(s2b),
-                                                str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
-                                                str(lambda_ori), str(lambda_descr), str(n_hist),
-                                                work_dir+"detail_im2b"])
-            self.wait_proc(proc, timeout=self.timeout)                                   
+            proc = self.run_proc(['demo_extract_patch', work_dir+'input_1.png',
+     str(x2b), str(y2b), str(sigma2b), str(theta2b), str(o2b), str(s2b),
+     str(delta_min), str(sigma_min), str(sigma_in), str(n_spo),
+     str(lambda_ori), str(lambda_descr), str(n_hist),
+     work_dir+"detail_im2b"])
+            self.wait_proc(proc, timeout=self.timeout)     
             
             
         return 1
- 
-
-
-                    
-      

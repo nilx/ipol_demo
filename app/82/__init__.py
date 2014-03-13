@@ -1,5 +1,5 @@
 """
-The Anatomy of the SIFT Method
+Anatomy of the SIFT Method
 """
 
 from .app import app

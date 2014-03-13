@@ -1,6 +1,24 @@
 <%include file="header-jquery.html" />
 <%include file="css_style.html" />
 
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+</script>
+
+
+
+<script type="text/javascript">
+function selectAbs() {
+    document.getElementById("divAbs").style.display = 'block'
+    document.getElementById("divRel").style.display = 'none'
+}
+
+function selectRel() {
+    document.getElementById("divAbs").style.display = 'none'
+    document.getElementById("divRel").style.display = 'block'
+}
+</script>
+
 
 <%
 paradic = dict(eval(str(app.cfg['param']['paradic'])))
@@ -19,7 +37,9 @@ def rnd():
 
 
 
-<!-- BEGIN TEMP MATCHING-->
+
+
+<!-- MATCHING -->
 
 <form action="${app.base_url + 'wait'}" method="get">
 <div class="toggleable" id="ress" style="max-height:30em; overflow:auto;">
@@ -35,43 +55,98 @@ def rnd():
     else:
         radioRelative = "unchecked"
         radioAbsolute= "checked"
-        C_match_MAX = 200
+        C_match_MAX = 500
     endif
 %>
-        <label for="flag_match"> Matching (Absolute or Relative)  : </label> </br>
-              <input type="radio" name="flag_match" value="1" ${radioRelative} /> Relative threshold for matching </br>
-              <input type="radio" name="flag_match" value="0" ${radioAbsolute} /> Absolute threshold for matching</br>
+        <label for="flag_match"> Matching (Absolute or Relative): </label> </br>
+              <input type="radio" name="flag_match" value="1" ${radioRelative} onclick="selectRel()"> Relative matching threshold </br>
+              <input type="radio" name="flag_match" value="0" ${radioAbsolute} onclick="selectAbs()"> Absolute matching threshold </br>
         
 <%try:
    C_match = float(paradic['C_match'])
 except Exception:
    C_match = 0.6
 %>
-<div style="float:left;padding-right:5px;width:6em;">
-   C_match
-</div>
-   <input type="text" style="float:left;font-family:monospace;text-align:right"
-    size="4" id="C_match" name="C_match" value="${C_match}" />
-<div id="C_match_slider" name="C_match_slider" style="width:250px;margin-left:5px;margin-right:1em;float:left;margin-top:4px;font-size:10pt"></div>
+
+
+
+<!--   Matching Relative Distance  -->
+%if ( int(paradic['flag_match']) == 1):
+        <div id="divRel" class="desc" >
+%endif
+%if ( int(paradic['flag_match']) == 0):
+        <div id="divRel" class="desc" style="display:none">
+%endif
+<div style="float:left;padding-right:5px;width:6em;"> C_match </div>
+
+    <input type="text" style="float:left;font-family:monospace;text-align:right" size="4" id="C_match" name="C_match" value="${C_match}" />
+   
+   <div id="C_match_slider" name="C_match_slider" style="width:250px;margin-left:5px;margin-right:1em;float:left;margin-top:4px;font-size:10pt"></div>
     <script type="text/javascript">
     $(document).ready(function(){
-      createLinkedSlider('#C_match', '#C_match_slider',0, ${C_match_MAX}  , 0.005); 
+      createLinkedSlider('#C_match', '#C_match_slider',0, 1  , 0.01); 
     });
     </script>
-     <div>
-     Threshold on distance ratio ( distance to nearest neighbor / distance to second nearest neighbor)
-     </div>
+    <div>
+    Threshold on distance ratio (distance to nearest neighbor / distance to second nearest neighbor)
+    </div>
 <div style="clear:both;margin-bottom:5px;"> </div>
-        
-    <input type="hidden" name="key" value="${app.key}">
+</div>
+
+
+
+<!--   Matching Absolute Distance -->
+%if ( int(paradic['flag_match']) == 0):
+        <div id="divAbs" class="desc" >
+%endif
+%if ( int(paradic['flag_match']) == 1):
+        <div id="divAbs" class="desc" style="display:none">
+%endif
+<div style="float:left;padding-right:5px;width:6em;"> C_match </div>
+
+    <input type="text" style="float:left;font-family:monospace;text-align:right" size="4" id="C_match2" name="C_match2" value="200" />
+   
+   <div id="C_match_slider2" name="C_match_slider2" style="width:250px;margin-left:5px;margin-right:1em;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#C_match2', '#C_match_slider2',10, 400, 3); 
+    });
+    </script>
+
+    <div>
+    Threshold on distance to nearest neighbor
+    </div>
+<div style="clear:both;margin-bottom:5px;"> </div>
+</div>
+
+
+
+
+    <input type="hidden" name="key" value="${app.key}">  
     <input type="hidden" name="show" value="antmy_descr_match">
-    <tr><td><button type="submit" style="width:50%;" name="action" value="cust_matching">  Match keypoints </button></td></tr>
+    <tr><td><button type="submit" name="action" value="cust_matching">  Match keypoints </button></td></tr>
 
     </fieldset>
 
 </div></form>  
 
-<!-- END TEMP MATCHING-->
+<!-- END MATCHING -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -92,13 +167,14 @@ except Exception:
 </style>
 
 
+
 <h1> <strong> Select a keypoint with a single-click on the left image</strong></h1>
 In the following
 <ul>
 <li> index 1 refers to the selected keypoint in image 1 </li>
-<li> indices 2a and 2b refer respectively to the first and second nearest neighbors in image 2 </li>
+<li> indices 2a and 2b refer to the first and second nearest neighbors in image 2 respectively</li>
 </ul>
-
+</br>
 
 
 
@@ -118,7 +194,7 @@ In the following
 <h2> Computing the keypoint reference orientation </h2>
 
 
-The orientation histogram (on the left) is computed from the gradient orientations at all the samples inside the patch P_ori (right). 
+The orientation histogram (left) is computed from the gradient orientation inside the patch P<sub>ori</sub> (right). 
 
 
 <div class="gallery" >
@@ -139,7 +215,7 @@ The orientation histogram (on the left) is computed from the gradient orientatio
 <img src="${app.work_url + 'detail_im2b_thumbnail_ori_hist.png'}?rnd=${rnd()}"  style="width:49%" alt="Ori thumbnail 2b" />
 </span></a></li>
 </br>
-<img src="${app.base_url}/input/Color-Wheel.jpg" style="width:8em;" />
+<img src="${app.base_url}/input/Color-Wheel2.jpg" style="width:8em;" />
 </br>
 <span> &nbsp; &nbsp; &nbsp; Color Code</span>
 
@@ -148,9 +224,10 @@ The orientation histogram (on the left) is computed from the gradient orientatio
 
 
 
-<h2> Computating of the keypoint feature vector  </h2>
+<h2> Computing the keypoint feature vector  </h2>
 
-The feature vector is composed of an array of (n_hist X n_hist) of histograms with n_ori bins each (left) computed from the normalized patch P_descr (right)
+Th  feature vector consists  of n<sub>hist</sub> &times; n<sub>hist</sub>  histograms each one with n<sub>ori</sub> bins (left). </br>
+Each histogram is computed from the gradient orientation of a different subpatch of the normalized patch P<sub>descr</sub> (right)
 
 
 <div class="gallery">
@@ -177,7 +254,7 @@ The feature vector is composed of an array of (n_hist X n_hist) of histograms wi
 
 
 
-<h2> Downloadable files </h2>
+<h2> Algorithm output </h2>
 <ul>
 <li>First image: <a href="${app.work_url}input_0.png">input_0.png</a></li>
 <li>Second image: <a href="${app.work_url}input_1.png">input_1.png</a></li>

@@ -43,7 +43,7 @@ except Exception:
    n_spo = 4
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-   n_spo 
+   n<sub>spo</sub> 
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="n_spo" name="n_spo" value="${n_spo}" />
@@ -67,7 +67,7 @@ except Exception:
    n_oct = 4
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    n_oct 
+    n<sub>oct</sub> 
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="n_oct" name="n_oct" value="${n_oct}" />
@@ -91,7 +91,7 @@ except Exception:
    sigma_min = 0.8
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    sigma_min
+    &sigma;<sub>min</sub>
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="sigma_min" name="sigma_min" value="${sigma_min}" />
@@ -102,7 +102,7 @@ except Exception:
     });
     </script>
     <div>
-    Minimal level of blur in the scale-space.
+    Minimum blur level in the scale-space.
     </div>
 <div style="clear:both;margin-bottom:5px;"> </div>
     
@@ -111,7 +111,7 @@ except Exception:
   <!--  Delta min -->
     
  <div class="action">
-    Minimal intersample distance : <br/>
+    Minimum intersample distance &delta;<sub>min</sub>: <br/>
 <%
 if ( float(paradic['delta_min']) == 0.5):
     radiozoom1 = "unchecked"
@@ -130,8 +130,8 @@ else:
 endif
 %>
 <input type="radio" name="delta_min" value="1"    ${radiozoom1} /> No subsampling   </br>
-              <input type="radio" name="delta_min" value="0.5"  ${radiozoom2} /> Subsampling by a factor 2 (standard)</br> 
-              <input type="radio" name="delta_min" value="0.25" ${radiozoom4} /> Subsampling by a factor 4</br>
+              <input type="radio" name="delta_min" value="0.5"  ${radiozoom2} /> Oversampling by a factor 2 (standard)</br> 
+              <input type="radio" name="delta_min" value="0.25" ${radiozoom4} /> Oversampling by a factor 4</br>
    <br/>
  </div>
  
@@ -151,7 +151,7 @@ except Exception:
    sigma_in = 0.8
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-   sigma_in 
+   &sigma;<sub>in</sub> 
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="sigma_in" name="sigma_in" value="${sigma_in}" />
@@ -162,7 +162,7 @@ except Exception:
     });
     </script>
     <div>
-    Assumed level of blur in the input image (sigma_in) 
+    Assumed blur level in the input image. 
     </div>
 <div style="clear:both;margin-bottom:5px;"> </div>
     
@@ -180,7 +180,7 @@ except Exception:
    C_DoG = 0.8
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    C_DoG 
+    C<sub>DoG</sub> 
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="C_DoG" name="C_DoG" value="${C_DoG}" />
@@ -206,7 +206,7 @@ except Exception:
    C_edge = 0.8
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    C_edge 
+    C<sub>edge</sub> 
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="C_edge" name="C_edge" value="${C_edge}" />
@@ -244,7 +244,7 @@ except Exception:
    n_bins = 36
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    n_bins
+    n<sub>bins</sub>
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="n_bins" name="n_bins" value="${n_bins}" />
@@ -255,7 +255,7 @@ except Exception:
     });
     </script>
     <div>
-    Number of bins in the orientation histogram
+    Number of bins in the orientation histogram.
     </div>
 <div style="clear:both;margin-bottom:5px;"> </div>
     
@@ -267,7 +267,7 @@ except Exception:
    lambda_ori = 1.5
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    lambda_ori 
+    &lambda;<sub>ori</sub> 
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
    size="4" id="lambda_ori" name="lambda_ori" value="${lambda_ori}" />
@@ -278,7 +278,7 @@ except Exception:
     });
     </script>
     <div>
-    The standard deviation of the Gaussian window used for reference orientation attribution is lambda_ori X sigma.
+    The Gaussian window standard deviation for reference orientation attribution is &lambda;<sub>ori</sub> &times; &sigma;.
     </div>
 <div style="clear:both;margin-bottom:5px;"> </div>
     
@@ -316,7 +316,7 @@ except Exception:
    n_hist = 4
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    n_hist
+    n<sub>hist</sub>
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
    size="4" id="n_hist" name="n_hist" value="${n_hist}" />
@@ -327,7 +327,7 @@ except Exception:
     });
     </script>
      <div>
-    An array of n_hist X n_hist weighted orientation histograms constitutes the descriptor.
+    An array of n<sub>hist</sub> &times; n<sub>hist</sub> orientation histograms constitutes the descriptor.
      </div>
 <div style="clear:both;margin-bottom:5px;"> </div>
     
@@ -342,7 +342,7 @@ except Exception:
    n_ori = 8
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    n_ori
+    n<sub>ori</sub>
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="n_ori" name="n_ori" value="${n_ori}" />
@@ -353,7 +353,7 @@ except Exception:
     });
     </script>
      <div>
-     Each weighted histogram has n_ori bins.
+     Each weighted histogram has n<sub>ori</sub> bins.
      </div>
 <div style="clear:both;margin-bottom:5px;"> </div>
     
@@ -364,7 +364,7 @@ except Exception:
    lambda_descr = 6
 %>
 <div style="float:left;padding-right:5px;width:6em;">
-    lambda_descr
+    &lambda;<sub>descr</sub>
 </div>
    <input type="text" style="float:left;font-family:monospace;text-align:right"
     size="4" id="lambda_descr" name="lambda_descr" value="${lambda_descr}" />
@@ -375,15 +375,16 @@ except Exception:
     });
     </script>
     <div>
-     The standard deviation of the Gaussian window used for description is lambda_ori X sigma.
+     The Gaussian window standard deviation for description is &lambda;<sub>descr</sub> &times; &sigma;.
      </div>
 <div style="clear:both;margin-bottom:5px;"> </div>
+
+
+
  </br>        
 
     </fieldset>
 </div>
-
-
 
 
 
