@@ -1,0 +1,23 @@
+<%include file="header.html" />
+
+<%
+	height = app.cfg['meta']['height']
+	if height < 310:
+		height = 310
+	hastruth = app.cfg['meta']['hastruth']
+%>
+
+<%include file="wait_info.html" />
+
+<h2>Input Image</h2>
+
+<div class="gallery" style="height:${height}px">
+	<ul class="index">
+		<li> <a href="#">I<sub>1</sub><span>
+				<img src="${app.work_url + 'i0000.png'}" />
+			</span></a>
+		</li>
+	</ul>
+</div>
+
+<%include file="footer.html" />
