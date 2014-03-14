@@ -1,5 +1,7 @@
 """"
-Extraction of Connected Region Boundary in Multidimensional Images
+Demonstration of paper:  Extraction of Connected Region Boundary in
+                         Multidimensional Images
+demo editor: Bertrand Kerautret
 """
 
 from lib import base_app, build, http, image, config
@@ -23,11 +25,11 @@ class app(base_app):
     demo_src_dir = 'FrechetAndConnectedCompDemo'
 
     input_nb = 1 # number of input images
-    input_max_pixels = 10000000 # max size (in pixels) of an input image
-    input_max_weight = 3 * input_max_pixels #max size (in bytes) of an input file
+    input_max_pixels = 4096 * 4096 # max size (in pixels) of an input image
+    input_max_weight = 1 * 4096 * 4096  # max size (in bytes) of an input file
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'   # input image expected extension (ie file format)
-    is_test = False      # switch to False for deployment
+    is_test = True      # switch to False for deployment
     commands = []
     def __init__(self):
         """
@@ -142,18 +144,26 @@ class app(base_app):
     #---------------------------------------------------------------------------
     # Parameter handling (an optional crop).
     #---------------------------------------------------------------------------
+    @cherrypy.expose
     @init_app
     def params(self, newrun=False, msg=None):
         """Parameter handling (optional crop)."""
 
         # if a new experiment on the same image, clone data
         if newrun:
-            self.clone_input()
+            # Specific manual clone  for vol file (3d case only):
+            if self.cfg['meta']['is3d'] :
+                oldPath = self.work_dir + 'inputVol_0.vol'
+                self.clone_input()
+                shutil.copy(oldPath, self.work_dir + 'inputVol_0.vol') 
+            else:
+                self.clone_input()
 
         # save the input image as 'input_0_selection.png', the one to be used
         img = image(self.work_dir + 'input_0.png')
         img.save(self.work_dir + 'input_0_selection.png')
         img.save(self.work_dir + 'input_0_selection.pgm')
+
 
         # initialize subimage parameters
         self.cfg['param'] = {'x1':-1, 'y1':-1, 'x2':-1, 'y2':-1}
@@ -214,17 +224,20 @@ class app(base_app):
                                  'interioradjacency':
                                  kwargs['adjacency'] == 'interior'}
             if not self.cfg['meta']['is3d']:
-                self.cfg['param']['startthreshold'] = float(kwargs[
+                self.cfg['param']['minimalsize'] = float(kwargs[\
+                    'minimalsize'])
+                self.cfg['param']['startthreshold'] = float(kwargs[\
                     'startthreshold'])
-                self.cfg['param']['endthreshold'] = float(kwargs[
+                self.cfg['param']['endthreshold'] = float(kwargs[\
                     'endthreshold'])
-                self.cfg['param']['thresholdstep'] = float(kwargs[
+                self.cfg['param']['thresholdstep'] = float(kwargs[\
                     'thresholdstep'])
                 self.cfg['param']['thresholdsingle'] = kwargs['thresholdtype'] \
                                                        == 'Single interval'
                 self.cfg['param']['thresholdauto'] = kwargs['thresholdtype'] \
                                                       == 'Auto (Otsu)'
                 self.cfg['param']['thresholdtype'] = kwargs['thresholdtype']
+                self.cfg['param']['outputformat'] = kwargs['outputformat']
 
         except ValueError:
             return self.error(errcode='badparams',
@@ -240,7 +253,7 @@ class app(base_app):
         algo execution
         """
         # read the parameters
-
+        self.commands = ""
         # run the algorithm
         try:
             self.run_algo({'minthreshold': self.cfg['param']['minthreshold'],
@@ -263,33 +276,37 @@ class app(base_app):
             an_archive = self.make_archive()
             an_archive.add_file("input_0.png", "original.png", info="uploaded")
             an_archive.add_file("input_0_selection.png","selection.png")
-
             an_archive.add_file("resu.png", info="output")
-            an_archive.add_file("freemanChainContours.fc", 
-                                info="resulting contours")
-            an_archive.add_file("info.txt", info="computation info ")
+            an_archive.add_file("outputContoursFreemanCode.txt", 
+                                info="resulting contours (Freeman code format)")
+            if self.cfg['param']['outputformat'] == 'sdp':
+                an_archive.add_file("outputContoursListPoints.txt", 
+                                info="resulting contours (sequence of points)")
             an_archive.add_file("commands.txt", info="commands")
-            an_archive.add_info({"threshold type": 
-                                 self.cfg['param']['thresholdtype']})
-            if not self.cfg['param']['thresholdtype'] == 'Auto (Otsu)':
-                if  self.cfg['param']['thresholdtype'] == 'Single interval':
-                    an_archive.add_info({"min threshold":
-                                         self.cfg['param']['minthreshold']})
-                    an_archive.add_info({"max threshold":
-                                         self.cfg['param']['maxthreshold']})
-                else:
-                    an_archive.add_info({"threshold end ":self.cfg['param']\
-                                 ['startthreshold']})
-                    an_archive.add_info({"threshold step":self.cfg['param']\
-                                 ['thresholdstep']})
-                    an_archive.add_info({"threshold max":self.cfg['param']\
-                                 ['endthreshold']})
             an_archive.add_info({"interior adjacency": self.cfg['param']\
                          ['interioradjacency']})
+            an_archive.add_info({"minimal contour size:": \
+                                self.cfg['param']['minimalsize']})
+            an_archive.add_info({"threshold type": \
+                                 self.cfg['param']['thresholdtype']})
+            if  (self.cfg['param']['thresholdtype'] == 'Single interval') or \
+                self.cfg['param']['thresholdtype'] == 'Auto (Otsu)':
+                an_archive.add_info({"min threshold": \
+                                     self.cfg['param']['minthreshold']})
+                an_archive.add_info({"max threshold": \
+                                         self.cfg['param']['maxthreshold']})
+            else:
+                an_archive.add_info({"threshold start":self.cfg['param']\
+                             ['startthreshold']})
+                an_archive.add_info({"threshold step":self.cfg['param']\
+                             ['thresholdstep']})
+                an_archive.add_info({"threshold end":self.cfg['param']\
+                             ['endthreshold']})
+
             an_archive.save()
         return self.tmpl_out("run.html")
 
-    def run_algo(self, para):
+    def run_algo(self, params):
         """
         the core algo runner
         could also be called by a batch processor
@@ -301,20 +318,29 @@ class app(base_app):
         if not self.cfg['param']['interioradjacency']:
             adjacency = 1
 
+        #----------
+        # 2D case
+        #----------
+
         if  not self.cfg['meta']['is3d']:
             # preparing input and conversion
-            thStep = self.cfg['param']['thresholdstep']
-            startTh = self.cfg['param']['startthreshold']
-            endTh = self.cfg['param']['endthreshold']
+            
             self.cfg['param']['sizex'] = image(self.work_dir + \
                                                'input_0_selection.png').size[0]
             self.cfg['param']['sizey'] = image(self.work_dir + \
                                          'input_0_selection.png').size[1]
-            p = self.run_proc(['/usr/bin/convert', self.work_dir +\
-                               'input_0_selection.png', \
-                               self.work_dir +'input_0_selection.pgm'])
-            self.wait_proc(p, timeout=self.timeout)
-            transbg_cmd = ['/usr/bin/convert']+ ['+contrast', '+contrast', \
+            ##  -------
+            ## process 1: transform input file 
+            ## ---------
+            command_args = ['/usr/bin/convert', 'input_0_selection.png', \
+                            'input_0_selection.pgm' ]
+            self.runCommand(command_args)
+            
+            ##  -------
+            ## process 2: generate background image 
+            ## ---------
+  
+            cmd = ['/usr/bin/convert']+ ['+contrast', '+contrast', \
                                                  '+contrast', '+contrast', \
                                                  '+contrast'] +\
                           ['-modulate', '160,100,100']+ ['-type', 'grayscale', \
@@ -322,85 +348,114 @@ class app(base_app):
                           ['input_0_selection.pgm']+\
                           ['input_0BG.png']
 
-            fcommands = open(self.work_dir+"commands.txt", "w")
-            self.commands = ' '.join(['"' + arg + '"' if ' ' in arg else arg
-                 for arg in transbg_cmd ])
-            p = self.run_proc(transbg_cmd)
-            self.wait_proc(p, timeout=self.timeout)
-          
-            # Extracting all 2D contours with pgm2freeman
-            #main command of the algorithm (used to exploit it in run and save)
-            command_args = ['pgm2freeman']
+            self.runCommand(cmd) 
+        
+            ##  -------
+            ## process 3: Extracting all 2D contours with pgm2freeman
+            ## main command of the algorithm
+            ## ---------
    
-            fcontoursFC = open(self.work_dir+"freemanChainContours.fc", "w")
+            fcontoursFC = open(self.work_dir + \
+                               'outputContoursFreemanCodeTMP.txt', "w")
             fInfo = open(self.work_dir+"info.txt", "w")
-            command_args += ['-image', 'input_0_selection.pgm']
-            command_args += ['-badj', str(adjacency)]
-          
+            command_args = ['pgm2freeman', '-image', 'input_0_selection.pgm'] +\
+                           ['-badj', str(adjacency)] + \
+                           ['-min_size', str(self.cfg['param']['minimalsize'])]
+         
             if not self.cfg['param']['thresholdauto']:               
                 if  self.cfg['param']['thresholdsingle']:
                     command_args += ['-minThreshold'] + \
-                                    [str(para['minthreshold'])]
-                    command_args += ['-maxThreshold'] + \
-                                    [str(para['maxthreshold'])]
+                                    [str(params['minthreshold'])] +\
+                                    ['-maxThreshold'] + \
+                                    [str(params['maxthreshold'])]
                 else:
-                    command_args += ['-thresholdRange']+[str(startTh)]+\
-                                    [str(thStep)]+[str(endTh)]
+                    command_args += ['-thresholdRange']+\
+                                    [str(self.cfg['param']['startthreshold'])]+\
+                                    [str(self.cfg['param']['thresholdstep'])]+ \
+                                    [str(self.cfg['param']['endthreshold'])]
               
-        
-            p = self.run_proc(command_args, stdout=fcontoursFC, \
-                             stderr=fInfo, \
-                              env={'LD_LIBRARY_PATH': self.bin_dir})
-            self.wait_proc(p, timeout=self.timeout)
+            cmd = self.runCommand(command_args, \
+                                  stdErr=fInfo, stdOut=fcontoursFC, \
+                                  outFileName='outputContoursFreemanCode.txt')
             fcontoursFC.close()
-            if os.path.getsize(self.work_dir+"freemanChainContours.fc") == 0:
+            if os.path.getsize(self.work_dir+\
+                               "outputContoursFreemanCodeTMP.txt") == 0:
                 raise ValueError
+        
+            fInfo.close()
+            fInfo = open(self.work_dir+"info.txt", "r") 
 
-            command = ' '.join(['"' + arg + '"' if ' ' in arg else arg
-                 for arg in command_args + ['>', 'freemanChainContours.fc']])
-            self.commands += '\n'+ command
+            #Recover otsu max value from output 
+            if self.cfg['param']['thresholdauto']:
+                lines = fInfo.readlines()
+                line_cases = lines[0].replace(")", " ").split()
+                self.cfg['param']['maxthreshold'] = float(line_cases[17])
+                self.cfg['param']['minthreshold'] = 0.0
+            
+            self.commentsResultContourFile(cmd, self.work_dir+ \
+                                           'outputContoursFreemanCodeTMP.txt', \
+                                           self.work_dir+ \
+                                           'outputContoursFreemanCode.txt', \
+                                            False )
 
+            ##  -------
+            ## process 3 bis: Extract contours in sdp format
+            ## ---------
+            if self.cfg['param']['outputformat'] == 'sdp':
+                fcontoursSDP = open(self.work_dir+'outputCntTMP.sdp', "w")
+                command_args += ['-outputSDPAll']
+                command_args = self.runCommand(command_args, stdErr=fInfo, \
+                                               stdOut=fcontoursSDP, \
+                                               outFileName = \
+                                               'outputContoursListPoints.txt')
+                fcontoursSDP.close()
+                self.commentsResultContourFile(command_args, self.work_dir+ \
+                                               'outputCntTMP.sdp', \
+                                               self.work_dir+ \
+                                               'outputContoursListPoints.txt', \
+                                                True)
+
+
+            ##  -------
+            ## process 4: Display resulting contours
+            ## ---------        
 
             #Display all contours with initial image as background:
-            p = self.run_proc(['displayContours', '-fc', \
-                               'freemanChainContours.fc'\
-                               , '-outputFIG',\
-                                self.work_dir +'imageContours.fig',\
-                               '-backgroundImageXFIG', \
-                               'input_0BG.png',\
-                               str(self.cfg['param']['sizex']),\
-                               str(self.cfg['param']['sizey'])], \
-                              env={'LD_LIBRARY_PATH' : self.bin_dir})
-            self.wait_proc(p, timeout=self.timeout)
-            
+            command_args = ['displayContours'] +  \
+                           ['-fc', 'outputContoursFreemanCode.txt'] \
+                          +[ '-outputFIG', 'imageContours.fig',\
+                            '-backgroundImageXFIG', 'input_0BG.png', \
+                            str(self.cfg['param']['sizex']),\
+                            str(self.cfg['param']['sizey'])]
+            self.runCommand(command_args)
+
             p = self.run_proc(['convertFig.sh', 'imageContours.fig', \
                                'resu.png'], stderr=fInfo, \
                               env={'LD_LIBRARY_PATH' : self.bin_dir})
             self.wait_proc(p, timeout=self.timeout)
-            self.commands += '\ndisplayContours -fc reemanChainContours.fc '+\
-                              '-outputFIG imageContours.fig '+ \
-                              '-backgroundImageXFIG input_0BG.png '+\
-                               str(self.cfg['param']['sizex'])+' '+\
-                               str(self.cfg['param']['sizey'])+\
-                              '\nfig2dev -L eps imageContours.fig resu.eps '+\
+            self.commands +=  'fig2dev -L eps imageContours.fig resu.eps '+\
                               '\nconvert -density 50 resu.eps resu.png'
 
-            fcommands.write(self.commands)
-            fcommands.close()
+          
             fInfo.close()
 
-        
+        #----------
+        # 3D case
+        #----------
 
         else:
-            p = self.run_proc(['extract3D', '-image', self.work_dir +\
-                               'inputVol_0.vol', '-badj', str(adjacency), \
-                               '-threshold', str(para['minthreshold']), \
-                                str(para['maxthreshold']), \
-                               '-output',\
-                               'result.obj', '-exportSRC', 'src.obj'], \
-                              env={'LD_LIBRARY_PATH' : self.bin_dir})
-            self.wait_proc(p, timeout=self.timeout)
+            command_args = ['extract3D', '-image', 'inputVol_0.vol',  \
+                            '-badj', str(adjacency) ] + \
+                            ['-threshold', str(params['minthreshold'])] + \
+                            [str(params['maxthreshold']), '-output']  + \
+                            ['result.obj', '-exportSRC', 'src.obj']
+            self.runCommand(command_args)
+
+        fcommands = open(self.work_dir+"commands.txt", "w")
+        fcommands.write(self.commands)
+        fcommands.close()
         return
+
 
     @cherrypy.expose
     @init_app
@@ -408,8 +463,76 @@ class app(base_app):
         """
         display the algo results
         """
-        return self.tmpl_out("result.html",
-                             height=image(self.work_dir \
-                                          + 'input_0_selection.png').size[1],\
+        resultHeight = image(self.work_dir + 'input_0_selection.png').size[1]
+        imageHeightResized = min (600, resultHeight) 
+        resultHeight = max(200, resultHeight)
+        return self.tmpl_out("result.html", height=resultHeight, \
+                             heightImageDisplay=imageHeightResized, \
                              width=image(self.work_dir\
-                                          +'input_0_selection.png').size[0])
+                                           +'input_0_selection.png').size[0])
+       
+
+    def runCommand(self, command, stdOut=None, stdErr=None, comp=None, 
+                   outFileName=None):
+        """
+        Run command and update the attribute list_commands
+        """
+        p = self.run_proc(command, stderr=stdErr, stdout=stdOut, \
+                          env={'LD_LIBRARY_PATH' : self.bin_dir})
+        self.wait_proc(p, timeout=self.timeout)
+        index = 0
+        # transform convert.sh in it classic prog command (equivalent) 
+        for arg in command:
+            if arg == "convert.sh" :
+                command[index] = "convert"
+            index = index + 1
+        command_to_save = ' '.join(['"' + arg + '"' if ' ' in arg else arg
+                 for arg in command ])
+        if comp is not None:
+            command_to_save += comp
+        if outFileName is not None:
+            command_to_save += ' > ' + outFileName
+
+        self.commands +=  command_to_save + '\n'
+        return command_to_save
+
+
+    def commentsResultContourFile(self, command, fileStrContours, fileStrRes,
+                                 sdp):
+        """
+        Add comments in the resulting contours (command line producing the file,
+        or file format info)
+        """
+  
+        contoursList = open (self.work_dir+"tmp.dat", "w")
+        contoursList.write("# Set of resulting contours obtained from the " +\
+                            "pgm2freeman algorithm. \n")
+        if not sdp:
+            contoursList.write( "# Each line corresponds to a digital "  + \
+                                "contour " +  \
+                                " given with the first point of the digital "+ \
+                                "contour followed  by its freeman code "+ \
+                                "associated to each move from a point to "+ \
+                                "another (4 connected: code 0, 1, 2, and 3).\n")
+        else:
+            contoursList.write("# Each line represents a resulting polygon.\n"+\
+                            "# All vertices (xi yi) are given in the same "+
+                            " line: x0 y0 x1 y1 ... xn yn \n")
+        contoursList.write( "# Command to reproduce the result of the "+\
+                            "algorithm:\n")
+        
+        contoursList.write("# "+ command+'\n \n')
+        f = open (fileStrContours, "r")
+        index = 0
+        for line in f:
+            contoursList.write("# contour number: "+ str(index) + "\n")
+            contoursList.write(line+"\n")
+            index = index +1
+        contoursList.close()
+        f.close()
+        shutil.copy(self.work_dir+'tmp.dat', fileStrRes)
+        os.remove(self.work_dir+'tmp.dat')
+
+
+
+

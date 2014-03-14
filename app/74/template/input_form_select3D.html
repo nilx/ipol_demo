@@ -22,14 +22,15 @@ Click on an image to use it as the algorithm input.
 %if any([inputd[id].has_key('credit') for id in inputd]):
 <p style="font-size: 80%">
   <a class="toggle"
-     href="#credits"
-     onclick="toggle('credits');">
+     href="#credits3d"
+     onclick="toggle('credits3d');">
     image credits
   </a>
 </p>
-<div id="credits"
+<div id="credits3d"
      style="display:none; font-size: 80%"> 
   %for id in sorted(inputd.keys()):
+  %if inputd[id]['type'] == '3d': 
   %for url in inputd[id]['url']:
   <a href="${url}">
     <img height="24"
@@ -38,6 +39,7 @@ Click on an image to use it as the algorithm input.
   %endfor
   ${inputd[id]['credit'] | h}
   <br/>
+  %endif
   %endfor
 </div>
 %endif

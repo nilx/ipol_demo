@@ -4,13 +4,50 @@
 
 
 <p>
-  The algorithm result is displayed  hereafter.
-  The result was obtained by the following parameters:
+  The algorithm was applied with by the following parameters:
 <ul>
+<li>  Adjacency: 
+%if app.cfg['param']['interioradjacency']:
+interior
+%else:
+exterior
+%endif
+adjacency </li>
 
 
+%if not app.cfg['meta']['is3d']:
 
+	<li> Contours extraction thresholds
+	%if app.cfg['param']['thresholdauto'] or app.cfg['param']['thresholdsingle']:
+		(single threshold mode):
+		<ul>
+		<li> minimal threshold value: ${app.cfg['param']['minthreshold']} </li>
+		<li> maximal threshold value: ${app.cfg['param']['maxthreshold']} 
+		%if app.cfg['param']['thresholdauto']:
+			(determined automatically by the Otsu algorithm) </li>
+		</ul>
+		%endif
+	%else:
+		(multiple thresholds mode):
+		<ul>
+    	<li> start threshold value: ${app.cfg['param']['startthreshold']} </li>
+		<li> end threshold value: ${app.cfg['param']['endthreshold']} </li>
+		<li> threshold step: ${app.cfg['param']['thresholdstep']} </li>
+		</ul>
+	%endif 
+	</li>
+	<li> Minimal contour size: ${app.cfg['param']['minimalsize']}</li>
+%else:
+	<li> Connected region boundary thresholds:
+		<ul>
+		<li> minimal threshold value: ${app.cfg['param']['minthreshold']} </li>
+		<li> maximal threshold value: ${app.cfg['param']['maxthreshold']} 
+		</ul>
+	</li>
+
+%endif
 </ul>
+
 </p>
 
 <BR>
@@ -37,41 +74,41 @@
 
 
 
+%if not app.cfg['meta']['is3d']:
+<p>You can download the result in <a href="${app.work_url+'resu.eps'}"> eps </a> format or download the  output contours  as <a href="${app.work_url+'outputContoursFreemanCode.txt'}"> Freeman code list (ASCII) </a> 
+%if app.cfg['param']['outputformat'] == 'sdp':
+	or as <a href="${app.work_url+'outputContoursListPoints.txt'}"> sequence of points (ASCII) </a>
+%endif
+
+.</p>
+%else:
+<p>You can download the result in obj format: <a href="${app.work_url+'result.obj'}"> result.obj </a>,  <a href="${app.work_url+'result.obj.mtl'}"> result.obj.mtl </a> and also <a href="${app.work_url+'inputVol_0.vol'}"> the volumetric vol file </a> and the thresholded object:  <a href="${app.work_url+'src.obj'}"> src.obj </a>,  <a href="${app.work_url+'src.obj.mtl'}"> src.obj.mtl </a></p>
+%endif
+
+
 
 <div class="gallery" style="height:${height}px">
   <ul class="index">
-  
+
 %if not app.cfg['meta']['is3d']:
-  <li>
-      <a href="#">input
-        <span>
-          <img  height="${height}px" src="${app.work_url + 'input_0_selection.png'}" alt="input selection" />
-        </span>
-      </a>
-    </li>
-    <li>
-      <a href="${app.work_url+'resu.png'}"> resu.png
-	<span>
-	  <img height="${height}px" src="${app.work_url + 'resu.png'}" alt="resu.png" />
-	</span>
-      </a>
-    </li>
-    <li>
-      <a href="${app.work_url+'resu.eps'}">resu.eps </a>
-      </a>
-    </li>
-    <li>
-      <a href="${app.work_url+'freemanChainContours.fc'}">fcContours.fc </a>
-    </li>
-    <li>
-      <a href="${app.work_url+'info.txt'}"> info.txt </a>
-    </li>
-     <li>
-      <a href="${app.work_url+'commands.txt'}">commands.txt
-	  <span><pre>${app.commands}</pre></span>
-      </a>
-    </li>
+	  
+	  <li>
+	      <a href="#">input
+	        <span>
+	          <img  height="${heightImageDisplay}" src="${app.work_url + 'input_0_selection.png'}" alt="input selection" />
+	        </span>
+	      </a>
+	    </li>
+	    <li>
+	      <a href="${app.work_url+'resu.png'}"> resu.png
+		<span>
+		  <img height="${heightImageDisplay}" src="${app.work_url + 'resu.png'}" alt="resu.png" />
+		</span>
+	      </a>
+	   </li>
+    
 %else:
+
   <li>
       <a href="${app.work_url + 'input_0.png'}">input
 	<span>
@@ -82,11 +119,11 @@
     <li> <a href="#" >Result: 3d visualisation
       <span>
 	<div style="width:490px; margin:auto; position:relative; font-size: 9pt; color: #777777;">
-<canvas id="cv" style="border: 1px solid;" width="${width}px" height="${height}px">
-The visualisation used jsc3d, it looks that your navigator does not supported it, please simply download the files result.obj and result.mtl and use a standard 3d viewer.
+	<canvas id="cv" style="border: 1px solid;" width="${width}px" height="${height}px">
+    The visualisation used jsc3d, it looks that your navigator does not supported it, please simply download the files result.obj and result.mtl and use a standard 3d viewer.
 	</canvas> </div>
-<script type="text/javascript" src="http://dev.ipol.im/~kerautre/jsc3d.js"></script>
-<script type="text/javascript">
+	<script type="text/javascript" src="http://dev.ipol.im/~kerautre/jsc3d.js"></script>
+	<script type="text/javascript">
 	var canvas = document.getElementById('cv');
 	var viewer = new JSC3D.Viewer(canvas);
 	var logoTimerID = 0;
@@ -144,34 +181,26 @@ The visualisation used jsc3d, it looks that your navigator does not supported it
 		viewer.update();
 	}
 
-  </script>
+	</script>
 
-</span>   </a></li>
+	</span>   </a></li>
 
-    <li>
-      <a href="${app.work_url+'result.obj'}"> result.obj </a>
-    </li>
-
-    <li>
-      <a href="${app.work_url+'result.obj.mtl'}"> result.obj.mtl </a>
-    </li>
-
-    <li>
-      <a href="${app.work_url+'inputVol_0.vol'}"> src.vol </a>
-    </li>
-
-    <li>
-      <a href="${app.work_url+'src.obj'}"> src.obj </a>
-    </li>
-    <li>
-      <a href="${app.work_url+'src.obj.mtl'}"> src.obj.mtl </a>
-    </li>
+   
 %endif
   </ul>
-
 </div>
 
 
+<h2>
+  <a class="toggle" href="#commands" onclick="toggle('commands');">
+    Additional Info
+  </a>
+</h2>
+<div id="commands" style="display:none"> 
+The algorithm can be run with the following commands:
+<pre class="stdio"> ${app.commands} </pre>
+
+</div>
 
 
 <hr />
