@@ -9,15 +9,6 @@
 </ul>
 </p>
 
-You can obtain this result by using these following command lines:
-<ul>
-dll_decomposition  
-%if app.cfg['param']['b']:
--b -d ${app.cfg['param']['typeprimitive']} input.png 
-%else:
--d ${app.cfg['param']['typeprimitive']} input.png 
-%endif
-</ul>
 <BR>
 <form action="${app.base_url}" method="get">
   <div class="action">
@@ -38,6 +29,7 @@ dll_decomposition
 <hr />
 
 <h2>Result</h2>
+You can download the algorithm output in  <a href="${app.work_url+'output.txt'}">ASCII</a> format 
 
 <div class="gallery" style="height:${height}px">
   <ul class="index">
@@ -55,12 +47,20 @@ dll_decomposition
 	</span>
       </a>
     </li>
-    <li>
-      <a href="${app.work_url+'info.txt'}">infos</a>
-      </a>
-    </li>
 
   </ul>
+</div>
+
+
+<h2>
+  <a class="toggle" href="#commands" onclick="toggle('commands');">
+    Additional Info
+  </a>
+</h2>
+<div id="commands" style="display:none"> 
+The algorithm can be run with the following commands:
+<pre class="stdio"> ${app.list_commands} </pre>
+
 </div>
 
 <hr />
