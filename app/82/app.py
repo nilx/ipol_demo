@@ -10,6 +10,15 @@ import cherrypy
 import os.path
 import shutil
 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+import config_json
+########  WARNING OVERLOADING EMPYT_APP ######### 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+
+
 from .lib_demo_sift import draw_keys, draw_keys_oriented,  \
     draw_matches, find_nearest_keypoint,\
     illustrate_pair, draw_one_match, Image 
@@ -25,8 +34,39 @@ class app(base_app):
     is_test = False
 
     xlink_article = "http://www.ipol.im/pub/pre/82/"
-    xlink_src = \
-     "http://dev.ipol.im/~reyotero/sift_anatomy_code/sift_anatomy_20140311.zip"
+    xlink_src = "http://www.ipol.im/pub/pre/82/sift_anatomy_20140314.zip"
+     
+
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+
+    def init_cfg(self):
+        """
+        reinitialize the config dictionary between 2 page calls
+        """
+        # read the config dict
+        self.cfg = config_json.cfg_open(self.work_dir)
+        # default three sections
+        self.cfg.setdefault('param', {})
+        self.cfg.setdefault('info', {})
+        self.cfg.setdefault('meta', {})
+
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
 
     def __init__(self):
         """
@@ -46,8 +86,8 @@ class app(base_app):
         """
         program build/update
         """
-        zip_filename = 'sift_anatomy_20140311.zip'
-        src_dir_name = 'sift_anatomy_20140311/'
+        zip_filename = 'sift_anatomy_20140314.zip'
+        src_dir_name = 'sift_anatomy_20140314/'
         prog_filename = 'sift_cli'
         prog_filename2 = 'match_cli'
         prog_filename3 = 'demo_extract_patch'
@@ -128,7 +168,7 @@ class app(base_app):
                 'C_match']
         if ('paradic' in self.cfg['param']):       
             self.cfg['param']['paradic'] = \
-                    dict(eval(str(self.cfg['param']['paradic']))) 
+                    self.cfg['param']['paradic']
         else:
             self.load_standard_parameters()
 
@@ -221,8 +261,9 @@ class app(base_app):
         """
         # read (x,y) - Set SIFT parameters
         action = self.cfg['param']['action']
-        x = self.cfg['param']['x'] # Expressed en PIL coordinates system y| x-
-        y = self.cfg['param']['y']
+        x = float(self.cfg['param']['x']) 
+        # Expressed en PIL coordinates system y| x-
+        y = float(self.cfg['param']['y'])
         
         # read image size and store in 'param' dict to control html rendering
         work_dir = self.work_dir
@@ -326,7 +367,7 @@ class app(base_app):
         Run the SIFT algorithm on each of the two images
         with custom parameters
         """
-        paradic = dict(eval(str(self.cfg['param']['paradic'])))  
+        paradic = self.cfg['param']['paradic']
         for i in range(2):
             image = 'input_'+str(i)+'.png'
             label = 'im'+str(i)
@@ -364,7 +405,7 @@ class app(base_app):
                    n_bins       to save in ASCII files the
                                 keypoints orientation histograms
         """
-        paradic = dict(eval(str(self.cfg['param']['paradic'])))
+        paradic = self.cfg['param']['paradic']
         print 'in run_matching()   n_bins = ' +str(paradic['n_bins'])
 
         f = open(self.work_dir+'matches.txt','w')
@@ -451,7 +492,7 @@ class app(base_app):
         Draw keypoints at each stage on each image
         Draw matches on the pair of image
         """
-        paradic = dict(eval(str(self.cfg['param']['paradic'])))
+        paradic = self.cfg['param']['paradic']
         work_dir = self.work_dir
         
         x = float(self.cfg['param']['x'])   # selected pixel in the first image

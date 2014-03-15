@@ -5,7 +5,7 @@
 <%
 
 # HACK to get the number of computed octaves
-paradic = dict(eval(str(app.cfg['param']['paradic'])))
+paradic = app.cfg['param']['paradic']
 n_oct = int(paradic['n_oct'])
 
 delta_min = float(paradic['delta_min'])
