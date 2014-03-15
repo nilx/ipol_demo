@@ -25,21 +25,21 @@
 <div class="gallery" style="height:${app.cfg['param']['resultheight']}px">
     <ul class="index">
     <li>
-        <a href="${app.work_url + 'mask.png'}">
-          Marker
-        <span>
-            <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'mask.png'}" alt="" />
-        </span>
-        </a>
-    </li>    
-    <li>
         <a href="${app.work_url + 'input_0.png'}">
         Original
         <span>
             <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'input_0.png'}" alt="" />
         </span>
         </a>
-    </li>    
+    </li> 
+    <li>
+        <a href="${app.work_url + 'mask.png'}">
+          Marker
+        <span>
+            <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'mask.png'}" alt="" />
+        </span>
+        </a>
+    </li>      
 
     <li>
         <a href="${app.work_url + 'result.png'}">
@@ -49,15 +49,28 @@
         </span>
         </a>
     </li>    
-     <li>
-        <a href="${app.work_url+'commands.txt'}">commands.txt
-        <span><pre>${app.list_commands}</pre></span>
-        </a>
-    </li>
+   
     </ul>
 </div>
 
-<hr />
+
+<h2>
+  <a class="toggle" href="#commands" onclick="toggle('commands');">
+    Additional Info
+  </a>
+</h2>
+<div id="commands" style="display:none"> 
+The algorithm can be run with the following commands:
+<pre class="stdio"> ${app.list_commands} </pre>
+
+</div>
+
+
+
+<hr/>
+
+
+ 
 
 <%include file="archive_info.html" />
 
