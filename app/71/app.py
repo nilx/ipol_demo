@@ -35,6 +35,7 @@ class app(base_app):
                      'pencolor':'yellow'}
     pencolors = {'yellow'   : [255, 255, 0]}
     list_commands = ""
+    hasAtLeastOneMarker = False
 
 
     def __init__(self):
@@ -133,7 +134,7 @@ class app(base_app):
         size = image(self.work_dir + 'input_0.png').size
         self.cfg['param']['viewbox_width'] = size[0]
         self.cfg['param']['viewbox_height'] = size[1]
-        
+        self.hasAtLeastOneMarker = not (not commandlist)
         mask = Image.new('P', size, 0)   # Create a grayscale image
         draw = ImageDraw.Draw(mask)
     

@@ -153,6 +153,10 @@ $(document).ready(function()
   <input type="checkbox" name="negate" value="off" size="4" /></p> 
 %endif
 
+%if not app.hasAtLeastOneMarker:
+	<font color="red"><b> Warning:</b> to apply the segmentation, you need a least to define one marker (else the segmentation result will be empty)</font>
+%endif
+
 <p style="clear:both;">Run the algorithm: <input type="submit" name="action" value="run" /><p/>
   </div>
 
