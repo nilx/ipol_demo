@@ -1,4 +1,8 @@
-<%include file="header.html" />
+<%include file="header-jquery.html" />
+
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+</script>
 
 <p>
 <b>Input parameters</b>
@@ -7,35 +11,71 @@
 <form action="${app.base_url + 'crop'}" method="get">
     <input type="hidden" name="key" value="${app.key}" />
 
-    <%
-    if 'param' in app.cfg and 'ps' in app.cfg['param']:
-         ps=app.cfg['param']['ps']
-    else:
-         ps=5
-    %>
-    <input type="text" name="ps" value="${ps}" size="4" /> 
-    <label for="ps"> ps : patch size ((2ps+1) x (2ps+1)) </label>
-    <br>
+<!-- Patch size -->
+  <b>Patch size</b>: 
+    <select name="ps">
+<%
+contents = ((1,'3 x 3'), (2,'5 x 5'), (3,'7 x 7'), (4,'9 x 9'), (5,'11 x 11'), (7,'15 x 15'), (10,'21 x 21'))
 
-    <%
-    if 'param' in app.cfg and 't' in app.cfg['param']:
-         t=app.cfg['param']['t']
-    else:
-         t=0.1
-    %>
-    <input type="text" name="t" value="${t}" size="4" /> 
-    <label for="t"> t : tolerance  </label>
-    <br>
+try:
+   sel = int(ps)
+except Exception:
+   sel = 2
+%>
 
-    <%
-    if 'param' in app.cfg and 'o' in app.cfg['param']:
-         o=app.cfg['param']['o']
-    else:
-         o=128
-    %>
-    <input type="text" name="o" value="${o}" size="4" />
-    <label for="o"> o : output image size (o x o) </label>
-    <br>
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
+    </select>
+    <br/>
+
+<!-- Tolerance -->
+<!-- code for slider -->
+<%
+try:
+   sel = float(t)
+except Exception:
+   sel = 0.1
+%>
+<div style="float:left;padding-right:25px">
+    <b>Tolerance</b>: <input type="text" style="font-family:monospace;text-align:right"
+    size="6" id="t" name="t" value="${sel}" />
+</div>
+<div id="t_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() {
+      createLinkedSlider('#t', '#t_slider', 0.01, 0.5, 0.01); 
+});
+</script>
+<div style="clear:both"> </div>
+<!-- end of code for slider -->
+
+
+<!-- Output size -->
+  <b>Output image size</b>: 
+    <select name="o">
+<%
+contents = ((32,'32 x 32'), (64,'64 x 64'), (128,'128 x 128'), (256,'256 x 256'))
+
+try:
+   sel = int(o)
+except Exception:
+   sel = 128
+%>
+
+%for i in range(len(contents)):
+<%
+  selectedStr = ('' if contents[i][0] != sel else ' selected="selected"')
+%>
+      <option value="${contents[i][0]}"${selectedStr}>${contents[i][1]}</option>
+%endfor
+    </select>
+    <br/>
+
 
     <p>Run the <b>accelerated version</b> of Efros-Leung synthesis <input type="submit" name="action" value="run" /> <b>or</b> run the original Efros-Leung synthesis <input type="submit" name="action" value="run_orig" /> <p/>
 

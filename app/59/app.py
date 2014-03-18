@@ -91,7 +91,7 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def crop(self, o = "128", ps = "5", t = "0.1", action=None, x=None, y=None,
+    def crop(self, o = "128", ps = "2", t = "0.1", action=None, x=None, y=None,
              x0=None, y0=None, x1=None, y1=None, newrun=False):
         """
         select a rectangle in the image
@@ -194,7 +194,7 @@ class app(base_app):
 
     @cherrypy.expose
     @init_app
-    def wait(self, a, o = "128", ps = "3", t = "0.1"):
+    def wait(self, a, o = "128", ps = "2", t = "0.1"):
         """
         params handling and run redirection
         """
@@ -235,6 +235,19 @@ class app(base_app):
         t = self.cfg['param']['t']
         # save standard output
         stdout = open(self.work_dir + 'stdout.txt', 'w')
+    # check correct parameters values
+	if o > 256:
+		o = 256;
+	if o < 32:
+		o = 32;
+	if ps > 10:
+		ps = 10;
+	if ps < 1:
+		ps = 1;
+	if t > 0.5:
+		t = 0.5;
+	if t < 0.01:
+		t = 0.01;        
  
 	try:
 	    if a == 1:
@@ -301,7 +314,7 @@ class app(base_app):
                          	    'copy_map.png'],
 			 	    stdout=stdout, stderr=stdout )  
         
-        self.wait_proc(p)
+        self.wait_proc(p,timeout=self.timeout)
 
     def run_algo_original(self, a, o, ps, t, stdout=None):
         """
@@ -322,7 +335,7 @@ class app(base_app):
                                     'copy_map.png'],
                                     stdout=stdout, stderr=stdout )
 
-        self.wait_proc(p)
+        self.wait_proc(p,timeout=self.timeout)
                 
 
 
