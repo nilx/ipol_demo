@@ -23,7 +23,7 @@ class app(base_app):
     """ Algebraic Lens Distortion Model Estimation app """
 
     title = 'Algebraic Lens Distortion Model Estimation'
-    xlink_article = 'http://www.ipol.im/pub/art/2010/ags-alde/'
+    xlink_article = 'http://www.ipol.im/pub/art/2011/ags-alde/'
 
     input_nb = 1
     input_max_pixels = 1048576          # max size (in pixels) input image
@@ -82,7 +82,7 @@ class app(base_app):
         Program build/update
         """
         # Store common file path in variables
-        tgz_url = 'http://www.ipol.im/pub/art/2010/ags-alde/' \
+        tgz_url = 'http://www.ipol.im/pub/art/2011/ags-alde/' \
             + 'algebraic_lens_distortion_model_estimation_basic_march_2012.tar.gz'
 
         tgz_file = self.dl_dir + \
