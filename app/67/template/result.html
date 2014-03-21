@@ -4,7 +4,7 @@
   The algorithm result is displayed  hereafter.
   The result was obtained by the following parameters:
 <ul>
-<li>  primitive used: ${app.cfg['param']['typeprimitive']}  </li>
+<li>  primitive used: <font color="blue"><i> ${app.cfg['param']['typeprimitive']} </i></font> </li>
 <li>  use black background: ${app.cfg['param']['b']}  </li>
 </ul>
 </p>
@@ -29,19 +29,20 @@
 <hr />
 
 <h2>Result</h2>
-You can download the algorithm output in  <a href="${app.work_url+'output.txt'}">ASCII</a> format 
+
+<p>You can download the algorithm output in  <a href="${app.work_url+'output.txt'}">ASCII</a> format </p>
 
 <div class="gallery" style="height:${height}px">
   <ul class="index">
     <li>
-      <a href="#">input
+      <a href="${app.work_url + 'input_0.png'}">input
 	<span>
 	  <img src="${app.work_url + 'input_0.png'}" alt="input" />
 	</span>
       </a>
     </li>
     <li>
-      <a href="#">output
+      <a href="${app.work_url + app.cfg['param']['typeprimitive']+'_out_input_0.png'}">output
 	<span>
 	  <img height="${height}px" src="${app.work_url + app.cfg['param']['typeprimitive']+'_out_input_0.png'}" alt="output" />
 	</span>
@@ -57,10 +58,11 @@ You can download the algorithm output in  <a href="${app.work_url+'output.txt'}"
     Additional Info
   </a>
 </h2>
-<div id="commands" style="display:none"> 
-The algorithm can be run with the following commands:
+<div id="commands" style="display:none">
+<p>
+The algorithm ran with the following parameters:
 <pre class="stdio"> ${app.list_commands} </pre>
-
+</p>
 </div>
 
 <hr />

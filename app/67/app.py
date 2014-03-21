@@ -13,7 +13,7 @@ import shutil
 
 class app(base_app):
     """ template demo app """
-    
+
     title = "Digital Level Layers for Digital Curve Decomposition and\
     		 Vectorization"
     xlink_article = 'http://www.ipol.im/pub/pre/67/'
@@ -56,9 +56,9 @@ class app(base_app):
         prog_names = ["dll_decomposition", "dll_sequence", "testBoundaries", \
         			  "testDecomposition", "testOtsu"]
         prog_bin_files = []
-        
+
         for f in prog_names:
-            prog_bin_files.append(self.bin_dir+ f)            
+            prog_bin_files.append(self.bin_dir+ f)
 
         log_file = self.base_dir + "build.log"
         # get the latest source archive
@@ -77,8 +77,8 @@ class app(base_app):
             build.run("mkdir %s;  " %(self.src_dir+"gjknd_1.1/build"), \
             						 stdout=log_file)
             build.run("cd %s; cmake .. ; make -j 4" %(self.src_dir + \
-            							"gjknd_1.1/build"),stdout=log_file) 
-            
+            							"gjknd_1.1/build"),stdout=log_file)
+
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
@@ -89,7 +89,7 @@ class app(base_app):
 
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
-        
+
         return
 
 
@@ -108,7 +108,7 @@ class app(base_app):
         # save and validate the parameters
         try:
             self.cfg['param']['typeprimitive'] = kwargs['typeprimitive']
-            self.cfg['param']['b'] = x 
+            self.cfg['param']['b'] = x
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
@@ -133,9 +133,9 @@ class app(base_app):
         try:
             self.run_algo(typeprimitive)
         except TimeoutError:
-            return self.error(errcode='timeout') 
+            return self.error(errcode='timeout')
         except RuntimeError:
-            return self.error(errcode='runtime')    
+            return self.error(errcode='runtime')
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters given produce no contours,\
@@ -163,7 +163,7 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-        f = open(self.work_dir+"output.txt", "w") 
+        f = open(self.work_dir+"output.txt", "w")
         command_args = ['dll_decomposition', '-v', '-d', typeprimitive ]
 
         if self.cfg['param']['b']:
@@ -182,7 +182,7 @@ class app(base_app):
         """
         display the algo results
         """
-        return self.tmpl_out("result.html", 
+        return self.tmpl_out("result.html",
                              height=image(self.work_dir
                                           + 'input_0.png').size[1])
 
@@ -195,12 +195,10 @@ class app(base_app):
         p = self.run_proc(command, stderr=stdErr, stdout=stdOut, \
         				  env={'LD_LIBRARY_PATH' : self.bin_dir})
         self.wait_proc(p, timeout=self.timeout)
-        # transform convert.sh in it classic prog command (equivalent) 
+        # transform convert.sh in it classic prog command (equivalent)
         command_to_save = ' '.join(['"' + arg + '"' if ' ' in arg else arg
                  for arg in command ])
         if comp is not None:
             command_to_save += comp
         self.list_commands +=  command_to_save + '\n'
         return command_to_save
-
-
