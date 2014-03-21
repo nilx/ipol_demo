@@ -1,22 +1,34 @@
 <%include file="header.html" />
 
-<div class="action" style="padding-bottom:3ex">    
-    <form style="float:left" action="${app.base_url}" method="get">
+
+
+<p>
+The algorithm result is displayed hereafter. The result was obtained by the following parameters:
+<ul>
+<li><i><font color="blue">&alpha;</font></i>&nbsp;=&nbsp;${ float(app.cfg['param']['lambda'])}</li>
+<li>Negate image: &nbsp;${app.cfg['param']['negate']}</li>
+</ul>
+</p>
+
+<p>
+<div class="action" style="padding-bottom:3ex">
+  <form style="float:left" action="${app.base_url}" method="get">
         <p style="padding:0px;margin:0px">Run again?&nbsp;<input type="submit" value="new input" /></p>
-    </form>    
-    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">        
+    </form>
+    <form style="float:left;padding-left:4px" action="${app.base_url + 'params'}" method="get">
         <p style="margin:0px"><input type="hidden" name="key" value="${app.key}" />
         <input type="hidden" name="newrun" value="1" />
         <input type="hidden" name="msg" value="different parameter" />
         <input type="submit" value="different parameter" /></p>
     </form>
 </div>
+</p>
 
-<p>The following parameters were used to obtain this result:</p>
 
+<hr />
 
-<p><i>&alpha;</i>&nbsp;=&nbsp;${ float(app.cfg['param']['lambda'])}</p>
-<p>Negate image =&nbsp;${app.cfg['param']['negate']}</p>
+<h2>Result</h2>
+
 
 <p>Notice that if the image height exceeded 600 pixels, then the image is scaled and the results
  at native resolution are given in the result links.</p>
@@ -31,7 +43,7 @@
             <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'input_0.png'}" alt="" />
         </span>
         </a>
-    </li> 
+    </li>
     <li>
         <a href="${app.work_url + 'mask.png'}">
           Marker
@@ -39,7 +51,7 @@
             <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'mask.png'}" alt="" />
         </span>
         </a>
-    </li>      
+    </li>
 
     <li>
         <a href="${app.work_url + 'result.png'}">
@@ -48,8 +60,8 @@
             <img height="${app.cfg['param']['imageheightresized']}" src="${app.work_url + 'result.png'}" alt="" />
         </span>
         </a>
-    </li>    
-   
+    </li>
+
     </ul>
 </div>
 
@@ -59,18 +71,18 @@
     Additional Info
   </a>
 </h2>
-<div id="commands" style="display:none"> 
+<div id="commands" style="display:none">
+<p>
 The algorithm ran with the following commands:
 <pre class="stdio"> ${app.list_commands} </pre>
-
+</p>
 </div>
-
 
 
 <hr/>
 
 
- 
+
 
 <%include file="archive_info.html" />
 

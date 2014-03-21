@@ -20,7 +20,7 @@ class app(base_app):
     """ Interactive Segmentation Based on Component-trees """
 
     title = 'Interactive Segmentation Based on Component-trees'
-    xlink_article = 'http://www.ipol.im/'    
+    xlink_article = 'http://www.ipol.im/pub/pre/71/'    
     xlink_src =  'http://www.ipol.im/pub/pre/71/ctseg.tgz'
     demo_src_filename  = 'ctseg.tgz'
 
@@ -32,8 +32,8 @@ class app(base_app):
     is_test = False                     # switch to False for deployment
     default_param = {'lambda': 0.1,  # default parameters
                      'pensize': 5,
-                     'pencolor':'yellow'}
-    pencolors = {'yellow'   : [255, 255, 0]}
+                     'pencolor':'red'}
+    pencolors = {'red'   : [255, 0, 0]}
     list_commands = ""
     hasAtLeastOneMarker = False
 
@@ -67,9 +67,9 @@ class app(base_app):
         prog_names = ["ctseg"]
         script_names = ["convert.sh", "applyCT.sh"]
         prog_bin_files = []
-        
+
         for f in prog_names:
-            prog_bin_files.append(self.bin_dir+ f)            
+            prog_bin_files.append(self.bin_dir+ f)
 
         log_file = self.base_dir + "build.log"
         # get the latest source archive
@@ -81,11 +81,11 @@ class app(base_app):
                          context='BUILD', traceback=False)
         else:
             # extract the archive
-            build.extract(tgz_file, self.src_dir)            
-                                    
+            build.extract(tgz_file, self.src_dir)
+
             # build the program
-            build.run("cd %s; make " %(self.src_dir+"ctseg"), stdout=log_file) 
-            
+            build.run("cd %s; make " %(self.src_dir+"ctseg"), stdout=log_file)
+
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
@@ -101,19 +101,19 @@ class app(base_app):
 
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
-        
+
         return
 
 
     #
     # PARAMETER HANDLING
     #
-    
+
     def readcommandlist(self):
         """
         Read the drawing commandlist from maskcomands.txt
         """
-                
+
         try:
             ifile = file(self.work_dir + 'maskcommands.txt', 'r')
             commandlist = [tuple([int(t) for t in line.split(' ')]) \
@@ -121,15 +121,15 @@ class app(base_app):
             ifile.close()
         except IOError:
             commandlist = []
-        
+
         return commandlist
-    
-    
+
+
     def rendermask(self):
         """
-        Render the drawing commandlist into the mask 
-        """        
-        
+        Render the drawing commandlist into the mask
+        """
+
         commandlist = self.readcommandlist()
         size = image(self.work_dir + 'input_0.png').size
         self.cfg['param']['viewbox_width'] = size[0]
@@ -137,22 +137,22 @@ class app(base_app):
         self.hasAtLeastOneMarker = not (not commandlist)
         mask = Image.new('P', size, 0)   # Create a grayscale image
         draw = ImageDraw.Draw(mask)
-    
+
         for (t, x, y) in commandlist:
             draw.ellipse((x - t, y - t, x + t + 1, y + t + 1), fill=255)
-        
+
         mask.putpalette([128, 128, 128] + [0, 0, 0]*254
             + self.pencolors[self.cfg['param']['pencolor']])
         mask.save(self.work_dir + 'mask.gif', transparency=0)
-        
-    
+
+
     @cherrypy.expose
     @init_app
     def editmask(self, **kwargs):
         """
         Edit the inpainting mask
         """
-        
+
         generate_options = {
             'random text' : 'text',
             'random dots' : 'dots:3',
@@ -160,7 +160,7 @@ class app(base_app):
             'random Bernoulli' : 'Bernoulli:0.5'
             }
         commandlist = self.readcommandlist()
-        
+
         if 'action' in kwargs:
             if kwargs['action'] == 'undo':
                 if commandlist:
@@ -168,51 +168,52 @@ class app(base_app):
             elif kwargs['action'] == 'clear':
                 commandlist = []
             elif kwargs['action'] in generate_options.keys():
-                self.wait_proc(self.run_proc(['randmask', 
+                self.wait_proc(self.run_proc(['randmask',
                     generate_options[kwargs['action']],
                     self.work_dir + 'input_0.png', 'mask.png'],
                     stdout=None, stderr=None), None)
-                
+
                 if os.path.isfile(self.work_dir + 'maskcommands.txt'):
                     os.remove(self.work_dir + 'maskcommands.txt')
-                
+
                 mask = Image.open(self.work_dir + 'mask.png')
                 mask = mask.convert('L')
                 mask = mask.convert('P')
-                mask.putpalette([128, 128, 128] + [0, 0, 0]*254 
+                mask.putpalette([128, 128, 128] + [0, 0, 0]*254
                     + self.pencolors[self.cfg['param']['pencolor']])
                 mask.save(self.work_dir + 'mask.gif', transparency=0)
-                                
+
                 return self.tmpl_out('params.html')
-        elif 'pencolor_yellow' in kwargs:
-            self.cfg['param']['pencolor'] = 'yellow'
-            
+        elif 'pencolor_red' in kwargs:
+            self.cfg['param']['pencolor'] = 'red'
+
             mask = Image.open(self.work_dir + 'mask.gif')
-            mask.putpalette([128, 128, 128] + [0, 0, 0]*254 
+            mask.putpalette([128, 128, 128] + [0, 0, 0]*254
                 + self.pencolors[self.cfg['param']['pencolor']])
             mask.save(self.work_dir + 'mask.gif', transparency=0)
-            
+
             return self.tmpl_out('params.html')
         else:
             commandlist.append((int(kwargs['pensize']), \
                 int(kwargs['x']), int(kwargs['y'])))
-        
+
         f = file(self.work_dir + 'maskcommands.txt', 'w')
         #f.write('This is a test\n')
         f.writelines('%i %i %i\n' % (t, x, y)  \
                     for (t, x, y) in commandlist )
         f.close()
-        
+
         # Generate a new timestamp
+
         self.timestamp = int(100*time.time())
-                
+
         self.cfg['param']['pensize'] = int(kwargs['pensize'])
         # Set undefined parameters to default values
-        dict_tmp = self.default_param
-        dict_tmp.update(self.cfg['param'])
-        self.cfg['param'] = dict_tmp
+        self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
+
         self.rendermask()
         return self.tmpl_out('params.html')
+
 
     @cherrypy.expose
     @init_app
@@ -220,22 +221,22 @@ class app(base_app):
         """
         Configure the algo execution
         """
-        if newrun:            
+        if newrun:
             old_work_dir = self.work_dir
             self.clone_input()
             # Keep old parameters
-            self.cfg['param'] = cfg_open(old_work_dir 
+            self.cfg['param'] = cfg_open(old_work_dir
                 + 'index.cfg', 'rb')['param']
             # Also need to clone maskcommands.txt to keep the mask
             if os.path.isfile(old_work_dir + 'maskcommands.txt'):
                 shutil.copy(old_work_dir + 'maskcommands.txt',
                     self.work_dir + 'maskcommands.txt')
-        
+
         # Set undefined parameters to default values
         self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
-        
+
         self.rendermask()
         return self.tmpl_out('params.html')
 
@@ -246,41 +247,41 @@ class app(base_app):
         """
         Run redirection
         """
-        
-        # Read webpage parameters from kwargs, but only those that 
+
+        # Read webpage parameters from kwargs, but only those that
         # are defined in the default_param dict.  If a parameter is not
         # defined by kwargs, the value from default_param is used.
-        self.cfg['param'] = dict(self.default_param.items() + 
+        self.cfg['param'] = dict(self.default_param.items() +
             [(p,kwargs[p]) for p in self.default_param.keys() if p in kwargs])
 
         self.cfg['param']['negate'] = 'negate' in kwargs
-            
+
         # Open image and inpainting domain mask
         img = Image.open(self.work_dir + 'input_0.png').convert('RGB')
         mask = Image.open(self.work_dir + 'mask.gif')
-        
+
         # Extract alpha
         alpha = mask.copy()
         alpha.putpalette([0, 0, 0]*255 + [255, 255, 255])
         alpha = alpha.convert('L')
-        
+
         # Extract mask palette for display
         lut = mask.resize((256, 1))
         lut.putdata(range(256))
         lut = lut.convert('RGB').getdata()
-        
+
         # Save binary PNG version of the mask
         mask.putpalette([0, 0, 0]*255 + [255, 255, 255])
         mask.save(self.work_dir + 'mask.png')
-        
+
         # Save image + mask composited version for display
         img.paste(lut[255], alpha)
         img.save(self.work_dir + 'composite.png')
-        
+
         # Save another composite where mask is gray for computation
         img.paste((128, 128, 128), alpha)
         img.save(self.work_dir + 'u0.png')
-        
+
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
         http.refresh(self.base_url + 'run?key=%s' % self.key)
@@ -302,24 +303,24 @@ class app(base_app):
             self.run_algo(stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
         except TimeoutError:
-            return self.error(errcode='timeout') 
+            return self.error(errcode='timeout')
         except RuntimeError:
             print "Run time error"
             return self.error(errcode='runtime')
-        
+
         stdout.close()
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
-        
+
         # Archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.png", 
+            ar.add_file("input_0.png",
                 info="original image")
-            ar.add_file("mask.png", 
+            ar.add_file("mask.png",
                 info="mask image")
-            ar.add_file("composite.png", 
+            ar.add_file("composite.png",
                 info="input")
-            ar.add_file("result.png", 
+            ar.add_file("result.png",
                 info="result result")
             ar.add_file("commands.txt", info="commands")
             ar.add_info({"alpha":  float(self.cfg['param']['lambda'])})
@@ -335,12 +336,12 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-                
+
         # Get image size
         size = image(self.work_dir + 'input_0.png').size
 
         ##  -------
-        ## process 1: transform input file 
+        ## process 1: transform input file
         ## ---------
         command_args = ['convert.sh', 'input_0.png', 'input_0.pgm' ]
         self.runCommand(command_args)
@@ -366,11 +367,11 @@ class app(base_app):
         command_args = ['convert.sh', 'result.pgm', 'result.png']
         self.runCommand(command_args)
 
-        
+
         resultHeight =  min (600, size[1])
         self.cfg['param']['imageheightresized'] = resultHeight
         self.cfg['param']['resultheight'] = max (200, resultHeight)
-     
+
 
         ## ----
         ## Final step: save command line
@@ -389,7 +390,7 @@ class app(base_app):
                           env={'LD_LIBRARY_PATH' : self.bin_dir})
         self.wait_proc(p, timeout=self.timeout)
         index = 0
-        # transform convert.sh in it classic prog command (equivalent) 
+        # transform convert.sh in it classic prog command (equivalent)
         for arg in command:
             if arg == "convert.sh" :
                 command[index] = "convert"
@@ -400,7 +401,3 @@ class app(base_app):
             command_to_save += comp
         self.list_commands +=  command_to_save + '\n'
         return command_to_save
-
-
-
-    
