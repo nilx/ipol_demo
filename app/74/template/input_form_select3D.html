@@ -1,7 +1,7 @@
 %if inputd:
 <form action="${app.base_url + 'input_select'}" method="get">
 <div class="action">
-<h3>Select 3D Data</h3> 
+<h3>Select 3D Data</h3>
 <p>
 Click on an image to use it as the algorithm input.
 </p>
@@ -28,9 +28,9 @@ Click on an image to use it as the algorithm input.
   </a>
 </p>
 <div id="credits3d"
-     style="display:none; font-size: 80%"> 
+     style="display:none; font-size: 80%">
   %for id in sorted(inputd.keys()):
-  %if inputd[id]['type'] == '3d': 
+  %if inputd[id]['type'] == '3d':
   %for url in inputd[id]['url']:
   <a href="${url}">
     <img height="24"

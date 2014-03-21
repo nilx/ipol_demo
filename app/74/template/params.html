@@ -1,10 +1,15 @@
-<%include file="header.html" />
+<%include file="header-jquery.html" />
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+</script>
 
 <p>
-  
+%if ('is3d' not in app.cfg['meta']) or (not app.cfg['meta']['is3d']):
   You can set the parameters to extract the image contours.
+%else:
+  You can set the parameters to extract the 3D connected region boundary.
+%endif
 
-  
 </p>
 
 <form action="${app.base_url + 'wait'}" method="get">
@@ -15,56 +20,186 @@
       <li> <input type="radio" name="adjacency" value="exterior" > exterior adjacency </li>
     </ul>
    </p>
-   <p>    Set the contour extraction thresholds:
+<p>
+
+%if ('is3d' not in app.cfg['meta']) or (not app.cfg['meta']['is3d']):
+    Set the contour extraction thresholds:
+%else:
+    Set the  3D connected region boundary extraction thresholds:
+%endif
+
     <input type="hidden" name="key" value="${app.key}">
     <ul>
       %if ('is3d' not in app.cfg['meta']) or (not app.cfg['meta']['is3d']):
       <li><input type="radio" name="thresholdtype" value="Auto (Otsu)" checked>  Auto (Otsu algorithm min=0, max=otsu):
       <li><input type="radio" name="thresholdtype" value="Single interval">  single threshold interval:
 	  <ul>
-	  <li><label for="minthreshold"><i>minimal threshold value</i>:</label> 
-            <input type="text" name="minthreshold" value="128" size="4" /> </li>
-	  <li><label for="maxthreshold"><i>maximal threshold value</i>:</label> 
-            <input type="text" name="maxthreshold" value="255" size="4" /> </li>
-	   </ul>
-      </li>
-      <li><input type="radio" name="thresholdtype" value="Multiple intervals" > multiple threshold intervals:
-	<ul>
-	  <li><label for="startthreshold"><i>start threshold </i>:</label> 
-	    <input type="text" name="startthreshold" value="25" size="4" /> </li>
-	  <li><label for="endthreshold"><i>end threshold </i>:</label> 
-	    <input type="text" name="endthreshold" value="255" size="4" /> </li>
-	  <li><label for="thresholdstep"><i>threshold step</i>:</label> 
-          <input type="text" name="thresholdstep" value="30" size="4" /> </li>
+	  <li>
 
+            <!-- code for slider -->
+            <div style="float:left;padding-right:25px">
+            <label for="minthreshold">minimal threshold value <font color="blue"><i>tmin</i></font>:</label>
+             <input type="text" style="font-family:monospace;text-align:right"
+                size="4" id="minthreshold" name="minthreshold" value="0" />
+            </div>
+            <div id="minthreshold_slider" name="minthreshold_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+            <script type="text/javascript">
+            // Turn DIV slider into a slider linked to scale
+            $(document).ready(function() {
+                  createLinkedSlider('#minthreshold', '#minthreshold_slider', 0, 255, 1);
+            });
+            </script>
+            <div style="clear:both"> </div>
+            <!-- end of code for slider -->
+        </li>
+	  <li>
+              <!-- code for slider -->
+              <div style="float:left;padding-right:25px">
+              <label for="maxthreshold">maximal threshold value <font color="blue"><i>tmax</i></font>:</label>
+               <input type="text" style="font-family:monospace;text-align:right"
+                  size="4" id="maxthreshold" name="maxthreshold" value="128" />
+              </div>
+              <div id="maxthreshold_slider" name="maxthreshold_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+              <script type="text/javascript">
+              // Turn DIV slider into a slider linked to scale
+              $(document).ready(function() {
+                    createLinkedSlider('#maxthreshold', '#maxthreshold_slider', 0, 255, 1);
+              });
+              </script>
+              <div style="clear:both"> </div>
+              <!-- end of code for slider -->
+              </li>
+              <li><input type="radio" name="thresholdtype" value="Multiple intervals" > multiple threshold intervals:
+        	<ul>
+        <li>
+            <!-- code for slider -->
+            <div style="float:left;padding-right:25px">
+            <label for="startthreshold">start threshold <font color="blue"><i>ts</i></font>:</label>
+             <input type="text" style="font-family:monospace;text-align:right"
+                size="4" id="startthreshold" name="startthreshold" value="50" />
+            </div>
+            <div id="startthreshold_slider" name="startthreshold_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+            <script type="text/javascript">
+            // Turn DIV slider into a slider linked to scale
+            $(document).ready(function() {
+                  createLinkedSlider('#startthreshold', '#startthreshold_slider', 0, 255, 1);
+            });
+            </script>
+            <div style="clear:both"> </div>
+            <!-- end of code for slider -->
+        </li>
+	  <li>
+
+        <!-- code for slider -->
+        <div style="float:left;padding-right:25px">
+        <label for="endthreshold">end threshold <font color="blue"><i>te</i></font>:</label>
+         <input type="text" style="font-family:monospace;text-align:right"
+            size="4" id="endthreshold" name="endthreshold" value="200" />
+        </div>
+        <div id="endthreshold_slider" name="endthreshold_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+        <script type="text/javascript">
+        // Turn DIV slider into a slider linked to scale
+        $(document).ready(function() {
+              createLinkedSlider('#endthreshold', '#endthreshold_slider', 0, 255, 1);
+        });
+        </script>
+        <div style="clear:both"> </div>
+        <!-- end of code for slider -->
+
+    </li>
+
+    <li>
+    <!-- code for slider -->
+    <div style="float:left;padding-right:25px">
+    <label for="thresholdstep">threshold step <font color="blue"><i>tstep</i>:</font></label>
+     <input type="text" style="font-family:monospace;text-align:right"
+        size="4" id="thresholdstep" name="thresholdstep" value="30" />
+    </div>
+    <div id="thresholdstep_slider" name="thresholdstep_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    // Turn DIV slider into a slider linked to scale
+    $(document).ready(function() {
+          createLinkedSlider('#thresholdstep', '#thresholdstep_slider', 1, 255, 1);
+    });
+    </script>
+    <div style="clear:both"> </div>
+    <!-- end of code for slider -->
+    </li>
 	</ul>
-      </li>
+    </li>
+    </ul>
       %else:
-      <li>single threshold interval:
+
 	<ul>
-	  <li><label for="minthreshold"><i>minimal threshold value</i>:</label> 
-            <input type="text" name="minthreshold" value="128" size="4" /> </li>
-	  <li><label for="maxthreshold"><i>maximal threshold value</i>:</label> 
-            <input type="text" name="maxthreshold" value="255" size="4" /> </li>
+        	  <li><!-- code for slider -->
+              <div style="float:left;padding-right:25px">
+              <label for="minthreshold">minimal threshold value <font color="blue"><i>tmin</i></font></label>
+               <input type="text" style="font-family:monospace;text-align:right"
+                  size="4" id="minthreshold" name="minthreshold" value="0" />
+              </div>
+              <div id="minthreshold_slider" name="minthreshold_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+              <script type="text/javascript">
+              // Turn DIV slider into a slider linked to scale
+              $(document).ready(function() {
+                    createLinkedSlider('#minthreshold', '#minthreshold_slider', 0, 255, 1);
+              });
+              </script>
+              <div style="clear:both"> </div>
+              <!-- end of code for slider -->
+        	  <li><!-- code for slider -->
+              <div style="float:left;padding-right:25px">
+              <label for="maxthreshold">maximal threshold value <font color="blue"><i>tmax</i></font></label>:
+               <input type="text" style="font-family:monospace;text-align:right"
+                  size="4" id="maxthreshold" name="maxthreshold" value="128" />
+              </div>
+              <div id="maxthreshold_slider" name="maxthreshold_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+              <script type="text/javascript">
+              // Turn DIV slider into a slider linked to scale
+              $(document).ready(function() {
+                    createLinkedSlider('#maxthreshold', '#maxthreshold_slider', 0, 255, 1);
+              });
+              </script>
+              <div style="clear:both"> </div>
+              <!-- end of code for slider -->
+         </li>
 	</ul>
       </li>
-     
+
       %endif
 
     </ul>
-  </p>  
+  </p>
 %if ('is3d' not in app.cfg['meta']) or (not app.cfg['meta']['is3d']):
+<p> Set the contour minimal size:
+<ul>
+  <li>
+<!-- code for slider -->
+<div style="float:left;padding-right:25px">
+<label for="minimalsize"> minimal size <i> <font color="red">m</font> </i>:</label>
+ <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="minimalsize" name="minimalsize" value="30" />
+</div>
+<div id="minimalsize_slider" name="minimalsize_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() {
+      createLinkedSlider('#minimalsize', '#minimalsize_slider', 1, 255, 1);
+});
+</script>
+<div style="clear:both"> </div>
+<!-- end of code for slider -->
+
+</li>
+</ul>
+</p>
+
 <p> Set the output contour format:
 <ul>
   <li><input type="radio" name="outputformat" value="sdp" checked> Sequence of points and Freeman codes format </li>
   <li><input type="radio" name="outputformat" value="freemanchain" > Freeman code format only </li>
 </ul>
 </p>
-<p> Set the contour minimal size:
-<ul>
-  <li><label for="minimalsize"><i> minimal size </i>:</label>   <input type="text" name="minimalsize" value="0" size="4" /> 
-</ul>
-</p>
+
 %endif
 
 
@@ -93,7 +228,7 @@
 <hr/>
 %if ('is3d' in app.cfg['meta']) and ( app.cfg['meta']['is3d']) :
 <div>
-  <img src="${app.work_url + 'input_0.png'}" alt="" /> 
+  <img src="${app.work_url + 'input_0.png'}" alt="" />
 </div>
 %endif
 

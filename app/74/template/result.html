@@ -6,7 +6,7 @@
 <p>
   The algorithm was applied with by the following parameters:
 <ul>
-<li>  Adjacency: 
+<li>  Adjacency:
 %if app.cfg['param']['interioradjacency']:
 interior
 %else:
@@ -21,8 +21,8 @@ adjacency </li>
 	%if app.cfg['param']['thresholdauto'] or app.cfg['param']['thresholdsingle']:
 		(single threshold mode):
 		<ul>
-		<li> minimal threshold value: ${app.cfg['param']['minthreshold']} </li>
-		<li> maximal threshold value: ${app.cfg['param']['maxthreshold']} 
+		<li> minimal threshold value <font color="blue"><i>tmin</i></font>: ${app.cfg['param']['minthreshold']} </li>
+		<li> maximal threshold value <font color="blue"><i>tmax</i></font>: ${app.cfg['param']['maxthreshold']}
 		%if app.cfg['param']['thresholdauto']:
 			(determined automatically by the Otsu algorithm) </li>
 		</ul>
@@ -30,18 +30,18 @@ adjacency </li>
 	%else:
 		(multiple thresholds mode):
 		<ul>
-    	<li> start threshold value: ${app.cfg['param']['startthreshold']} </li>
-		<li> end threshold value: ${app.cfg['param']['endthreshold']} </li>
-		<li> threshold step: ${app.cfg['param']['thresholdstep']} </li>
+    	<li> start threshold value <font color="blue"><i>ts</i></font>: ${app.cfg['param']['startthreshold']} </li>
+		<li> end threshold value <font color="blue"><i>te</i></font>: ${app.cfg['param']['endthreshold']} </li>
+		<li> threshold step <font color="blue"><i>tstep</i></font>: ${app.cfg['param']['thresholdstep']} </li>
 		</ul>
-	%endif 
+	%endif
 	</li>
-	<li> Minimal contour size: ${app.cfg['param']['minimalsize']}</li>
+	<li> Minimal contour size <i> <font color="red">m</font> </i>: ${app.cfg['param']['minimalsize']}</li>
 %else:
 	<li> Connected region boundary thresholds:
 		<ul>
-		<li> minimal threshold value: ${app.cfg['param']['minthreshold']} </li>
-		<li> maximal threshold value: ${app.cfg['param']['maxthreshold']} 
+		<li> minimal threshold value <font color="blue"><i>tmin</i></font>: ${app.cfg['param']['minthreshold']} </li>
+		<li> maximal threshold value <font color="blue"><i>tmax</i></font>: ${app.cfg['param']['maxthreshold']}
 		</ul>
 	</li>
 
@@ -75,7 +75,7 @@ adjacency </li>
 
 
 %if not app.cfg['meta']['is3d']:
-<p>You can download the result in <a href="${app.work_url+'resu.eps'}"> eps </a> format or download the  output contours  as <a href="${app.work_url+'outputContoursFreemanCode.txt'}"> Freeman code list (ASCII) </a> 
+<p>You can download the result in <a href="${app.work_url+'resu.eps'}"> eps </a> format or download the  output contours  as <a href="${app.work_url+'outputContoursFreemanCode.txt'}"> Freeman code list (ASCII) </a>
 %if app.cfg['param']['outputformat'] == 'sdp':
 	or as <a href="${app.work_url+'outputContoursListPoints.txt'}"> sequence of points (ASCII) </a>
 %endif
@@ -91,7 +91,7 @@ adjacency </li>
   <ul class="index">
 
 %if not app.cfg['meta']['is3d']:
-	  
+
 	  <li>
 	      <a href="#">input
 	        <span>
@@ -106,7 +106,7 @@ adjacency </li>
 		</span>
 	      </a>
 	   </li>
-    
+
 %else:
 
   <li>
@@ -138,12 +138,12 @@ adjacency </li>
 	viewer.update();
 
 	viewer.enableDefaultInputHandler(false);
-	logoTimerID = setInterval( function() { 
+	logoTimerID = setInterval( function() {
 		viewer.rotate(0, 10, 0);
 		viewer.update();
 	}, 100);
 	setTimeout( function() {
-		viewer.enableDefaultInputHandler(true); 
+		viewer.enableDefaultInputHandler(true);
 		if(logoTimerID > 0)
 			loadModel();
 	}, 80);
@@ -151,7 +151,7 @@ adjacency </li>
 	var ctx = canvas.getContext('2d');
 	ctx.font = '12px Courier New';
 	ctx.fillStyle = '#FF0000';
-	
+
 	viewer.afterupdate = function() {
 		if(logoTimerID > 0)
 			return;
@@ -168,7 +168,7 @@ adjacency </li>
 			ctx.fillText(totalVertexCount.toString() + ' vertices', 10, 20);
 			ctx.fillText(totalFaceCount.toString() + ' faces', 10, 35);
 		}
-						       
+
 	};
 
 	function loadModel() {
@@ -185,7 +185,7 @@ adjacency </li>
 
 	</span>   </a></li>
 
-   
+
 %endif
   </ul>
 </div>
@@ -196,10 +196,10 @@ adjacency </li>
     Additional Info
   </a>
 </h2>
-<div id="commands" style="display:none"> 
-The algorithm can be run with the following commands:
+<div id="commands" style="display:none">
+<p>The algorithm ran with the following commands:
 <pre class="stdio"> ${app.commands} </pre>
-
+</p>
 </div>
 
 
