@@ -13,8 +13,8 @@ import os.path
 import shutil
 
 class app(base_app):
-    """ template demo app """ 
-    
+    """ template demo app """
+
     title = "A Near-Linear Time Guaranteed Algorithm for Digital Curve Simpli"+\
             "fication Under the Fr&eacute;chet Distance"
     xlink_article = 'http://www.ipol.im/pub/pre/70/'
@@ -57,14 +57,14 @@ class app(base_app):
         prog_names = ["frechetSimplification"]
         script_names = ["convert.sh"]
         prog_bin_files = []
-        
+
         for f in prog_names:
-            prog_bin_files.append(self.bin_dir+ f)            
+            prog_bin_files.append(self.bin_dir+ f)
 
         log_file = self.base_dir + "build.log"
         # get the latest source archive
         build.download(self.xlink_src, tgz_file)
-        
+
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_bin_files[0])
             and ctime(tgz_file) < ctime(prog_bin_files[0])):
@@ -79,8 +79,8 @@ class app(base_app):
                 -DCMAKE_BUILD_TYPE=Release  \
                 -DDGTAL_BUILD_TESTING=false ; \
                 make -j 4" %(self.src_dir+ self.demo_src_dir + "/build"), \
-                stdout=log_file) 
-            
+                stdout=log_file)
+
             # save into bin dir
             if os.path.isdir(self.bin_dir):
                 shutil.rmtree(self.bin_dir)
@@ -110,8 +110,8 @@ class app(base_app):
                 "/build/src/libDGtalIO.so", self.bin_dir)
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
-       
-        
+
+
         return
 
 
@@ -136,7 +136,7 @@ class app(base_app):
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters must be numeric.")
-        self.cfg['param']['autothreshold'] =  kwargs['thresholdtype'] == 'True' 
+        self.cfg['param']['autothreshold'] =  kwargs['thresholdtype'] == 'True'
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html")
 
@@ -146,7 +146,7 @@ class app(base_app):
         """
         algo execution
         """
-  
+
         m = self.cfg['param']['m']
         e = self.cfg['param']['e']
 
@@ -156,9 +156,9 @@ class app(base_app):
         try:
             self.run_algo({})
         except TimeoutError:
-            return self.error(errcode='timeout') 
+            return self.error(errcode='timeout')
         except RuntimeError:
-            return self.error(errcode='runtime')    
+            return self.error(errcode='runtime')
         except ValueError:
             return self.error(errcode='badparams',
                               errmsg="The parameters given produce no contours,\
@@ -174,7 +174,7 @@ class app(base_app):
             ar.add_file("commands.txt", info="commands")
             ar.add_file("inputPolygon.txt", info="input polygons")
             ar.add_file("outputPolygon.txt", info="output polygons")
-            ar.add_info({"tmin": self.cfg['param']['tmin'], 
+            ar.add_info({"tmin": self.cfg['param']['tmin'],
             			 "tmax": self.cfg['param']['tmax'], "m": m, "e": e, \
                         "width only": self.cfg['param']['w']})
             ar.save()
@@ -187,17 +187,17 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-    
+
         ##  -------
-        ## process 1: transform input file 
+        ## process 1: transform input file
         ## ---------
         command_args = ['convert.sh', 'input_0.png', 'inputNG.pgm' ]
         self.runCommand(command_args)
 
         ##  -------
-        ## process 2: extract contour files 
+        ## process 2: extract contour files
         ## ---------
-        f = open(self.work_dir+"inputPolygon.txt", "w") 
+        f = open(self.work_dir+"inputPolygon.txt", "w")
         fInfo = open(self.work_dir+"algoLog.txt", "w")
         command_args = ['pgm2freeman']+\
 				       ['-min_size', str(self.cfg['param']['m']), '-image',\
@@ -210,11 +210,11 @@ class app(base_app):
         cmd = self.runCommand(command_args, f, fInfo, \
                               comp = ' > inputPolygon.txt')
 
-        if os.path.getsize(self.work_dir+"inputPolygon.txt") == 0: 
+        if os.path.getsize(self.work_dir+"inputPolygon.txt") == 0:
             raise ValueError
         fInfo.close()
-        fInfo = open(self.work_dir+"algoLog.txt", "r") 
-        
+        fInfo = open(self.work_dir+"algoLog.txt", "r")
+
         #Recover otsu max value from output
         if self.cfg['param']['autothreshold']:
             lines = fInfo.readlines()
@@ -230,7 +230,7 @@ class app(base_app):
         	               " x0 y0 x1 y1 ... xn yn \n")
         index = 0
         f.close()
-        f = open(self.work_dir+"inputPolygon.txt", "r") 
+        f = open(self.work_dir+"inputPolygon.txt", "r")
 
         for contour in f:
             contoursList.write("# contour number: "+ str(index) + "\n")
@@ -239,8 +239,8 @@ class app(base_app):
         contoursList.close()
         f.close()
         shutil.copy(self.work_dir+'tmp.dat', self.work_dir+'inputPolygon.txt')
-        
-        
+
+
         ##  -------
         ## process 3: apply algorithm
         ## ---------
@@ -249,9 +249,9 @@ class app(base_app):
         			   'inputPolygon.txt' ]+\
    					   ['-allContours']
         f = open(self.work_dir+"algoLog.txt", "a")
-        if self.cfg['param']['w']: 
+        if self.cfg['param']['w']:
             command_args += ['-w']
-        
+
         cmd = self.runCommand(command_args)
         contoursList = open (self.work_dir+"tmp.dat", "w")
         contoursList.write("# Set of resulting polygons obtained from the " +\
@@ -271,14 +271,14 @@ class app(base_app):
         contoursList.close()
         f.close()
         shutil.copy(self.work_dir+'tmp.dat', self.work_dir+'outputPolygon.txt')
-        
-        
+
+
         ## ---------
         ## process 4: converting to output result
         ## ---------
         command_args = ['convert.sh', '-background', '#FFFFFF', '-flatten', \
                         'output.eps', 'output.png']
-        self.runCommand(command_args)   
+        self.runCommand(command_args)
 
         ## ----
         ## Final step: save command line
@@ -295,7 +295,7 @@ class app(base_app):
         display the algo results
         """
         resultHeight = image(self.work_dir + 'input_0.png').size[1]
-        imageHeightResized = min (600, resultHeight) 
+        imageHeightResized = min (600, resultHeight)
         resultHeight = max(200, resultHeight)
         return self.tmpl_out("result.html", height=resultHeight, \
         					 heightImageDisplay=imageHeightResized)
@@ -309,7 +309,7 @@ class app(base_app):
         				  env={'LD_LIBRARY_PATH' : self.bin_dir})
         self.wait_proc(p, timeout=self.timeout)
         index = 0
-        # transform convert.sh in it classic prog command (equivalent) 
+        # transform convert.sh in it classic prog command (equivalent)
         for arg in command:
             if arg == "convert.sh" :
                 command[index] = "convert"
@@ -320,4 +320,3 @@ class app(base_app):
             command_to_save += comp
         self.list_commands +=  command_to_save + '\n'
         return command_to_save
-

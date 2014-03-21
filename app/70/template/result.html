@@ -1,16 +1,15 @@
 <%include file="header.html" />
 
-<p> The input contours of the algorithm were obtained using the <i>pgm2freeman</i> command with the following parameters:
+<p> The input contours of the algorithm were obtained using the <i>pgm2freeman</i> command with following parameters:
 
 <ul>
 
-
- <li>  image  threshold  max <font color="blue"><i>tmax</i></font>: ${app.cfg['param']['tmax']} 
+<li>  image  threshold  min <font color="blue"><i>tmin</i></font>: ${app.cfg['param']['tmin']}  </li>
+ <li>  image  threshold  max <font color="blue"><i>tmax</i></font>: ${app.cfg['param']['tmax']}
 %if app.cfg['param']['autothreshold']:
-(determined automatically by the Otsu algorithm)   
+(determined automatically by the Otsu algorithm)
 %endif
 </li>
-<li>  image  threshold  min <font color="blue"><i>tmin</i></font>: ${app.cfg['param']['tmin']}  </li>
 <li>  minimal contour size <font color="blue"><i>m</i></font>: ${app.cfg['param']['m']}  </li>
 </ul>
 </p>
@@ -77,10 +76,11 @@
     Additional Info
   </a>
 </h2>
-<div id="commands" style="display:none"> 
-The algorithm can be run with the following commands:
+<div id="commands" style="display:none">
+<p>
+The algorithm ran with the following commands:
 <pre class="stdio"> ${app.list_commands} </pre>
-
+</p>
 </div>
 
 

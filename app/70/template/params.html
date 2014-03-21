@@ -1,9 +1,12 @@
-<%include file="header.html" />
+<%include file="header-jquery.html" />
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+</script>
 
 <p>
-  
+
   You can set the parameters to extract the image contours: the image
-  thresholds <font color=blue> <i>tmin</i> </font>, <font color=blue> <i>tmax</i> </font> 
+  thresholds <font color=blue> <i>tmin</i> </font>, <font color=blue> <i>tmax</i> </font>
   and the minimal contour size <font color=blue> <i>m</i> </font> that you
   want to extract.  The contours extracted will be used as input of the
   Frechet algorithm.
@@ -18,22 +21,96 @@
 <form action="${app.base_url + 'wait'}" method="get">
   <div class="action">
     <input type="hidden" name="key" value="${app.key}">
-	
+
     <ul>
       <li> Step 1 (optional): set the contour extraction threshold parameters:
 	<ul>
       <li><input type="radio" name="thresholdtype" value="True" checked> automatic threshold (Otsu, starting from 0) </li>
-      <li><input type="radio" name="thresholdtype" value="False" > manual threshold: <font color=blue><i>tmin</i></font>: 
-     <input type="text" name="tmin" value="0" size="4" /> <font color=blue><i>tmax</i></font>: <input type="text" name="tmax" value="128" size="4" /> </li>
-      <li><label for="m">minimal contour size<font color=blue> <i> m</i> </font>:</label> 
-        <input type="text" name="m" value="100" size="4" />
-     </ul> 
-     
-      <li> Step 2: set the algorithm parameters   
+      <li><input type="radio" name="thresholdtype" value="False" > manual threshold:
+         <ul>
+           <li>
+                    <!-- code for slider -->
+                    <div style="float:left;padding-right:25px">
+                    <label for="tmin">minimal threshold value <font color=blue><i>tmin</i></font>:</label>
+                     <input type="text" style="font-family:monospace;text-align:right"
+                        size="4" id="tmin" name="tmin" value="0" />
+                    </div>
+                    <div id="tmin_slider" name="tmin_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+                    <script type="text/javascript">
+                    // Turn DIV slider into a slider linked to scale
+                    $(document).ready(function() {
+                          createLinkedSlider('#tmin', '#tmin_slider', 0, 255, 1);
+                    });
+                    </script>
+                    <div style="clear:both"> </div>
+                    <!-- end of code for slider -->
+
+
+            </li>
+            <li>
+             <!-- code for slider -->
+             <div style="float:left;padding-right:25px">
+             <label for="tmax">maximal threshold value <font color=blue><i>tmax</i></font>:</label>
+              <input type="text" style="font-family:monospace;text-align:right"
+                 size="4" id="tmax" name="tmax" value="128" />
+             </div>
+             <div id="tmax_slider" name="tmax_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+             <script type="text/javascript">
+             // Turn DIV slider into a slider linked to scale
+             $(document).ready(function() {
+                   createLinkedSlider('#tmax', '#tmax_slider', 0, 255, 1);
+             });
+             </script>
+             <div style="clear:both"> </div>
+             <!-- end of code for slider -->
+
+
+ </li>
+
+        </ul>
+       </li>
+
+      <li>
+<!-- code for slider -->
+<div style="float:left;padding-right:25px">
+<label for="m">minimal contour size<font color=blue> <i> m</i> </font>:</label>
+ <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="m" name="m" value="128" />
+</div>
+<div id="m_slider" name="m_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() {
+      createLinkedSlider('#m', '#m_slider', 0, 10000, 1);
+});
+</script>
+<div style="clear:both"> </div>
+<!-- end of code for slider -->
+
+</li>
+     </ul> </li>
+
+      <li> Step 2: set the algorithm parameters
 
    <ul>
-     <li><label for="e">maximal error <font color="red"> <i>e </i></font>:</label>
-    <input type="text" name="e" value="2" size="4" /></li>
+     <li>
+<!-- code for slider -->
+<div style="float:left;padding-right:25px">
+<label for="e">maximal error <font color="red"> <i>e </i></font>:</label>
+ <input type="text" style="font-family:monospace;text-align:right"
+    size="4" id="e" name="e" value="1.0" />
+</div>
+<div id="e_slider" name="e_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+<script type="text/javascript">
+// Turn DIV slider into a slider linked to scale
+$(document).ready(function() {
+      createLinkedSlider('#e', '#e_slider', 0, 100, 0.5);
+});
+</script>
+<div style="clear:both"> </div>
+<!-- end of code for slider -->
+
+</li>
      <li>
     Use width only <font color="red">w</font>: <input type="checkbox" name="w" value="on" size="4" />
     </li>
@@ -47,7 +124,7 @@
 <hr />
 
 <div>
-  <img src="${app.work_url + 'input_0.png'}" alt="" /> 
+  <img src="${app.work_url + 'input_0.png'}" alt="" />
 </div>
 
 <%include file="footer.html" />
