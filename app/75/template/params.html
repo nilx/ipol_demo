@@ -1,0 +1,88 @@
+<%include file="header-jquery.html" />
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+</script>
+
+
+
+<p>
+
+  You can set the parameters to extract the image contour: the minimal contour size <font color="blue"<i>m</i></font>.
+  By default the maximal image threshold  <font color="blue"<i>tm</i></font> is defined from the Otsu algorithm but you can set manually.
+
+  The contour extracted will be used as input of the meaningful scale algorithm.
+
+</p>
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    Set the contour extraction parameters and run the algorithm. <BR>
+    <input type="hidden" name="key" value="${app.key}">
+    <ul>
+
+        <li><label for="t"> maximal image threshold: (minimal threshold fixed to 0): </label>
+        <ul>
+            <li><input type="radio" name="thresholdtype" value="True" checked> auto (Otsu) </li>
+            <li>
+                <!-- code for slider -->
+                <div style="float:left;padding-right:25px">
+                <input type="radio" name="thresholdtype" value="False" > manual threshold <i><font color="blue" >tmax</font> </i>:
+                 <input type="text" style="font-family:monospace;text-align:right"
+                    size="4" id="tmax" name="tmax" value="128" />
+                </div>
+                <div id="tmax_slider" name="tmax_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+                <script type="text/javascript">
+                // Turn DIV slider into a slider linked to scale
+                $(document).ready(function() {
+                      createLinkedSlider('#tmax', '#tmax_slider', 0, 255, 1);
+                });
+                </script>
+                <div style="clear:both"> </div>
+                <!-- end of code for slider -->
+            </li>
+        </ul>
+        </li>
+        <li>
+
+                <!-- code for slider -->
+                <div style="float:left;padding-right:25px">
+                    minimal contour size <i><font color="red" > m </font> </i>:
+                 <input type="text" style="font-family:monospace;text-align:right"
+                    size="4" id="minsize" name="m" value="0" />
+                </div>
+                <div id="minsize_slider" name="minsize_slider" style="width:280px;float:left;margin-top:4px;font-size:10pt"></div>
+                <script type="text/javascript">
+                // Turn DIV slider into a slider linked to scale
+                $(document).ready(function() {
+                      createLinkedSlider('#minsize', '#minsize_slider', 0, 1000, 1);
+                });
+                </script>
+                <div style="clear:both"> </div>
+                <!-- end of code for slider -->
+
+        </li>
+
+    </ul>
+    <BR>
+ Run the algorithm <input type="submit"  name="action" value="run" />
+
+    %if int(app.cfg['param']['x1']) < 0 or int(app.cfg['param']['y1']) < 0 :
+      <p>Or you can run it after selecting a subimage by clicking two
+         opposite corners of the subimage.</p>
+      <p><input type="image" style="cursor:crosshair;" name="click"
+                src="${app.work_url + 'input_0_selection.png'}" /></p>
+    %elif int(app.cfg['param']['x2']) < 0 or int(app.cfg['param']['y2']) < 0 :
+      <p>Please select the second corner of the subimage:</p>
+      <p><input type="image" style="cursor:crosshair;" name="click"
+          src="${app.work_url + 'input_0_selection.png'}" /></p>
+    %else:
+      <p>The algorithm will run on this selected subimage:</p>
+      <img src="${app.work_url + 'input_0_selection.png'}" />
+    %endif
+
+</form>
+
+
+<hr />
+
+<%include file="footer.html" />

@@ -1,0 +1,82 @@
+<%include file="header.html" />
+
+<p>
+  The algorithm result is displayed  hereafter.
+  The result was obtained by the following parameters:
+<ul>
+<li>  minimal image threshold set to 0 (fix) </li>
+<li>  maximal image threshold  <i><font color="blue" >tmax</font></i>: ${app.cfg['param']['tmax']}
+%if  app.cfg['param']['autothreshold'] :
+  (determined by the Otsu algorithm )
+%endif
+ </li>
+
+<li>  minimal contour size <i><font color="red" > m </font> </i>: ${app.cfg['param']['m']}  </li>
+</ul>
+</p>
+
+<BR>
+<BR>
+<form action="${app.base_url}" method="get">
+  <div class="action">
+    Restart this algorithm with new data.
+    <input type="submit" value="new input" />
+  </div>
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+  <div class="action">
+    Restart this algorithm with new parameters.
+    <input type="hidden" name="key" value="${app.key}">
+    <input type="hidden" name="newrun" value="1">
+    <input type="submit" value="new parameters" />
+  </div>
+</form>
+
+<hr />
+
+<h2>Result</h2>
+
+<p> You can download the result in  <a href="${app.work_url+'resu.eps'}"> eps </a> format or download the output as noise level in <a href="${app.work_url+'noiseLevels.txt'}">ASCII</a> format. You can also download the input contours as <a href="${app.work_url+'inputContourFC.txt'}">Freeman code</a>.
+
+</p>
+
+<div class="gallery" style="height:${height}px">
+  <ul class="index">
+    <li>
+      <a href="${app.work_url + 'input_0_selection.png'}">input
+	   <span>
+	   <img height="${heightImageDisplay}" src="${app.work_url + 'input_0_selection.png'}" alt="input" />
+	   </span>
+    </a>
+  </li>
+  <li>
+      <a href="${app.work_url+'resu.png'}"> resu.png
+	<span>
+	  <img height="${heightImageDisplay}" src="${app.work_url + 'resu.png'}" alt="output" />
+	</span>
+      </a>
+    </li>
+   </ul>
+
+</div>
+
+
+<h2>
+  <a class="toggle" href="#commands" onclick="toggle('commands');">
+    Additional Info
+  </a>
+</h2>
+<div id="commands" style="display:none">
+<p>
+The algorithm ran with the following commands:
+<pre class="stdio"> ${app.list_commands} </pre>
+</p>
+
+</div>
+
+<hr/>
+
+
+<%include file="footer.html" />
+<%include file="archive_info.html" />
