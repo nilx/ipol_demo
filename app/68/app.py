@@ -28,7 +28,7 @@ class app(base_app):
     input_dtype = '3x8i' # input image expected data type
     input_ext = '.png'   # input image expected extension (ie file format)
     is_test = False      # switch to False for deployment
-
+    commands = ""
 
     def __init__(self):
         """
@@ -53,9 +53,9 @@ class app(base_app):
         """
         # store common file path in variables
         tgz_file = self.dl_dir + "LUTBasedNSDistanceTransform.tgz"
-        prog_names = ["LUTBasedNSDistanceTransform"];
-        script_names = ["convert.sh"];
-        prog_bin_files=[];
+        prog_names = ["LUTBasedNSDistanceTransform"]
+        script_names = ["convert.sh"]
+        prog_bin_files = []
 
         for f in prog_names:
             prog_bin_files.append(self.bin_dir+ f)
@@ -131,6 +131,8 @@ class app(base_app):
         """
         algo execution
         """
+
+        self.commands = ""
         # read the parameters
         distance_def = self.cfg['param']['distance_def']
         sequence = self.cfg['param']['sequence']
@@ -138,7 +140,7 @@ class app(base_app):
 
         # run the algorithm
         try:
-            self.run_algo(**self.cfg['param'])
+            self.run_algo()
         except TimeoutError:
             return self.error(errcode='timeout')
         except RuntimeError:
@@ -165,65 +167,67 @@ class app(base_app):
             elif distance_def == 'sequence':
                 ar.add_info({"distance": ' neighborhood sequence distance with \
                             "%s" sequence' % sequence})
+            ar.add_info({"centered: ":  self.cfg['param']['centered']})
             ar.add_file("commands.txt", info="commands")
             ar.save()
 
         return self.tmpl_out("run.html")
-
-    def run_algo(self, distance_def, centered = False, sequence = '1 2', \
-                ratio = '1/2'):
+    
+    def run_algo(self, params=None):
         """
         the core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
-        self.cfg['param']['sizex']=image(self.work_dir + 'input_0.png').size[0]
-        self.cfg['param']['sizey']=image(self.work_dir + 'input_0.png').size[1]
-        p = self.run_proc(['convert.sh', 'input_0.png', 'tmp.png'])
-        self.wait_proc(p, timeout=self.timeout)
-        f=open(self.work_dir+"resu_r.png", "w")
-        fcommands=open(self.work_dir+"commands.txt", "w")
+        self.cfg['param']['sizex'] = image(self.work_dir + \
+                                           'input_0.png').size[0]
+        self.cfg['param']['sizey'] = image(self.work_dir + \
+                                            'input_0.png').size[1]
+        commandargs = ['convert.sh', 'input_0.png', 'tmp.png']
+        self.runCommand(commandargs)
+
+        f = open(self.work_dir+"resu_r.png", "w")
+        fcommands = open(self.work_dir+"commands.txt", "w")
 
         commandargs = ['LUTBasedNSDistanceTransform']
 
-        print(type(distance_def), distance_def)
+        print(type(self.cfg['param']['distance_def']), \
+                   self.cfg['param']['distance_def'])
 
-        if centered:
+        if self.cfg['param']['centered']:
             commandargs += ['-c']
 
-        if distance_def == 'd4':
+        if self.cfg['param']['distance_def'] == 'd4':
             commandargs += ['-4']
-        elif distance_def == 'd8':
+        elif self.cfg['param']['distance_def'] == 'd8':
             commandargs += ['-8']
-        elif distance_def == 'ratio':
-            commandargs += ['-r', str(ratio)]
-        elif distance_def == 'sequence':
-            commandargs += ['-s', str(sequence)]
+        elif self.cfg['param']['distance_def'] == 'ratio':
+            commandargs += ['-r', str(self.cfg['param']['ratio'])]
+        elif self.cfg['param']['distance_def'] == 'sequence':
+            commandargs += ['-s', str(self.cfg['param']['sequence'])]
 
         commandargs += ['-f', 'tmp.png']
         commandargs += ['-t', 'png']
 
-        p = self.run_proc(commandargs, stdout=f, stderr=subprocess.PIPE)
-        if p.wait() != 0:
-            raise ValueError(p.communicate()[1])
-        self.commands = ' '.join(['"' + arg + '"' if ' ' in arg else arg
-            for arg in commandargs + ['>', 'resu_r.png']])
-        self.commands += '\nconvert -normalize resu_r.png resu_n.png'
-        self.commands += '\nconvert resu_r.png resu_r.png'
+        self.runCommand(commandargs, stdOut=f, stdErr=subprocess.PIPE, \
+                        comp='> resu_r.png')
+
+
+        commandargs = ['convert.sh', '-normalize', 'resu_r.png', \
+                      'resu_n.png']
+        self.runCommand(commandargs, stdOut=f, stdErr=subprocess.PIPE)
+
+     
         fcommands.write(self.commands)
         fcommands.close()
         f.close()
-        self.wait_proc(p, timeout=self.timeout)
-        p = self.run_proc(['convert.sh', '-normalize', 'resu_r.png', \
-                           'resu_n.png'])
-        self.wait_proc(p, timeout=self.timeout)
-        p = self.run_proc(['convert.sh', 'resu_r.png', 'resu_r.png'])
-        self.wait_proc(p, timeout=self.timeout)
+
+
         return
 
     @cherrypy.expose
     @init_app
-    def result(self):
+    def result(self, public=None):
         """
         display the algo results
         """
@@ -231,3 +235,30 @@ class app(base_app):
                              height=image(self.work_dir
                                           + 'input_0.png').size[1],
                              commands=self.commands)
+
+
+
+
+    def runCommand(self, command, stdOut=None, stdErr=None, comp=None):
+        """
+        Run command and update the attribute list_commands
+        """
+        p = self.run_proc(command, stderr=stdErr, stdout=stdOut, \
+                          env={'LD_LIBRARY_PATH' : self.bin_dir})
+        self.wait_proc(p, timeout=self.timeout)
+        if p.wait() != 0:
+            raise ValueError(p.communicate()[1])
+   
+        index = 0
+        # transform convert.sh in it classic prog command (equivalent)
+        for arg in command:
+            if arg == "convert.sh" :
+                command[index] = "convert"
+            index = index + 1
+        command_to_save = ' '.join(['"' + arg + '"' if ' ' in arg else arg
+                 for arg in command ])
+        if comp is not None:
+            command_to_save += comp
+        self.commands +=  command_to_save + '\n'
+        return command_to_save
+
