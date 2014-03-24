@@ -41,8 +41,9 @@ class empty_app(object):
         self.key = ''
         self.cfg = dict()
 
-        # create the missing subfolders
-        for static_dir in [self.input_dir, self.tmp_dir, self.archive_dir]:
+        # static subfolders
+        for static_dir in [self.input_dir, self.tmp_dir, self.archive_dir, self.static_dir]:
+            # Create static subfolder
             if not os.path.isdir(static_dir):
                 os.mkdir(static_dir)
 
@@ -57,6 +58,8 @@ class empty_app(object):
         self.tmp = cherrypy.tools.staticdir(dir=self.tmp_dir)\
             (lambda x : None)
         self.arc = cherrypy.tools.staticdir(dir=self.archive_dir)\
+            (lambda x : None)
+        self.static = cherrypy.tools.staticdir(dir=self.static_dir)\
             (lambda x : None)
 
 
@@ -73,12 +76,14 @@ class empty_app(object):
                        'bin_dir' : 'bin',
                        'tmp_dir' : 'tmp',
                        'work_dir' : os.path.join('tmp', self.key),
-                       'archive_dir' : 'archive'}
+                       'archive_dir' : 'archive',
+                       'static_dir' : 'template/static'}
         url_pattern = {'base_url' : '/',
                        'input_url' : '/input/',
                        'tmp_url' : '/tmp/',
                        'work_url' : '/tmp/%s/' % self.key,
-                       'archive_url' : '/arc/'}
+                       'archive_url' : '/arc/',
+                       'static_url' : '/static/'}
 
         # subfolders
         if attr in dir_pattern:
