@@ -298,16 +298,16 @@ def rnd():
 
 <%
 ww=w+currentfilters 
-OUTPUT_HELP_link='JavaScript:+Popup(\'input/HELP/help.html#OUTPUT_AND_STATISTICS\');'
+OUTPUT_HELP_link='JavaScript:+Popup(\'static/help.html#OUTPUT_AND_STATISTICS\');'
 %>
 
 %if app.cfg['param']['min_off_y'] == app.cfg['param']['max_off_y'] == 0:
 <h3>Output Disparities for Stereo Block Matching using ${ww}
-   <a href="JavaScript:Popup('input/HELP/help.html#${w}');"      ><small>(help)</small></a><br />
+   <a href="JavaScript:Popup('static/help.html#${w}');"      ><small>(help)</small></a><br />
 </h3>
 %else:
 <h3>Output Displacement Fields for 2D Block Matching using ${ww}
-   <a href="JavaScript:Popup('input/HELP/help.html#${w}');"      ><small>(help)</small></a><br />
+   <a href="JavaScript:Popup('static/help.html#${w}');"      ><small>(help)</small></a><br />
 </h3>
 %endif
 
@@ -375,7 +375,7 @@ OUTPUT_HELP_link='JavaScript:+Popup(\'input/HELP/help.html#OUTPUT_AND_STATISTICS
 <div>
 
    <h3>Stereo Matching Statistics 
-      <a href="JavaScript:Popup('input/HELP/help.html#OUTPUT_AND_STATISTICS');"      ><small>(help)</small></a><br />
+      <a href="JavaScript:Popup('static/help.html#OUTPUT_AND_STATISTICS');"      ><small>(help)</small></a><br />
    </h3>
 <table border="1" cellpadding="6" cellspacing="0" style="margin-left:0px;margin-right:auto">
 ##<table border="1" cellpadding="6" cellspacing="0">
