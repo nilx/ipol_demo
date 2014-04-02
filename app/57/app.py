@@ -194,7 +194,6 @@ class app(base_app):
           os.mkdir(self.input_dir)
           # extract the archive
           build.extract(tgz_file, self.input_dir)
-          shutil.copytree(self.base_dir+'/support/HELP', os.path.join( self.input_dir, 'HELP'))
 
        return
 
