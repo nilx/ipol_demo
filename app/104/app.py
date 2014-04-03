@@ -13,6 +13,33 @@ import os.path
 import time
 import math
 
+import PIL.Image
+
+def check_grayimage(nameimage):
+  """
+    Check if image is monochrome (1 channel or 3 identical channels)
+    """
+  isGray = True
+  
+  im = PIL.Image.open(nameimage)
+  if im.mode not in ("L", "RGB"):
+    raise ValueError("Unsuported image mode for histogram computation")
+  
+  if im.mode == "RGB":
+    pix = im.load()
+    size = im.size
+    for y in range(0, size[1]):
+      if not isGray:
+        break
+      for x in range(0, size[0]):
+        if not isGray:
+          break
+        if (pix[x, y][0] != pix[x, y][1]) or \
+          (pix[x, y][0] != pix[x, y][2]):
+            isGray = False
+  
+  
+  return isGray
 
 class app(base_app):
     """ Viola Jones Face Detector """
@@ -21,8 +48,8 @@ class app(base_app):
     xlink_article = 'http://www.ipol.im/pub/pre/104/'
 
     input_nb = 1
-    input_max_pixels = 1200 * 1200        # max size (in pixels) of input image
-    input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of input file
+    input_max_pixels = 900 * 900        # max size (in pixels) of input image
+    input_max_weight = 10 * 900 * 900 # max size (in bytes) of input file
     input_dtype = '3x8i'                # input image expected data type
     input_ext = '.png'                  # expected extension
     is_test = False
@@ -266,4 +293,9 @@ class app(base_app):
         self.cfg['param']['displayheight'] = max(200, sizeY)
         self.cfg['param']['stdout'] = \
             open(self.work_dir + 'stdout.txt', 'r').read()
+
+        #check if input image is monochrome
+        isGray = check_grayimage(self.work_dir + 'input_0_sel.png')
+        self.cfg['param']['isgray'] = isGray
+
     
