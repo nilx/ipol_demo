@@ -653,7 +653,7 @@ if bins == 0 else bins / 2**scale)
         self.cfg.save()
 
         # Cleanup
-        for i in range(0, scale):
+        for i in range(num_scales):
             os.unlink(self.work_dir + 'scale_s%d.rgb' % ((i)))
 
     @cherrypy.expose
