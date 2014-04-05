@@ -105,7 +105,6 @@ class app(base_app):
                 dir_from = os.path.join(self.src_dir,
                                         src_dir_name, prog_filename,
                 # Put them into bin, to prevent them from deletion
-                dir_to = os.path.join(src_dir_name, src_dir_name, self.bin_dir)
                 shutil.move(dir_from, dir_to)
 
             # Give exec permission to the script
