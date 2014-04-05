@@ -64,7 +64,7 @@ class app(base_app):
         prog_file = self.bin_dir + prog_filename
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download('http://www.ipol.im/pub/pre/90/' + \
+        build.download('http://www.ipol.im/pub/art/2013/90/' + \
                        zip_filename, tgz_file)
 
         # test if the dest file is missing, or too old
