@@ -88,22 +88,22 @@ class app(base_app):
                 build.run("make -j4 -C %s %s" %
                        (
                          os.path.join(self.src_dir,
-                           src_dir_name, src_dir_name, \
-                           program),
+                           src_dir_name, program),
                            os.path.join(".", program)
                        ), stdout=log_file)
                 # move binary to bin dir
                 shutil.copy(os.path.join(self.src_dir, \
-                                         src_dir_name, src_dir_name, \
+                                         src_dir_name, \
                                          program, program),
                             os.path.join(self.bin_dir, program))
 
             # Move corrections and scripts to the base dir
+            dir_to = os.path.join(src_dir_name, src_dir_name, self.bin_dir)
+
             from_dirs = ('per_corrections', '../scripts')
             for from_dir in from_dirs:
                 dir_from = os.path.join(self.src_dir,
-                                        src_dir_name, src_dir_name, \
-                                        prog_filename, from_dir)
+                                        src_dir_name, prog_filename,
                 # Put them into bin, to prevent them from deletion
                 dir_to = os.path.join(src_dir_name, src_dir_name, self.bin_dir)
                 shutil.move(dir_from, dir_to)
@@ -115,8 +115,9 @@ class app(base_app):
                                   self.bin_dir, \
                                   "scripts", "writeNoiseCurve.sh"
                                  ),
-                     stat.S_IREAD | stat.S_IEXEC
-                    )
+                     stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC | \
+                     stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | \
+                     stat.S_IROTH)
 
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
