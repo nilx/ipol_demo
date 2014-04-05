@@ -31,7 +31,7 @@ class app(base_app):
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
 
-    xlink_article = 'http://www.ipol.im/pub/pre/90/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/90/'
 
     def __init__(self):
         """
@@ -104,6 +104,7 @@ class app(base_app):
             for from_dir in from_dirs:
                 dir_from = os.path.join(self.src_dir,
                                         src_dir_name, prog_filename,
+                                        from_dir)
                 # Put them into bin, to prevent them from deletion
                 shutil.move(dir_from, dir_to)
 
