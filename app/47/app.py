@@ -100,7 +100,7 @@ class app(base_app):
         download the input images from "xlink_input"
         """
         tgz_file = self.dl_dir + "input.tar.gz"
-        input_cfg = self.input_dir + "input.cfg"
+        input_cfg = self.input_dir + "index.cfg"
         ### get the latest source archive
         build.download(app.xlink_input, tgz_file)
         ### test if the dest file is missing, or too old
