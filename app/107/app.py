@@ -43,7 +43,7 @@ def check_grayimage(nameimage):
 class app(base_app):
     """ multiscale_retinex app """
 
-    title = "MultiScale Retinex"
+    title = "Multiscale Retinex"
 
     input_nb = 1
     input_max_pixels = 700 * 700 # max size (in pixels) of an input image
