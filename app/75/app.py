@@ -11,15 +11,15 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import shutil
+import time
+
 
 class app(base_app):
     """ template demo app """
     title = "Meaningful Scales Detection: an Unsupervised Noise "+\
             "Detection Algorithm for Digital Contours"
     xlink_article = 'http://www.ipol.im/pub/pre/75/'
-    #xlink_src =  'http://www.ipol.im/pub/pre/75/meaningfulscaleDemo.tgz'
-    xlink_src =  'http://www.ipol.im/pub/pre/75/'+\
-                 'meaningfulscaleDemo.tgz'
+    xlink_src =  'http://www.ipol.im/pub/pre/75/meaningfulscaleDemo.tgz'
     demo_src_filename  = 'meaningfulscaleDemo.tgz'
     demo_src_dir  = 'meaningfulscaleDemo'
 
@@ -246,9 +246,25 @@ class app(base_app):
             ar.add_file("noiseLevels.txt", info="noise levels")
             ar.add_file("inputContourFC.txt", info="polygon input")
             ar.add_file("commands.txt", info="commands")
+            ar.add_file("resu.eps", info="result in eps format")
             ar.add_info({"threshold auto": autothreshold})
             ar.add_info({"threshold tmax": self.cfg['param']['tmax']})
             ar.add_info({"contour min size m": m})
+            try:
+                version_file = open(self.work_dir + "version.txt", "w")
+                p = self.run_proc(["meaningfulScaleEstim", "-version"], \
+                                  stdout=version_file, \
+                                  env={'LD_LIBRARY_PATH' : self.bin_dir})
+                self.wait_proc(p)
+                version_file.close()
+                version_file = open(self.work_dir + "version.txt", "r")
+                version_info = version_file.readline()
+                version_file.close()
+            except Exception:
+                version_info = "unknown"
+            ar.add_info({"meaningfulScaleEstim version " : version_info})
+            ar.add_info({"#contours" : self.cfg['info']['num_contours']})
+            ar.add_info({"run time (s)" : self.cfg['info']['run_time']})
             ar.save()
 
         return self.tmpl_out("run.html")
@@ -326,12 +342,18 @@ class app(base_app):
                        ['-setPosImage', '1', '1', '-printNoiseLevel'] + \
                        ['-processAllContours']
         try:
+            self.cfg['info']['run_time'] = time.time()
+            num_lines = sum(1 for line in open(self.work_dir + \
+                                               'inputContour.txt'))
+ 
+            self.cfg['info']['num_contours'] = num_lines
             self.runCommand(command_args, stdIn=fInput, stdOut=foutput, \
                             stdErr=fLog,\
                             comp="< inputContour.txt > noiseLevels.txt")
         except (OSError, RuntimeError):
             fLog.write("Some contours were not processed.")
-            pass
+        self.cfg['info']['run_time'] = time.time() - \
+                                       self.cfg['info']['run_time']   
         fInput.close()
         fLog.close()
         p = self.run_proc(['convertFig.sh','noiseLevel.fig'])
