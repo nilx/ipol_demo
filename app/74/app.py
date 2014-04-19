@@ -12,15 +12,16 @@ import cherrypy
 from cherrypy import TimeoutError
 import os.path
 import shutil
-
+import time
 
 
 class app(base_app):
     """ template demo app """
 
     title = "Extraction of Connected Region Boundary in Multidimensional Images"
-    xlink_article = 'http://www.ipol.im/pub/pre/74/'
-    xlink_src = 'http://www.ipol.im/pub/pre/74/FrechetAndConnectedCompDemo.tgz'
+    xlink_article = 'http://www.ipol.im/'
+    xlink_src = 'http://www.ipol.im/pub/art/2014/74/'+\
+                'FrechetAndConnectedCompDemo.tgz'
     demo_src_filename = 'FrechetAndConnectedCompDemo.tgz'
     demo_src_dir = 'FrechetAndConnectedCompDemo'
 
@@ -155,7 +156,7 @@ class app(base_app):
             if self.cfg['meta']['is3d'] :
                 oldPath = self.work_dir + 'inputVol_0.vol'
                 self.clone_input()
-                shutil.copy(oldPath, self.work_dir + 'inputVol_0.vol') 
+                shutil.copy(oldPath, self.work_dir + 'inputVol_0.vol')
             else:
                 self.clone_input()
 
@@ -277,10 +278,11 @@ class app(base_app):
             an_archive.add_file("input_0.png", "original.png", info="uploaded")
             an_archive.add_file("input_0_selection.png","selection.png")
             an_archive.add_file("resu.png", info="output")
-            an_archive.add_file("outputContoursFreemanCode.txt", 
+            an_archive.add_file("resu.eps", info="output in eps format")
+            an_archive.add_file("outputContoursFreemanCode.txt",
                                 info="resulting contours (Freeman code format)")
             if self.cfg['param']['outputformat'] == 'sdp':
-                an_archive.add_file("outputContoursListPoints.txt", 
+                an_archive.add_file("outputContoursListPoints.txt",
                                 info="resulting contours (sequence of points)")
             an_archive.add_file("commands.txt", info="commands")
             an_archive.add_info({"interior adjacency": self.cfg['param']\
@@ -291,10 +293,10 @@ class app(base_app):
                                  self.cfg['param']['thresholdtype']})
             if  (self.cfg['param']['thresholdtype'] == 'Single interval') or \
                 self.cfg['param']['thresholdtype'] == 'Auto (Otsu)':
-                an_archive.add_info({"min threshold": \
-                                     self.cfg['param']['minthreshold']})
-                an_archive.add_info({"max threshold": \
-                                         self.cfg['param']['maxthreshold']})
+                an_archive.add_info({"min/max threshold": \
+                                     "%i/%i"%(self.cfg['param']['minthreshold']\
+                                        ,self.cfg['param']['maxthreshold'])})
+
             else:
                 an_archive.add_info({"threshold start":self.cfg['param']\
                              ['startthreshold']})
@@ -302,6 +304,20 @@ class app(base_app):
                              ['thresholdstep']})
                 an_archive.add_info({"threshold end":self.cfg['param']\
                              ['endthreshold']})
+            try:
+                version_file = open(self.work_dir + "version.txt", "w")
+                p = self.run_proc(["pgm2freeman", "-version"], \
+                                    stdout=version_file, \
+                                    env={'LD_LIBRARY_PATH' : self.bin_dir})
+                self.wait_proc(p)
+                version_file.close()
+                version_file = open(self.work_dir + "version.txt", "r")
+                version_info = version_file.readline()
+                version_file.close()
+            except RuntimeError :
+                version_info = "unknown"
+            an_archive.add_info({"pgm2freeman version " : version_info})
+            an_archive.add_info({"run time (s):":self.cfg['info']['run_time']})
 
             an_archive.save()
         return self.tmpl_out("run.html")
@@ -312,7 +328,7 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-          
+
         # by default 0=interior adjacency
         adjacency = 0
         if not self.cfg['param']['interioradjacency']:
@@ -324,22 +340,22 @@ class app(base_app):
 
         if  not self.cfg['meta']['is3d']:
             # preparing input and conversion
-            
+
             self.cfg['param']['sizex'] = image(self.work_dir + \
                                                'input_0_selection.png').size[0]
             self.cfg['param']['sizey'] = image(self.work_dir + \
                                          'input_0_selection.png').size[1]
             ##  -------
-            ## process 1: transform input file 
+            ## process 1: transform input file
             ## ---------
             command_args = ['/usr/bin/convert', 'input_0_selection.png', \
                             'input_0_selection.pgm' ]
             self.runCommand(command_args)
-            
+
             ##  -------
-            ## process 2: generate background image 
+            ## process 2: generate background image
             ## ---------
-  
+
             cmd = ['/usr/bin/convert']+ ['+contrast', '+contrast', \
                                                  '+contrast', '+contrast', \
                                                  '+contrast'] +\
@@ -348,21 +364,21 @@ class app(base_app):
                           ['input_0_selection.pgm']+\
                           ['input_0BG.png']
 
-            self.runCommand(cmd) 
-        
+            self.runCommand(cmd)
+
             ##  -------
             ## process 3: Extracting all 2D contours with pgm2freeman
             ## main command of the algorithm
             ## ---------
-   
+
             fcontoursFC = open(self.work_dir + \
                                'outputContoursFreemanCodeTMP.txt', "w")
             fInfo = open(self.work_dir+"info.txt", "w")
             command_args = ['pgm2freeman', '-image', 'input_0_selection.pgm'] +\
                            ['-badj', str(adjacency)] + \
                            ['-min_size', str(self.cfg['param']['minimalsize'])]
-         
-            if not self.cfg['param']['thresholdauto']:               
+
+            if not self.cfg['param']['thresholdauto']:
                 if  self.cfg['param']['thresholdsingle']:
                     command_args += ['-minThreshold'] + \
                                     [str(params['minthreshold'])] +\
@@ -373,25 +389,28 @@ class app(base_app):
                                     [str(self.cfg['param']['startthreshold'])]+\
                                     [str(self.cfg['param']['thresholdstep'])]+ \
                                     [str(self.cfg['param']['endthreshold'])]
-              
+
+            self.cfg['info']['run_time'] = time.time()
             cmd = self.runCommand(command_args, \
                                   stdErr=fInfo, stdOut=fcontoursFC, \
                                   outFileName='outputContoursFreemanCode.txt')
+            self.cfg['info']['run_time'] = time.time() - \
+                                            self.cfg['info']['run_time']
             fcontoursFC.close()
             if os.path.getsize(self.work_dir+\
                                "outputContoursFreemanCodeTMP.txt") == 0:
                 raise ValueError
-        
-            fInfo.close()
-            fInfo = open(self.work_dir+"info.txt", "r") 
 
-            #Recover otsu max value from output 
+            fInfo.close()
+            fInfo = open(self.work_dir+"info.txt", "r")
+
+            #Recover otsu max value from output
             if self.cfg['param']['thresholdauto']:
                 lines = fInfo.readlines()
                 line_cases = lines[0].replace(")", " ").split()
                 self.cfg['param']['maxthreshold'] = float(line_cases[17])
                 self.cfg['param']['minthreshold'] = 0.0
-            
+
             self.commentsResultContourFile(cmd, self.work_dir+ \
                                            'outputContoursFreemanCodeTMP.txt', \
                                            self.work_dir+ \
@@ -418,7 +437,7 @@ class app(base_app):
 
             ##  -------
             ## process 4: Display resulting contours
-            ## ---------        
+            ## ---------
 
             #Display all contours with initial image as background:
             command_args = ['displayContours'] +  \
@@ -436,7 +455,7 @@ class app(base_app):
             self.commands +=  'fig2dev -L eps imageContours.fig resu.eps '+\
                               '\nconvert -density 50 resu.eps resu.png'
 
-          
+
             fInfo.close()
 
         #----------
@@ -464,15 +483,15 @@ class app(base_app):
         display the algo results
         """
         resultHeight = image(self.work_dir + 'input_0_selection.png').size[1]
-        imageHeightResized = min (600, resultHeight) 
+        imageHeightResized = min (600, resultHeight)
         resultHeight = max(200, resultHeight)
         return self.tmpl_out("result.html", height=resultHeight, \
                              heightImageDisplay=imageHeightResized, \
                              width=image(self.work_dir\
                                            +'input_0_selection.png').size[0])
-       
 
-    def runCommand(self, command, stdOut=None, stdErr=None, comp=None, 
+
+    def runCommand(self, command, stdOut=None, stdErr=None, comp=None,
                    outFileName=None):
         """
         Run command and update the attribute list_commands
@@ -481,7 +500,7 @@ class app(base_app):
                           env={'LD_LIBRARY_PATH' : self.bin_dir})
         self.wait_proc(p, timeout=self.timeout)
         index = 0
-        # transform convert.sh in it classic prog command (equivalent) 
+        # transform convert.sh in it classic prog command (equivalent)
         for arg in command:
             if arg == "convert.sh" :
                 command[index] = "convert"
@@ -503,7 +522,7 @@ class app(base_app):
         Add comments in the resulting contours (command line producing the file,
         or file format info)
         """
-  
+
         contoursList = open (self.work_dir+"tmp.dat", "w")
         contoursList.write("# Set of resulting contours obtained from the " +\
                             "pgm2freeman algorithm. \n")
@@ -520,7 +539,7 @@ class app(base_app):
                             " line: x0 y0 x1 y1 ... xn yn \n")
         contoursList.write( "# Command to reproduce the result of the "+\
                             "algorithm:\n")
-        
+
         contoursList.write("# "+ command+'\n \n')
         f = open (fileStrContours, "r")
         index = 0
@@ -532,7 +551,3 @@ class app(base_app):
         f.close()
         shutil.copy(self.work_dir+'tmp.dat', fileStrRes)
         os.remove(self.work_dir+'tmp.dat')
-
-
-
-
