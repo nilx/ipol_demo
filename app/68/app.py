@@ -155,8 +155,9 @@ class app(base_app):
         if self.cfg['meta']['original']:
             ar = self.make_archive()
             ar.add_file("input_0.png", "original.png", info="uploaded")
-            ar.add_file("resu_r.png", info="output")
-            ar.add_file("resu_n.png", info="output (normalized)")
+            ar.add_file("resu_r.png", info="output (png format)")
+            ar.add_file("resu_n.jpg", info="output (normalized, jpg format)")
+
             if distance_def == 'd4':
                 ar.add_info({"distance": " city block"})
             elif distance_def == 'd8':
@@ -183,12 +184,7 @@ class app(base_app):
                                            'input_0.png').size[0]
         self.cfg['param']['sizey'] = image(self.work_dir + \
                                             'input_0.png').size[1]
-        commandargs = ['convert.sh', 'input_0.png', 'tmp.png']
-        self.runCommand(commandargs)
-
-        f = open(self.work_dir+"resu_r.png", "w")
-        fcommands = open(self.work_dir+"commands.txt", "w")
-
+      
         commandargs = ['LUTBasedNSDistanceTransform']
 
         print(type(self.cfg['param']['distance_def']), \
@@ -206,22 +202,22 @@ class app(base_app):
         elif self.cfg['param']['distance_def'] == 'sequence':
             commandargs += ['-s', str(self.cfg['param']['sequence'])]
 
-        commandargs += ['-f', 'tmp.png']
+        commandargs += ['-f', 'input_0.png']
         commandargs += ['-t', 'png']
-
+        f = open(self.work_dir+"resu_r.png", "w")
         self.runCommand(commandargs, stdOut=f, stdErr=subprocess.PIPE, \
                         comp='> resu_r.png')
+        f.close()
 
 
         commandargs = ['convert.sh', '-normalize', 'resu_r.png', \
-                      'resu_n.png']
-        self.runCommand(commandargs, stdOut=f, stdErr=subprocess.PIPE)
+                      'resu_n.jpg']
+        self.runCommand(commandargs, stdErr=subprocess.PIPE)
 
-     
+
+        fcommands = open(self.work_dir+"commands.txt", "w")
         fcommands.write(self.commands)
         fcommands.close()
-        f.close()
-
 
         return
 
