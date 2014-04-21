@@ -31,7 +31,7 @@ class app(base_app):
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
 
-    xlink_article = 'http://www.ipol.im/pub/pre/90/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/90/'
 
     def __init__(self):
         """
@@ -64,7 +64,7 @@ class app(base_app):
         prog_file = self.bin_dir + prog_filename
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        build.download('http://www.ipol.im/pub/pre/90/' + \
+        build.download('http://www.ipol.im/pub/art/2013/90/' + \
                        zip_filename, tgz_file)
 
         # test if the dest file is missing, or too old
@@ -88,24 +88,24 @@ class app(base_app):
                 build.run("make -j4 -C %s %s" %
                        (
                          os.path.join(self.src_dir,
-                           src_dir_name, src_dir_name, \
-                           program),
+                           src_dir_name, program),
                            os.path.join(".", program)
                        ), stdout=log_file)
                 # move binary to bin dir
                 shutil.copy(os.path.join(self.src_dir, \
-                                         src_dir_name, src_dir_name, \
+                                         src_dir_name, \
                                          program, program),
                             os.path.join(self.bin_dir, program))
 
             # Move corrections and scripts to the base dir
+            dir_to = os.path.join(src_dir_name, src_dir_name, self.bin_dir)
+
             from_dirs = ('per_corrections', '../scripts')
             for from_dir in from_dirs:
                 dir_from = os.path.join(self.src_dir,
-                                        src_dir_name, src_dir_name, \
-                                        prog_filename, from_dir)
+                                        src_dir_name, prog_filename,
+                                        from_dir)
                 # Put them into bin, to prevent them from deletion
-                dir_to = os.path.join(src_dir_name, src_dir_name, self.bin_dir)
                 shutil.move(dir_from, dir_to)
 
             # Give exec permission to the script
@@ -115,8 +115,9 @@ class app(base_app):
                                   self.bin_dir, \
                                   "scripts", "writeNoiseCurve.sh"
                                  ),
-                     stat.S_IREAD | stat.S_IEXEC
-                    )
+                     stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC | \
+                     stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | \
+                     stat.S_IROTH)
 
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
@@ -676,7 +677,7 @@ if bins == 0 else bins / 2**scale)
         self.cfg.save()
 
         # Cleanup
-        for i in range(scale):
+        for i in range(num_scales):
             os.unlink(self.work_dir + 'scale_s%d.rgb' % ((i)))
         
     @cherrypy.expose

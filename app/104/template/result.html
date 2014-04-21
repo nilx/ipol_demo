@@ -23,9 +23,13 @@
 %if int(app.cfg['param']['zoomfactor']) > 1:
 <p>For visualization, images are displayed with ${app.cfg['param']['zoomfactor']}&times; pixel duplication.  Images at native resolution can be downloaded here:
 <a href="${app.work_url + 'detectedraw.png'}">detected</a>,&nbsp;&nbsp;
+%if str(app.cfg['param']['isgray']) == 'False':
 <a href="${app.work_url + 'ppSkin.png'}">onlySkinCheck</a>,&nbsp;&nbsp;
 <a href="${app.work_url + 'ppRobust.png'}">onlyRobustnessCheck</a>,&nbsp;&nbsp;
 <a href="${app.work_url + 'ppBoth.png'}">skinAndRobustnessCheck</a>,&nbsp;&nbsp;
+%else:
+<a href="${app.work_url + 'ppRobust.png'}">onlyRobustnessCheck</a>,&nbsp;&nbsp;
+%endif
 <a href="${app.work_url + 'input_0_sel.png'}">exact</a>
 </p>
 %endif
@@ -45,11 +49,14 @@
         <span><img src="${app.work_url + 'detectedraw' + app.cfg['param']['disp_suffix']}"  alt="" /></span>
     </a>
 </li>
+%if str(app.cfg['param']['isgray']) == 'False':
+<li>
     <a href="#">
         Skin Check Only
         <span><img src="${app.work_url + 'ppSkin' + app.cfg['param']['disp_suffix']}"  alt="" /></span>
     </a>
 </li>
+<li>
     <a href="#">
         Robustness Check Only
         <span><img src="${app.work_url + 'ppRobust' + app.cfg['param']['disp_suffix']}"  alt="" /></span>
@@ -61,6 +68,14 @@
         <span><img src="${app.work_url + 'ppBoth'+ app.cfg['param']['disp_suffix']}"  alt="" /></span>
     </a>
 </li>
+%else:
+<li>
+<a href="#">
+Robustness Check
+<span><img src="${app.work_url + 'ppRobust' + app.cfg['param']['disp_suffix']}"  alt="" /></span>
+</a>
+</li>
+%endif
 </ul>
 </div>
 
