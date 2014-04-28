@@ -21,7 +21,7 @@ class app(base_app):
 
     title = 'E-PLE: an Algorithm for Image Inpainting'
 
-    xlink_article = 'http://www.ipol.im/pub/pre/54/'
+    xlink_article = 'http://www.ipol.im/pub/art/2013/54/'
     input_nb = 1
     input_max_pixels = 400 * 400        # max size (in pixels) of input image
     input_max_weight = 10 * 1024 * 1024 # max size (in bytes) of input file
@@ -65,9 +65,10 @@ class app(base_app):
         """
         
         # store common file path in variables
-        archive = 'eple_20130131'
-        tgz_url = 'http://www.ipol.im/pub/pre/54/eple_20130131.tgz'
-        tgz_file = self.dl_dir + 'eple_20130131.tgz'
+        archive = 'eple_20140426'
+        tgz_url = 'http://www.ipol.im/pub/art/2013/54/eple_20140426.tgz'
+                   
+        tgz_file = self.dl_dir + 'eple_20140426.tgz'
         progs = ['inpaintEPLE', 'randmask']
         src_bin = dict([(self.src_dir 
             + os.path.join(archive, prog),
@@ -384,15 +385,12 @@ class app(base_app):
         return self.tmpl_out("run.html")
 
 
-    def run_algo(self, stdout=None):
+    def run_algo(self, stdout=None, timeout=False):
         """
         The core algo runner
         could also be called by a batch processor
         this one needs no parameter
         """
-        
-        timeout = False
-        
         # Get image size
         size = image(self.work_dir + 'input_0.png').size
         
