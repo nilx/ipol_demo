@@ -15,7 +15,6 @@
 <hr />
 
 <h2>Program Output</h2>
-
 <pre class="stdio">${open(app.work_dir + 'stdout.txt', 'r').read()}</pre>
 
 <h2>Output</h2>
@@ -24,49 +23,17 @@
   <ul class="index">
     <li>
       <a href="#">
-	SURF matches(after ORSA)
-	<span>
-	  <img src="${app.work_url + 'output_orsa_line_surf.png'}" />
-	</span>
-      </a>
-    </li>
-    <li>
-    <a href="#">
 	SURF matches
 	<span>
-    <img src="${app.work_url + 'output_line_surf.png'}" />
+	  <img src="${app.work_url + 'matches.png'}" />
 	</span>
-    </a>
+      </a>
     </li>
     <li>
     <a href="#">
 	SURF descriptors
 	<span>
-    <img src="${app.work_url + 'output_descriptor_surf.png'}" />
-	</span>
-    </a>
-    </li>
-    <li>
-      <a href="#">
-	SIFT matches(after ORSA)
-	<span>
-	  <img src="${app.work_url + 'output_orsa_line_sift.png'}" />
-	</span>
-      </a>
-    </li>
-    <li>
-    <a href="#">
-	SIFT matches
-	<span>
-    <img src="${app.work_url + 'output_line_sift.png'}" />
-	</span>
-    </a>
-    </li>
-    <li>
-    <a href="#">
-	SIFT descriptors
-	<span>
-    <img src="${app.work_url + 'output_descriptor_sift.png'}" />
+    <img src="${app.work_url + 'descriptor.png'}" />
 	</span>
     </a>
     </li>
@@ -75,12 +42,12 @@
 
 <ul>
   <li>
-    <a href="${app.work_url + 'match_SURF.txt'}">coordinates of SURF match
+    <a href="${app.work_url + 'matches.txt'}">Coordinates of SURF match
     points</a>
   </li>
   <li>SURF keypoints in
-    the <a href="${app.work_url + 'keypoint1.txt'}">first</a>
-    and <a href="${app.work_url + 'keypoint2.txt'}">second</a> image</li>
+    the <a href="${app.work_url + 'k1.txt'}">first</a>
+    and <a href="${app.work_url + 'k2.txt'}">second</a> image</li>
 </ul>
 
 <h2>Input</h2>

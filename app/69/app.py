@@ -3,8 +3,9 @@ SURF demo interaction script
 """
 
 from lib import base_app, image, build, http
-from lib.misc import app_expose, ctime
+from lib.misc import ctime
 from lib.base_app import init_app
+from lib.config import cfg_open
 from cherrypy import TimeoutError
 import cherrypy
 import os.path
@@ -14,7 +15,7 @@ import shutil
 class app(base_app):
     """ demo app """
     
-    title = "An Analysis and Implementation of the SURF Method, and its Comparison to SIFT"
+    title = "SURF : Speeded Up Robust Features"
 
     input_nb = 2
     input_max_pixels = None
@@ -22,6 +23,9 @@ class app(base_app):
     input_dtype = '3x8i'
     input_ext = '.png'
     is_test = False
+    default_param = {
+        'orsa' : '0',
+        'action' : 'launch surf'}
     xlink_article = "http://www.ipol.im/pub/pre/69/"
 
     def __init__(self):
@@ -34,18 +38,53 @@ class app(base_app):
 
         # select the base_app steps to expose
         # index() is input_max_pixelsgeneric
-        app_expose(base_app.index)
-        app_expose(base_app.input_select)
-        app_expose(base_app.input_upload)
+        #app_expose(base_app.index)
+        #app_expose(base_app.input_select)
+        #app_expose(base_app.input_upload)
+        base_app.index.im_func.exposed = True
+        base_app.input_select.im_func.exposed = True
+        base_app.input_upload.im_func.exposed = True
         # params() is modified from the template
-        app_expose(base_app.params)
-        # run() and result() must be defined here
+        base_app.params.im_func.exposed = True
+        # result() is modified from the template
+        base_app.result.im_func.exposed = True
+
+
+
+#
+# PARAMETER HANDLING
+#
+
+    @cherrypy.expose
+    @init_app
+    def params(self, newrun=False, msg=None):
+        """
+            Configure the algo execution
+        """
+        if newrun:
+            old_work_dir = self.work_dir
+            self.clone_input()
+            # Keep old parameters
+            self.cfg['param'] = cfg_open(old_work_dir
+                                     + 'index.cfg', 'rb')['param']
+    # Also need to clone input_0_sel.png in case the user is running
+    # with new parameters but on the same subimage.
+
+    # Set undefined parameters to default values
+        self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
+    # Generate a new timestamp
+        self.timestamp = int(100*time.time())
+    
+        return self.tmpl_out('params.html')
+
+
+
+
+
+
+
 
     def build(self):
-
-
-
-
         """
         program build/update
         """
@@ -79,12 +118,18 @@ class app(base_app):
             shutil.rmtree(self.src_dir)
         return
 
+
+
     @cherrypy.expose
     @init_app
-    def wait(self):
+    def wait(self, **kwargs):
         """
         params handling and run redirection
         """
+        self.cfg['param'] = self.default_param
+        self.cfg['param'] = dict(self.default_param.items() +
+                                 [(p,kwargs[p]) for p in self.default_param.keys() if p in kwargs])
+
         # no parameters
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html")
@@ -112,17 +157,14 @@ class app(base_app):
         # archive
         if self.cfg['meta']['original']:
             ar = self.make_archive()
-            ar.add_file("input_0.orig.png", info="first uploaded image")
-            ar.add_file("input_1.orig.png", info="second uploaded image")
+            ar.add_info({'orsa' : str(self.cfg['param']['orsa'])})
             ar.add_file("input_0.png", info="first uploaded image")
             ar.add_file("input_1.png", info="second uploaded image")
-            ar.add_file("output_orsa_line_surf.png", info="SURF matches(orsa)")
-            ar.add_file("output_line_surf.png", info="SURF matches")
-            ar.add_file("output_descriptor_surf.png", info="SURF descriptors")
-            ar.add_file("output_orsa_line_sift.png", info="SIFT matches(orsa)")
-            ar.add_file("output_line_sift.png", info="SIFT matches")
-            ar.add_file("output_descriptor_sift.png", info="SIFT descriptors")
-            ar.add_file("match_SURF.txt", compress=True)
+            ar.add_file("matches.png", info="SURF matches")
+            ar.add_file("descriptor.png", info="SURF descriptors")
+            ar.add_file("matches.txt", compress=True)
+            ar.add_file("k1.txt", compress=True)
+            ar.add_file("k2.txt", compress=True)
             ar.save()
 
         return self.tmpl_out("run.html")
@@ -134,12 +176,19 @@ class app(base_app):
         this one needs no parameter
         """
         #Launch code
-        surf = self.run_proc(['surf', '-m', 'match_SURF.txt',
-                              '-s',
-                              '-i', 'keypoint1.txt', 'keypoint2.txt',
-                              'input_0.png', 'input_1.png'],
-                             stdout=stdout, stderr=stdout)
-        self.wait_proc(surf, timeout)
+        surf_detection = self.run_proc(['extract_surf', 'input_0.png', 'k1.txt'], stdout=stdout, stderr=stdout)
+        self.wait_proc(surf_detection, timeout)
+        surf_detection2 = self.run_proc(['extract_surf', 'input_1.png', 'k2.txt'], stdout=stdout, stderr=stdout)
+        self.wait_proc(surf_detection2, timeout)
+        if str(self.cfg['param']['orsa']) == '1':
+            surf_matching = self.run_proc(['match_surf', 'k1.txt', 'k2.txt', 'matches.txt','orsa'],stdout=stdout, stderr=stdout)
+        else:
+            surf_matching = self.run_proc(['match_surf', 'k1.txt', 'k2.txt', 'matches.txt'],stdout=stdout, stderr=stdout)
+        self.wait_proc(surf_matching, timeout)
+                                           
+        surf_display=self.run_proc(['display_surf', 'k1.txt', 'k2.txt','matches.txt','input_0.png', 'input_1.png','descriptor.png', 'matches.png'],stdout=stdout, stderr=stdout)
+
+        self.wait_proc(surf_display, timeout)
         return
 
     @cherrypy.expose
@@ -148,5 +197,7 @@ class app(base_app):
         """
         display the algo results
         """
-        height = 10 + image(self.work_dir+'output_orsa_line_surf.png').size[1]
+
+        self.cfg['param']['orsa']= '0'
+        height = 10 + image(self.work_dir+'matches.png').size[1]
         return self.tmpl_out("result.html", height=height)

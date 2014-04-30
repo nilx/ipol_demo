@@ -2,9 +2,10 @@
 
 <form action="${app.base_url + 'wait'}" method="get">
   <div class="action">
-    The demo will show the results of SURF and SIFT.
+    The demo will show the results of SURF and SIFT.<br/>
+Apply ORSA(validate epipolar geometry of the matches)?    <input type="checkbox" name="orsa" value="1" checked><br><br>
     <input type="hidden" name="key" value="${app.key}">
-    <input type="submit" value="run SIFT and SURF" />
+    <input type="submit" value="run SURF" />
   </div>
 </form>
 
