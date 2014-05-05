@@ -37,7 +37,7 @@
 
 <h2>Result</h2>
 
-<p> You can download the result in  <a href="${app.work_url+'resu.eps'}"> eps </a> format or download the output as noise level in <a href="${app.work_url+'noiseLevels.txt'}">ASCII</a> format. You can also download the input contours as <a href="${app.work_url+'inputContourFC.txt'}">Freeman code</a>.
+<p> You can download the result in  eps format (<a href="${app.work_url+'resuBG.eps'}"> with </a> or <a href="${app.work_url+'resuWhiteBG.eps'}"> without</a> the source image as background)  or download the output as noise level in <a href="${app.work_url+'noiseLevels.txt'}">ASCII</a> format. You can also download the input contours as <a href="${app.work_url+'inputContourFC.txt'}">Freeman code</a>.
 
 </p>
 
@@ -46,14 +46,22 @@
     <li>
       <a href="${app.work_url + 'input_0_selection.png'}">input
 	   <span>
-	   <img height="${heightImageDisplay}" src="${app.work_url + 'input_0_selection.png'}" alt="input" />
+	   <img height="${height}" src="${app.work_url + 'input_0_selection.png'}" alt="input" />
 	   </span>
     </a>
   </li>
   <li>
-      <a href="${app.work_url+'resu.png'}"> resu.png
+      <a href="${app.work_url+'resuWhiteBG.png'}"> resu.png
 	<span>
-	  <img height="${heightImageDisplay}" src="${app.work_url + 'resu.png'}" alt="output" />
+	  <img height="${height}" src="${app.work_url + 'resuWhiteBG.png'}" alt="output" />
+	</span>
+      </a>
+    </li>
+
+  <li>
+      <a href="${app.work_url+'resuBG.png'}"> resu.png (with source image)
+	<span>
+	  <img height="${height}" src="${app.work_url + 'resuBG.png'}" alt="output" />
 	</span>
       </a>
     </li>
