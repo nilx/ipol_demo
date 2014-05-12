@@ -51,7 +51,7 @@ class empty_app(object):
         self.archive_index = os.path.join(self.archive_dir, "index.db")
                 
         # static folders
-        # mime types, override python mimetypes modules because is
+        # mime types, override python mimetypes modules because it
         # says .gz files are text/plain, which is right (gzip is an
         # encoding, not a mime type) but a problem (we use http gzip
         # compression on text/plain files)
@@ -216,15 +216,17 @@ class empty_app(object):
         process: a process or a process list, tuple, ...
         """
 
-        if not (cherrypy.config['server.environment'] == 'production'):
-            # no timeout if just testing
-            timeout = False
+        # If production and timeout is not set, assign a security value
+        if cherrypy.config['server.environment'] == 'production' and not timeout:
+            timeout = 60*15 # Avoid misconfigured demos running forever.
+
         if isinstance(process, Popen):
             # require a list
             process_list = [process]
         else:
             # duck typing, suppose we have an iterable
             process_list = process
+
         if not timeout:
             # timeout is False, None or 0
             # wait until everything is finished
