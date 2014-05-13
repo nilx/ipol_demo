@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>IPOL: ${app.title}</title>
+    <meta name="language" content="english" />
+    <!-- TODO: author -->
+    <meta name="author" content="" />
+    <link rel="icon" href="http://www.ipol.im/favicon.ico"
+	  type="image/x-icon" />
+    <link rel="stylesheet" href="http://www.ipol.im/style.css"
+	  type="text/css" />
+    <link rel="stylesheet" href="http://www.ipol.im/local.css"
+	  type="text/css" />
+
+    <style type="text/css">
+    <%include file="style.css" />
+    </style>
+
+
+    <script type="text/javascript">
+      <%include file="script.js" />
+    </script>
+
+    <!-- JQuery -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+
+    <!-- IPOL meshes API -->
+    <script type="text/javascript" src="../js/ipol_meshes.js"></script>
+
+    <!-- 3D mesh -->
+    <script src="../js/meshes/three.js"></script>
+    <script src="../js/meshes/TrackballControls.js"></script>
+    <script src="../js/meshes/OBJLoader.js"></script>
+    <!--<script src="../js/meshes/VTKLoader.js"></script>-->
+    <!--<script src="../js/meshes/PLYLoader.js"></script>-->
+    <script src="../js/meshes/Detector.js"></script>
+  </head>
+
+  <body>
+    <div class="pageheader">
+      <div class="header">
+	<div class="parentlinks">
+	  <a href="http://www.ipol.im/">ipol.im</a>
+	  »
+	  <a href="http://www.ipol.im/pub/">pub</a>
+	  »
+	  <a href="http://www.ipol.im/pub/demo/">demo</a>
+	  »
+	</div> <!-- .parentlinks -->
+      </div> <!-- .header -->
+    </div> <!-- .pageheader -->
+    <div id="main" class="demo">
+      <div id="pagetitle">
+	${app.title}
+      </div> <!-- #pagetitle -->
+      <%include file="xlinks.html" />
+      <div id="content">
+
