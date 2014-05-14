@@ -4,7 +4,7 @@ Demonstration of paper:  A near-linear time guaranteed algorithm for digital \
 demo editor: Bertrand Kerautret
 """
 
-from lib import base_app, build, http, image
+from lib import base_app, build, http, image, config
 from lib.misc import app_expose, ctime
 from lib.base_app import init_app
 import cherrypy
@@ -244,10 +244,13 @@ class app(base_app):
         ##  -------
         ## process 3: apply algorithm
         ## ---------
+        inputWidth = image(self.work_dir + 'input_0.png').size[0]
+        inputHeight = image(self.work_dir + 'input_0.png').size[1]
         command_args = ['frechetSimplification'] + \
-        			   ['-error', str(self.cfg['param']['e']), '-sdp',
-        			   'inputPolygon.txt' ]+\
-   					   ['-allContours']
+                       ['-imageSize', str(inputWidth), str(inputHeight)] + \
+                       ['-error', str(self.cfg['param']['e']), '-sdp',
+                        'inputPolygon.txt' ]+\
+                       ['-allContours']
         f = open(self.work_dir+"algoLog.txt", "a")
         if self.cfg['param']['w']:
             command_args += ['-w']
@@ -296,7 +299,7 @@ class app(base_app):
         """
         resultHeight = image(self.work_dir + 'input_0.png').size[1]
         imageHeightResized = min (600, resultHeight)
-        resultHeight = max(200, resultHeight)
+        resultHeight = max(300, resultHeight)
         return self.tmpl_out("result.html", height=resultHeight, \
         					 heightImageDisplay=imageHeightResized)
 
@@ -320,3 +323,34 @@ class app(base_app):
             command_to_save += comp
         self.list_commands +=  command_to_save + '\n'
         return command_to_save
+
+    def make_archive(self):
+        """
+        create an archive bucket HACK!
+        This overloaded verion of the empty_app function
+        first deletes the entry and its directory so that the 
+        new one is correcly stored.
+        """
+        # First delete the key from the archive if it exist
+        from lib import archive
+        archive.index_delete(self.archive_index, self.key)
+        entrydir = self.archive_dir + archive.key2url(self.key)
+        if os.path.isdir(entrydir):
+            shutil.rmtree(entrydir)
+
+        # Then insert the new data
+        ar = archive.bucket(path=self.archive_dir,
+                            cwd=self.work_dir,
+                            key=self.key)
+        ar.cfg['meta']['public'] = self.cfg['meta']['public']
+
+        def hook_index():
+            """
+            create an archive bucket
+            """
+            return archive.index_add(self.archive_index,
+                                     bucket=ar,
+                                     path=self.archive_dir)
+        ar.hook['post-save'] = hook_index
+        return ar
+
