@@ -1,0 +1,37 @@
+<%include file="header.html" />
+
+<p>
+  You can choose one parameter for this algorithm: <i>r</i>, the radius of the rotating ball. If multiple radii are used enter them as a list of radii separated by spaces (e.g. 0.1 0.2 0.3)<br />
+  The proposed radius corresponds to:
+<ul>
+<li>A chosen radius or series of radii if the pointset was selected among the proposed pointsets</li>
+<li>An estimation of a radius (see the paper for details)</li>
+</ul>
+<br/>
+The estimated radius might not be optimal, in that case check the output execution details on the next page and choose a more adequate radius based on the octree statistics. 
+</p>
+
+
+<%
+try:
+   paramr = float(r)
+except Exception:
+   paramr =' '.join(str(i) for i in eval(app.recommended_radius))
+%>
+
+<form action="${app.base_url + 'wait'}" method="get">
+  <div class="action">
+    Set the algorithm parameters and run the algorithm.
+    <input type="hidden" name="key" value="${app.key}">
+    <label for="r"><i>radius</i>:</label>
+    <input type="text" name="r" value="${paramr}" size="20" />
+    <input type="submit" value="run" />
+  </div>
+<p class="note">
+e.g. 0.01 or 0.01 0.02 0.03
+</p>
+</form>
+
+<hr />
+
+<%include file="footer.html" />

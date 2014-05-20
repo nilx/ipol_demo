@@ -1,0 +1,19 @@
+<form action="${app.base_url + 'input_upload'}" method="post"
+      enctype="multipart/form-data">
+  <div class="action">
+    <h3>Upload Data</h3>
+    <p>
+      Upload your own pointset to use as the algorithm input.
+    </p>
+    <p>The uploaded text file should be formatted such that each line contains an oriented point with x, y, z, nx, ny, nz coordinates, separated by a tabulation.</p>
+<p>The uploaded file should be a gzipped ASCII file. Please do not omit the ".gz" file extension.</p>
+<p>The maximal size of the input point set is 150000 oriented points. If the point set is larger it will be randomly subsampled in this demo. If your data is bigger, you can download the source code.</p>
+<p><b>The uploaded point cloud will be scaled to fit in a cube of side 1.</b>
+    <div class="upload_input">
+      <label for="file">input pointset</label>
+      <input type="file" name="input" id="file" size="40" />&nbsp;
+      <input type="submit" value="upload" />
+    </div>
+<br/>
+  </div>
+</form>

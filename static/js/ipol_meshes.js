@@ -21,7 +21,7 @@ function init_mesh(div_id, init_cam_pos, obj_filename) {
 
   scene = new THREE.Scene();
 
-  var aspect_ratio =  window.innerWidth / window.innerHeight;
+  var aspect_ratio = 1;
 
   //camera = new THREE.PerspectiveCamera( 45, aspect_ratio, 1, 2000);
   camera = new THREE.PerspectiveCamera( 35, aspect_ratio, 0.1, 10000);

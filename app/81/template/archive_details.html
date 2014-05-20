@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>IPOL: ${app.title}</title>
+    <meta name="language" content="english" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="http://www.ipol.im/favicon.ico"
+	  type="image/x-icon" />
+    <link rel="stylesheet" href="http://www.ipol.im/style.css"
+	  type="text/css" />
+    <link rel="stylesheet" href="http://www.ipol.im/local.css"
+	  type="text/css" />
+    <style TYPE="text/css">
+    <%include file="style.css" />
+    </style>
+    <style type="text/css">
+      <%include file="results_styles.css" />
+    </style>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+
+    <script type="text/javascript">
+      <%include file="script.js" />
+    </script>
+    <script type="text/javascript">
+      <%include file="show_results.js" />
+      </script>
+
+  </head>
+  <body>
+    <div class="pageheader">
+      <div class="header">
+	<div class="parentlinks">
+	  <a href="http://www.ipol.im/">ipol.im</a>
+	  »
+	  <a href="http://www.ipol.im/pub/">pub</a>
+	  »
+	  <a href="http://www.ipol.im/pub/demo/">demo</a>
+	  »
+	</div> <!-- .parentlinks -->
+      </div> <!-- .header -->
+    </div> <!-- .pageheader -->
+    <div id="main" class="archive">
+      <div id="pagetitle">
+	${app.title}
+      </div> <!-- #pagetitle -->
+      <%include file="xlinks.html" />
+      <%include file="citation.html" />
+      <div id="content" style="max-width:none">
+
+<p>
+This archive is not moderated.
+In case of copyright infringement or similar problem, please 
+<a href="http://www.ipol.im/meta/contact/">contact us</a> to request
+the removal of some images.
+Some archived content may be deleted by the editorial board for size
+matters, inadequate content, user requests, or other reasons.
+</p>
+
+<%
+images = filter(lambda i : i.is_file and i.has_tn, bucket['files'])
+non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
+%>
+<div class="bucket">
+  <table class="info">
+    <tr>
+      <th style="width:300px">key</th>
+      <td><a href="?key=${bucket['meta']['key'] | h}"
+	     title="permalink">${bucket['meta']['key'] | h}</a></td>
+    </tr>
+    <tr>
+      <th>date</th>
+      <td>${bucket['meta']['date'] | h}</td>
+    </tr>
+    %for (key, value) in bucket['info'].items():
+    %if key=="git link":
+    <tr>
+      <th  style="width:300px">${key | h}</th>
+      <td>${value}</td>
+    </tr>
+    %elif key=="points":
+    <!-- do nothing, don't want to show points here -->
+<!-- TO RERUN MODIFYING PREVIOUS POINTS -->
+
+<form action="${app.base_url}input_select" method="get">
+  <input type="hidden" name="blank.x" value="0">
+  <input type="hidden" name="blank.y" value="0">
+  <input type="hidden" name="blank" value="Draw Points">
+  <input type="hidden" name="blank.prev_points" value="${value}">
+  <div class="action">
+    Modify this data and rerun the algorithm.
+    <input type="submit" value="modify points" />
+  </div>
+</form>
+    %else:
+    <tr>
+      <th  style="width:300px">${key | h}</th>
+      <td>${value | h}</td>
+    </tr>
+    %endif
+    %endfor
+    
+    <%doc>
+    <!-- <tr> -->
+    <!--   <th>files</th> -->
+    <!--   <td> -->
+    <!--    %for item in non_images: -->
+    <!--     <a href="${bucket['url'] + item.name | h}" -->
+    <!--        title="${item.info | h}">${item.name}</a> -->
+    <!--     %endfor -->
+    <!--   </td> -->
+    <!-- </tr> -->
+    </%doc>
+    <tr>
+      <th>results</th>
+      <td>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div style="">
+<%include file="include_show_results.html" />
+</div>
+<%include file="footer.html" />

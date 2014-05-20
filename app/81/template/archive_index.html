@@ -1,0 +1,65 @@
+<%include file="header_archive.html" />
+
+<div class="archive_index">
+<p>
+${nbpublic} public archives out of ${nbtotal} online experiments with
+original images since ${firstdate}.<br />
+This archive is not moderated.
+In case of copyright infringement or similar problem, please
+<a href="http://www.ipol.im/meta/contact/">contact us</a> to request
+the removal of some images.
+Some archived content may be deleted by the editorial board for size
+matters, inadequate content, user requests, or other reasons.
+</p>
+
+<p>
+<%include file="archive_pages.html" />
+</p>
+
+<hr class="clear">
+%for bucket in bucket_list:
+<%
+images = filter(lambda i : i.is_file and i.has_tn, bucket['files'])
+non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
+%>
+<div class="bucket">
+  <table class="info">
+    <tr>
+      <th>key</th>
+      <td>${bucket['meta']['key'] | h}</td>
+    </tr>
+    <tr>
+      <th>date</th>
+      <td>${bucket['meta']['date'] | h}</td>
+    </tr>
+    %for (key, value) in bucket['info'].items():
+    <tr>
+      <th>${key | h}</th>
+      <td>${value | h}</td>
+    </tr>
+    %endfor
+    <tr>
+      <th>files</th>
+      <td>
+	%for item in non_images:
+	<a href="${bucket['url'] + item.name | h}"
+	   title="${item.info | h}">${item.name}</a>
+	%endfor
+      </td>
+    </tr>
+  </table>
+
+</div>
+
+<hr class="clear">
+%endfor
+
+
+
+<p>
+<%include file="archive_pages.html" />
+</p>
+
+</div>
+
+<%include file="footer.html" />
