@@ -67,7 +67,7 @@ THREE.OBJLoader.prototype = {
 
 			geometry = new THREE.Geometry();
 			material = new THREE.MeshLambertMaterial();
-                        material.side = THREE.DoubleSide;
+                        //material.side = THREE.DoubleSide;
 			mesh = new THREE.Mesh( geometry, material );
 			object.add( mesh );
 
