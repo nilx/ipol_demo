@@ -55,7 +55,7 @@ done
 
 
 # generate preview disparity 
-plambda output_${arg1}.tif "x[0]" | iion -  output1_${arg1}.tif
+plambda output_${arg1}.tif "x[0]" -o  output1_${arg1}.tif
 genpreview_stretch.sh output1_${arg1}.tif output_${arg1}.png ${min_disparity} ${max_disparity} &
 #view_landscape.sh 1 output1_${arg1}.tif output_${arg1}_landscape.png
 ## TODO ADD A SCALE! 

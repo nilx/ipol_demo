@@ -15,6 +15,13 @@ import math
 import os.path
 import time
 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+import config_json
+########  WARNING OVERLOADING EMPYT_APP ######### 
+########  WARNING OVERLOADING EMPYT_APP ######### 
+########  WARNING OVERLOADING EMPYT_APP ######### 
 
 # Workflow
 # 
@@ -71,20 +78,51 @@ class app(base_app):
 
     # Default parameters
     default_param = dict(
-          {  'windowsize': 9,
-             'min_disparity': -31,
-             'max_disparity': 31,
-             'min_off_y': 0,
-             'max_off_y': 0,
-             'addednoisesigma': 0,
-             'image_width': 800,
-             'image_height': 600,
-             'subpixel' : 1,
-             'maxerrdiff' : 4,    # display range
-             'filter_method' : []
+          {  'windowsize': '9',
+             'min_disparity': '-31',
+             'max_disparity': '31',
+             'min_off_y': '0',
+             'max_off_y': '0',
+             'addednoisesigma': '0',
+             'image_width': '800',
+             'image_height': '600',
+             'subpixel' : '1',
+             'maxerrdiff' : '4',    # display range
+             'filter_method' : [],
+             'block_match_method' : []
              }.items()
           )
 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+
+    def init_cfg(self):
+        """
+        reinitialize the config dictionary between 2 page calls
+        """
+        # read the config dict
+        self.cfg = config_json.cfg_open(self.work_dir)
+        # default three sections
+        self.cfg.setdefault('param', {})
+        self.cfg.setdefault('info', {})
+        self.cfg.setdefault('meta', {})
+
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
+    ########  WARNING OVERLOADING EMPYT_APP ######### 
 
 
     def build_algo(self):
@@ -179,7 +217,7 @@ class app(base_app):
        download the input images from "xlink_input"
        """
        tgz_file = self.dl_dir + "input.tar.gz"
-       input_cfg = self.input_dir + "index.cfg"
+       input_cfg = self.input_dir + "input.cfg"
        ## get the latest source archive
        build.download(app.xlink_input, tgz_file)
        ## test if the dest file is missing, or too old
@@ -194,6 +232,7 @@ class app(base_app):
           os.mkdir(self.input_dir)
           # extract the archive
           build.extract(tgz_file, self.input_dir)
+          shutil.copytree(self.base_dir+'/support/HELP', os.path.join( self.input_dir, 'HELP'))
 
        return
 
@@ -590,8 +629,8 @@ class app(base_app):
                  # Convert and uniformize names
 #                 print os.path.join(self.work_dir, localname)
                  if file == 'ground_truth':
-                    mindisp = self.cfg['param']['min_disparity']
-                    maxdisp = self.cfg['param']['max_disparity']
+                    mindisp = float(self.cfg['param']['min_disparity'])
+                    maxdisp = float(self.cfg['param']['max_disparity'])
 
                     # convert the original image and apply the stretching 
                     #tmp = self.run_proc(['convert.sh', localname , file+'.tif'])
@@ -666,6 +705,7 @@ class app(base_app):
     @cherrypy.expose
     @init_app
     def wait(self, **kwargs):
+       
 
         # DEFAULT PARAM VALUES FOR THE PARAMETERS THAT ARE NOT IN KWARGS
         for prp in self.default_param.keys():
@@ -675,12 +715,9 @@ class app(base_app):
         # PROCESS ALL THE INPUTS
         for prp in kwargs.keys():
            if( prp in self.VALID_KEYS ):
+              self.cfg['param'][prp] = kwargs[prp];
 
-              # IN CASE IT IS A STRING
-              if (type(kwargs[prp]) == str ): 
-                 self.cfg['param'][prp] = kwargs[prp];
-              else: 
-                 self.cfg['param'][prp] = kwargs[prp];
+        #print self.cfg['param']
 
         # TODO: NOT VIRIFIED YET THE SIZE OF THE IMAGES SO JUST TAKE ONE OF THEM
         # THIS SHOULD BE DONE ONLY ONCE
@@ -731,6 +768,25 @@ class app(base_app):
         return ar
 
 
+    def dump_shell_params(self, outfile):
+        """
+        write the dict into a config file
+        """
+        prm = ["addednoisesigma", "image_width", "windowsize", "max_disparity", 
+              "ground_truth_occ", "left_image", "filter_method", "max_off_y", 
+              "min_off_y", "min_disparity", "ground_truth_mask", "subpixel", 
+              "ground_truth", "right_image", "maxerrdiff", "prevaddednoisesigma", 
+              "block_match_method", "noise_sigma"]
+
+        fd = open(outfile, 'wb')
+        fd.write('input_id="%s"\n' % self.cfg['meta']['input_id'])
+
+        for nm in prm:
+           fd.write('%s="%s"\n'%(nm,self.cfg['param'][nm]))
+        fd.close()
+
+
+
     @cherrypy.expose
     @init_app
     def run(self):
@@ -739,22 +795,12 @@ class app(base_app):
         """
         # read the parameters
 
-        # hack to generate lists from strings encoding lists 
-        # ATTENTION: uses eval
-        def text2list(text):
-           if text !='' and text[0] == '[':
-              #  list= str(text).split() 
-              list = eval(text)
-           else:
-              if text !='':
-                  list = [ text  ]
-              else:
-                  list = []
-           return list
-
-        algolist     = text2list(self.cfg['param']['block_match_method'])
-        filterlist   = text2list(self.cfg['param']['filter_method'])
-
+        algolist     = self.cfg['param']['block_match_method']
+        filterlist   = self.cfg['param']['filter_method']
+        if type(algolist) != list:
+           algolist = [ algolist ]
+        if type(filterlist) != list:
+           filterlist = [ filterlist ]
 
 
         ## PREPROCESS INPUT (ADDING NOISE), only if something has changed
@@ -766,8 +812,13 @@ class app(base_app):
            # generate noisy images for the experiment and convert to mono if necessary
            # the images are stored in left_imagen.{tif,png} right_imagen.{tif,png}
            # the PNG files are the previews of the noisy images 
+           self.dump_shell_params(self.work_dir + '/configSHELL.cfg');
+
            p1 = self.run_proc(['runPREPROCESS.sh'])
            self.wait_proc(p1, timeout=self.timeout)
+
+
+
 
            ## then update the previous parameter
            self.cfg['param']['prevaddednoisesigma'] =  self.cfg['param']['addednoisesigma']
@@ -817,11 +868,15 @@ class app(base_app):
         this one needs no parameter
         """
 
-        # STEREO
-        if(self.cfg['param']['min_off_y'] == self.cfg['param']['max_off_y'] == 0):
 
-           self.cfg['param']['isubpixel'] = 1./self.cfg['param']['subpixel']
-           self.cfg.save()
+
+
+
+        # STEREO
+        if(float(self.cfg['param']['min_off_y']) == float(self.cfg['param']['max_off_y']) == 0):
+
+           self.cfg['param']['isubpixel'] = 1./float(self.cfg['param']['subpixel'])
+           self.dump_shell_params(self.work_dir + '/configSHELL.cfg');
    
            p={}
            for a in algolist:
@@ -834,13 +889,14 @@ class app(base_app):
 
            # NO SUBPIXEL IF IT IMPLIES AN EXCESSIVE WORK
            d=self.cfg['param']
-           estimated_cost = d['subpixel']*d['subpixel']*(d['max_off_y']-d['min_off_y'])*(d['max_disparity']- d['min_disparity'])
+           estimated_cost = float(d['subpixel'])*float(d['subpixel'])*(float(d['max_off_y'])-
+                 float(d['min_off_y']))*(float(d['max_disparity'])- float(d['min_disparity']))
            if estimated_cost > 6400:
-               self.cfg['param']['subpixel'] = 1;
-               self.cfg['param']['isubpixel'] = 0;
+               self.cfg['param']['subpixel'] = '1';
+               self.cfg['param']['isubpixel'] = '0';
            # NO GROUND TRUTH
            self.cfg['param']['ground_truth'] = '';
-           self.cfg.save()
+           self.dump_shell_params(self.work_dir + '/configSHELL.cfg');
    
            p={}
            for a in algolist:

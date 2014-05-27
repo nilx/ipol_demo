@@ -12,19 +12,7 @@ function Popup(url) {
 <%
 ## PRELOAD THE LISTS
 
-    if app.cfg['param']['block_match_method']!='' and app.cfg['param']['block_match_method'][0] == '[':
-       algolist= eval(app.cfg['param']['block_match_method'])
-    else:
-       algolist=[ app.cfg['param']['block_match_method'] ]
-
-
-    if app.cfg['param']['filter_method'] !='' and app.cfg['param']['filter_method'][0] == '[':
-       filterlist = eval(app.cfg['param']['filter_method'])
-    else:
-       if app.cfg['param']['filter_method'] !='':
-           filterlist = [ app.cfg['param']['filter_method'] ]
-       else:
-           filterlist = []
+#print app.cfg['param']
 
 %>
 
@@ -46,15 +34,10 @@ function Popup(url) {
    <%
    # GENERATE A LIST OF NAMES
    if name in app.cfg['param']:
-      if app.cfg['param'][name]!='' and app.cfg['param'][name][0] == '[':
-         cklist = eval(app.cfg['param'][name])
+      if type(app.cfg['param'][name]) == list:
+         cklist = app.cfg['param'][name]
       else:
-         cklist=[ app.cfg['param'][name] ]
-         if app.cfg['param'][name] !='':
-             cklist = [ app.cfg['param'][name] ]
-         else:
-             cklist = []
-         endif
+         cklist = [app.cfg['param'][name]]
       endif
    else: 
       cklist = []
@@ -77,15 +60,10 @@ function Popup(url) {
    <%
    # GENERATE A LIST OF NAMES
    if name in app.cfg['param']:
-      if app.cfg['param'][name]!='' and type(app.cfg['param'][name]) == str and app.cfg['param'][name][0] == '[':
-         cklist = eval(app.cfg['param'][name])
+      if type(app.cfg['param'][name]) == list:
+         cklist = app.cfg['param'][name]
       else:
-         cklist=[ app.cfg['param'][name] ]
-         if app.cfg['param'][name] !='':
-             cklist = [ app.cfg['param'][name] ]
-         else:
-             cklist = []
-         endif
+         cklist = [app.cfg['param'][name]]
       endif
    else:
       cklist = []
@@ -188,10 +166,10 @@ function Popup(url) {
          <!-- subpixel -->
          <div style="float:left; text-align:left; margin-bottom:.5em;">
             Subpixel <a href="JavaScript:Popup('static/help.html#SUBPIXEL_BRUTEFORCE');"   ><small>(help)</small></a>&nbsp;&nbsp;
-            ${radioAuto('subpixel',1,'1 &nbsp; '    ,1)} 
-            ${radioAuto('subpixel',2,'&frac12;&nbsp; ')}
-            ${radioAuto('subpixel',4,'&frac14;&nbsp; ')}
-         ##   ${radioAuto('subpixel',8,'&frac18;&nbsp; ')}
+            ${radioAuto('subpixel','1','1 &nbsp; '    ,1)} 
+            ${radioAuto('subpixel','2','&frac12;&nbsp; ')}
+            ${radioAuto('subpixel','4','&frac14;&nbsp; ')}
+         ##   ${radioAuto('subpixel','8','&frac18;&nbsp; ')}
          </div>
          <br/>
          <br/>

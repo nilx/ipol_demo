@@ -70,17 +70,11 @@ def rnd():
 
 <%
     def text2list(text):
-       if text !='' and text[0] == '[':
-          #  list= str(text).split() 
-          list = eval(text)
+       if type(text) == str or type(text) == unicode:
+          list = [text]
        else:
-          if text !='':
-              list = [ text  ]
-          else:
-              list = []
+          list = text
        return list
-
-
 
 
     # load all the lists of methods
@@ -89,10 +83,10 @@ def rnd():
 
 
     # adapt the size of the window
-    height = app.cfg['param']['image_height'] + 20
+    height = int(app.cfg['param']['image_height']) + 20
     if height < 300:
        height = 300
-    width = app.cfg['param']['image_width']*2 + 100
+    width = int(app.cfg['param']['image_width'])*2 + 100
     if width < 800:
        width = 800 
 
@@ -301,7 +295,7 @@ ww=w+currentfilters
 OUTPUT_HELP_link='JavaScript:+Popup(\'static/help.html#OUTPUT_AND_STATISTICS\');'
 %>
 
-%if app.cfg['param']['min_off_y'] == app.cfg['param']['max_off_y'] == 0:
+%if float(app.cfg['param']['min_off_y']) == float(app.cfg['param']['max_off_y']) == 0:
 <h3>Output Disparities for Stereo Block Matching using ${ww}
    <a href="JavaScript:Popup('static/help.html#${w}');"      ><small>(help)</small></a><br />
 </h3>
@@ -326,7 +320,7 @@ OUTPUT_HELP_link='JavaScript:+Popup(\'static/help.html#OUTPUT_AND_STATISTICS\');
 ##      ${listitem_img(['output_%s_landscape.png' % w, 'output_%s_diff.png' % w], 'Land.%s' % w, '', anchor_href=OUTPUT_HELP_link)}
 
    %else:
-      %if app.cfg['param']['min_off_y'] ==  app.cfg['param']['max_off_y'] == 0:
+      %if float(app.cfg['param']['min_off_y']) == float(app.cfg['param']['max_off_y']) == 0:
          ${listitem_img('output_%s.png'%w, 'disparity', text='CPU Time: ' + open(app.work_dir+"/"+w+".time.txt","r").read().split()[1] + 's', subtitles='%s'%(ww), anchor_href=OUTPUT_HELP_link)}
       %else :
          ${listitem_img(['output_%s.png' % w, 'output_%s_map.png' % w], 'motion field', text='CPU Time: ' + open(app.work_dir+"/"+w+".time.txt","r").read().split()[1] + 's', subtitles=['%s' % ww, 'color code'] , anchor_href=OUTPUT_HELP_link)}

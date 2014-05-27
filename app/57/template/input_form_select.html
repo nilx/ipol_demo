@@ -2,21 +2,24 @@
 <!-- custom item display (for stero images) flips between the two images with onmouseover -->
 <%def name="imgflip(files,title,id)">
       %if len(files) >= 2:
-         <% 
+         <%
             url  = files[0]
             url2 = files[1]
          %>
          <input type="image" name="${id | h}"
-            src="${url}" 
-            onmouseover="this.src='${url2}';" 
+            src="${url2}"
+            style="display: none;"/>
+         <input type="image" name="${id | h}"
+            src="${url}"
+            onmouseover="this.src='${url2}';"
             onmouseout="this.src='${url}';"
             alt="${title | h}"/>
       %else:
-         <% 
+         <%
             url = files[0]
          %>
          <input type="image" name="${id | h}"
-            src="${url}" 
+            src="${url}"
             alt="${title | h}"/>
       %endif
 </%def>
