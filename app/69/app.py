@@ -15,10 +15,12 @@ import shutil
 class app(base_app):
     """ demo app """
     
-    title = "SURF : Speeded Up Robust Features"
+    title = "An analysis of the SURF method"
+    xlink_article = 'http://www.ipol.im/pub/69/'
+
 
     input_nb = 2
-    input_max_pixels = None
+    input_max_pixels = 3 * 1000 * 1000
     input_max_method = 'zoom'
     input_dtype = '3x8i'
     input_ext = '.png'
@@ -26,7 +28,8 @@ class app(base_app):
     default_param = {
         'orsa' : '0',
         'action' : 'launch surf'}
-    xlink_article = "http://www.ipol.im/pub/pre/69/"
+
+
 
     def __init__(self):
         """
@@ -93,14 +96,14 @@ class app(base_app):
         # store common file path in variables
         surf_zip_file = self.dl_dir + "demo_SURF_src.zip"
         surf_zip_url = "http://www.ipol.im/pub/pre/69/demo_SURF_src.zip"
-        surf_prog_file = self.bin_dir + "surf"
+        surf_prog_folder = self.bin_dir 
         surf_log_file = self.base_dir + "build_surf.log"
         # get the latest source archive
         build.download(surf_zip_url, surf_zip_file)
         # SURF
         # test if the dest file is missing, or too old
-        if (os.path.isfile(surf_prog_file)
-            and ctime(surf_zip_file) < ctime(surf_prog_file)):
+        if (os.path.isdir(surf_prog_folder)
+            and ctime(surf_zip_file) < ctime(surf_prog_folder)):
             cherrypy.log("not rebuild needed",
                          context='BUILD', traceback=False)
         else:
@@ -112,8 +115,15 @@ class app(base_app):
                       stdout=surf_log_file)
             # save into bin dir
             shutil.copy(self.src_dir + os.path.join("demo_SURF_src",
-                                                    "bin", "surf"),
-                        surf_prog_file)
+                                                    "bin","display_surf"),
+                        surf_prog_folder+os.path.join("display_surf"))
+            shutil.copy(self.src_dir + os.path.join("demo_SURF_src",
+                                                    "bin","extract_surf"),
+                        surf_prog_folder+os.path.join("extract_surf"))
+            shutil.copy(self.src_dir + os.path.join("demo_SURF_src",
+                                                    "bin","match_surf"),
+                        surf_prog_folder+os.path.join("match_surf"))
+            
             # cleanup the source dir
             shutil.rmtree(self.src_dir)
         return
