@@ -11,6 +11,7 @@ import cherrypy
 import os.path
 import math
 
+from mako.exceptions import RichTraceback
 from . import http
 from . import config
 from . import archive
@@ -118,7 +119,26 @@ class base_app(empty_app):
                           == 'production')
 
         tmpl = self.tmpl_lookup.get_template(tmpl_fname)
-        return tmpl.render(**kwargs)
+
+        # Render the template
+        # If an exception occurs, render an error page showing the traceback
+        try:
+            return tmpl.render(**kwargs)
+        except:
+            traceback_string = "<h1>IPOL template rendering error</h1>"
+            traceback_string += "<h2>Template: %s</h2>" % tmpl_fname
+            traceback_string += "<h2>kwargs: %s</h2>" % kwargs
+            traceback = RichTraceback()
+            for (filename, lineno, function, line) in traceback.traceback:
+                traceback_string += \
+                    "File <b>%s</b>, line <b>%d</b>, in <b>%s</b><br>" % \
+                    (filename, lineno, function)
+                traceback_string += line + "<br><br>"
+            traceback_string += "%s: %s" % \
+                (str(traceback.error.__class__.__name__), \
+                traceback.error) + "<br>"
+            return traceback_string
+
 
     #
     # INDEX
