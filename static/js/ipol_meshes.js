@@ -1,3 +1,4 @@
+// IPOL meshes API
 // By Miguel Colom, 2014
 
 // Global variables
@@ -13,7 +14,7 @@ var windowHalfY = window.innerHeight;
 
 var init_cam_pos = [0, 0, 0];
 
-
+// Mesh initialization
 function init_mesh(div_id, init_cam_pos, obj_filename) {
   //container = document.createElement( 'div' );
   container = document.getElementById(div_id);
@@ -39,15 +40,14 @@ function init_mesh(div_id, init_cam_pos, obj_filename) {
                 
   scene.add( camera );
 
-  //var ambient = new THREE.AmbientLight( 0x101030 );
-  var ambient = new THREE.AmbientLight( 0x101010 );
+  var ambient = new THREE.AmbientLight(0x080808);
   scene.add(ambient);
   scene.add(ambient.target);
 
 
-  light_intensity = 0.5;
+  light_intensity = 0.6;
   light_distance = 0;
-  camera_light = new THREE.PointLight(0xffeedd, light_intensity, light_distance);
+  camera_light = new THREE.PointLight(0xffffff, light_intensity, light_distance);
   camera_light.position.set( 0, 0, 1 ).normalize();
   scene.add( camera_light );
   scene.add( camera_light.target );
@@ -65,8 +65,7 @@ function init_mesh(div_id, init_cam_pos, obj_filename) {
   container.appendChild( renderer.domElement );
 
   // Event listeners
-  //document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-  window.addEventListener( 'resize', onWindowResize, false );
+  //window.addEventListener('resize', onWindowResize, false );
 
   camera.position.x = init_cam_pos[0];
   camera.position.y = init_cam_pos[1];
@@ -77,13 +76,14 @@ function init_mesh(div_id, init_cam_pos, obj_filename) {
 }
 
 
+// Scene animation
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   render();
 }
 
-
+// Scene rendering
 function render() {
   //camera.position.x += ( mouseX - camera.position.x ) * .05;
   //camera.position.y += ( - mouseY - camera.position.y ) * .05;
@@ -95,16 +95,19 @@ function render() {
 
 // API
 
+// Reset camera position
 function camera_reset() {
   camera.position.x = init_cam_pos[0];
   camera.position.y = init_cam_pos[1];
   camera.position.z = init_cam_pos[2];
 }
 
+// Getter for the camera position
 function get_camera_position() {
   return camera.position;
 }
 
+// Functions to control camera and scene positions
 function camera_add_x(inc) {
   camera.position.x += inc;
 }
@@ -129,18 +132,20 @@ function scene_add_z(inc) {
   scene.position.z += inc;
 }
 
-function ipol_start_mesh(div_id, pinit_cam_pos, obj_filename) {
-  init_cam_pos = pinit_cam_pos;
-
-  init_mesh(div_id, pinit_cam_pos, obj_filename);
-  animate();
-}
-
+// Event listener
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   
   renderer.setSize( window.innerWidth, window.innerHeight );
   controls.handleResize();
+}
+
+// IPOL entry point
+function ipol_start_mesh(div_id, pinit_cam_pos, obj_filename) {
+  init_cam_pos = pinit_cam_pos;
+
+  init_mesh(div_id, pinit_cam_pos, obj_filename);
+  animate();
 }
 
