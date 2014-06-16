@@ -2,8 +2,8 @@
 
 <div class="archive_index">
 <p>
-${nbpublic} public archives out of ${nbtotal} online experiments with
-original images since ${firstdate}.<br />
+${nbtotal} public archives of online experiments with
+original point sets since ${firstdate}.<br />
 This archive is not moderated.
 In case of copyright infringement or similar problem, please
 <a href="http://www.ipol.im/meta/contact/">contact us</a> to request
@@ -15,7 +15,6 @@ matters, inadequate content, user requests, or other reasons.
 <p>
 <%include file="archive_pages.html" />
 </p>
-
 <hr class="clear">
 %for bucket in bucket_list:
 <%
@@ -53,8 +52,6 @@ non_images = filter(lambda i : i.is_file and not i.has_tn, bucket['files'])
 
 <hr class="clear">
 %endfor
-
-
 
 <p>
 <%include file="archive_pages.html" />

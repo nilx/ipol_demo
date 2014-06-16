@@ -27,11 +27,12 @@ class app(base_app):
     """
     # IPOL demo system configuration
     title = 'Ball Pivoting Algorithm'
-    xlink_article = 'http://www.ipol.im/pub/pre/81/'
+    xlink_article = 'http://www.ipol.im/pub/pre/81'
     input_max_weight = 100000000
     input_max_lines = 150000
     recommended_radius = str([0.1])
     size = 0.0
+    timeout = 90
     is_test = False
 
 
@@ -191,8 +192,7 @@ class app(base_app):
         return nn
 
     @cherrypy.expose
-    @staticmethod
-    def normalize(filename):
+    def normalize(self, filename):
         """
         normalize the point cloud
         """
@@ -358,6 +358,9 @@ class app(base_app):
     @cherrypy.expose
     @init_app
     def params(self, r=None, newrun=False, msg=None):
+        """
+        params
+        """
         # return the parameters page
         if newrun:
             self.clone_input()
@@ -403,6 +406,9 @@ class app(base_app):
     @cherrypy.expose
     @init_app
     def run(self):
+        """
+        run
+        """
         # read the parameters
         r = self.cfg['param']['r']
 
@@ -468,6 +474,9 @@ class app(base_app):
     @cherrypy.expose
     @init_app
     def result(self, r=None):
+        """
+        result
+        """
         stdout_str = open(self.work_dir + 'stdout.txt', 'r').read()
         stdout_str = stdout_str.replace("\n", "<br/>")
 

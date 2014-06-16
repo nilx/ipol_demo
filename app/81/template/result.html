@@ -48,12 +48,14 @@ Download the mesh result <a href = "${app.work_url + 'output.ply.gz'}" download>
 </p>
 <hr />
 
-<h2>meshes</h2>
-<div style="border:2px solid black; width:700px;height:700px; float:left" id="div_mesh"></div>
+<h2>Mesh 3D visualization</h2>
+<div style="border:2px solid black; position: relative; width:1000px; height:1000px; float:left; margin-left: auto; margin-right: auto;" id="div_mesh"></div>
+You can rotate the 3D scene by moving the mouse while pressing the left button.<br>
+To zoom-in and zoom-out use the mouse's wheel.
 
 <script>
-cam_pos=[3,0, 0]
-ipol_start_mesh("div_mesh",cam_pos,"${app.work_url + 'output.obj'}");
+  cam_pos=[3,0, 0]
+  ipol_start_mesh("div_mesh",cam_pos,"${app.work_url + 'output.obj'}");
 </script>
 
 <div style="clear:both"></div>
@@ -62,8 +64,6 @@ ipol_start_mesh("div_mesh",cam_pos,"${app.work_url + 'output.obj'}");
 <p>
 ${stdout_str}
 </p>
-
-
 
 <%include file="archive_info.html"/>
 <%include file="footer.html" />
