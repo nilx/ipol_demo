@@ -16,9 +16,7 @@ class app(base_app):
     """ demo app """
     
     title = "An analysis of the SURF method"
-    xlink_article = 'http://www.ipol.im/pub/69/'
-
-
+    xlink_article = 'http://www.ipol.im/pub/pre/69/'
     input_nb = 2
     input_max_pixels = 3 * 1000 * 1000
     input_max_method = 'zoom'
