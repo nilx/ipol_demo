@@ -25,9 +25,9 @@ function sci2str(sci, numDigits)
 // valueMin     minimum value
 // valueMax     maximum value
 // numDigits    number of digits after decimal point
-function createLinkedSliderExp(inputId, sliderId, 
+function createLinkedSliderExp(inputId, sliderId,
     valueMin, valueMax, numDigits)
-{    
+{
     var inputObj = $(inputId);
     // Create JQueryUI slider
     var sliderObj = $(sliderId).slider({
@@ -36,7 +36,7 @@ function createLinkedSliderExp(inputId, sliderId,
         value: num2sci(parseFloat(                 // Initial value
             inputObj.attr('value')), numDigits),
         animate: 'fast'});                         // Animation speed
-    
+
     // Update slider when input changes
     inputObj.blur(function()
         {
@@ -48,13 +48,13 @@ function createLinkedSliderExp(inputId, sliderId,
             else
             {
                 value = num2sci(value, numDigits);
-                valueClamped = Math.min(Math.max(value, 
-                    sliderObj.slider('option', 'min')), 
+                valueClamped = Math.min(Math.max(value,
+                    sliderObj.slider('option', 'min')),
                     sliderObj.slider('option', 'max'));
             }
 
             sliderObj.slider('value', valueClamped);
-    
+
             if(value != valueClamped)
                 inputObj.val(sci2str(valueClamped, numDigits));
         });
@@ -77,11 +77,11 @@ function spritecoords(s)
 <!--
 <%include file="js/createlinkedslider.js" />
 
-$(document).ready(function() 
+$(document).ready(function()
 {
     createLinkedSlider('#layercount', '#slider1', 1, 31, 1);
     createLinkedSlider('#threshold', '#slider2', 0, 10, 0.1);
-	
+
 });
 // -->
 </script>
@@ -90,10 +90,10 @@ $(document).ready(function()
 
 
 <fieldset>
-<div style="position:relative; width:6em; top:-1em; 
+<div style="position:relative; width:6em; top:-1em;
 padding:.2em .5em; background-color:#ffffff; margin:0px">Parameters</div>
 
-Please choose the number of layers in the cascade 
+Please choose the number of layers in the cascade
 
 <input type="hidden" name="key" value="${app.key}" />
 <table border="0" style="margin-left:2em;margin-right:0;text-align:right;background:none">
@@ -152,7 +152,7 @@ size="7" id="threshold" name="threshold" value="${app.cfg['param']['threshold']}
 <div style="clear:both; font-size:8pt">&nbsp;</div>
 
     %if app.cfg['param']['x0'] == None or app.cfg['param']['y0'] == None:
-        <p>Or you can run it after selecting a subimage by clicking two 
+        <p>Or you can run it after selecting a subimage by clicking two
         opposite corners.</p>
         <p><input type="image" style="cursor:crosshair;" name=""
             src="${app.work_url + 'input_0.png'}" /></p>

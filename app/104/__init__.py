@@ -1,5 +1,5 @@
 """
-SPLE denoising ipol demo web app
+The Viola-Jones Face Detector
 """
 
 from .app import app

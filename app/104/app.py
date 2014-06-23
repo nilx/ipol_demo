@@ -1,5 +1,5 @@
 """
-Viola Jones Face Detector
+The Viola-Jones Face Detector
 """
 
 from lib import base_app, build, http, image
@@ -16,35 +16,35 @@ import math
 import PIL.Image
 
 def check_grayimage(nameimage):
-  """
+    """
     Check if image is monochrome (1 channel or 3 identical channels)
     """
-  isGray = True
-  
-  im = PIL.Image.open(nameimage)
-  if im.mode not in ("L", "RGB"):
-    raise ValueError("Unsuported image mode for histogram computation")
-  
-  if im.mode == "RGB":
-    pix = im.load()
-    size = im.size
-    for y in range(0, size[1]):
-      if not isGray:
-        break
-      for x in range(0, size[0]):
-        if not isGray:
-          break
-        if (pix[x, y][0] != pix[x, y][1]) or \
-          (pix[x, y][0] != pix[x, y][2]):
-            isGray = False
-  
-  
-  return isGray
+    isGray = True
+
+    im = PIL.Image.open(nameimage)
+    if im.mode not in ("L", "RGB"):
+        raise ValueError("Unsuported image mode for histogram computation")
+
+    if im.mode == "RGB":
+        pix = im.load()
+        size = im.size
+        for y in range(0, size[1]):
+            if not isGray:
+                break
+            for x in range(0, size[0]):
+                if not isGray:
+                    break
+                if (pix[x, y][0] != pix[x, y][1]) or \
+                    (pix[x, y][0] != pix[x, y][2]):
+                    isGray = False
+
+
+    return isGray
 
 class app(base_app):
-    """ Viola Jones Face Detector """
+    """ The Viola-Jones Face Detector """
 
-    title = 'An Analysis of Viola-Jones Face Detection Algorithm'
+    title = 'An Analysis of the Viola-Jones Face Detection Algorithm'
     xlink_article = 'http://www.ipol.im/pub/pre/104/'
 
     input_nb = 1
@@ -86,14 +86,14 @@ class app(base_app):
         """
         program build/update
         """
-        
+
         # store common file path in variables
         archive = 'vj_20140328'
         tgz_url = 'http://www.ipol.im/pub/pre/104/' \
             + archive + '.tar.gz'
         tgz_file = self.dl_dir + archive + '.tar.gz'
         progs = ['detect']
-        src_bin = dict([(self.src_dir 
+        src_bin = dict([(self.src_dir
             + os.path.join(archive, prog),
             self.bin_dir + prog) for prog in progs])
         log_file = self.base_dir + 'build.log'
@@ -133,11 +133,11 @@ class app(base_app):
         """
         Configure the algo execution
         """
-        if newrun:            
+        if newrun:
             old_work_dir = self.work_dir
             self.clone_input()
             # Keep old parameters
-            self.cfg['param'] = cfg_open(old_work_dir 
+            self.cfg['param'] = cfg_open(old_work_dir
                 + 'index.cfg', 'rb')['param']
             # Also need to clone input_0_sel.png in case the user is running
             # with new parameters but on the same subimage.
@@ -148,14 +148,14 @@ class app(base_app):
         self.cfg['param'] = dict(self.default_param, **self.cfg['param'])
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
-        
+
         # Reset cropping parameters if running with a different subimage
         if msg == 'different subimage':
             self.cfg['param']['x0'] = None
             self.cfg['param']['y0'] = None
             self.cfg['param']['x'] = None
             self.cfg['param']['y'] = None
-        
+
         return self.tmpl_out('params.html')
 
 
@@ -165,25 +165,25 @@ class app(base_app):
         """
         Run redirection
         """
-        
-        # Read webpage parameters from kwargs, but only those that 
+
+        # Read webpage parameters from kwargs, but only those that
         # are defined in the default_param dict.  If a parameter is not
         # defined by kwargs, the value from default_param is used.
-        self.cfg['param'] = dict(self.default_param.items() + 
-            [(p,kwargs[p]) for p in self.default_param.keys() if p in kwargs])
+        self.cfg['param'] = dict(self.default_param.items() +
+            [(p, kwargs[p]) for p in self.default_param.keys() if p in kwargs])
         # Generate a new timestamp
         self.timestamp = int(100*time.time())
-        
+
         if not 'action' in kwargs:
             # Select a subimage
             x = self.cfg['param']['x']
             y = self.cfg['param']['y']
             x0 = self.cfg['param']['x0']
             y0 = self.cfg['param']['y0']
-            
+
             if x != None and y != None:
                 img = image(self.work_dir + 'input_0.png')
-                
+
                 if x0 == None or y0 == None:
                     # (x,y) specifies the first corner
                     (x0, y0, x, y) = (int(x), int(y), None, None)
@@ -195,33 +195,33 @@ class app(base_app):
                     (x0, x) = sorted((int(x0), int(x)))
                     (y0, y) = sorted((int(y0), int(y)))
                     assert (x - x0) > 0 and (y - y0) > 0
-                    
+
                     # Crop the image
                     # Check if the original image is a different size, which is
                     # possible if the input image is very large.
                     imgorig = image(self.work_dir + 'input_0.orig.png')
-                    
-                    if imgorig.size != img.size:                        
+
+                    if imgorig.size != img.size:
                         s = float(imgorig.size[0])/float(img.size[0])
                         imgorig.crop(tuple([int(s*v) for v in (x0, y0, x, y)]))
                         img = imgorig
                     else:
                         img.crop((x0, y0, x, y))
-                    
+
                 img.save(self.work_dir + 'input_0_sel.png')
                 self.cfg['param']['x0'] = x0
                 self.cfg['param']['y0'] = y0
                 self.cfg['param']['x'] = x
                 self.cfg['param']['y'] = y
-            
+
             return self.tmpl_out('params.html')
         else:
             if any(self.cfg['param'][p] == None \
                 for p in ['x0', 'y0', 'x', 'y']):
                 img0 = image(self.work_dir + 'input_0.png')
                 img0.save(self.work_dir + 'input_0_sel.png')
-            
-            http.refresh(self.base_url + 'run?key=%s' % self.key)            
+
+            http.refresh(self.base_url + 'run?key=%s' % self.key)
             return self.tmpl_out("wait.html")
 
 
@@ -238,18 +238,18 @@ class app(base_app):
             self.run_algo(stdout=stdout)
             self.cfg['info']['run_time'] = time.time() - run_time
         except TimeoutError:
-            return self.error(errcode='timeout') 
+            return self.error(errcode='timeout')
         except RuntimeError:
             print "Run time error"
             return self.error(errcode='runtime')
-        
+
         stdout.close()
         http.redir_303(self.base_url + 'result?key=%s' % self.key)
-        
+
         # Archive
         if self.cfg['meta']['original']:
-            ar = self.make_archive()                        
-            ar.add_info({'action': self.cfg['param']['action']}) 
+            ar = self.make_archive()
+            ar.add_info({'action': self.cfg['param']['action']})
             ar.add_file('input_0_sel.png', info='exact image')
             ar.add_file('detectedraw.png', info='raw detection')
             ar.add_file('ppSkin.png', info='skin color detection')
@@ -266,29 +266,31 @@ class app(base_app):
         could also be called by a batch processor
         this one needs no parameter
         """
-        
+
         timeout = False
         files = ['input_0_sel', 'detectedraw', 'ppSkin', 'ppRobust', 'ppBoth']
-       
-        self.wait_proc(self.run_proc(['detect', 'input_0_sel.png', str(self.cfg['param']['layercount']), str(self.cfg['param']['threshold'])],
+
+        self.wait_proc(self.run_proc(['detect', 'input_0_sel.png', \
+                str(self.cfg['param']['layercount']), \
+                str(self.cfg['param']['threshold'])], \
                 stdout=stdout, stderr=stdout), timeout*0.90)
-           
+
         # Resize for visualization (always zoom by at least 2x)
         (sizeX, sizeY) = image(self.work_dir + 'input_0_sel.png').size
         zoomfactor = max(1, int(math.ceil(480.0/max(sizeX, sizeY))))
-        
+
         if zoomfactor > 1:
             (sizeX, sizeY) = (zoomfactor*sizeX, zoomfactor*sizeY)
-            
+
             for filename in files:
                 im = image(self.work_dir + filename + '.png')
                 im.resize((sizeX, sizeY), method='nearest')
                 im.save(self.work_dir + filename + '_zoom.png')
-            
+
             self.cfg['param']['disp_suffix'] = '_zoom.png'
         else:
             self.cfg['param']['disp_suffix'] = '.png'
-        
+
         self.cfg['param']['zoomfactor'] = zoomfactor
         self.cfg['param']['displayheight'] = max(200, sizeY)
         self.cfg['param']['stdout'] = \
@@ -298,4 +300,4 @@ class app(base_app):
         isGray = check_grayimage(self.work_dir + 'input_0_sel.png')
         self.cfg['param']['isgray'] = isGray
 
-    
+
