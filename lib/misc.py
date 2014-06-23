@@ -11,7 +11,7 @@ import gzip as _gzip
 # TINY STUFF
 #
 
-prod = lambda l : reduce(lambda a, b : a * b, l, 1)
+prod = lambda l: reduce(lambda a, b: a * b, l, 1)
 
 #
 # BASE_APP REUSE

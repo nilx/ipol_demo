@@ -26,7 +26,7 @@ def _deinterlace_png(path):
             # check the file exists
             assert os.path.isfile(path)
             # convert it to non-interlaced
-            os.system("/usr/bin/convert %s %s" 
+            os.system("/usr/bin/convert %s %s"
                       % (path, path))
             im = PIL.Image.open(path)
             # try once again, in case there is another problem
@@ -115,16 +115,15 @@ def drawhistogram(imout, h, ymax, ymin, scaleH, color):
     for x in range(0, 256):
         if (ymax-int(h[x] * scaleH)) < ymin:
             #saturated value
-            draw.line([(x, ymax), 
+            draw.line([(x, ymax),
                        (x, ymin)],
                        fill=0)
         else:
-            draw.line([(x, ymax), 
+            draw.line([(x, ymax),
                        (x, ymax-int(h[x] * scaleH))],
                        fill=color)
     del draw
 
-    
 #
 # IMAGE CLASS
 #
@@ -221,9 +220,9 @@ class image(object):
                 pass
             else:
                 # scaling ratio
-                if not (size[0] >= self.im.size[0] and 
+                if not (size[0] >= self.im.size[0] and
                         size[0] % self.im.size[0] == 0 and
-                        size[1] >= self.im.size[1] and 
+                        size[1] >= self.im.size[1] and
                         size[1] % self.im.size[1] == 0):
                     raise ValueError('the scale factor must be'
                                      + ' a positive integer number')
@@ -274,21 +273,18 @@ class image(object):
         or a list of filenames where these images are saved
         """
         # TODO refactor, don't automatically save
-        
-        try:
-            assert (nb >= 2)
-        except AssertionError:
-            raise ValueError('nb must be >= 2')
+
+        assert nb >= 2
 
         xmax, ymax = self.im.size
         dy = float(ymax) / nb
-        
+
         # list of the crop boxes
         boxes = [(0, 0, xmax, int(dy) + margin)]
         boxes += [(0, int(n * dy) - margin, xmax, int((n + 1) * dy) + margin)
                  for n in range(1, nb - 1)]
         boxes += [(0, int((nb - 1) * dy) - margin, xmax, ymax)]
-        
+
         # cut the image
         tiles = [image(self.im.crop(box)) for box in boxes]
 
@@ -310,7 +306,7 @@ class image(object):
         xmax = tiles[0].im.size[0]
         ymax = 0
         for tile in tiles:
-            assert (tile.im.size[0] == xmax)
+            assert tile.im.size[0] == xmax
             ymax += tile.im.size[1] - 2 * margin
         ymax += 2 * margin
 
@@ -360,7 +356,7 @@ class image(object):
         @param color: the grid color
         @return: the image object
         """
-        assert (step > 0)
+        assert step > 0
         # vertical lines
         y = self.im.size[1]
         for x in range(offset[0], self.im.size[0], step):
@@ -380,7 +376,7 @@ class image(object):
         @param color: the grid color
         @return: the image object
         """
-        assert (size >= 0)
+        assert size >= 0
         (x, y) = position
         # vertical line
         self.draw_line(((x, y - size), (x, y + size)), color=color)
@@ -405,13 +401,13 @@ class image(object):
                        "B" histogram of B values, "I" histogram of I values,
                        "all" histograms of R, G, B and I values
         """
-        
+
         # constant values
         offsetH = {"R":0, "G":256, "B":512, "I":768}
         rgb2I = (
             0.333333, 0.333333, 0.333333, 0,
             0, 0, 0, 0,
-            0, 0, 0, 0 )
+            0, 0, 0, 0)
 
         # check image mode
         if self.im.mode not in ("L", "RGB"):
@@ -425,7 +421,7 @@ class image(object):
             h = self.im.histogram()
             # compute histograms of I values
             if (option == "I") or (option == "all"):
-                # concatenate I histogram to RGB histograms      
+                # concatenate I histogram to RGB histograms
                 h = h + imgray.histogram()
             # get maximum of histograms of R, G, B and I values
             if option != "all":
@@ -449,21 +445,21 @@ class image(object):
                        "B" histogram of B values, "I" histogram of I values,
                        "all" histograms of R, G, B and I values
         """
-        
+
         # constant values
         offsetH = {"R":0, "G":256, "B":512, "I":768}
-        offsetY = {"R": sizeH[1]-1, 
-                   "G": 2*sizeH[1]+margin-1, 
-                   "B": 3*sizeH[1]+2*margin-1, 
+        offsetY = {"R": sizeH[1]-1,
+                   "G": 2*sizeH[1]+margin-1,
+                   "B": 3*sizeH[1]+2*margin-1,
                    "I": 4*sizeH[1]+3*margin-1}
-        color = {"R":(255, 0, 0), 
-                 "G":(0, 255, 0), 
-                 "B":(0, 0, 255), 
+        color = {"R":(255, 0, 0),
+                 "G":(0, 255, 0),
+                 "B":(0, 0, 255),
                  "I":(192, 192, 192)}
         rgb2I = (
             0.333333, 0.333333, 0.333333, 0,
             0, 0, 0, 0,
-            0, 0, 0, 0 )
+            0, 0, 0, 0)
 
         # check image mode
         if self.im.mode not in ("L", "RGB"):
@@ -477,7 +473,7 @@ class image(object):
             h = self.im.histogram()
             # compute histograms of I values
             if (option == "I") or (option == "all"):
-                # concatenate I histogram to RGB histograms      
+                # concatenate I histogram to RGB histograms
                 h = h + imgray.histogram()
             # create a white output image
             if option == "all":
@@ -501,8 +497,8 @@ class image(object):
                 else:
                     scaleH = float(sizeH[1]-1)/float(maxH)
                 for i in ['R', 'G', 'B', 'I']:
-                    drawhistogram(imout, h[offsetH[i]:offsetH[i]+256], 
-                                  offsetY[i], offsetY[i]-(sizeH[1]-1), 
+                    drawhistogram(imout, h[offsetH[i]:offsetH[i]+256],
+                                  offsetY[i], offsetY[i]-(sizeH[1]-1),
                                   scaleH, color[i])
         else:
             # compute histogram of I values

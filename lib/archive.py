@@ -162,7 +162,7 @@ class bucket(object):
             self.hook['post-save']()
 
 #
-# INDEX ITEMS 
+# INDEX ITEMS
 #
 
 class item(object):
@@ -181,7 +181,7 @@ class item(object):
         if os.path.isdir(path):
             self.is_file = False
             self.is_dir = True
-        if os.path.isfile(path): 
+        if os.path.isfile(path):
             self.is_file = True
             self.is_dir = False
             # thumbnails
@@ -196,7 +196,7 @@ class item(object):
 # DATABASE
 #
 
-_filter_listdir = lambda fname : (fname != "index.cfg"
+_filter_listdir = lambda fname: (fname != "index.cfg"
                                   and not fname.startswith('.'))
 def _add_record(cursor, ar):
     """
@@ -216,7 +216,7 @@ def _add_record(cursor, ar):
     except KeyError:
         cherrypy.log("missing archive file in %s" % (ar.path),
                      context='DEBUG', traceback=False)
-        
+
     # append the remaining files
     files += unordered_files.values()
 
@@ -254,7 +254,7 @@ def index_rebuild(indexdb, path):
     for key in list_key(path):
         try:
             _add_record(c, bucket(path=path, key=key))
-        except Exception:
+        except:
             cherrypy.log("indexing failed : %s %s" % (path, key),
                          context="ERROR", traceback=False)
     db.commit()
@@ -327,20 +327,20 @@ def index_first_date(indexdb, path=None):
         else:
             raise
 
-def index_add(indexdb, bucket, path=None):
+def index_add(indexdb, buc, path=None):
     """
     add an archive bucket to the index
     """
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
-        _add_record(c, bucket)
+        _add_record(c, buc)
         db.commit()
         c.close()
     except sqlite3.Error:
         if path:
             index_rebuild(indexdb, path)
-            return index_add(indexdb, bucket)
+            return index_add(indexdb, buc)
         else:
             raise
 
@@ -351,8 +351,9 @@ def index_delete(indexdb, key, path=None):
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
-        c.execute("delete from buckets where key=?", (key, ))
+        c.execute("DELETE FROM buckets WHERE key=?", (key, ))
         db.commit()
         c.close()
     except sqlite3.Error:
         raise
+

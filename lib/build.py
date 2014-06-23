@@ -16,7 +16,7 @@ def download(url, fname):
     """
     download a file from the network if it is newer than the local
     file
-    
+
     @param url: source url
     @param fname: destination file name
 
@@ -82,7 +82,7 @@ def extract(fname, target):
     assert not any([os.path.isabs(f) for f in content])
     # no .. in file name
     assert not any([(".." in f) for f in content])
-    
+
     # cleanup/create the target dir
     if os.path.isdir(target):
         shutil.rmtree(target)
@@ -91,7 +91,7 @@ def extract(fname, target):
     # extract into the target dir
     try:
         ar.extractall(target)
-    except IOError,AttributeError:
+    except IOError, AttributeError:
         # DUE TO SOME ODD BEHAVIOR OF extractall IN Pthon 2.6.1 (OSX 10.6.8)
         # BEFORE TGZ EXTRACT FAILS INSIDE THE TARGET DIRECTORY A FILE
         # IS CREATED, ONE WITH THE NAME OF THE PACKAGE
@@ -124,7 +124,7 @@ def run(command, stdout, cwd=None, env=None):
 
     @return: the exit code
     """
-    # merge env with the current environment 
+    # merge env with the current environment
     if env != None:
         environ = os.environ
         environ.update(env)

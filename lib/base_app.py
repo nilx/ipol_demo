@@ -18,6 +18,7 @@ from . import archive
 from .empty_app import empty_app
 from .image import thumbnail, image
 from .misc import prod
+from shutil import rmtree
 
 #
 # ACTION DECORATOR TO HANDLE GENERIC SETTINGS
@@ -64,7 +65,7 @@ def init_app(func):
                 ar.cfg['meta']['public'] = self.cfg['meta']['public']
                 ar.cfg.save()
                 archive.index_add(self.archive_index,
-                                  bucket=ar,
+                                  buc=ar,
                                   path=self.archive_dir)
         x = func(self, *args, **kwargs)
         self.cfg.save()
@@ -103,7 +104,7 @@ class base_app(empty_app):
             directories=[self.base_dir + 'template', tmpl_dir],
             input_encoding='utf-8',
             output_encoding='utf-8', encoding_errors='replace')
- 
+
     #
     # TEMPLATES HANDLER
     #
@@ -316,7 +317,7 @@ class base_app(empty_app):
         if newrun:
             self.clone_input()
         return self.tmpl_out("params.html", msg=msg,
-                             input = ['input_%i.png' % i
+                             input=['input_%i.png' % i
                                       for i in range(self.input_nb)])
 
     #
@@ -363,7 +364,7 @@ class base_app(empty_app):
         pass
 
     @init_app
-    def result(self, public=None):
+    def result(self):
         """
         display the algo results
         SHOULD be defined in the derived classes, to check the parameters
@@ -376,7 +377,7 @@ class base_app(empty_app):
     #
     # ARCHIVE
     #
-    
+
     @cherrypy.expose
     def archive(self, page=-1, key=None, adminmode=False):
         """
@@ -429,38 +430,40 @@ class base_app(empty_app):
     #
 
     @cherrypy.expose
-    def archive_admin(self, page=-1, key=None, deleteThisKey=None, rebuildIndexNow=None):
+    def archive_admin(self, page=-1, key=None, deleteThisKey=None, \
+                      rebuildIndexNow=None):
         """
         lists the archive content
         """
         # ATTEND TO DELETE COMMAND
-        if deleteThisKey and deleteThisKey!='':
-           # make sure the other key is not set
-           key=None
+        if deleteThisKey and deleteThisKey != '':
+            # make sure the other key is not set
+            key = None
 
-           # make sure that the target directory is inside the archive
-           # just to avoid any .. path to be erased
-           entrydir = os.path.abspath(os.path.join(self.archive_dir, archive.key2url(deleteThisKey)))
-           # these two strings must be the same
-           ard1 = os.path.abspath(self.archive_dir)
-           ard2 = os.path.commonprefix( ( ard1, entrydir) )
+            # make sure that the target directory is inside the archive
+            # just to avoid any .. path to be erased
+            entrydir = os.path.abspath(os.path.join(self.archive_dir, \
+                                       archive.key2url(deleteThisKey)))
+            # these two strings must be the same
+            ard1 = os.path.abspath(self.archive_dir)
+            ard2 = os.path.commonprefix((ard1, entrydir))
 
-           # proceed to delete the entry then continue as always
-           # the bucket directory must exist and must be a subdir of archive
-           if ard1==ard2 and ard1!=entrydir and os.path.isdir(entrydir):
-              print "REMOVING ARCHIVE ENTRY: " + entrydir
-              # REMOVE THE DIRECTORY
-              from shutil import rmtree
-              rmtree(entrydir)
+            # proceed to delete the entry then continue as always
+            # the bucket directory must exist and must be a subdir of archive
+            if ard1 == ard2 and ard1 != entrydir and os.path.isdir(entrydir):
+                print "REMOVING ARCHIVE ENTRY: " + entrydir
+                # REMOVE THE DIRECTORY
+                rmtree(entrydir)
 
-              # REMOVE THE ENTRY FROM THE DATABASE BACKEND
-              archive.index_delete(self.archive_index, deleteThisKey)
-           else:
-              print "IGNORING BOGUS ENTRY REMOVAL: " + entrydir
+                # REMOVE THE ENTRY FROM THE DATABASE BACKEND
+                archive.index_delete(self.archive_index, deleteThisKey)
+            else:
+                print "IGNORING BOGUS ENTRY REMOVAL: " + entrydir
 
         # ATTEND TO REBUILD-INDEX COMMAND
         if rebuildIndexNow:
-           archive.index_rebuild(self.archive_index, self.archive_dir)
+            archive.index_rebuild(self.archive_index, self.archive_dir)
 
         # USUAL ARCHIVE BEHAVIOR
         return self.archive(page=page, key=key, adminmode=True)
+

@@ -122,7 +122,8 @@ if __name__ == '__main__':
     testcfg['str'] = {'a' : "alpha", 'b' : "beta gamma delta"}
     testcfg.save()
     f = open('test.cfg', 'rb')
-    print (f.read())
+    print f.read()
     f.close()
     testcfg = cfg_open('test.cfg')
     print testcfg
+
