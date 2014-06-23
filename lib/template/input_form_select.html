@@ -28,6 +28,7 @@ Click on an image to use it as the algorithm input.
 <div id="credits"
      style="display:none; font-size: 80%"> 
   %for id in sorted(inputd.keys()):
+  %if inputd[id].has_key('credit'):
   %for url in inputd[id]['url']:
   <a href="${url}">
     <img height="24"
@@ -36,6 +37,7 @@ Click on an image to use it as the algorithm input.
   %endfor
   ${inputd[id]['credit'] | h}
   <br/>
+  %endif
   %endfor
 </div>
 %endif
