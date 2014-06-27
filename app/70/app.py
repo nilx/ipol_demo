@@ -349,7 +349,7 @@ class app(base_app):
             create an archive bucket
             """
             return archive.index_add(self.archive_index,
-                                     bucket=ar,
+                                     buc=ar,
                                      path=self.archive_dir)
         ar.hook['post-save'] = hook_index
         return ar
