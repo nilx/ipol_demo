@@ -34,7 +34,7 @@ function init_mesh(div_id, init_cam_pos, obj_filename) {
   controls.zoomSpeed = 5;
   controls.panSpeed = 2;
   controls.noZoom = false;
-  controls.noPan = false;
+  controls.noPan = true;
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0.3;
                 
