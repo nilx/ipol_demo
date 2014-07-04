@@ -1,0 +1,124 @@
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div style="max-height:30em; overflow:auto;">
+    <fieldset style="padding-top:0.0ex" >
+      <legend style="font-weight:bold;"> Semigroup demonstration </legend>
+
+<!--  Sigma  -->
+<%
+try:
+   sigma = float(app.cfg['param']['sigma'])
+except Exception:
+   sigma = 0.5
+%>
+<div style="float:left;padding-right:5px;width:6em;">
+    &sigma;
+</div>
+   <input type="text" style="float:left;font-family:monospace;text-align:right"
+    size="4" id="sigma" name="sigma" value="${sigma}" />
+<div id="sigma_slider" name="sigma_slider" style="width:250px;margin-left:5px;margin-right:1em;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#sigma', '#sigma_slider',0.1, 8.0, 0.1); 
+    });
+    </script>
+    <div>
+    Smoothing parameter.
+    </div>
+<div style="clear:both;margin-bottom:5px;"> </div>
+
+<!--  N  -->
+<%
+try:
+   n = float(app.cfg['param']['n'])
+except Exception:
+   n = 3
+%>
+<div style="float:left;padding-right:5px;width:6em;">
+    N
+</div>
+   <input type="text" style="float:left;font-family:monospace;text-align:right"  size="4" id="N" name="N" value="${n}" />
+   <div id="N_slider" name="N_slider" style="width:250px;margin-left:5px;margin-right:1em;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#N', '#N_slider',1, 10, 1); 
+    });
+    </script>
+    <div>
+        Number of iterations. A smoothing of parameter <math><msqrt><mi>N</mi></msqrt></math> &sigma; is compared to <math><mi>N</mi></math> iterations with parameter &sigma;. 
+    </div>
+<div style="clear:both;margin-bottom:5px;"> </div>
+
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div style="max-height:30em; overflow:auto;">
+    <fieldset style="padding-top:0.0ex" >
+      <legend> Sampled Gaussian kernel </legend>
+
+<!--  k  -->
+<%
+try:
+    k = float(app.cfg['param']['k'])
+except Exception:
+   k = 3
+%>
+<div style="float:left;padding-right:5px;width:6em;">
+    k
+</div>
+   <input type="text" style="float:left;font-family:monospace;text-align:right"
+    size="4" id="k" name="k" value="${k}" />
+<div id="k_slider" name="k_slider" style="width:250px;margin-left:5px;margin-right:1em;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#k', '#k_slider',1, 6, 1); 
+    });
+    </script>
+    <div>
+    The sampled Gaussian kernel is truncated at ceil(k&sigma;);.
+    </div>
+<div style="clear:both;margin-bottom:5px;"> </div>
+
+
+    </fieldset>
+</div>
+
+
+
+
+
+
+
+<form action="${app.base_url + 'wait'}" method="get">
+<div style="max-height:30em; overflow:auto;">
+    <fieldset style="padding-top:0.0ex" >
+      <legend > Lindeberg's smoothing method </legend>
+
+<%
+try:
+   gamma =  float(app.cfg['param']['gamma'])
+except Exception:
+   gamma = 0.5
+%>
+<div style="float:left;padding-right:5px;width:6em;">
+    &gamma;
+</div>
+   <input type="text" style="float:left;font-family:monospace;text-align:right"
+    size="4" id="gamma" name="gamma" value="${gamma}" />
+<div id="gamma_slider" name="gamma_slider" style="width:250px;margin-left:5px;margin-right:1em;float:left;margin-top:4px;font-size:10pt"></div>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      createLinkedSlider('#gamma', '#gamma_slider',0, 0.5, 0.01); 
+    });
+    </script>
+    <div>
+    The parameter &gamma; controls the shape of the Laplacian discrete operator.
+    </div>
+<div style="clear:both;margin-bottom:5px;"> </div>
+
+
+    </fieldset>
+</div>
+    
+    
+    </fieldset>
+</div>

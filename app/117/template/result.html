@@ -1,0 +1,162 @@
+<%include file="header-jquery.html" />
+<%include file="css_style.html" />
+
+
+
+<script type="text/javascript">
+<%include file="js/createlinkedslider.js" />
+</script>
+
+
+<%
+def rnd():
+   import random
+   return random.randint(0,100000)
+%>
+
+
+<p>The algorithm result is displayed hereafter. You can run this algorithm again with new data.</p>
+
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+<form style="float:left" action="${app.base_url}" method="get">
+<p style="padding:0px;margin:0px">Run again? &nbsp;<input type="submit" value="new input" /></p>
+</form>
+
+<form action="${app.base_url + 'params'}" method="get">
+<input type="hidden" name="key" value="${app.key}">
+<p style="padding:0px;margin:0px">&nbsp;<input type="submit" value="different parameters" /></p>
+</form>
+
+<div style="clear:both; font-size:8pt">&nbsp;</div>
+
+
+
+
+<p> &sigma; = ${app.cfg['param']['sigma']},  N = ${app.cfg['param']['n']}.</p>
+<p> k = ${app.cfg['param']['k']},  &gamma;  = ${app.cfg['param']['gamma']}.</p>
+
+
+<div style="max-height:30em; max-width:35em; overflow:auto;">
+<p>
+A: Gaussian filter with parameter  <math><msqrt><mi>N</mi></msqrt></math> &sigma; </br>
+B: N iterations of Gaussian filter with parameter &sigma;  </br>
+</p>
+</div>
+
+
+<div class="gallerytab" style="height:${app.cfg['param']['width']}px;">
+
+<ul class="index">
+        <!-- DFT -->
+<li style="width:32%">
+ <a>A
+  <span>
+    <p style="font-size:15px;"> DFT - single iteration of parameter  <math><msqrt><mi>N</mi></msqrt></math> &sigma;. </p>
+    <img src="${app.work_url + 'dft_direct.png'}?rnd=${rnd()}" style="width:100%;"  />
+    <p style="font-size:15px;"> DFT - single iteration of parameter  <math><msqrt><mi>N</mi></msqrt></math> &sigma;. </p>
+  </span>
+ </a>
+</li>
+<li style="width:32%">
+ <a>B
+ <span>
+  <p  style="font-size:15px;"> DFT - N iterations of parameter &sigma;.  </p>
+  <img src="${app.work_url + 'dft_iter.png'}?rnd=${rnd()}" style="width:100%;"  />
+  <p  style="font-size:15px;"> DFT - N iterations of parameter &sigma;.  </p>
+ </span>
+ </a>
+</li>
+<li style="width:32%"><a>|A-B|
+<span>
+<p  style="font-size:15px;"> DFT - difference. ${open(app.work_dir + 'rmse_dft.txt', 'r').read()}</p>
+<img src="${app.work_url + 'dft_diff.png'}?rnd=${rnd()}" style="width:100%;"  />
+<p  style="font-size:15px;"> DFT - difference. ${open(app.work_dir + 'rmse_dft.txt', 'r').read()}</p>
+</span></a> </li>
+
+
+        <!-- DCT -->
+<li style="width:32%"><a> A
+<span>
+    <p style="font-size:15px;"> DCT - single iteration of parameter     <math><msqrt><mi>N</mi></msqrt></math> &sigma;.     </p>
+    <img src="${app.work_url + 'dct_direct.png'}?rnd=${rnd()}" style="width:100%;"  />
+    <p style="font-size:15px;"> DCT - single iteration of parameter     <math><msqrt><mi>N</mi></msqrt></math> &sigma;.     </p>
+</span></a> </li>
+<li style="width:32%"><a> B
+<span>
+<p style="font-size:15px;"> DCT - N iterations of parameter &sigma;.  </p>
+<img src="${app.work_url + 'dct_iter.png'}?rnd=${rnd()}" style="width:100%;"  />
+<p style="font-size:15px;"> DCT - N iterations of parameter &sigma;.  </p>
+</span></a> </li>
+<li style="width:32%"><a> |A-B|
+<span>
+<p style="font-size:15px;"> DCT - difference. ${open(app.work_dir + 'rmse_dct.txt', 'r').read()}</p>
+<img src="${app.work_url + 'dct_diff.png'}?rnd=${rnd()}" style="width:100%;"  />
+<p style="font-size:15px;"> DCT - difference. ${open(app.work_dir + 'rmse_dct.txt', 'r').read()}</p>
+</span></a> </li>
+
+
+
+        <!-- Sampled Gaussian kernel -->
+        <li style="width:32%"><a> A
+<span>
+   <p style="font-size:15px;"> Sampled Gaussian kernel - N iterations of parameter &sigma;. </p>
+   <img src="${app.work_url + 'sampled_kernel_direct.png'}?rnd=${rnd()}" style="width:100%;"  />
+   <p style="font-size:15px;"> Sampled Gaussian kernel - single iteration of parameter  <math><msqrt><mi>N</mi></msqrt></math> &sigma;. </p>
+</span></a> </li>
+<li style="width:32%"><a> B
+<span>
+<p style="font-size:15px;"> Sampled Gaussian kernel - N iterations of parameter &sigma;. </p>
+<img src="${app.work_url + 'sampled_kernel_iter.png'}?rnd=${rnd()}" style="width:100%;"  />
+<p style="font-size:15px;"> Sampled Gaussian kernel - N iterations of parameter &sigma;. </p>
+</span></a> </li>
+<li style="width:32%"><a> |A-B|
+<span> 
+    <p  style="font-size:15px;"> Sample Gaussian kernel - difference. ${open(app.work_dir + 'rmse_sampled_kernel.txt', 'r').read()} </p>
+    <img src="${app.work_url + 'sampled_kernel_diff.png'}?rnd=${rnd()}" style="width:100%;"  />
+    <p  style="font-size:15px;"> Sample Gaussian kernel - difference. ${open(app.work_dir + 'rmse_sampled_kernel.txt', 'r').read()} </p>
+</span></a> </li>
+
+
+        <!-- Lindeberg -->
+        <li style="width:32%"><a>  A
+<span>
+    <p  style="font-size:15px;"> Lindeberg - single iteration of parameter  <math><msqrt><mi>N</mi></msqrt></math> &sigma;.  </p>
+<img src="${app.work_url + 'lindeberg_direct.png'}?rnd=${rnd()}" style="width:100%;"  />
+    <p  style="font-size:15px;"> Lindeberg - single iteration of parameter  <math><msqrt><mi>N</mi></msqrt></math> &sigma;.  </p>
+</span></a> </li>
+<li style="width:32%"><a> B
+<span>
+
+<p  style="font-size:15px;"> Lindeberg - N iterations of parameter &sigma;. </p>
+<img src="${app.work_url + 'lindeberg_iter.png'}?rnd=${rnd()}" style="width:100%;"  />
+<p  style="font-size:15px;"> Lindeberg - N iterations of parameter &sigma;. </p>
+</span></a> </li>
+<li style="width:32%"><a> |A-B|
+<span>
+<p  style="font-size:15px;"> Lindeberg - difference. ${open(app.work_dir + 'rmse_lindeberg.txt', 'r').read()}</p>
+<img src="${app.work_url + 'lindeberg_diff.png'}?rnd=${rnd()}" style="width:100%;"  />
+<p  style="font-size:15px;"> Lindeberg - difference. ${open(app.work_dir + 'rmse_lindeberg.txt', 'r').read()}</p>
+</span></a> </li>
+
+</ul>
+</div>
+
+<h2> Algorithm output </h2>
+<ul>
+<li>Input image: <a href="${app.work_url}input_0.png">input_0.png</a></li>
+<li>DFT - direct: <a href="${app.work_url}dft_direct.png">dft_direct.png</a></li>
+<li>DCT - direct: <a href="${app.work_url}dct_direct.png">dct_direct.png</a></li>
+<li>Sampled Gaussian kernel - direct: <a href="${app.work_url}sampled_kernel_direct.png">sampled_kernel_direct.png</a></li>
+<li>Lindeberg kernel - direct: <a href="${app.work_url}lindeberg_direct.png">lindeberg_direct.png</a></li>
+</ul>
+
+
+
+<div style="clear:both;margin-bottom:5px;"> </div>
+
+
+
+
+
+<%include file="footer.html" />
