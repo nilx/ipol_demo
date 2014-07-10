@@ -21,15 +21,14 @@ except Exception:
 
 <form action="${app.base_url + 'wait'}" method="get">
   <div class="action">
-    Set the algorithm parameters and run the algorithm.
+    Set the radius and run the algorithm.
     <input type="hidden" name="key" value="${app.key}">
+    <br/>
+    <br/>
     <label for="r"><i>radius</i>:</label>
     <input type="text" name="r" value="${paramr}" size="20" />
     <input type="submit" value="run" />
   </div>
-<p class="note">
-e.g. 0.01 or 0.01 0.02 0.03
-</p>
 </form>
 
 <hr />

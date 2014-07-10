@@ -342,7 +342,7 @@ class app(base_app):
         self.new_key()
         self.init_cfg()
         # copy the input files
-        fname = 'input'
+        fname = 'input.txt'
         shutil.copy(old_work_dir + fname,
                         self.work_dir + fname)
         # copy cfg
