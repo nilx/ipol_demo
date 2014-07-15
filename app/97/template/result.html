@@ -39,7 +39,15 @@ dmin=${app.cfg['param']['dmin']}, dmax=${app.cfg['param']['dmax']},
     </li>
     <li>
       <a href="#">
-	rectified image 1
+	warped image 1
+	<span>
+	  <img src="${app.work_url + 'warp.png'}" alt="warp" />
+	</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+	image 1
 	<span>
 	  <img src="${app.work_url + 'H_input_0.png'}" alt="rectified image 1" />
 	</span>
@@ -47,16 +55,16 @@ dmin=${app.cfg['param']['dmin']}, dmax=${app.cfg['param']['dmax']},
     </li>
     <li>
       <a href="#">
-	rectified image 2
+	image 2
 	<span>
 	  <img src="${app.work_url + 'H_input_1.png'}" alt="rectified image 2" />
 	</span>
       </a>
     </li>
-%if 'norectif' not in app.cfg['param']:
+%if 'rectif' in app.cfg['param'] and app.cfg['param']['rectif']:
     <li>
       <a href="#">
-	input image 2
+	image 2 (no rectif)
 	<span>
 	  <img src="${app.work_url + 'input_1.png'}" alt="input image 2" />
 	</span>
@@ -64,7 +72,7 @@ dmin=${app.cfg['param']['dmin']}, dmax=${app.cfg['param']['dmax']},
     </li>
     <li>
       <a href="#">
-	input image 1
+	image 1 (no rectif)
 	<span>
 	  <img src="${app.work_url + 'input_0.png'}" alt="input image 1" />
 	</span>

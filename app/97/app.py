@@ -1,5 +1,5 @@
 """
-Computing Visual Correspondence with Occlusions using Graph Cuts
+Kolmogorov and Zabih's Graph Cuts Stereo Matching Algorithm
 """
 
 from lib import base_app, build, image, http
@@ -8,7 +8,6 @@ from lib.base_app import init_app
 import cherrypy
 from cherrypy import TimeoutError
 from math import floor, ceil
-from fractions import Fraction
 import os.path
 from sys import float_info
 import time
@@ -24,17 +23,18 @@ class NoMatchError(RuntimeError):
 
 class app(base_app):
     """ template demo app """
-    
     title = "Kolmogorov and Zabih's Graph Cuts Stereo Matching Algorithm"
 
     input_nb = 2 # number of input images
     input_max_pixels = 512*512 # max size (in pixels) of an input image
     input_max_method = 'zoom'
-    input_dtype = '3x8i' # input image expected data type    
-    input_ext = '.png'   # input image expected extension (ie file format)    
+    input_dtype = '3x8i' # input image expected data type
+    input_ext = '.png'   # input image expected extension (ie file format)
     is_test = False      # switch to False for deployment
 
-    xlink_article = "http://www.ipol.im/pub/pre/97/"
+    # To be changed when publishing
+    # xlink_article = "http://www.ipol.im/pub/pre/97/"
+    xlink_article = "http://imagine.enpc.fr/~monasse/"
 
     def __init__(self):
         """
@@ -53,45 +53,43 @@ class app(base_app):
         app_expose(base_app.params)
         # run() and result() must be defined here
 
+        self.Kmax = 250
+        self.Lmax = 50
+        self.autoK = True
+        self.autoL = True
+
     def _build_rectify(self):
         """
         build/update of rectify program
         """
         # store common file path in variables
-        rectify_tgz_file = self.dl_dir + "MissStereo.tar.gz"
-        rectify_tgz_url = "http://www.ipol.im/pub/pre/97/" + \
-            "MissStereo.tar.gz"
-        rectify_log_file = self.base_dir + "build_MissStereo.log"
-        build_dir = (self.src_dir + os.path.join("MissStereo", "build")
-                     + os.path.sep)
-        src_bin = dict([(build_dir + os.path.join("bin", prog),
-                         self.bin_dir + prog)
-                        for prog in ["homography", "orsa", "rectify",
-                                     "sift", "size", "showRect"]])
-        src_bin[self.src_dir
-                + os.path.join("MissStereo","scripts","Rectify.sh")] \
-                               = os.path.join(self.bin_dir, "Rectify.sh")
+        archive = "rectify-quasi-euclidean_20140626.tar.gz"
+        rectify_tgz_url = self.xlink_article + archive
+        rectify_tgz_file = self.dl_dir        + archive
         build.download(rectify_tgz_url, rectify_tgz_file)
-        if all([(os.path.isfile(bin_file) and
-                 ctime(rectify_tgz_file) < ctime(bin_file))
-                for bin_file in src_bin.values()]):
-            cherrypy.log("no rebuild needed",
-                         context='BUILD', traceback=False)
+        binary = self.bin_dir + "rectifyQuasiEuclidean"
+        if os.path.isfile(binary) and ctime(rectify_tgz_file) < ctime(binary):
+            cherrypy.log("no rebuild needed", context='BUILD', traceback=False)
             return
         # extract the archive
         build.extract(rectify_tgz_file, self.src_dir)
         # build the program
+        build_dir = (self.src_dir +
+                     os.path.join("rectify-quasi-euclidean_20140626", "build") +
+                     os.path.sep)
+        binary = build_dir + os.path.join("bin", "rectifyQuasiEuclidean")
         os.mkdir(build_dir)
+        log_file = self.base_dir + "build_Rectify.log"
         build.run("cmake -D CMAKE_BUILD_TYPE:string=Release ../src",
-                  stdout=rectify_log_file, cwd=build_dir)
-        build.run("make -C %s homography orsa rectify showRect sift size"
-                  % build_dir, stdout=rectify_log_file)
+                  stdout=log_file, cwd=build_dir)
+        build.run("make -C " + build_dir, stdout=log_file)
         # save into bin dir
         if os.path.isdir(self.bin_dir):
             shutil.rmtree(self.bin_dir)
         os.mkdir(self.bin_dir)
-        for (src, dst) in src_bin.items():
-            shutil.copy(src, dst)
+        shutil.copy(binary, self.bin_dir)
+        shutil.copy(build_dir + os.path.join("bin", "siftMatch"), self.bin_dir)
+        shutil.copy(build_dir + os.path.join("bin", "warp"), self.bin_dir)
         # cleanup the source dir
         shutil.rmtree(self.src_dir)
 
@@ -102,32 +100,26 @@ class app(base_app):
         if not os.path.isdir(self.bin_dir):
             os.mkdir(self.bin_dir)
         self._build_rectify()
-        KZ2_tgz_file = self.dl_dir + "KZ2.tar.gz"
-        #*************To be corrected later************
-        KZ2_tgz_url = "http://www.ipol.im/pub/pre/97/" \
-            + "KZ2.tar.gz"
-        KZ2_prog_file = self.bin_dir + "KZ2"
-        KZ2_log_file = self.base_dir + "build_KZ2.log"
+        archive = "kz2_1.0.tar.gz"
+        kz2_tgz_url = self.xlink_article + archive
+        kz2_tgz_file = self.dl_dir        + archive
+        binary = self.bin_dir + "KZ2"
         # get the latest source archive
-        build.download(KZ2_tgz_url, KZ2_tgz_file)
+        build.download(kz2_tgz_url, kz2_tgz_file)
         # test if the dest file is missing, or too old
-        if (os.path.isfile(KZ2_prog_file)
-            and ctime(KZ2_tgz_file) < ctime(KZ2_prog_file)):
-            cherrypy.log("no rebuild needed",
-                         context='BUILD', traceback=False)
+        if os.path.isfile(binary) and ctime(kz2_tgz_file) < ctime(binary):
+            cherrypy.log("no rebuild needed", context='BUILD', traceback=False)
             return
         # extract the archive
-        build.extract(KZ2_tgz_file, self.src_dir)
-        build_dir = (self.src_dir + os.path.join("KZ2", "build")
-                     + os.path.sep)
+        build.extract(kz2_tgz_file, self.src_dir)
+        build_dir = self.src_dir+os.path.join("kz2_1.0", "build")+os.path.sep
         os.mkdir(build_dir)
-        # build the program
+        log_file = self.base_dir + "build_KZ2.log"
         build.run("cmake -D CMAKE_BUILD_TYPE:string=Release ../src",
-                  stdout=KZ2_log_file, cwd=build_dir)
-        build.run("make -j4 -C %s" % build_dir,
-                  stdout=KZ2_log_file)
+                  stdout=log_file, cwd=build_dir)
+        build.run("make -j4 -C %s" % build_dir, stdout=log_file)
         # save into bin dir
-        shutil.copy(build_dir + "KZ2", KZ2_prog_file)
+        shutil.copy(build_dir + "KZ2", binary)
         # cleanup the source dir
         shutil.rmtree(self.src_dir)
         return
@@ -143,18 +135,16 @@ class app(base_app):
             old_cfg_param = self.cfg['param']
             self.clone_input()
             self.cfg['param'].update(old_cfg_param)
-            self.cfg['param']['norectif'] = True # No rectif for new run
-            cp_list = ['H_input_0.png','H_input_1.png']
+            cp_list = ['H_input_0.png', 'H_input_1.png']
             for fname in cp_list:
                 shutil.copy(old_work_dir + fname, self.work_dir + fname)
         else:
             self.cfg['param']['k'] = 'auto'
             self.cfg['param']['lambda'] = 'auto'
+        self.cfg['param']['rectif'] = False # No rectif a priori
         self.cfg.save()
 
-        proposed = ['1/2', '2/3', '1', '3/2', '2', 'auto']
-        return self.tmpl_out("params.html",
-                             k_proposed=proposed, l_proposed=proposed)
+        return self.tmpl_out("params.html", Kmax=self.Kmax, Lmax=self.Lmax)
 
     @cherrypy.expose
     @init_app
@@ -162,35 +152,28 @@ class app(base_app):
         """
         params handling and run redirection
         """
-        try:
-            if 'norectif' in kwargs:
-                self.cfg['param']['norectif'] = True
-                self.cfg.save()
-            if 'K' in kwargs:
-                if kwargs['K'] == 'auto':
-                    self.cfg['param']['k'] = 'auto'
-                else:
-                    m = Fraction(kwargs['K'])
-                    k = Fraction(self.cfg['param']['k'])
-                    self.cfg['param']['k'] = str(m*k)
-                self.cfg.save()
-            if 'lambda' in kwargs:
-                if kwargs['lambda'] == 'auto':
-                    self.cfg['param']['lambda'] = 'auto'
-                else:
-                    m = Fraction(kwargs['lambda'])
-                    l = Fraction(self.cfg['param']['lambda'])
-                    self.cfg['param']['lambda'] = str(m*l)
-                self.cfg.save()
-            if 'dmin' in kwargs: # Check integer values
-                dmin = int(kwargs['dmin'])
-                dmax = int(kwargs['dmax'])
-                self.cfg['param']['dmin'] = dmin
-                self.cfg['param']['dmax'] = dmax
-                self.cfg.save()
-        except ValueError:
-            return self.error(errcode='badparams',
-                              errmsg="The parameters must be rationals.")
+        if 'rectif' in kwargs:
+            self.cfg['param']['rectif'] = True
+        if 'valK' in kwargs:
+            self.autoK = False
+            self.cfg['param']['k'] = \
+                str(min(self.Kmax, float(kwargs['valK'])))
+        if 'autoK' in kwargs and kwargs['autoK'] == 'True':
+            self.autoK = True
+            self.cfg['param']['k'] = 'auto'
+        if 'valL' in kwargs:
+            self.autoL = False
+            self.cfg['param']['lambda'] = \
+                str(min(self.Lmax, float(kwargs['valL'])))
+        if 'autoL' in kwargs and kwargs['autoL'] == 'True':
+            self.autoL = True
+            self.cfg['param']['lambda'] = 'auto'
+        if 'dmin' in kwargs: # Check integer values
+            dmin = int(kwargs['dmin'])
+            dmax = int(kwargs['dmax'])
+            self.cfg['param']['dmin'] = dmin
+            self.cfg['param']['dmax'] = dmax
+        self.cfg.save()
 
         http.refresh(self.base_url + 'run?key=%s' % self.key)
         return self.tmpl_out("wait.html",
@@ -222,24 +205,26 @@ class app(base_app):
 
         # archive
         if self.cfg['meta']['original']:
-            ar = self.make_archive()
-            ar.add_file("input_0.orig.png", info="uploaded #1")
-            ar.add_file("input_1.orig.png", info="uploaded #2")
-            ar.add_file("input_0.png", info="input #1")
-            ar.add_file("input_1.png", info="input #2")
+            ark = self.make_archive()
+            ark.add_file("input_0.orig.png", info="uploaded #1")
+            ark.add_file("input_1.orig.png", info="uploaded #2")
+            ark.add_file("input_0.png", info="input #1")
+            ark.add_file("input_1.png", info="input #2")
             if success:
-                ar.add_file("H_input_0.png", info="rectified #1")
-                ar.add_file("H_input_1.png", info="rectified #2")
-                ar.add_file("disparity.png", info="disparity")
+                if self.cfg['param']['rectif']:
+                    ark.add_file("H_input_0.png", info="rectified #1")
+                    ark.add_file("H_input_1.png", info="rectified #2")
+                ark.add_file("disparity.png", info="disparity")
+                ark.add_file("warp.png", info="warp")
                 try:
-                    ar.add_info({"k" : str(self.cfg['param']['k']),
-                                 "lambda" : str(self.cfg['param']['lambda'])})
+                    ark.add_info({"k" : str(self.cfg['param']['k']),
+                                  "lambda" : str(self.cfg['param']['lambda'])})
                     dmin = str(self.cfg['param']['dmin'])
                     dmax = str(self.cfg['param']['dmax'])
-                    ar.add_info({"disparity range": dmin+","+dmax})
+                    ark.add_info({"disparity range": dmin+","+dmax})
                 except KeyError:
                     pass
-            ar.save()
+            ark.save()
 
         return self.tmpl_out("run.html")
 
@@ -247,26 +232,30 @@ class app(base_app):
         """
         compute default K and lambda values
         """
+        cmd = ['KZ2', 'H_input_0.png', 'H_input_1.png', str(dmin), str(dmax)]
+        if self.cfg['param']['k'] != 'auto':
+            cmd.append('-k')
+            cmd.append(str(self.cfg['param']['k']))
+        if self.cfg['param']['lambda'] != 'auto':
+            cmd.append('-l')
+            cmd.append(str(self.cfg['param']['lambda']))
         # run without output file to compute parameters automatically
         name = self.work_dir + 'outk.txt'
         outk = open(name, 'w')
-        p = self.run_proc(['KZ2', 'H_input_0.png', 'H_input_1.png',
-                           str(dmin), str(dmax)],
-                          stdout=outk, stderr=outk)
+        proc = self.run_proc(cmd, stdout=outk, stderr=outk)
         try:
-            self.wait_proc(p, timeout=timeout)
+            self.wait_proc(proc, timeout=timeout)
         except RuntimeError:
             outk.close()
             raise
         outk.close()
-        
         # get k and lambda from file outk
         outk = open(name, 'r')
         lines = outk.readlines()
         for line in lines:
             stdout.write(line)
             words = line.split('=')
-            if len(words)==2:
+            if len(words) == 2:
                 if words[0].endswith('K'):
                     k_auto = words[1].strip()
                 if words[0].endswith('lambda'):
@@ -281,59 +270,32 @@ class app(base_app):
         rectify input images
         """
         start_time = time.time()
-        end_time = start_time + self.timeout/3
-        (w, h) = image(self.work_dir+'input_0.png').size
-        pairs = self.work_dir+'input_0.png_input_1.png_pairs.txt'
-        pairs_good = self.work_dir+'input_0.png_input_1.png_pairs_orsa.txt'
+        end_time = start_time + self.timeout
         try:
-            p = self.run_proc(['sift',
-                               self.work_dir+'input_0.png',
-                               self.work_dir+'input_1.png',
-                               pairs],
-                              stdout=stdout, stderr=stdout)
-            self.wait_proc(p, timeout=end_time-start_time)
-            start_time = time.time()
-            p = self.run_proc(['orsa', str(w), str(h),
-                               pairs, pairs_good, '500', '1', '0', '2', '0'],
-                              stdout=stdout, stderr=stdout)
-            self.wait_proc(p, timeout=end_time-start_time)
-            start_time = time.time()
-            outRect = open(self.work_dir+'rect.txt','w')
-            p = self.run_proc(['rectify', pairs_good, str(w), str(h),
-                               self.work_dir+'input_0.png_h.txt',
-                               self.work_dir+'input_1.png_h.txt'],
-                              stdout=outRect, stderr=outRect)
-            self.wait_proc(p, timeout=end_time-start_time)
-            start_time = time.time()
-            p = []
-            p.append(self.run_proc(['homography', '-f',
-                                    self.work_dir+'input_0.png',
-                                    self.work_dir+'input_0.png_h.txt',
-                                    self.work_dir+'H_input_0.png'],
-                                   stdout=outRect, stderr=outRect))
-            p.append(self.run_proc(['homography', '-f',
-                                    self.work_dir+'input_1.png',
-                                    self.work_dir+'input_1.png_h.txt',
-                                    self.work_dir+'H_input_1.png'],
-                                   stdout=outRect, stderr=outRect))
-            self.wait_proc(p, timeout=end_time-start_time)
+            out_rect = open(self.work_dir+'rect.txt', 'w')
+            proc = self.run_proc(['rectifyQuasiEuclidean',
+                                  self.work_dir+'input_0.png',
+                                  self.work_dir+'input_1.png',
+                                  self.work_dir+'H_input_0.png',
+                                  self.work_dir+'H_input_1.png'],
+                                 stdout=out_rect, stderr=out_rect)
+            self.wait_proc(proc, timeout=end_time-start_time)
+            out_rect.close()
         except RuntimeError:
-            if 0 != p.returncode:
+            if 0 != proc.returncode:
                 stdout.close()
                 raise NoMatchError
             else:
                 raise
-        outRect.close()
-        outRect = open(self.work_dir+'rect.txt','r')
-        lines = outRect.readlines()
+        out_rect = open(self.work_dir+'rect.txt', 'r')
+        lines = out_rect.readlines()
         for line in lines:
             stdout.write(line)
             words = line.split()
             if words[0] == "Disparity:":
                 dmin = words[1]
                 dmax = words[2]
-        outRect.close()
-        os.unlink(self.work_dir+'rect.txt')
+        out_rect.close()
         stdout.flush()
         return (dmin, dmax)
 
@@ -341,15 +303,15 @@ class app(base_app):
         """
         Compute disparity range without rectification
         """
-        p = self.run_proc(['sift',
-                           self.work_dir + 'input_0.png',
-                           self.work_dir + 'input_1.png',
-                           self.work_dir + 'sift.txt'],
-                          stdout=stdout, stderr=stdout)
+        proc = self.run_proc(['siftMatch',
+                              self.work_dir + 'input_0.png',
+                              self.work_dir + 'input_1.png',
+                              self.work_dir + 'sift.txt'],
+                             stdout=stdout, stderr=stdout)
         try:
-            self.wait_proc(p, timeout)
+            self.wait_proc(proc, timeout)
         except RuntimeError:
-            if 0 != p.returncode:
+            if 0 != proc.returncode:
                 raise NoMatchError
             else:
                 raise
@@ -358,35 +320,32 @@ class app(base_app):
         out = []
         dmin = float_info.max
         dmax = -dmin
-        for m in lines:
-            val = m.split()
-            dy = float(val[3])-float(val[1])
-            if -1.0 <= dy <= 1.0:
-                out.append(m)
-                dx = float(val[2])-float(val[0])
-                dmin, dmax = min(dmin, dx), max(dmax, dx)
+        for line in lines:
+            val = line.split()
+            diffy = float(val[3])-float(val[1])
+            if -1.0 <= diffy <= 1.0:
+                out.append(line)
+                diffx = float(val[2])-float(val[0])
+                dmin, dmax = min(dmin, diffx), max(dmax, diffx)
         match.close()
         if not out:
             raise NoMatchError
-        name = self.work_dir + 'input_0.png_input_1.png_pairs_orsa.txt'
-        with open(name,'w') as orsa:
-            orsa.writelines(out)
         return (dmin, dmax)
 
-    def run_algo(self, timeout=None):
+    def _bound_disparity(self, timeout, stdout):
         """
-        the core algo runner
-        could also be called by a batch processor
-        this one needs no parameter
+        Fill self.cfg['param']['dmin'] and self.cfg['param']['dmax']
         """
-        stdout = open(self.work_dir + 'stdout.txt', 'w')
-        if 'norectif' in self.cfg['param']: # skip rectification
+        if self.cfg['param']['rectif']:
+            (dmin, dmax) = self._rectify(stdout)
+            self.cfg['param']['dmin'] = dmin
+            self.cfg['param']['dmax'] = dmax
+            self.cfg.save()
+        else: # skip rectification
             if 'dmin' not in self.cfg['param']: # unknown disparity range
-                start_time = time.time()
-                (dmin, dmax) = self._disparity(timeout/10, stdout)
-                timeout -= time.time() - start_time
+                (dmin, dmax) = self._disparity(timeout, stdout)
                 self.cfg['param']['dmin'] = int(floor(dmin))
-                self.cfg['param']['dmax'] = int(ceil (dmax))
+                self.cfg['param']['dmax'] = int(ceil(dmax))
                 self.cfg.save()
                 # First run: copy original images as rectified ones
                 shutil.copy(self.work_dir + 'input_0.png',
@@ -396,70 +355,93 @@ class app(base_app):
             dmin = self.cfg['param']['dmin']
             dmax = self.cfg['param']['dmax']
             stdout.write("Disparity: " + str(dmin) + ' ' + str(dmax) + '\n')
-        else:
-            (dmin, dmax) = self._rectify(stdout)
-            self.cfg['param']['dmin'] = dmin
-            self.cfg['param']['dmax'] = dmax
-            self.cfg.save()
 
         # use default or overrriden parameter values
-        if (self.cfg['param']['k'] == 'auto'
-            or self.cfg['param']['lambda'] == 'auto'):
-            start_time = time.time()
-            (k, l) = self._compute_auto(timeout/10, stdout, dmin, dmax)
-            timeout -= time.time() - start_time
+        if self.cfg['param']['k'] == 'auto' or\
+                self.cfg['param']['lambda'] == 'auto':
+            (paramk, paraml) = self._compute_auto(timeout, stdout, dmin, dmax)
             if self.cfg['param']['k'] == 'auto':
-                self.cfg['param']['k'] = k
+                self.cfg['param']['k'] = paramk
             if self.cfg['param']['lambda'] == 'auto':
-                self.cfg['param']['lambda'] = l
+                self.cfg['param']['lambda'] = paraml
             self.cfg.save()
-        dmin = self.cfg['param']['dmin']
-        dmax = self.cfg['param']['dmax']
+
+    def run_algo(self, timeout=None):
+        """
+        the core algo runner
+        could also be called by a batch processor
+        this one needs no parameter
+        """
+        stdout = open(self.work_dir + 'stdout.txt', 'w')
+        start_time = time.time()
+        self._bound_disparity(timeout, stdout)
+        timeout -= time.time() - start_time
+
         # split the input images
         nproc = 6   # number of slices
-        margin = 6  # overlap margin 
+        margin = 6  # overlap margin
 
-        input0_fnames = image(self.work_dir + 'H_input_0.png') \
-            .split(nproc, margin=margin,
-                   fname=self.work_dir + 'input0_split.png')
-        input1_fnames = image(self.work_dir + 'H_input_1.png') \
-            .split(nproc, margin=margin,
-                   fname=self.work_dir + 'input1_split.png')
-        output_fnames = ['output_split.__%0.2i__.png' % n
+        fname = self.work_dir + 'input0_split.png', \
+                self.work_dir + 'input1_split.png'
+        input_fnames = image(self.work_dir + 'H_input_0.png') \
+                       .split(nproc, margin=margin, fname=fname[0]), \
+                       image(self.work_dir + 'H_input_1.png') \
+                       .split(nproc, margin=margin, fname=fname[1])
+        output_fnames = [('output_split.__%0.2i__.png' % n,
+                          'output_split.__%0.2i__.tif' % n,
+                          'warp_split.__%0.2i__.png'   % n)
                          for n in range(nproc)]
         plist = []
         loglist = []
         floglist = []
-        for n in range(nproc):
+        for num in range(nproc):
             cmd = ['KZ2',
-                   '-o', output_fnames[n],
+                   '-o', output_fnames[num][0],
                    '-k', str(self.cfg['param']['k']),
                    '-l', str(self.cfg['param']['lambda']),
-                   input0_fnames[n], input1_fnames[n],
-                   str(dmin), str(dmax)]
-            print cmd
-            loglist.append(self.work_dir + 'out_%i.txt' % n)
-            f = open(loglist[-1],'w')
-            floglist.append(f)
-            plist.append(self.run_proc(cmd, stdout=f, stderr=f))
+                   input_fnames[0][num], input_fnames[1][num],
+                   str(self.cfg['param']['dmin']),
+                   str(self.cfg['param']['dmax']),
+                   output_fnames[num][1]]
+            loglist.append(self.work_dir + 'out_%i.txt' % num)
+            fname = open(loglist[-1], 'w')
+            floglist.append(fname)
+            plist.append(self.run_proc(cmd, stdout=fname, stderr=fname))
+        start_time = time.time()
         self.wait_proc(plist, timeout)
+        timeout -= time.time() - start_time
 
         # join all the partial results into a global one
-        output_img = image().join([image(self.work_dir + output_fnames[n])
-                                   for n in range(nproc)], margin=margin)
-        output_img.save(self.work_dir + 'disparity.png')
-        for n in range(nproc): # concatenate output logs
-            floglist[n].close()
-            f = open(loglist[n], 'r')
-            stdout.write(f.read())
-            f.close()
-            os.unlink(loglist[n])
+        image().join([image(self.work_dir + output_fnames[n][0])
+                      for n in range(nproc)], margin=margin) \
+               .save(self.work_dir + 'disparity.png')
+
+        # warp all partial images with disparity map
+        plist = []
+        for num in range(nproc):
+            cmd = ['warp', output_fnames[num][1], input_fnames[1][num],
+                   output_fnames[num][2]]
+            plist.append(self.run_proc(cmd, stdout=fname, stderr=fname))
+        self.wait_proc(plist, timeout)
+
+        image().join([image(self.work_dir + output_fnames[n][2])
+                      for n in range(nproc)], margin=margin) \
+               .save(self.work_dir + 'warp.png')
+
+        for num in range(nproc): # concatenate output logs
+            floglist[num].close()
+            fname = open(loglist[num], 'r')
+            stdout.write(fname.read())
+            fname.close()
+            os.unlink(loglist[num])
 
         # delete the strips
-        for fname in input0_fnames + input1_fnames:
+        for fname in input_fnames[0] + input_fnames[1]:
             os.unlink(fname)
         for fname in output_fnames:
-            os.unlink(self.work_dir + fname)
+            os.unlink(self.work_dir + fname[0])
+            os.unlink(self.work_dir + fname[1])
+            os.unlink(self.work_dir + fname[2])
         return
 
     @cherrypy.expose
@@ -472,5 +454,5 @@ class app(base_app):
             return self.tmpl_out("result_nomatch.html")
         else:
             return self.tmpl_out("result.html",
-                                 height=image(self.work_dir 
+                                 height=image(self.work_dir
                                               + 'input_0.png').size[1])
