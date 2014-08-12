@@ -53,6 +53,51 @@ def _dummy_func():
     """
     pass
 
+    
+class UserKeysManager(object):
+    """
+    Class that handles with cookies the keys of the files uploaded by
+    the users to the archive.
+    """
+
+    def get_cookie_name(self):
+        """
+		Gets the name of the cookie
+        """
+        return "user_archive_keys"
+        
+    def get_keys_in_cookie(self):
+        """
+		Gets the keys in the cookie
+        """
+        if self.get_cookie_name() in cherrypy.request.cookie:
+            keys_str = cherrypy.request.cookie[self.get_cookie_name()].value
+            return pickle.loads(keys_str) 
+        else:
+            return []
+    
+    def key_belongs_to_user(self, key):
+        """
+		Checks in a given keys belongs to the current user
+        """
+        return key in self.get_keys_in_cookie()
+        
+    def add_key(self, key):
+        """
+		Links a key with the current user, for 24h.
+        """
+        keys_in_cookie = self.get_keys_in_cookie()
+        keys_in_cookie.append(key)
+        
+        encoded = pickle.dumps(keys_in_cookie)
+        cherrypy.response.cookie[self.get_cookie_name()] = encoded
+        cherrypy.request.cookie[self.get_cookie_name()] = encoded
+        
+        cherrypy.response.cookie[self.get_cookie_name()]['max-age'] = 3600*24
+        cherrypy.request.cookie[self.get_cookie_name()]['max-age'] = 3600*24
+
+
+
 class bucket(object):
     """
     archive bucket class
@@ -331,12 +376,18 @@ def index_add(indexdb, buc, path=None):
     """
     add an archive bucket to the index
     """
+    
+    
     try:
         db = sqlite3.connect(indexdb)
         c = db.cursor()
         _add_record(c, buc)
         db.commit()
         c.close()
+
+        ukm = UserKeysManager()
+        ukm.add_key(buc.cfg["meta"]["key"])
+        
     except sqlite3.Error:
         if path:
             index_rebuild(indexdb, path)

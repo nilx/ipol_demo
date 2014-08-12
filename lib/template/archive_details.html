@@ -9,6 +9,16 @@ Some archived content may be deleted by the editorial board for size
 matters, inadequate content, user requests, or other reasons.
 </p>
 
+%if deletable:
+<div class="action" >
+ <form style="float:left" action="${app.base_url}archive/" method="post">
+	<input type="hidden" name="deleteThisKey" value="${bucket['meta']['key'] | h}" />
+	<input type="submit" value="delete this entry" />
+ </form>
+</div>
+</br>
+%endif
+
 %if adminmode:
 <!-- ADMIN MODE: ENTRY DELETE BUTTON -->
       <div class="action" >

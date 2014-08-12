@@ -378,11 +378,46 @@ class base_app(empty_app):
     # ARCHIVE
     #
 
+    def remove_from_archive(self, deleteThisKey=None):
+		'''
+		Removes a key from the archive
+		'''
+        # ATTEND TO DELETE COMMAND
+        # make sure the other key is not set
+        key = None
+
+        # make sure that the target directory is inside the archive
+        # just to avoid any .. path to be erased
+        entrydir = os.path.abspath(os.path.join(self.archive_dir, \
+                                   archive.key2url(deleteThisKey)))
+        # these two strings must be the same
+        ard1 = os.path.abspath(self.archive_dir)
+        ard2 = os.path.commonprefix((ard1, entrydir))
+
+        # proceed to delete the entry then continue as always
+        # the bucket directory must exist and must be a subdir of archive
+        if ard1 == ard2 and ard1 != entrydir and os.path.isdir(entrydir):
+            print "REMOVING ARCHIVE ENTRY: " + entrydir
+            # REMOVE THE DIRECTORY
+            rmtree(entrydir)
+
+            # REMOVE THE ENTRY FROM THE DATABASE BACKEND
+            archive.index_delete(self.archive_index, deleteThisKey)
+        else:
+            print "IGNORING BOGUS ENTRY REMOVAL: " + entrydir
+
+        # ATTEND TO REBUILD-INDEX COMMAND
+        archive.index_rebuild(self.archive_index, self.archive_dir)
+
+
     @cherrypy.expose
-    def archive(self, page=-1, key=None, adminmode=False):
+    def archive(self, page=-1, key=None, deleteThisKey=None, adminmode=False):
         """
         lists the archive content
         """
+        if deleteThisKey and deleteThisKey != '':
+            self.remove_from_archive(deleteThisKey)
+
         if key:
             # select one archive
             buckets = [{'url' : self.archive_url + archive.key2url(key),
@@ -391,8 +426,14 @@ class base_app(empty_app):
                        in archive.index_read(self.archive_index,
                                              key=key,
                                              path=self.archive_dir)]
+
+            # Check if the key is deletable for this user
+            ukm = archive.UserKeysManager()
+            deletable = ukm.key_belongs_to_user(key)
+
             return self.tmpl_out("archive_details.html",
                                  bucket=buckets[0],
+                                 deletable=deletable,
                                  adminmode=adminmode)
         else:
             # select a page from the archive index
@@ -435,35 +476,8 @@ class base_app(empty_app):
         """
         lists the archive content
         """
-        # ATTEND TO DELETE COMMAND
         if deleteThisKey and deleteThisKey != '':
-            # make sure the other key is not set
-            key = None
-
-            # make sure that the target directory is inside the archive
-            # just to avoid any .. path to be erased
-            entrydir = os.path.abspath(os.path.join(self.archive_dir, \
-                                       archive.key2url(deleteThisKey)))
-            # these two strings must be the same
-            ard1 = os.path.abspath(self.archive_dir)
-            ard2 = os.path.commonprefix((ard1, entrydir))
-
-            # proceed to delete the entry then continue as always
-            # the bucket directory must exist and must be a subdir of archive
-            if ard1 == ard2 and ard1 != entrydir and os.path.isdir(entrydir):
-                print "REMOVING ARCHIVE ENTRY: " + entrydir
-                # REMOVE THE DIRECTORY
-                rmtree(entrydir)
-
-                # REMOVE THE ENTRY FROM THE DATABASE BACKEND
-                archive.index_delete(self.archive_index, deleteThisKey)
-            else:
-                print "IGNORING BOGUS ENTRY REMOVAL: " + entrydir
-
-        # ATTEND TO REBUILD-INDEX COMMAND
-        if rebuildIndexNow:
-            archive.index_rebuild(self.archive_index, self.archive_dir)
+            self.remove_from_archive(deleteThisKey)
 
         # USUAL ARCHIVE BEHAVIOR
         return self.archive(page=page, key=key, adminmode=True)
-
