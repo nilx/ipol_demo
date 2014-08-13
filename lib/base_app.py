@@ -379,9 +379,9 @@ class base_app(empty_app):
     #
 
     def remove_from_archive(self, deleteThisKey=None):
-		'''
-		Removes a key from the archive
-		'''
+        '''
+        Removes a key from the archive
+        '''
         # ATTEND TO DELETE COMMAND
         # make sure the other key is not set
         key = None
