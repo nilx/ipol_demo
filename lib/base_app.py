@@ -259,6 +259,10 @@ class base_app(empty_app):
         self.log("input selected : %s" % input_id)
         self.cfg['meta']['original'] = False
         self.cfg.save()
+
+        # Let users copy non-standard input into the work dir
+        self.input_select_callback(fnames)
+
         # jump to the params page
         return self.params(msg=msg, key=self.key)
 
