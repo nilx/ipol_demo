@@ -232,6 +232,14 @@ class base_app(empty_app):
     # INPUT STEP
     #
 
+    def input_select_callback(self, fnames):
+        '''
+        Callback for the users to give the opportunity
+        to process non-standard input
+        '''
+        pass # May be redefined by the subclass
+
+
     def input_select(self, **kwargs):
         """
         use the selected available input images
