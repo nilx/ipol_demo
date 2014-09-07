@@ -10,6 +10,8 @@ from mako.lookup import TemplateLookup
 import cherrypy
 import os.path
 import math
+import copy
+import threading
 
 from mako.exceptions import RichTraceback
 from . import http
@@ -172,6 +174,29 @@ class base_app(empty_app):
     # INPUT HANDLING TOOLS
     #
 
+    def save_image(self, im, fullpath):
+        '''
+        Save image object given full path
+        '''
+        im.save(fullpath)
+
+
+    def convert_and_resize(self, im):
+        '''
+        Convert and resize an image object
+        '''
+        im.convert(self.input_dtype)
+
+        # check max size
+        resize = self.input_max_pixels and prod(im.size) > self.input_max_pixels
+        
+        if resize:
+            self.log("input resize")
+            im.resize(self.input_max_pixels)
+
+
+
+
     def process_input(self):
         """
         pre-process the input data
@@ -184,24 +209,62 @@ class base_app(empty_app):
             except IOError:
                 raise cherrypy.HTTPError(400, # Bad Request
                                          "Bad input file")
-            # save the original file as png
-            im.save(self.work_dir + 'input_%i.orig.png' % i)
+
+
+            threads = []
+
             # convert to the expected input format
-            im.convert(self.input_dtype)
-            # check max size
-            if self.input_max_pixels \
-                    and prod(im.size) > (self.input_max_pixels):
-                im.resize(self.input_max_pixels)
-                self.log("input resized")
-                msg = """The image has been resized
-                      for a reduced computation time."""
-            # save a working copy
-            im.save(self.work_dir + 'input_%i' % i + self.input_ext)
+            im_converted = im.clone()
+            threads.append(threading.Thread(target=self.convert_and_resize, args = (im_converted, )))
+
+            # Save the original file as PNG
+            #
+            # Do a check before security attempting copy.
+            # If the check fails, do a save instead
+            if im.im.format != "PNG" or \
+                  im.size[0] > 20000 or \
+                  im.size[1] > 20000 or \
+                  len(im.im.getbands()) > 4:
+                # Save as PNG (slow)
+                threads.append(threading.Thread(target=self.save_image,
+                               args = (im, self.work_dir + 'input_%i.orig.png' % i)))
+            else:
+                # Copy file (fast)
+                shutil.copy(self.work_dir + 'input_%i' % i,
+                            self.work_dir + 'input_%i.orig.png' % i)
+                
+         
+
+            # Execute threads and wait for them
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+
+
+            threads = []
+            # save a working copy:
+            if self.input_ext != ".png":
+                threads.append(threading.Thread(target=self.save_image,
+                               args = (im_converted, self.work_dir + 'input_%i' % i + self.input_ext)))
+
             # save a web viewable copy
-            im.save(self.work_dir + 'input_%i.png' % i)
+            threads.append(threading.Thread(target=self.save_image,
+                           args = (im_converted, self.work_dir + 'input_%i.png' % i)))
+
+            # Execute threads and wait for them
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+
             # delete the original
             os.unlink(self.work_dir + 'input_%i' % i)
+
+            if im.size != im_converted.size:
+                msg = "The image has been resized for a reduced computation time."
         return msg
+
 
     def clone_input(self):
         """
@@ -265,6 +328,7 @@ class base_app(empty_app):
 
         # jump to the params page
         return self.params(msg=msg, key=self.key)
+
 
     def input_upload(self, **kwargs):
         """

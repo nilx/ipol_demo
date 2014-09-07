@@ -518,3 +518,12 @@ class image(object):
         self.im = imout
         return self
 
+    def clone(self):
+        '''
+        Clone the image object
+        '''
+        new_obj = image()
+        new_obj.im = self.im.copy()
+        return new_obj
+
+
