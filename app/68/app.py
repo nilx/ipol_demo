@@ -62,9 +62,7 @@ class app(base_app):
 
         log_file = self.base_dir + "build.log"
         # get the latest source archive
-        print ("Starting download \n")
         build.download(self.xlink_src, tgz_file)
-        print ("download ended... \n")
         # test if the dest file is missing, or too old
         if (os.path.isfile(prog_bin_files[0])
             and ctime(tgz_file) < ctime(prog_bin_files[0])):

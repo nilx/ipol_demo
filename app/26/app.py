@@ -56,7 +56,6 @@ class app(base_app):
         app setup
         """
         # setup the parent class
-        print("I'm initing!")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         base_app.__init__(self, base_dir)
 
@@ -163,15 +162,13 @@ class app(base_app):
         self.grab_input()
         return
 
-
+
     @cherrypy.expose
     @init_app
     def wait(self, **kwargs):
         """
         params handling and run redirection
         """
-        print("ENTER wait")
-        print("kwargs = " + str(kwargs))
         try:
             for k in app.parconfig:
                 typ = app.parconfig[k]['type']
@@ -192,8 +189,6 @@ class app(base_app):
         """
         algo execution
         """
-        print("ENTER run")
-        print("kwargs = " + str(kwargs))
         ## run the algorithm
         try:
             self.run_algo()
@@ -232,9 +227,7 @@ class app(base_app):
         nscales = self.cfg['param']['nscales']
         nwarps = self.cfg['param']['nwarps']
         nprocs = self.cfg['param']['nprocs']
-        print('ENTERING run_algo')
-        for k in app.parconfig:
-            print(k + ' = ' + str(self.cfg['param'][k]))
+
         p = self.run_proc(['run_jzach_noview.sh',
              str(plambda),
              str(theta),
@@ -256,9 +249,7 @@ class app(base_app):
         """
         update the color scheme
         """
-        print("RECOLOR KWARGS = " + str(kwargs))
         cs = kwargs['colorscheme']
-        ##cp = kwargs['colorparam']
         self.cfg['meta']['colorscheme'] = cs
         self.cfg['meta']['colorwheel'] = True
         p = self.run_proc(['view_jzach.sh', cs, '1'])
@@ -271,7 +262,6 @@ class app(base_app):
         """
         update the scroll state on the web-page
         """
-        print("REPOSITION KWARGS = " + str(kwargs))
         self.cfg['meta']['pos_inview'] = True
         return self.tmpl_out("result.html")
 
@@ -283,31 +273,14 @@ class app(base_app):
         msg = f + self.work_dir
         msg = "-"
         return msg
-#       print("PIPIU! \"%s\"" % f)
-#       print("work_dir = " + self.work_dir)
-#       fname,fexte = os.path.splitext(f)
-#       print("fname = " + fname)
-#       print("fexte = " + fexte)
-#       assert fexte == ".png"
-#       tiffcorr = self.work_dir + fname + ".tiff"
-#       print("tiffcorr = " + tiffcorr)
-#       if os.path.isfile(tiffcorr):
-#           f = fname + ".tiff"
-#       print("f = " + f)
-#       imgstatsargs = [self.bin_dir + 'imgstats', self.work_dir + f]
-#       print("imgstatsargs = " + str(imgstatsargs))
-#       imgstats = subprocess.check_output(imgstatsargs)
-#       return imgstats.rstrip()
 
     @cherrypy.expose
     def input_select(self, **kwargs):
         """
         use the selected available input images
         """
-        print("ENTERING input_select")
         self.new_key()
         self.init_cfg()
-        print("key = " + self.key)
         # kwargs contains input_id.x and input_id.y
         input_id = kwargs.keys()[0].split('.')[0]
         assert input_id == kwargs.keys()[1].split('.')[0]
@@ -433,11 +406,9 @@ class app(base_app):
         """
         demo presentation and input menu
         """
-        print("ENTERING index")
         tn_size = 192
         # read the input index as a dict
         inputd = config.file_dict(self.input_dir)
-        print(inputd)
         for (input_id, input_info) in inputd.items():
             fname = ["a.png", "b.png", "t.png"]
             tn_fname = [thumbnail(self.input_dir + \
