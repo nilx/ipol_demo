@@ -25,7 +25,7 @@ class app(base_app):
     input_ext = '.png' # input image expected extension (ie file format)
     is_test = False
 
-    xlink_article = 'http://www.ipol.im/pub/pre/84/'
+    xlink_article = 'http://www.ipol.im/pub/art/2014/84/'
 
     def __init__(self):
         """
@@ -50,7 +50,7 @@ class app(base_app):
         program build/update
         """
         # store common file path in variables
-        tgz_url = "http://www.ipol.im/pub/pre/84/screened_poisson.tgz"
+        tgz_url = "http://www.ipol.im/pub/art/2014/84/screened_poisson.tgz"
         tgz_file = self.dl_dir + "screened_poisson.tgz"
         prog = "screened_poisson"
         bin_file = self.bin_dir + prog
